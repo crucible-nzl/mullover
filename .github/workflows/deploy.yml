@@ -40,7 +40,7 @@ jobs:
     timeout-minutes: 15
     # Optional: gate behind a GitHub Environment with manual approval
     # for the first month. Uncomment once the environment is configured:
-    # environment: production
+    environment: production
 
     steps:
       - name: Checkout

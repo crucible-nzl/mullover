@@ -39,6 +39,7 @@ export const users = pgTable(
     decisionKindIntent: text('decision_kind_intent'), // 'solo' | 'couple' | 'family' | 'exploring'
     currentPlan: text('current_plan').notNull().default('free'),
     stripeCustomerId: text('stripe_customer_id'),
+    isAdmin: boolean('is_admin').notNull().default(false),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     deletedAt: timestamp('deleted_at', { withTimezone: true }),
@@ -265,6 +266,37 @@ export const consentLog = pgTable(
   },
   (t) => ({
     userIdx: index('consent_log_user_idx').on(t.userId),
+  })
+);
+
+// ---------------------------------------------------------------------------
+// SAVED CONTACTS · people the user has invited to a decision (partner, family),
+// auto-saved on /api/compose so they can quick-pick on the next compose.
+// ---------------------------------------------------------------------------
+export const savedContacts = pgTable(
+  'saved_contacts',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    displayName: text('display_name').notNull(),
+    email: text('email').notNull(),
+    relationship: text('relationship'), // 'partner' | 'family' | 'friend' | 'other'
+    lastInvitedAt: timestamp('last_invited_at', { withTimezone: true }),
+    inviteCount: integer('invite_count').notNull().default(0),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    userIdx: index('saved_contacts_user_idx').on(t.userId, t.lastInvitedAt),
+    // Email is always lowercased before insert (zod .toLowerCase()) so a
+    // plain unique index works · Drizzle cannot target a functional index.
+    userEmailUnique: uniqueIndex('saved_contacts_user_email_unique').on(t.userId, t.email),
+    relationshipCheck: check(
+      'saved_contacts_relationship_check',
+      sql`${t.relationship} IS NULL OR ${t.relationship} IN ('partner', 'family', 'friend', 'other')`
+    ),
   })
 );
 

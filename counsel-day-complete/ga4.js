@@ -306,6 +306,70 @@
   }
 
   /* ============================================================
+     AUTH-AWARE NAV · when the user has a live session:
+       · "Sign in" / "Begin a decision" → "Your decisions" / "Account"
+       · always append a "Log out" link
+     Hits /api/auth-check (200 if signed in, 401 otherwise).
+     Best-effort: a network failure leaves the public nav alone.
+     ============================================================ */
+  function ensureLogOutLink(cta) {
+    if (cta.querySelector('[data-cd-logout]')) return; // idempotent
+    var logout = document.createElement('a');
+    logout.setAttribute('href', '/api/signout');
+    logout.setAttribute('data-cd-logout', '1');
+    logout.className = 'btn-text';
+    logout.style.cssText = 'margin-left: 12px; cursor: pointer; color: var(--muted); border-bottom: 1px solid var(--rule); padding-bottom: 1px;';
+    logout.textContent = 'Log out';
+    logout.addEventListener('click', function (e) {
+      e.preventDefault();
+      fetch('/api/signout', { method: 'POST', credentials: 'include' })
+        .catch(function () { /* fall through to GET redirect */ })
+        .finally(function () { window.location.href = '/'; });
+    });
+    cta.appendChild(logout);
+  }
+
+  function refreshNav() {
+    fetch('/api/auth-check', {
+      method: 'GET',
+      credentials: 'include',
+      headers: { accept: 'application/json' },
+      cache: 'no-store',
+    })
+      .then(function (r) {
+        if (r.status !== 200) return;
+        document.querySelectorAll('nav.nav-bar .nav-cta').forEach(function (cta) {
+          var anchors = cta.querySelectorAll('a:not([data-cd-logout])');
+          if (anchors.length === 0) {
+            ensureLogOutLink(cta);
+            return;
+          }
+          // Pattern A · two CTAs ("Sign in" text + "Begin a decision" btn)
+          if (anchors.length >= 2) {
+            var first = anchors[0];
+            var second = anchors[1];
+            first.textContent = 'Your decisions';
+            first.setAttribute('href', 'decisions.html');
+            second.textContent = 'Account';
+            second.setAttribute('href', 'account.html');
+            ensureLogOutLink(cta);
+            return;
+          }
+          // Pattern B · single CTA (already pointing at account.html on
+          // signed-in pages); leave alone if it's already account-related.
+          var a = anchors[0];
+          var href = (a.getAttribute('href') || '').toLowerCase();
+          if (href.indexOf('signin') !== -1) {
+            a.textContent = 'Account';
+            a.setAttribute('href', 'account.html');
+          }
+          ensureLogOutLink(cta);
+        });
+      })
+      .catch(function () { /* swallow · keep public nav as-is */ });
+  }
+
+  /* ============================================================
      PART 3 · MOBILE NAV
      ============================================================ */
 
@@ -352,6 +416,7 @@
 
   function start() {
     injectMobileMenu();
+    refreshNav();
     fireAutoEvents();
     watchPricing();
     watchCtas();

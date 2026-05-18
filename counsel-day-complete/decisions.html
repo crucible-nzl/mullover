@@ -334,7 +334,7 @@ function applyFilter(btn) {
   }
   function rowHtml(d) {
     var dest = d.has_verdict ? ('verdict-reveal.html?id=' + encodeURIComponent(d.id)) : ('decision.html?id=' + encodeURIComponent(d.id));
-    var ref = '№ ' + String(d.id).slice(0, 6).toUpperCase();
+    var ref = ' ' + String(d.id).slice(0, 6).toUpperCase();
     var dates = '<strong>' + fmtDate(d.starts_at) + '</strong> · ' + fmtDate(d.unseals_at);
     var dur = d.duration_days ? (d.duration_days + ' days') : '·';
     var remaining = '·';

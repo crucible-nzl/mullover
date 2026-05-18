@@ -196,7 +196,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- 01 PROFILE -->
     <section class="method-stage">
       <div class="method-stage-head">
-        <div class="method-stage-eyebrow">§ 01 · Profile</div>
+        <div class="method-stage-eyebrow">Profile</div>
         <h2 class="method-stage-title">Your <span class="ital">identity</span> on the account.</h2>
       </div>
       <div class="acct-form-row">
@@ -215,7 +215,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
       <div class="acct-form-row">
         <div class="label">Decision style
-          <span class="hint">How you usually decide · helps us pre-select tier and tone</span>
+          <span class="hint">A preference, not a purchase. We use this to pre-select a tier on the compose form and tune wording. You can change it any time and you can still file any tier of decision (each tier is paid at compose).</span>
         </div>
         <div class="value">
           <select id="cd-input-intent" style="font-family: var(--font-body); font-size: 15px; padding: 10px 12px; border: 1px solid var(--ink); background: var(--paper); color: var(--ink); border-radius: 0; max-width: 360px;">
@@ -265,20 +265,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- 02 SUBSCRIPTION -->
     <section class="method-stage">
       <div class="method-stage-head">
-        <div class="method-stage-eyebrow">§ 02 · Subscription</div>
+        <div class="method-stage-eyebrow">Subscription</div>
         <h2 class="method-stage-title">Your current <span class="ital">plan</span> and renewal.</h2>
       </div>
 
-      <div class="sub-slip">
+      <div class="sub-slip" id="cd-sub-slip">
         <div class="left">
           <div class="label">Active plan</div>
-          <div class="plan-name">Consumer <span class="ital">Annual</span></div>
-          <div class="plan-detail">All-access · unlimited Solo, Couple, and Family decisions on this account</div>
-          <div class="renewal">Renews <strong>12 March 2027</strong> · <strong>$99.00 USD</strong> · Stripe ending •••• 4242</div>
+          <div class="plan-name" id="cd-plan-name">Loading…</div>
+          <div class="plan-detail" id="cd-plan-detail"></div>
+          <div class="renewal" id="cd-plan-renewal"></div>
         </div>
         <div class="right">
-          <a href="pricing.html" class="btn">Change plan</a>
-          <a href="#cancel" class="btn-danger">Cancel subscription</a>
+          <a href="pricing.html" class="btn" id="cd-plan-cta">Choose a plan</a>
+          <a href="billing.html" class="btn-ghost" id="cd-plan-portal" style="display: none;">Manage in Stripe</a>
         </div>
       </div>
 
@@ -291,7 +291,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- 03 VOTE-PROMPT TIMING -->
     <section class="method-stage">
       <div class="method-stage-head">
-        <div class="method-stage-eyebrow">§ 03 · Evening prompt</div>
+        <div class="method-stage-eyebrow">Evening prompt</div>
         <h2 class="method-stage-title">When we ask you to <span class="ital">vote.</span></h2>
       </div>
       <div class="acct-form-row">
@@ -333,7 +333,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- 04 NOTIFICATIONS -->
     <section class="method-stage">
       <div class="method-stage-head">
-        <div class="method-stage-eyebrow">§ 04 · Notifications</div>
+        <div class="method-stage-eyebrow">Notifications</div>
         <h2 class="method-stage-title">What we tell you, and <span class="ital">when.</span></h2>
       </div>
       <div class="acct-form-row">
@@ -365,65 +365,33 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- 05 DEVICES -->
     <section class="method-stage">
       <div class="method-stage-head">
-        <div class="method-stage-eyebrow">§ 05 · Devices and sessions</div>
+        <div class="method-stage-eyebrow">Devices and sessions</div>
         <h2 class="method-stage-title">Everywhere you're signed <span class="ital">in.</span></h2>
       </div>
       <div class="method-stage-body" style="margin-bottom: 16px;">
         <p>If anything below is unfamiliar, sign that session out and change your password immediately.</p>
       </div>
-      <div class="session-table">
+      <div id="cd-sessions-msg" role="alert" aria-live="polite" style="display: none; margin-bottom: 14px; padding: 12px 16px; font-family: var(--font-body); font-size: 14px; line-height: 1.5;"></div>
+      <div class="session-table" id="cd-session-table">
         <div class="session-row head">
           <div class="session-cell">Device</div>
-          <div class="session-cell">Location</div>
-          <div class="session-cell">Last seen</div>
+          <div class="session-cell">IP address</div>
+          <div class="session-cell">Signed in</div>
           <div class="session-cell">Action</div>
         </div>
-        <div class="session-row current">
-          <div class="session-cell">
-            <span class="device-name">MacBook Pro · Safari 18</span>
-            <span class="device-sub">macOS 15.4 · IP 192.0.2.41</span>
-          </div>
-          <div class="session-cell location">Christchurch, NZ</div>
-          <div class="session-cell last-seen">Just now</div>
-          <div class="session-cell action"><span class="device-sub" style="color: var(--wine);">Current session</span></div>
-        </div>
-        <div class="session-row">
-          <div class="session-cell">
-            <span class="device-name">iPhone 16 · Counsel.day iOS</span>
-            <span class="device-sub">iOS 19.1 · IP 198.51.100.7</span>
-          </div>
-          <div class="session-cell location">Christchurch, NZ</div>
-          <div class="session-cell last-seen">8 May 2026 · 21:14</div>
-          <div class="session-cell action"><a href="#" class="sign-out">Sign out</a></div>
-        </div>
-        <div class="session-row">
-          <div class="session-cell">
-            <span class="device-name">iPad · Safari 18</span>
-            <span class="device-sub">iPadOS 19.1 · IP 198.51.100.7</span>
-          </div>
-          <div class="session-cell location">Christchurch, NZ</div>
-          <div class="session-cell last-seen">1 May 2026 · 09:02</div>
-          <div class="session-cell action"><a href="#" class="sign-out">Sign out</a></div>
-        </div>
-        <div class="session-row">
-          <div class="session-cell">
-            <span class="device-name">Windows desktop · Firefox 133</span>
-            <span class="device-sub">Windows 11 · IP 203.0.113.18</span>
-          </div>
-          <div class="session-cell location">Auckland, NZ</div>
-          <div class="session-cell last-seen">22 April 2026 · 18:43</div>
-          <div class="session-cell action"><a href="#" class="sign-out">Sign out</a></div>
+        <div class="session-row" id="cd-session-loading">
+          <div class="session-cell" style="grid-column: 1 / -1; text-align: center; padding: 24px; color: var(--muted); font-style: italic;">Loading your active sessions…</div>
         </div>
       </div>
       <div style="margin-top: 18px;">
-        <a href="#" class="btn-danger">Sign out of all other sessions</a>
+        <button type="button" id="cd-revoke-others" class="btn-danger">Sign out of all other sessions</button>
       </div>
     </section>
 
     <!-- 06 PRIVACY -->
     <section class="method-stage">
       <div class="method-stage-head">
-        <div class="method-stage-eyebrow">§ 06 · Privacy controls</div>
+        <div class="method-stage-eyebrow">Privacy controls</div>
         <h2 class="method-stage-title">Your <span class="ital">data,</span> on your terms.</h2>
       </div>
       <div class="method-stage-body" style="margin-bottom: 16px;">
@@ -571,6 +539,34 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       if (intentEl && u.decision_kind_intent) intentEl.value = u.decision_kind_intent;
       var mktEl = document.getElementById('cd-input-marketing');
       if (mktEl) mktEl.checked = !!u.marketing_consent;
+
+      // Subscription card · render the real plan, not the placeholder.
+      // IMPORTANT: "Active subscription" ≠ "Decision style" (above).
+      //   · Decision style is a preference (how you usually decide).
+      //   · Active subscription is what you've actually paid for.
+      // Most users start on "No active subscription" and pay per-decision
+      // at compose time. Only Consumer Annual is a true recurring sub.
+      var plan = u.current_plan || 'free';
+      var planDef = {
+        'free':            { name: 'No active subscription',     detail: 'You pay per decision at compose time. Your first Solo decision is free; Couple is $25 USD; Family is $40 USD. Or subscribe to Consumer Annual ($99 USD/year) for unlimited decisions in any tier.', cta: 'See Consumer Annual',  renewal: 'No renewal · pay per decision at compose time', portalVisible: false },
+        'consumer_annual': { name: 'Consumer · Annual',          detail: 'Active subscription · unlimited Solo, Couple, and Family decisions on this account.',                                                  cta: 'Manage subscription',  renewal: 'Recurring · open Stripe portal to manage or cancel', portalVisible: true  },
+        // The values below should never appear in current_plan today (the
+        // webhook only writes 'consumer_annual'). Keep defensive labels
+        // in case the schema is later extended.
+        'solo':            { name: 'Solo · paid',                detail: 'A single Solo decision paid this billing cycle.',                                                                                       cta: 'See plans',            renewal: 'One-off · no recurring charge',                      portalVisible: true  },
+        'couple':          { name: 'Couple · paid',              detail: 'A single Couple decision paid this billing cycle.',                                                                                     cta: 'See plans',            renewal: 'One-off · no recurring charge',                      portalVisible: true  },
+        'family':          { name: 'Family · paid',              detail: 'A single Family decision paid this billing cycle.',                                                                                     cta: 'See plans',            renewal: 'One-off · no recurring charge',                      portalVisible: true  },
+      }[plan] || { name: plan, detail: 'Unknown plan state. Please email admin@counsel.day.', cta: 'See plans', renewal: '', portalVisible: false };
+      var nameEl = document.getElementById('cd-plan-name');
+      if (nameEl) nameEl.textContent = planDef.name;
+      var detailEl = document.getElementById('cd-plan-detail');
+      if (detailEl) detailEl.textContent = planDef.detail;
+      var renewalEl = document.getElementById('cd-plan-renewal');
+      if (renewalEl) renewalEl.textContent = planDef.renewal;
+      var ctaEl = document.getElementById('cd-plan-cta');
+      if (ctaEl) ctaEl.textContent = planDef.cta;
+      var portalEl = document.getElementById('cd-plan-portal');
+      if (portalEl) portalEl.style.display = planDef.portalVisible ? '' : 'none';
     })
     .catch(function (err) { console.warn('[account] /api/me failed', err); });
 })();
@@ -652,6 +648,98 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         msg.textContent = 'Network error. Please try again.';
       });
   });
+})();
+</script>
+<script>
+// Real sessions list · /api/me/sessions.
+(function () {
+  var table = document.getElementById('cd-session-table');
+  var loading = document.getElementById('cd-session-loading');
+  var msg = document.getElementById('cd-sessions-msg');
+  var revokeBtn = document.getElementById('cd-revoke-others');
+  if (!table) return;
+  function show(kind, text) {
+    if (!msg) return;
+    msg.style.display = 'block';
+    if (kind === 'success') { msg.style.background = 'var(--wine-soft)'; msg.style.borderLeft = '3px solid var(--wine)'; msg.style.color = 'var(--ink)'; }
+    else                    { msg.style.background = '#fdecea'; msg.style.borderLeft = '3px solid #c0392b'; msg.style.color = '#6b1e16'; }
+    msg.textContent = text;
+  }
+  function fmt(dt) {
+    if (!dt) return '';
+    var d = new Date(dt);
+    return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) + ' · ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  }
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; });
+  }
+  function render(sessions) {
+    if (loading) loading.remove();
+    // Clear any existing rendered rows but keep the header
+    table.querySelectorAll('.session-row:not(.head)').forEach(function (r) { r.remove(); });
+    if (!sessions || sessions.length === 0) {
+      var empty = document.createElement('div');
+      empty.className = 'session-row';
+      empty.innerHTML = '<div class="session-cell" style="grid-column: 1 / -1; text-align: center; padding: 24px; color: var(--muted); font-style: italic;">No active sessions.</div>';
+      table.appendChild(empty);
+      return;
+    }
+    sessions.forEach(function (s) {
+      var row = document.createElement('div');
+      row.className = 'session-row' + (s.is_current ? ' current' : '');
+      var label = (s.device || 'Unknown') + ' · ' + (s.browser || 'Unknown');
+      row.innerHTML =
+        '<div class="session-cell"><span class="device-name">' + escapeHtml(label) + '</span></div>' +
+        '<div class="session-cell"><span class="device-sub">' + escapeHtml(s.ip_address || '') + '</span></div>' +
+        '<div class="session-cell last-seen">' + escapeHtml(fmt(s.created_at)) + '</div>' +
+        '<div class="session-cell action">' +
+          (s.is_current
+            ? '<span class="device-sub" style="color: var(--wine);">Current session</span>'
+            : '<a href="#" class="sign-out" data-revoke="' + escapeHtml(s.id) + '">Sign out</a>') +
+        '</div>';
+      table.appendChild(row);
+    });
+  }
+  function load() {
+    fetch('/api/me/sessions', { credentials: 'include', headers: { accept: 'application/json' } })
+      .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+      .then(function (res) {
+        if (res.status === 200 && res.body && res.body.ok) {
+          render(res.body.sessions);
+        } else {
+          if (loading) loading.querySelector('.session-cell').textContent = 'Could not load sessions.';
+        }
+      })
+      .catch(function () {
+        if (loading) loading.querySelector('.session-cell').textContent = 'Network error loading sessions.';
+      });
+  }
+  table.addEventListener('click', function (e) {
+    var a = e.target.closest('[data-revoke]'); if (!a) return;
+    e.preventDefault();
+    var id = a.getAttribute('data-revoke');
+    if (!window.confirm('Sign out this session?')) return;
+    fetch('/api/me/sessions?id=' + encodeURIComponent(id), { method: 'DELETE', credentials: 'include' })
+      .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+      .then(function (res) {
+        if (res.status === 200) { show('success', 'Session revoked.'); load(); }
+        else { show('error', (res.body && res.body.message) || 'Could not revoke session.'); }
+      })
+      .catch(function () { show('error', 'Network error revoking session.'); });
+  });
+  if (revokeBtn) {
+    revokeBtn.addEventListener('click', function () {
+      if (!window.confirm('Sign out of all other sessions? Your current session will stay signed in.')) return;
+      fetch('/api/me/sessions', { method: 'DELETE', credentials: 'include' })
+        .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+        .then(function (res) {
+          if (res.status === 200) { show('success', res.body.message || 'Other sessions revoked.'); load(); }
+          else { show('error', (res.body && res.body.message) || 'Could not revoke other sessions.'); }
+        })
+        .catch(function () { show('error', 'Network error revoking sessions.'); });
+    });
+  }
+  load();
 })();
 </script>
 <script src="ga4.js" defer></script>

@@ -3,1751 +3,389 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
-<!-- Order is load-bearing: Consent Mode v2 defaults MUST be set BEFORE -->
-<!-- GTM and gtag load, or the first pageview ships before user choice. -->
-<!-- This block is injected into every public HTML <head> by             -->
-<!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
-
-<!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('consent', 'default', {
-    'ad_storage':         'denied',
-    'ad_user_data':       'denied',
-    'ad_personalization': 'denied',
-    'analytics_storage':  'denied',
-    'functionality_storage': 'denied',
-    'personalization_storage': 'denied',
-    'security_storage':   'granted',
-    'wait_for_update':    500
-  });
-  // Honour Global Privacy Control + Do-Not-Track before any tag fires.
-  if (navigator.globalPrivacyControl === true ||
-      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
-      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
-    gtag('consent', 'update', {
-      'ad_storage':         'denied',
-      'ad_user_data':       'denied',
-      'ad_personalization': 'denied',
-      'analytics_storage':  'denied'
-    });
-  }
-</script>
-
-<!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
-<!-- End Google Tag Manager -->
-
-<!-- Google Analytics 4 (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
-<script>
-  gtag('js', new Date());
-  gtag('config', 'G-SX20BZZP59', {
-    'anonymize_ip': true,
-    'allow_google_signals': false,
-    'allow_ad_personalization_signals': false
-  });
-</script>
-<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
-
-<title>Admin · Operations dashboard · Counsel.day</title>
-<meta name="description" content="Internal admin portal mockup for Counsel.day: SaaS metrics, free and paid user reporting, decision activity, revenue, operational health, recent activity feed.">
+<title>Admin · Counsel.day</title>
+<meta name="description" content="Counsel.day operations dashboard. Real-time DB counts, integration health, audit log, cron triggers.">
 <meta name="robots" content="noindex, nofollow">
-<meta name="author" content="James Graham, founder of Counsel.day">
-<meta property="article:modified_time" content="2026-05-14T19:00:00+12:00">
-<meta name="theme-color" content="#0f172a">
-<link rel="stylesheet" href="styles.css">
+<meta name="theme-color" content="#0b1a2b">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <style>
-/* Admin portal styles (not in shared styles.css; admin lives at a separate subdomain in production) */
-.admin-page-inner { padding: 56px 40px 96px; max-width: 1440px; margin: 0 auto; }
-.admin-banner { padding: 12px 20px; background: var(--clay-deep); color: var(--paper); font-family: 'Manrope', sans-serif; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; display: flex; gap: 18px; align-items: center; flex-wrap: wrap; margin-bottom: 32px; }
-.admin-banner .label { font-weight: 600; }
-.admin-banner .desc { color: var(--clay-soft); font-weight: 400; text-transform: none; letter-spacing: 0.04em; font-size: 12px; }
-
-.admin-head { padding-bottom: 32px; border-bottom: 2px solid var(--ink); margin-bottom: 40px; display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: end; }
-.admin-head-left .eyebrow { font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 14px; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--muted); margin-bottom: 14px; }
-.admin-head-left h1 { font-family: 'Newsreader', Georgia, serif; font-weight: 400; font-size: clamp(36px, 4.8vw, 60px); line-height: 1.04; letter-spacing: -0.025em; color: var(--ink); }
-.admin-head-left h1 .ital { font-style: italic; color: var(--clay); }
-.admin-period-bar { display: flex; gap: 0; border: 1px solid var(--rule-strong); background: var(--paper); }
-.admin-period-bar a { padding: 10px 16px; font-family: 'Manrope', sans-serif; font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); border-right: 1px solid var(--rule); cursor: pointer; }
-.admin-period-bar a:last-child { border-right: none; }
-.admin-period-bar a.active { background: var(--ink); color: var(--paper); }
-.admin-period-bar a:hover:not(.active) { background: var(--paper-deep); color: var(--ink); }
-
-.metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border: 1px solid var(--rule-strong); background: var(--paper); margin-bottom: 56px; }
-.metric-card { padding: 28px 32px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
-.metric-card:nth-child(3n) { border-right: none; }
-.metric-card:nth-last-child(-n+3) { border-bottom: none; }
-.metric-card .label { font-family: 'Manrope', sans-serif; font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
-.metric-card .value { font-family: 'Newsreader', Georgia, serif; font-weight: 500; font-size: 48px; line-height: 1; letter-spacing: -0.03em; color: var(--ink); }
-.metric-card .value .unit { font-family: 'Newsreader', Georgia, serif; font-style: italic; font-weight: 400; font-size: 18px; color: var(--muted); margin-left: 6px; letter-spacing: 0; }
-.metric-card .delta { display: flex; align-items: baseline; gap: 8px; margin-top: 10px; font-family: 'Manrope', sans-serif; font-size: 11px; letter-spacing: 0.10em; color: var(--muted); }
-.metric-card .delta .up { color: #5a6147; font-weight: 500; }
-.metric-card .delta .down { color: var(--clay-deep); font-weight: 500; }
-.metric-card .delta .flat { color: var(--muted); font-weight: 500; }
-.metric-card .sub { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--rule); font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 14px; color: var(--muted); line-height: 1.45; }
-.metric-card .sub strong { font-style: normal; color: var(--ink); font-weight: 500; }
-
-.admin-section { margin-bottom: 56px; }
-.admin-section-head { display: grid; grid-template-columns: 1fr 2fr; gap: 32px; align-items: baseline; padding-bottom: 18px; border-bottom: 1px solid var(--rule); margin-bottom: 28px; }
-.admin-section-head .num { font-family: 'Manrope', sans-serif; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--clay); }
-.admin-section-head h2 { font-family: 'Newsreader', Georgia, serif; font-weight: 400; font-size: 32px; line-height: 1.1; letter-spacing: -0.02em; color: var(--ink); }
-.admin-section-head h2 .ital { font-style: italic; color: var(--clay); }
-
-.admin-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-.admin-card { padding: 24px 28px; border: 1px solid var(--rule-strong); background: var(--paper); }
-.admin-card-head { font-family: 'Manrope', sans-serif; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--clay); margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--rule); }
-
-.admin-chart { background: var(--paper); padding: 8px 0 0; }
-.admin-chart svg { width: 100%; height: auto; display: block; }
-
-.breakdown-row { display: grid; grid-template-columns: 160px 1fr 56px 64px; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--rule); align-items: center; }
-.breakdown-row:last-child { border-bottom: none; }
-.breakdown-row .name { font-family: 'Newsreader', Georgia, serif; font-size: 15px; color: var(--ink); }
-.breakdown-row .name strong { font-weight: 500; }
-.breakdown-row .bar { height: 8px; background: var(--rule); position: relative; }
-.breakdown-row .bar-fill { position: absolute; top: 0; left: 0; height: 100%; background: var(--clay); }
-.breakdown-row.b .bar-fill { background: var(--rose); }
-.breakdown-row.c .bar-fill { background: var(--clay-deep); }
-.breakdown-row .count { font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 500; color: var(--ink); text-align: right; }
-.breakdown-row .pct { font-family: 'Manrope', sans-serif; font-size: 11px; color: var(--muted); text-align: right; letter-spacing: 0.06em; }
-
-.admin-table { width: 100%; border-collapse: collapse; background: var(--paper); border: 1px solid var(--rule-strong); }
-.admin-table th { font-family: 'Manrope', sans-serif; font-size: 10.5px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--rule-strong); background: var(--paper-deep); }
-.admin-table td { font-family: 'Newsreader', Georgia, serif; font-size: 14.5px; padding: 12px 16px; border-bottom: 1px solid var(--rule); color: var(--ink); }
-.admin-table tr:last-child td { border-bottom: none; }
-.admin-table td.mono { font-family: 'Manrope', sans-serif; font-size: 12px; color: var(--muted); letter-spacing: 0.04em; }
-.admin-table td.num { font-family: 'Manrope', sans-serif; font-size: 13px; color: var(--ink); font-weight: 500; }
-.admin-table td .pill { display: inline-block; padding: 3px 9px; font-family: 'Manrope', sans-serif; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid var(--rule-strong); }
-.admin-table td .pill.green { background: #e8eee0; color: #3d4530; border-color: #c9d4b4; }
-.admin-table td .pill.clay { background: var(--clay-soft); color: var(--clay-deep); border-color: var(--clay); }
-.admin-table td .pill.rose { background: var(--rose-soft); color: #7a3a2a; border-color: var(--rose); }
-.admin-table td .pill.grey { background: var(--paper-deep); color: var(--muted); border-color: var(--rule-strong); }
-
-.health-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid var(--rule-strong); background: var(--paper); }
-.health-cell { padding: 22px 24px; border-right: 1px solid var(--rule); display: flex; flex-direction: column; gap: 8px; }
-.health-cell:last-child { border-right: none; }
-.health-cell .label { font-family: 'Manrope', sans-serif; font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
-.health-cell .value { font-family: 'Newsreader', Georgia, serif; font-weight: 500; font-size: 28px; letter-spacing: -0.02em; color: var(--ink); }
-.health-cell .value .unit { font-family: 'Newsreader', Georgia, serif; font-style: italic; font-weight: 400; font-size: 14px; color: var(--muted); margin-left: 4px; }
-.health-cell .status { font-family: 'Manrope', sans-serif; font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; }
-.health-cell .status.green { color: #5a6147; }
-.health-cell .status.amber { color: var(--clay); }
-.health-cell .status.red { color: var(--clay-deep); }
-.health-cell .status::before { content: "●"; margin-right: 6px; }
-
-.activity-feed { border: 1px solid var(--rule-strong); background: var(--paper); }
-.activity-row { display: grid; grid-template-columns: 110px 130px 1fr 100px; gap: 18px; padding: 14px 24px; border-bottom: 1px solid var(--rule); align-items: baseline; }
-.activity-row:last-child { border-bottom: none; }
-.activity-row .when { font-family: 'Manrope', sans-serif; font-size: 11px; letter-spacing: 0.08em; color: var(--muted); }
-.activity-row .kind { font-family: 'Manrope', sans-serif; font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--clay); }
-.activity-row .what { font-family: 'Newsreader', Georgia, serif; font-size: 14.5px; color: var(--ink); }
-.activity-row .what .id { font-family: 'Manrope', sans-serif; font-size: 11.5px; color: var(--muted); margin-left: 8px; }
-.activity-row .meta { font-family: 'Manrope', sans-serif; font-size: 10.5px; letter-spacing: 0.06em; color: var(--muted); text-align: right; }
-
-@media (max-width: 1100px) {
-  .metric-grid { grid-template-columns: 1fr 1fr; }
-  .metric-card:nth-child(3n) { border-right: 1px solid var(--rule); }
-  .metric-card:nth-child(2n) { border-right: none; }
-  .health-grid { grid-template-columns: 1fr 1fr; }
-  .health-cell:nth-child(2n) { border-right: none; }
-  .admin-grid-2 { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 700px) {
-  .admin-page-inner { padding: 32px 18px 64px; }
-  .admin-head { grid-template-columns: 1fr; gap: 18px; }
-  .admin-section-head { grid-template-columns: 1fr; gap: 8px; }
-  .metric-grid { grid-template-columns: 1fr; }
-  .metric-card { border-right: none; border-bottom: 1px solid var(--rule); }
-  .metric-card:last-child { border-bottom: none; }
-  .health-grid { grid-template-columns: 1fr; }
-  .health-cell { border-right: none; border-bottom: 1px solid var(--rule); }
-  .health-cell:last-child { border-bottom: none; }
-  .breakdown-row { grid-template-columns: 120px 1fr 56px; gap: 10px; }
-  .breakdown-row .pct { display: none; }
-  .activity-row { grid-template-columns: 80px 1fr; row-gap: 4px; padding: 14px 18px; }
-  .activity-row .kind { grid-column: 2; }
-  .activity-row .meta { grid-column: 2; text-align: left; }
-}
-
-/* === USER / SUBSCRIPTION / SKU MANAGEMENT TOOLS === */
-
-/* Toolbar: search + filter chips */
-.um-toolbar { display: grid; grid-template-columns: 1fr auto; gap: 18px; margin-bottom: 18px; align-items: center; }
-.um-search { display: flex; align-items: center; gap: 0; border: 1px solid var(--ink); background: var(--paper); padding: 0 14px; }
-.um-search .icon { color: var(--muted); font-size: 14px; padding-right: 4px; }
-.um-search input { flex: 1; border: none; outline: none; background: transparent; padding: 11px 6px; font-family: var(--font-ui); font-size: 14px; color: var(--ink); min-width: 280px; }
-.um-search input::placeholder { color: var(--subtle); }
-.um-filters { display: flex; gap: 0; border: 1px solid var(--ink); flex-wrap: wrap; }
-.um-filters a { padding: 11px 14px; font-family: var(--font-ui); font-size: 10.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); border-right: 1px solid var(--rule); cursor: pointer; }
-.um-filters a:last-child { border-right: none; }
-.um-filters a.active { background: var(--ink); color: var(--paper); }
-.um-filters a:hover:not(.active) { background: var(--paper-deep); color: var(--ink); }
-
-.um-stats { display: flex; gap: 0; border: 1px solid var(--rule-strong); background: var(--paper-deep); margin-bottom: 0; flex-wrap: wrap; }
-.um-stats .stat { padding: 10px 18px; border-right: 1px solid var(--rule); font-family: var(--font-ui); font-size: 11px; letter-spacing: 0.10em; text-transform: uppercase; color: var(--muted); }
-.um-stats .stat:last-child { border-right: none; }
-.um-stats .stat strong { color: var(--ink); font-weight: 600; }
-.um-stats .right { margin-left: auto; border-right: none; }
-
-.um-actions { display: flex; gap: 10px; padding: 10px 16px; background: var(--paper); border: 1px solid var(--rule-strong); border-top: none; border-bottom: none; align-items: center; flex-wrap: wrap; }
-.um-actions .label { font-family: var(--font-ui); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
-.um-actions a { font-family: var(--font-ui); font-size: 11px; font-weight: 500; padding: 5px 12px; border: 1px solid var(--rule-strong); color: var(--ink); cursor: pointer; background: var(--paper); }
-.um-actions a:hover { background: var(--ink); color: var(--paper); }
-.um-actions a.disabled { color: var(--subtle); border-color: var(--rule); cursor: not-allowed; background: var(--paper-deep); }
-.um-actions a.disabled:hover { background: var(--paper-deep); color: var(--subtle); }
-.um-actions .spacer { flex: 1; }
-
-.um-table-wrap { overflow-x: auto; }
-.um-table { width: 100%; min-width: 1100px; border-top: none; }
-.um-table th.cb, .um-table td.cb { width: 28px; padding-left: 14px; padding-right: 6px; }
-.um-table td.actions-cell { text-align: right; white-space: nowrap; }
-.um-table td.actions-cell a { color: var(--burgundy); font-family: var(--font-ui); font-size: 10.5px; font-weight: 600; letter-spacing: 0.10em; text-transform: uppercase; cursor: pointer; margin-left: 12px; }
-.um-table td.actions-cell a:hover { color: var(--ink); text-decoration: underline; }
-.um-table tr.selected td { background: var(--paper-deep); }
-
-.um-pagination { display: flex; gap: 6px; align-items: center; padding: 12px 16px; border: 1px solid var(--rule-strong); border-top: none; background: var(--paper); justify-content: space-between; flex-wrap: wrap; }
-.um-pagination .info { font-family: var(--font-ui); font-size: 11.5px; color: var(--muted); letter-spacing: 0.04em; }
-.um-pagination .pages { display: flex; gap: 0; }
-.um-pagination .pages a { padding: 5px 11px; font-family: var(--font-ui); font-size: 12px; color: var(--ink); border: 1px solid var(--rule-strong); border-right: none; cursor: pointer; background: var(--paper); }
-.um-pagination .pages a:last-child { border-right: 1px solid var(--rule-strong); }
-.um-pagination .pages a.active { background: var(--ink); color: var(--paper); }
-.um-pagination .pages a:hover:not(.active) { background: var(--paper-deep); }
-
-/* User detail panel */
-.user-detail { margin-top: 36px; border: 1px solid var(--rule-strong); background: var(--paper); }
-.user-detail-head { display: grid; grid-template-columns: 1fr auto; padding: 22px 28px; border-bottom: 1px solid var(--rule-strong); background: var(--paper-deep); gap: 18px; align-items: baseline; }
-.user-detail-head .who { font-family: 'Newsreader', Georgia, serif; font-weight: 500; font-size: 26px; letter-spacing: -0.02em; color: var(--ink); }
-.user-detail-head .who .sub { font-family: var(--font-ui); font-weight: 500; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-left: 14px; }
-.user-detail-head .badges { display: flex; gap: 8px; flex-wrap: wrap; }
-
-.user-detail-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; }
-.user-detail-col { padding: 24px 28px; border-right: 1px solid var(--rule); }
-.user-detail-col:last-child { border-right: none; }
-.user-detail-col h4 { font-family: var(--font-ui); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--clay); margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--rule); }
-.user-detail-row { display: grid; grid-template-columns: 110px 1fr; padding: 8px 0; font-family: 'Newsreader', Georgia, serif; font-size: 14px; gap: 12px; align-items: baseline; line-height: 1.45; }
-.user-detail-row .k { font-family: var(--font-ui); font-size: 10.5px; letter-spacing: 0.10em; text-transform: uppercase; color: var(--muted); }
-.user-detail-row .v { color: var(--ink); }
-.user-detail-row .v .mono { font-family: var(--font-ui); font-size: 12px; color: var(--muted); }
-.user-detail-row .v strong { color: var(--ink); font-weight: 500; }
-
-.user-detail-actions { padding: 20px 28px; border-top: 1px solid var(--rule-strong); background: var(--paper-deep); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-.user-detail-actions .label { font-family: var(--font-ui); font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-right: 8px; }
-.user-detail-actions a { font-family: var(--font-ui); font-size: 11.5px; font-weight: 500; padding: 7px 14px; border: 1px solid var(--ink); color: var(--ink); cursor: pointer; background: var(--paper); }
-.user-detail-actions a:hover { background: var(--ink); color: var(--paper); }
-.user-detail-actions a.danger { color: var(--burgundy); border-color: var(--burgundy); }
-.user-detail-actions a.danger:hover { background: var(--burgundy); color: var(--paper); }
-.user-detail-actions a.primary { background: var(--ink); color: var(--paper); }
-.user-detail-actions a.primary:hover { background: var(--burgundy); border-color: var(--burgundy); }
-
-.user-detail-notes { padding: 18px 28px; border-top: 1px solid var(--rule); }
-.user-detail-notes h5 { font-family: var(--font-ui); font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--clay); margin-bottom: 10px; }
-.user-detail-notes .note { font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 14px; color: var(--ink-soft); padding: 8px 0; border-bottom: 1px solid var(--rule); }
-.user-detail-notes .note:last-child { border-bottom: none; }
-.user-detail-notes .note .meta { font-family: var(--font-ui); font-style: normal; font-size: 10px; letter-spacing: 0.10em; color: var(--muted); margin-right: 10px; text-transform: uppercase; }
-
-/* Inline activity sparkline */
-.spark { display: inline-block; vertical-align: middle; margin-left: 6px; }
-.spark svg { height: 18px; width: auto; display: inline-block; }
-
-/* SKU cards */
-.sku-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; border: 1px solid var(--rule-strong); background: var(--paper); margin-bottom: 32px; }
-.sku-cell { padding: 28px 30px; border-right: 1px solid var(--rule); display: flex; flex-direction: column; }
-.sku-cell:last-child { border-right: none; }
-.sku-cell.featured { background: var(--paper-deep); }
-.sku-cell .label { font-family: var(--font-ui); font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--clay); margin-bottom: 12px; }
-.sku-cell .name { font-family: 'Newsreader', Georgia, serif; font-weight: 500; font-size: 24px; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 12px; }
-.sku-cell .price { font-family: 'Newsreader', Georgia, serif; font-weight: 500; font-size: 38px; line-height: 1; letter-spacing: -0.03em; color: var(--ink); margin-bottom: 4px; }
-.sku-cell .price .unit { font-family: var(--font-ui); font-style: normal; font-weight: 500; font-size: 11px; color: var(--muted); margin-left: 6px; letter-spacing: 0.12em; text-transform: uppercase; }
-.sku-cell .terms { font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 13.5px; color: var(--muted); margin-bottom: 18px; }
-.sku-cell .ids { font-family: var(--font-ui); font-size: 10.5px; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 14px; padding: 10px 12px; background: var(--paper); border: 1px solid var(--rule); line-height: 1.6; }
-.sku-cell.featured .ids { background: var(--paper-deep); }
-.sku-cell .ids strong { color: var(--ink); font-weight: 500; font-family: var(--font-ui); }
-.sku-cell .counts { display: flex; gap: 24px; padding-top: 14px; border-top: 1px solid var(--rule); margin-bottom: 14px; }
-.sku-cell .counts > div { font-family: var(--font-ui); font-size: 10.5px; letter-spacing: 0.10em; text-transform: uppercase; color: var(--muted); }
-.sku-cell .counts strong { display: block; color: var(--ink); font-family: 'Newsreader', Georgia, serif; font-size: 22px; font-weight: 500; letter-spacing: -0.02em; text-transform: none; margin-top: 4px; }
-.sku-cell .sku-actions { margin-top: auto; display: flex; gap: 8px; padding-top: 14px; border-top: 1px solid var(--rule); flex-wrap: wrap; }
-.sku-cell .sku-actions a { font-family: var(--font-ui); font-size: 11px; font-weight: 500; padding: 6px 12px; border: 1px solid var(--ink); color: var(--ink); cursor: pointer; }
-.sku-cell .sku-actions a:hover { background: var(--ink); color: var(--paper); }
-.sku-cell .sku-actions a.danger { color: var(--burgundy); border-color: var(--burgundy); }
-
-.section-sub-h3 { font-family: var(--font-ui); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--clay); margin-top: 36px; margin-bottom: 14px; }
-
-@media (max-width: 1100px) {
-  .um-toolbar { grid-template-columns: 1fr; }
-  .user-detail-grid { grid-template-columns: 1fr; }
-  .user-detail-col { border-right: none; border-bottom: 1px solid var(--rule); }
-  .user-detail-col:last-child { border-bottom: none; }
-  .sku-grid { grid-template-columns: 1fr; }
-  .sku-cell { border-right: none; border-bottom: 1px solid var(--rule); }
-  .sku-cell:last-child { border-bottom: none; }
-}
-
-@media (max-width: 700px) {
-  .um-actions { padding: 10px; }
-  .user-detail-head { grid-template-columns: 1fr; }
-  .user-detail-actions { padding: 16px 18px; }
-  .user-detail-col { padding: 18px 20px; }
-  .user-detail-row { grid-template-columns: 1fr; gap: 2px; padding: 6px 0; }
-}
-
-
-
-/* ============================================================
-   Interactive prototype additions
-   ============================================================ */
-
-.um-table thead a.sort-h { cursor: pointer; color: inherit; }
-.um-table thead a.sort-h:hover { color: var(--burgundy); text-decoration: underline; }
-
-.um-table tbody tr { cursor: pointer; }
-.um-table tbody tr.open { background: var(--paper-deep); }
-.um-table tbody tr.open td { border-top: 2px solid var(--forest); border-bottom: 2px solid var(--forest); }
-.um-table tbody tr.open td:first-child { border-left: 2px solid var(--forest); }
-.um-table tbody tr.open td:last-child { border-right: 2px solid var(--forest); }
-.um-table tbody tr.selected { background: rgba(107, 39, 55, 0.06); }
-.um-table input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; accent-color: var(--forest); }
-
-.user-detail-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--rule-strong); background: var(--paper); flex-wrap: wrap; }
-.user-detail-tabs a { padding: 14px 22px; font-family: var(--font-ui); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); border-right: 1px solid var(--rule); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
-.user-detail-tabs a:hover:not(.active) { background: var(--paper-deep); color: var(--ink); }
-.user-detail-tabs a.active { color: var(--ink); border-bottom-color: var(--burgundy); background: var(--paper-deep); }
-
-.user-detail-body { padding: 24px 28px; background: var(--paper); }
-.detail-rows { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 28px; }
-.detail-rows .user-detail-row { padding: 8px 0; border-bottom: 1px dotted var(--rule); }
-.empty-note { padding: 32px 0; text-align: center; font-family: 'Newsreader', Georgia, serif; font-style: italic; color: var(--muted); font-size: 14px; line-height: 1.55; }
-
-.audit-log { display: flex; flex-direction: column; gap: 0; }
-.audit-row { display: grid; grid-template-columns: 160px 24px 1fr; gap: 0; padding: 14px 0; border-bottom: 1px dotted var(--rule); position: relative; }
-.audit-row:last-child { border-bottom: none; }
-.audit-row .audit-ts { font-family: var(--font-ui); font-size: 11px; color: var(--muted); padding-top: 2px; }
-.audit-row .audit-ts .ts-time { color: var(--ink); font-weight: 500; }
-.audit-row .audit-ts .ts-rel { color: var(--muted); margin-top: 2px; }
-.audit-row .audit-dot { position: relative; display: flex; align-items: flex-start; justify-content: center; padding-top: 6px; }
-.audit-row .audit-dot::before { content: ''; position: absolute; top: 14px; bottom: -14px; left: 50%; width: 1px; background: var(--rule); transform: translateX(-50%); }
-.audit-row:last-child .audit-dot::before { display: none; }
-.audit-row .audit-dot::after { content: ''; width: 9px; height: 9px; border-radius: 50%; background: var(--forest); border: 2px solid var(--paper); box-shadow: 0 0 0 1px var(--forest); z-index: 1; margin-top: 2px; }
-.audit-row.audit-admin .audit-dot::after { background: var(--burgundy); box-shadow: 0 0 0 1px var(--burgundy); }
-.audit-row.audit-subscription .audit-dot::after { background: var(--clay, #94765a); box-shadow: 0 0 0 1px var(--clay, #94765a); }
-.audit-row.audit-auth .audit-dot::after { background: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
-.audit-row.audit-decision .audit-dot::after { background: var(--forest); box-shadow: 0 0 0 1px var(--forest); }
-.audit-row .audit-body { padding-left: 14px; }
-.audit-row .audit-summary { font-family: 'Newsreader', Georgia, serif; font-size: 15px; color: var(--ink); line-height: 1.45; }
-.audit-row .audit-meta { font-family: var(--font-ui); font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.5; }
-.audit-row .audit-source { font-family: var(--font-ui); font-size: 10px; letter-spacing: 0.10em; text-transform: uppercase; color: var(--clay, #94765a); margin-top: 6px; }
-
-.notes-list { display: flex; flex-direction: column; gap: 14px; }
-.note-item { padding: 14px 16px; background: var(--paper-deep); border-left: 3px solid var(--burgundy); }
-.note-item .note-meta { font-family: var(--font-ui); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
-.note-item .note-body { font-family: 'Newsreader', Georgia, serif; font-size: 14.5px; color: var(--ink); line-height: 1.55; white-space: pre-wrap; }
-
-#modal-overlay { position: fixed; inset: 0; background: rgba(31, 26, 18, 0.45); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
-#modal-overlay[hidden] { display: none; }
-#modal-dialog { background: var(--paper); border: 1px solid var(--ink); max-width: 540px; width: 100%; max-height: 86vh; display: flex; flex-direction: column; box-shadow: 0 8px 32px rgba(31, 26, 18, 0.18); }
-#modal-content { display: contents; }
-.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid var(--rule-strong); background: var(--paper-deep); }
-.modal-header h3 { font-family: 'Newsreader', Georgia, serif; font-weight: 500; font-size: 22px; letter-spacing: -0.01em; color: var(--ink); margin: 0; }
-.modal-header .modal-close { font-family: var(--font-ui); font-size: 16px; color: var(--muted); cursor: pointer; padding: 4px 8px; }
-.modal-header .modal-close:hover { color: var(--burgundy); }
-.modal-body { padding: 22px 24px; overflow-y: auto; font-family: 'Newsreader', Georgia, serif; font-size: 15px; line-height: 1.55; color: var(--ink); }
-.modal-body p { margin: 0 0 12px; }
-.modal-body p:last-child { margin-bottom: 0; }
-.modal-body textarea, .modal-body input[type="text"] { width: 100%; padding: 10px 12px; border: 1px solid var(--rule-strong); background: var(--paper); font-family: 'Newsreader', Georgia, serif; font-size: 14.5px; color: var(--ink); line-height: 1.55; resize: vertical; box-sizing: border-box; }
-.modal-body textarea:focus, .modal-body input[type="text"]:focus { outline: none; border-color: var(--forest); }
-.modal-body .form-label { display: block; font-family: var(--font-ui); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
-.tier-options { display: flex; flex-direction: column; gap: 10px; margin: 14px 0 4px; }
-.tier-opt { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border: 1px solid var(--rule-strong); cursor: pointer; font-family: 'Newsreader', Georgia, serif; font-size: 14px; color: var(--ink); line-height: 1.5; }
-.tier-opt:hover { background: var(--paper-deep); }
-.tier-opt input[type="radio"] { margin-top: 4px; accent-color: var(--forest); }
-.modal-footer { display: flex; gap: 10px; justify-content: flex-end; padding: 16px 24px; border-top: 1px solid var(--rule-strong); background: var(--paper-deep); }
-.modal-btn { font-family: var(--font-ui); font-size: 11.5px; font-weight: 500; padding: 9px 18px; border: 1px solid var(--ink); color: var(--ink); cursor: pointer; background: var(--paper); letter-spacing: 0.04em; }
-.modal-btn:hover { background: var(--ink); color: var(--paper); }
-.modal-btn.primary { background: var(--forest); border-color: var(--forest); color: var(--paper); }
-.modal-btn.primary:hover { background: var(--burgundy); border-color: var(--burgundy); }
-
-#toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 10px; z-index: 101; max-width: 380px; pointer-events: none; }
-.toast { padding: 13px 18px; font-family: var(--font-ui); font-size: 13px; line-height: 1.45; color: var(--paper); background: var(--ink); border-left: 3px solid var(--forest); box-shadow: 0 4px 14px rgba(31, 26, 18, 0.22); animation: toast-in 0.24s ease-out; pointer-events: auto; }
-.toast.toast-success { border-left-color: var(--forest); }
-.toast.toast-warning { border-left-color: var(--burgundy); }
-.toast.toast-info { border-left-color: var(--clay, #94765a); }
-.toast.toast-out { animation: toast-out 0.4s ease-in forwards; }
-@keyframes toast-in { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
-@keyframes toast-out { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(20px); } }
-
-.um-actions a.disabled { opacity: 0.4; pointer-events: none; }
-.um-actions a:not(.disabled) { cursor: pointer; }
-
-@media (max-width: 700px) {
-  .detail-rows { grid-template-columns: 1fr; }
-  .audit-row { grid-template-columns: 110px 20px 1fr; }
-  .audit-row .audit-ts { font-size: 10px; }
-  #modal-overlay { padding: 12px; }
-  #toast-container { left: 12px; right: 12px; max-width: none; }
-}
-
-
-
-/* ============================================================
-   ADMIN CMS THEME · system fonts, slate + blue palette
-   Override at end of <style> wins over all editorial rules.
-   ============================================================ */
-
-:root {
-  /* Slate / blue admin CMS palette */
-  --cms-bg:            #f1f5f9;
-  --cms-surface:       #ffffff;
-  --cms-surface-2:     #f8fafc;
-  --cms-border:        #e2e8f0;
-  --cms-border-strong: #cbd5e1;
-  --cms-text:          #0f172a;
-  --cms-text-2:        #334155;
-  --cms-muted:         #64748b;
-  --cms-subtle:        #94a3b8;
-  --cms-primary:       #2563eb;
-  --cms-primary-hover: #1d4ed8;
-  --cms-primary-soft:  #dbeafe;
-  --cms-primary-text:  #1e40af;
-  --cms-success:       #10b981;
-  --cms-success-soft:  #d1fae5;
-  --cms-success-text:  #065f46;
-  --cms-warning:       #f59e0b;
-  --cms-warning-soft:  #fef3c7;
-  --cms-warning-text:  #92400e;
-  --cms-danger:        #ef4444;
-  --cms-danger-soft:   #fee2e2;
-  --cms-danger-text:   #991b1b;
-  --cms-sidebar:       #0f172a;
-  --cms-sidebar-text:  #cbd5e1;
-
-  /* Remap inherited editorial tokens to CMS tokens */
-  --paper:        var(--cms-surface);
-  --paper-deep:   var(--cms-surface-2);
-  --ink:          var(--cms-text);
-  --ink-soft:     var(--cms-text-2);
-  --clay:         var(--cms-muted);
-  --clay-soft:    var(--cms-surface-2);
-  --clay-deep:    var(--cms-primary-text);
-  --burgundy:     var(--cms-danger);
-  --forest:       var(--cms-success);
-  --rose:         var(--cms-warning);
-  --rose-soft:    var(--cms-warning-soft);
-  --rule:         var(--cms-border);
-  --rule-strong:  var(--cms-border-strong);
-  --muted:        var(--cms-muted);
-  --subtle:       var(--cms-subtle);
-
-  /* Fonts: system stack everywhere */
-  --font-ui:      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
-  --font-body:    var(--font-ui);
-  --font-display: var(--font-ui);
-  --font-mono:    ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-}
-
-body { background: var(--cms-bg); color: var(--cms-text); font-family: var(--font-ui); font-size: 14px; line-height: 1.5; }
-
-/* Kill serif + italic editorial typography */
-body, h1, h2, h3, h4, h5, h6, p, td, th, span, div, a, button, input, textarea, select, label, strong, em {
-  font-family: var(--font-ui);
-}
-.ital, .italic, em, i { font-style: normal; color: inherit; }
-
-/* Replace editorial masthead with a clean admin top bar */
-.masthead { background: var(--cms-sidebar); border-bottom: 1px solid #1e293b; padding: 0; }
-.masthead-inner { display: grid; grid-template-columns: auto 1fr auto; gap: 24px; align-items: center; padding: 0 32px; height: 56px; max-width: none; }
-.masthead-left, .masthead-right { font-family: var(--font-ui); font-size: 12px; color: var(--cms-sidebar-text); letter-spacing: 0; text-transform: none; font-weight: 500; opacity: 0.8; }
-.masthead-brand { color: var(--cms-sidebar-text); text-decoration: none; display: flex; align-items: center; gap: 10px; justify-content: center; }
-.masthead-brand .brand-mark { width: 28px; height: 16px; }
-.masthead-brand .brand-mark circle { stroke: #94a3b8 !important; stroke-width: 2 !important; }
-.masthead-brand .brand-mark path { stroke: #94a3b8 !important; stroke-width: 2 !important; }
-.masthead-brand .brand-wordmark { font-family: var(--font-ui); font-weight: 600; font-size: 15px; color: #f1f5f9; letter-spacing: -0.01em; }
-.masthead-brand .brand-wordmark .tld { color: var(--cms-sidebar-text); font-weight: 500; opacity: 0.75; }
-.masthead-rule { display: none; }
-
-/* Page wrapper background */
-main { background: var(--cms-bg); min-height: calc(100vh - 56px); }
-.admin-page-inner { padding: 24px 32px 80px; max-width: 1440px; }
-
-/* Admin header: simplified breadcrumb + title + period bar */
-.admin-head { padding: 18px 0 16px; border-bottom: 1px solid var(--cms-border); margin-bottom: 24px; align-items: center; }
-.admin-head-left .eyebrow { font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 14px; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--muted); margin-bottom: 14px; }
-.admin-head-left h1 { font-family: var(--font-ui); font-weight: 600; font-size: 24px; letter-spacing: -0.01em; line-height: 1.25; color: var(--cms-text); }
-.admin-head-left h1 .ital { color: var(--cms-text); }
-.admin-period-bar { background: var(--cms-surface); border: 1px solid var(--cms-border); border-radius: 6px; overflow: hidden; }
-.admin-period-bar a { padding: 7px 14px; font-size: 12px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--cms-text-2); border-right: 1px solid var(--cms-border); }
-.admin-period-bar a:last-child { border-right: none; }
-.admin-period-bar a.active { background: var(--cms-primary); color: #ffffff; }
-.admin-period-bar a:hover:not(.active) { background: var(--cms-surface-2); color: var(--cms-text); }
-
-/* Info banner */
-.admin-banner { background: var(--cms-primary-soft); color: var(--cms-primary-text); padding: 12px 16px; border-radius: 6px; font-size: 12.5px; letter-spacing: 0; text-transform: none; font-weight: 500; margin-bottom: 24px; border: 1px solid #bfdbfe; }
-.admin-banner .label { font-weight: 600; }
-.admin-banner .desc { color: var(--cms-primary-text); font-weight: 400; opacity: 0.85; text-transform: none; letter-spacing: 0; font-size: 12.5px; }
-
-/* Section heads: compact CMS style */
-.admin-section { margin-bottom: 40px; }
-.admin-section-head { grid-template-columns: auto 1fr; gap: 14px; align-items: baseline; padding: 0 0 12px; border-bottom: 1px solid var(--cms-border); margin-bottom: 18px; }
-.admin-section-head .num { color: var(--cms-primary); font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
-.admin-section-head h2 { font-family: var(--font-ui); font-weight: 600; font-size: 16px; letter-spacing: 0; line-height: 1.3; color: var(--cms-text); }
-.admin-section-head h2 .ital { color: var(--cms-text); }
-
-/* Metric grid: cards with shadow + radius */
-.metric-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; border: none; background: transparent; margin-bottom: 32px; }
-.metric-card { background: var(--cms-surface); border: 1px solid var(--cms-border); border-radius: 8px; padding: 16px 18px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); }
-.metric-card:nth-child(3n), .metric-card:nth-last-child(-n+3) { border-right: 1px solid var(--cms-border); border-bottom: 1px solid var(--cms-border); }
-.metric-card .label { color: var(--cms-muted); font-size: 11.5px; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase; margin-bottom: 12px; }
-.metric-card .value { font-family: var(--font-ui); font-weight: 700; font-size: 28px; line-height: 1.1; letter-spacing: -0.02em; color: var(--cms-text); }
-.metric-card .value .unit { font-family: var(--font-ui); font-style: normal; font-weight: 500; font-size: 13px; color: var(--cms-muted); margin-left: 6px; letter-spacing: 0; }
-.metric-card .delta { gap: 6px; margin-top: 8px; font-size: 11.5px; letter-spacing: 0; color: var(--cms-muted); font-weight: 500; }
-.metric-card .delta .up { color: var(--cms-success); font-weight: 600; }
-.metric-card .delta .down { color: var(--cms-danger); font-weight: 600; }
-.metric-card .delta .flat { color: var(--cms-muted); font-weight: 500; }
-.metric-card .sub { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--cms-border); font-family: var(--font-ui); font-style: normal; font-size: 12px; color: var(--cms-muted); line-height: 1.5; }
-.metric-card .sub strong { color: var(--cms-text); font-weight: 600; }
-
-/* Cards (chart + breakdown wrappers) */
-.admin-card { background: var(--cms-surface); border: 1px solid var(--cms-border); border-radius: 8px; padding: 18px 20px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); }
-.admin-card-head { color: var(--cms-text); font-weight: 600; font-size: 13px; letter-spacing: 0; text-transform: none; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--cms-border); }
-
-/* Chart container holds a canvas now */
-.admin-chart { background: transparent; padding: 0; position: relative; height: 240px; }
-.admin-chart canvas { display: block !important; }
-
-/* Tables */
-.admin-table { background: var(--cms-surface); border: 1px solid var(--cms-border); border-radius: 6px; overflow: hidden; }
-.admin-table th { background: var(--cms-surface-2); color: var(--cms-text-2); font-family: var(--font-ui); font-weight: 600; font-size: 11.5px; letter-spacing: 0.02em; text-transform: uppercase; padding: 10px 14px; border-bottom: 1px solid var(--cms-border); }
-.admin-table td { font-family: var(--font-ui); font-size: 13px; color: var(--cms-text); padding: 10px 14px; border-bottom: 1px solid var(--cms-border); }
-.admin-table td.mono { font-family: var(--font-mono); font-size: 12px; color: var(--cms-muted); letter-spacing: 0; }
-.admin-table td.num { font-family: var(--font-ui); font-variant-numeric: tabular-nums; font-size: 13px; color: var(--cms-text); font-weight: 600; }
-
-/* Pills as conventional CMS badges */
-.admin-table td .pill, .pill { display: inline-block; padding: 2px 9px; border: 1px solid transparent; border-radius: 999px; font-family: var(--font-ui); font-size: 11px; font-weight: 600; letter-spacing: 0; text-transform: none; line-height: 1.5; }
-.admin-table td .pill.green, .pill.green { background: var(--cms-success-soft); color: var(--cms-success-text); border-color: transparent; }
-.admin-table td .pill.clay, .pill.clay { background: var(--cms-primary-soft); color: var(--cms-primary-text); border-color: transparent; }
-.admin-table td .pill.rose, .pill.rose { background: var(--cms-warning-soft); color: var(--cms-warning-text); border-color: transparent; }
-.admin-table td .pill.grey, .pill.grey { background: var(--cms-surface-2); color: var(--cms-muted); border-color: var(--cms-border); }
-
-/* Breakdown bars */
-.breakdown-row { grid-template-columns: 180px 1fr 56px 56px; padding: 10px 0; border-bottom: 1px solid var(--cms-border); }
-.breakdown-row .name { font-family: var(--font-ui); font-size: 13px; color: var(--cms-text); }
-.breakdown-row .name strong { font-weight: 600; }
-.breakdown-row .bar { height: 6px; background: var(--cms-surface-2); border-radius: 3px; overflow: hidden; }
-.breakdown-row .bar-fill { background: var(--cms-primary); border-radius: 3px; }
-.breakdown-row.b .bar-fill { background: var(--cms-success); }
-.breakdown-row.c .bar-fill { background: var(--cms-warning); }
-.breakdown-row .count { font-family: var(--font-ui); font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 600; color: var(--cms-text); }
-.breakdown-row .pct { font-family: var(--font-ui); font-variant-numeric: tabular-nums; font-size: 12px; color: var(--cms-muted); letter-spacing: 0; }
-
-/* Health cells */
-.health-grid { background: transparent; border: none; gap: 12px; grid-template-columns: repeat(4, 1fr); }
-.health-cell { background: var(--cms-surface); border: 1px solid var(--cms-border); border-radius: 8px; border-right: 1px solid var(--cms-border); padding: 16px 18px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); }
-.health-cell:last-child { border-right: 1px solid var(--cms-border); }
-.health-cell .label { color: var(--cms-muted); font-size: 11px; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase; }
-.health-cell .value { font-family: var(--font-ui); font-weight: 700; font-size: 22px; letter-spacing: -0.01em; color: var(--cms-text); }
-.health-cell .value .unit { font-style: normal; font-size: 12px; color: var(--cms-muted); margin-left: 4px; font-weight: 500; }
-.health-cell .status { font-size: 11px; font-weight: 600; letter-spacing: 0; text-transform: uppercase; }
-.health-cell .status.green { color: var(--cms-success); }
-.health-cell .status.amber { color: var(--cms-warning); }
-.health-cell .status.red { color: var(--cms-danger); }
-
-/* Activity feed */
-.activity-feed { background: var(--cms-surface); border: 1px solid var(--cms-border); border-radius: 8px; overflow: hidden; }
-.activity-row { padding: 11px 18px; border-bottom: 1px solid var(--cms-border); }
-.activity-row .when { font-family: var(--font-mono); font-size: 11.5px; color: var(--cms-muted); letter-spacing: 0; }
-.activity-row .kind { font-family: var(--font-ui); font-size: 11px; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase; color: var(--cms-primary); }
-.activity-row .what { font-family: var(--font-ui); font-size: 13px; color: var(--cms-text); }
-.activity-row .what .id { font-family: var(--font-mono); font-size: 11.5px; color: var(--cms-muted); margin-left: 6px; letter-spacing: 0; }
-.activity-row .meta { font-family: var(--font-ui); font-size: 11.5px; color: var(--cms-muted); letter-spacing: 0; }
-
-/* User management toolbar */
-.um-toolbar { margin-bottom: 14px; }
-.um-search { background: var(--cms-surface); border: 1px solid var(--cms-border); border-radius: 6px; padding: 0 14px; }
-.um-search .icon { color: var(--cms-muted); font-size: 13px; }
-.um-search input { font-family: var(--font-ui); font-size: 13.5px; color: var(--cms-text); padding: 8px 6px; }
-.um-search input::placeholder { color: var(--cms-subtle); }
-.um-search:focus-within { border-color: var(--cms-primary); box-shadow: 0 0 0 3px var(--cms-primary-soft); }
-
-.um-filters { background: var(--cms-surface); border: 1px solid var(--cms-border); border-radius: 6px; overflow: hidden; }
-.um-filters a { padding: 8px 14px; font-family: var(--font-ui); font-size: 12px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--cms-text-2); border-right: 1px solid var(--cms-border); }
-.um-filters a:last-child { border-right: none; }
-.um-filters a.active { background: var(--cms-primary); color: #ffffff; }
-.um-filters a:hover:not(.active) { background: var(--cms-surface-2); color: var(--cms-text); }
-
-.um-stats { background: var(--cms-surface); border: 1px solid var(--cms-border); border-radius: 6px 6px 0 0; }
-.um-stats .stat { padding: 8px 14px; font-size: 12px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--cms-muted); border-right: 1px solid var(--cms-border); }
-.um-stats .stat:last-child { border-right: none; }
-.um-stats .stat strong { color: var(--cms-text); font-weight: 600; }
-
-.um-actions { background: var(--cms-surface); border: 1px solid var(--cms-border); border-top: none; border-bottom: none; padding: 10px 14px; }
-.um-actions .label { font-size: 11.5px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--cms-muted); }
-.um-actions a { font-size: 12px; font-weight: 500; padding: 5px 10px; border-radius: 4px; border: 1px solid var(--cms-border-strong); color: var(--cms-text); background: var(--cms-surface); letter-spacing: 0; }
-.um-actions a:hover:not(.disabled) { background: var(--cms-surface-2); color: var(--cms-text); border-color: var(--cms-border-strong); }
-.um-actions a.disabled { color: var(--cms-subtle); border-color: var(--cms-border); background: var(--cms-surface); cursor: not-allowed; }
-.um-actions a.disabled:hover { background: var(--cms-surface); color: var(--cms-subtle); }
-
-/* UM table */
-.um-table tbody tr.open { background: var(--cms-primary-soft); }
-.um-table tbody tr.open td { border-top: 2px solid var(--cms-primary); border-bottom: 2px solid var(--cms-primary); }
-.um-table tbody tr.open td:first-child { border-left: 2px solid var(--cms-primary); }
-.um-table tbody tr.open td:last-child { border-right: 2px solid var(--cms-primary); }
-.um-table tbody tr.selected { background: rgba(37, 99, 235, 0.04); }
-.um-table input[type="checkbox"] { accent-color: var(--cms-primary); }
-.um-table thead a.sort-h { color: inherit; }
-.um-table thead a.sort-h:hover { color: var(--cms-primary); text-decoration: underline; }
-.um-table td.actions-cell a { color: var(--cms-primary); font-size: 12px; font-weight: 500; letter-spacing: 0; text-transform: none; }
-.um-table td.actions-cell a:hover { color: var(--cms-primary-hover); text-decoration: underline; }
-
-/* Pagination */
-.um-pagination { background: var(--cms-surface); border: 1px solid var(--cms-border); border-radius: 0 0 6px 6px; padding: 10px 14px; }
-.um-pagination .info { font-size: 12px; color: var(--cms-muted); letter-spacing: 0; }
-.um-pagination .info strong { color: var(--cms-text); font-weight: 600; }
-.um-pagination .pages a { font-family: var(--font-ui); font-size: 12px; color: var(--cms-text-2); border: 1px solid var(--cms-border); padding: 5px 10px; }
-.um-pagination .pages a.active { background: var(--cms-primary); border-color: var(--cms-primary); color: #ffffff; }
-.um-pagination .pages a:hover:not(.active) { background: var(--cms-surface-2); }
-
-/* User detail */
-.user-detail { background: var(--cms-surface); border: 1px solid var(--cms-border); border-radius: 8px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); margin-top: 24px; }
-.user-detail-head { background: var(--cms-surface-2); border-bottom: 1px solid var(--cms-border); padding: 18px 22px; }
-.user-detail-head .who { font-family: var(--font-ui); font-size: 18px; font-weight: 600; letter-spacing: -0.01em; color: var(--cms-text); }
-.user-detail-head .who .sub { font-family: var(--font-ui); font-size: 12.5px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--cms-muted); }
-
-.user-detail-tabs { background: var(--cms-surface); border-bottom: 1px solid var(--cms-border); }
-.user-detail-tabs a { padding: 12px 18px; font-family: var(--font-ui); font-size: 12.5px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--cms-muted); border-right: 1px solid var(--cms-border); border-bottom: 2px solid transparent; }
-.user-detail-tabs a:hover:not(.active) { background: var(--cms-surface-2); color: var(--cms-text); }
-.user-detail-tabs a.active { color: var(--cms-primary); border-bottom-color: var(--cms-primary); background: var(--cms-surface); }
-
-.user-detail-body { padding: 20px 24px; }
-.user-detail-col { padding: 18px 22px; border-right: 1px solid var(--cms-border); }
-.user-detail-col h4 { font-family: var(--font-ui); font-size: 11.5px; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase; color: var(--cms-muted); margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--cms-border); }
-.user-detail-row { font-family: var(--font-ui); font-size: 13px; padding: 6px 0; }
-.user-detail-row .k { font-family: var(--font-ui); font-size: 11.5px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--cms-muted); }
-.user-detail-row .v { color: var(--cms-text); font-size: 13px; }
-.user-detail-row .v .mono { font-family: var(--font-mono); font-size: 12px; color: var(--cms-muted); letter-spacing: 0; }
-.user-detail-row .v strong { color: var(--cms-text); font-weight: 600; }
-.detail-rows .user-detail-row { border-bottom: 1px dotted var(--cms-border); }
-
-.user-detail-actions { background: var(--cms-surface-2); border-top: 1px solid var(--cms-border); padding: 16px 22px; }
-.user-detail-actions .label { font-size: 11.5px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--cms-muted); }
-.user-detail-actions a { font-family: var(--font-ui); font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: 4px; border: 1px solid var(--cms-border-strong); color: var(--cms-text); background: var(--cms-surface); letter-spacing: 0; }
-.user-detail-actions a:hover { background: var(--cms-surface-2); border-color: var(--cms-border-strong); color: var(--cms-text); }
-.user-detail-actions a.primary { background: var(--cms-primary); border-color: var(--cms-primary); color: #ffffff; }
-.user-detail-actions a.primary:hover { background: var(--cms-primary-hover); border-color: var(--cms-primary-hover); color: #ffffff; }
-.user-detail-actions a.danger { background: var(--cms-surface); border-color: var(--cms-danger); color: var(--cms-danger); }
-.user-detail-actions a.danger:hover { background: var(--cms-danger); color: #ffffff; }
-
-/* Audit log dots */
-.audit-row .audit-dot::after { border: 2px solid var(--cms-surface); }
-.audit-row.audit-admin .audit-dot::after { background: var(--cms-primary); box-shadow: 0 0 0 1px var(--cms-primary); }
-.audit-row.audit-subscription .audit-dot::after { background: var(--cms-warning); box-shadow: 0 0 0 1px var(--cms-warning); }
-.audit-row.audit-auth .audit-dot::after { background: var(--cms-muted); box-shadow: 0 0 0 1px var(--cms-muted); }
-.audit-row.audit-decision .audit-dot::after { background: var(--cms-success); box-shadow: 0 0 0 1px var(--cms-success); }
-.audit-row .audit-summary { font-family: var(--font-ui); font-size: 13px; color: var(--cms-text); }
-.audit-row .audit-meta { font-family: var(--font-ui); font-size: 12px; color: var(--cms-muted); }
-.audit-row .audit-source { font-family: var(--font-ui); color: var(--cms-primary); font-size: 11px; font-weight: 600; letter-spacing: 0; text-transform: none; }
-.audit-row .audit-ts { font-family: var(--font-mono); font-size: 11.5px; color: var(--cms-muted); }
-.audit-row .audit-ts .ts-time { color: var(--cms-text); font-weight: 500; }
-.audit-row .audit-ts .ts-rel { color: var(--cms-muted); }
-
-/* Notes */
-.note-item { background: var(--cms-primary-soft); border-left: 3px solid var(--cms-primary); border-radius: 0 4px 4px 0; }
-.note-item .note-meta { font-family: var(--font-ui); letter-spacing: 0; text-transform: none; font-weight: 600; color: var(--cms-primary-text); }
-.note-item .note-body { font-family: var(--font-ui); font-size: 13px; color: var(--cms-text); }
-
-/* Empty / placeholder text */
-.empty-note { font-family: var(--font-ui); font-style: normal; color: var(--cms-muted); font-size: 13px; }
-
-/* Modal */
-#modal-overlay { background: rgba(15, 23, 42, 0.55); }
-#modal-dialog { background: var(--cms-surface); border: none; border-radius: 8px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
-.modal-header { background: var(--cms-surface); border-bottom: 1px solid var(--cms-border); padding: 16px 22px; }
-.modal-header h3 { font-family: var(--font-ui); font-size: 16px; font-weight: 600; letter-spacing: 0; color: var(--cms-text); }
-.modal-header .modal-close { font-size: 18px; color: var(--cms-muted); }
-.modal-header .modal-close:hover { color: var(--cms-text); }
-.modal-body { font-family: var(--font-ui); font-size: 13.5px; color: var(--cms-text-2); padding: 20px 22px; }
-.modal-body p { margin: 0 0 10px; }
-.modal-body textarea, .modal-body input[type="text"], .modal-body input[type="number"], .modal-body select { font-family: var(--font-ui); font-size: 13.5px; padding: 8px 11px; border: 1px solid var(--cms-border-strong); border-radius: 6px; color: var(--cms-text); background: var(--cms-surface); }
-.modal-body textarea:focus, .modal-body input:focus, .modal-body select:focus { outline: none; border-color: var(--cms-primary); box-shadow: 0 0 0 3px var(--cms-primary-soft); }
-.modal-body .form-label { font-family: var(--font-ui); font-size: 11.5px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--cms-text-2); margin-bottom: 6px; }
-.tier-opt { font-family: var(--font-ui); font-size: 13px; padding: 10px 12px; border: 1px solid var(--cms-border-strong); border-radius: 6px; color: var(--cms-text); }
-.tier-opt:hover { background: var(--cms-surface-2); border-color: var(--cms-primary); }
-.tier-opt input[type="radio"] { accent-color: var(--cms-primary); }
-.modal-footer { background: var(--cms-surface-2); border-top: 1px solid var(--cms-border); padding: 14px 22px; }
-.modal-btn { font-family: var(--font-ui); font-size: 12.5px; font-weight: 500; padding: 7px 14px; border-radius: 6px; border: 1px solid var(--cms-border-strong); color: var(--cms-text); background: var(--cms-surface); letter-spacing: 0; }
-.modal-btn:hover { background: var(--cms-surface-2); color: var(--cms-text); }
-.modal-btn.primary { background: var(--cms-primary); border-color: var(--cms-primary); color: #ffffff; }
-.modal-btn.primary:hover { background: var(--cms-primary-hover); border-color: var(--cms-primary-hover); color: #ffffff; }
-
-/* Toast */
-.toast { background: var(--cms-text); color: #ffffff; border-radius: 6px; font-family: var(--font-ui); font-size: 13px; }
-.toast.toast-success { border-left-color: var(--cms-success); }
-.toast.toast-warning { border-left-color: var(--cms-warning); }
-.toast.toast-info { border-left-color: var(--cms-primary); }
-
-/* SKU cards */
-.sku-grid { gap: 14px; grid-template-columns: 1fr 1fr 1fr; border: none; background: transparent; }
-.sku-cell { background: var(--cms-surface); border: 1px solid var(--cms-border); border-radius: 8px; border-right: 1px solid var(--cms-border); padding: 22px 24px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); }
-.sku-cell:last-child { border-right: 1px solid var(--cms-border); }
-.sku-cell.featured { background: linear-gradient(180deg, var(--cms-primary-soft) 0%, var(--cms-surface) 100%); border-color: var(--cms-primary); }
-.sku-cell .label { color: var(--cms-primary); font-size: 11px; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase; }
-.sku-cell .name { font-family: var(--font-ui); font-size: 17px; font-weight: 600; letter-spacing: 0; color: var(--cms-text); }
-.sku-cell .price { font-family: var(--font-ui); font-size: 28px; font-weight: 700; letter-spacing: -0.02em; color: var(--cms-text); }
-.sku-cell .price .unit { font-family: var(--font-ui); font-style: normal; font-size: 11px; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase; color: var(--cms-muted); }
-.sku-cell .terms { font-family: var(--font-ui); font-style: normal; font-size: 12.5px; color: var(--cms-muted); }
-.sku-cell .ids { font-family: var(--font-mono); background: var(--cms-surface-2); border-radius: 4px; border: 1px solid var(--cms-border); font-size: 11px; color: var(--cms-text-2); letter-spacing: 0; padding: 8px 10px; line-height: 1.6; }
-.sku-cell .ids strong { color: var(--cms-text); font-weight: 600; font-family: var(--font-mono); }
-.sku-cell .counts strong { font-family: var(--font-ui); font-size: 18px; font-weight: 700; letter-spacing: 0; color: var(--cms-text); text-transform: none; }
-.sku-cell .counts > div { font-family: var(--font-ui); font-size: 11px; font-weight: 600; letter-spacing: 0; text-transform: uppercase; color: var(--cms-muted); }
-.sku-cell .sku-actions a { font-family: var(--font-ui); font-size: 12px; font-weight: 500; padding: 5px 11px; border: 1px solid var(--cms-border-strong); color: var(--cms-text); border-radius: 4px; letter-spacing: 0; background: var(--cms-surface); }
-.sku-cell .sku-actions a:hover { background: var(--cms-surface-2); color: var(--cms-text); }
-.sku-cell .sku-actions a.danger { color: var(--cms-danger); border-color: var(--cms-danger); }
-.sku-cell .sku-actions a.danger:hover { background: var(--cms-danger); color: #ffffff; }
-
-/* Sub-h3 */
-.section-sub-h3 { font-family: var(--font-ui); color: var(--cms-text); font-size: 13px; font-weight: 600; letter-spacing: 0; text-transform: none; }
-
-/* Sparklines: hide the editorial ones */
-.spark svg polyline { stroke: var(--cms-primary) !important; }
-
-/* Colophon */
-.colophon { background: var(--cms-surface); border-top: 1px solid var(--cms-border); padding: 18px 32px; }
-.colophon-inner { max-width: 1440px; margin: 0 auto; }
-.colophon-bottom { display: flex; justify-content: space-between; gap: 18px; font-family: var(--font-ui); font-size: 11.5px; color: var(--cms-muted); letter-spacing: 0; text-transform: none; }
-
-/* ============================================================
-   VERDICT AI · model + prompt + secret manager
-   ============================================================ */
-.ai-config { display: grid; grid-template-columns: 320px 1fr; gap: 18px; align-items: start; }
-.ai-config .ai-side { display: flex; flex-direction: column; gap: 14px; }
-.ai-config .ai-main { display: flex; flex-direction: column; gap: 14px; }
-
-.ai-panel { background: var(--cms-surface); border: 1px solid var(--cms-border); border-radius: 8px; padding: 18px 20px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); }
-.ai-panel h4 { font-family: var(--font-ui); font-size: 13px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--cms-text); margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--cms-border); display: flex; align-items: center; justify-content: space-between; }
-.ai-panel h4 .helper { font-weight: 500; font-size: 11px; color: var(--cms-muted); }
-
-.ai-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
-.ai-field:last-child { margin-bottom: 0; }
-.ai-field label { font-family: var(--font-ui); font-size: 11.5px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--cms-text-2); display: flex; justify-content: space-between; }
-.ai-field label .hint { font-weight: 500; color: var(--cms-muted); font-size: 11px; }
-.ai-field input, .ai-field select, .ai-field textarea { font-family: var(--font-ui); font-size: 13px; padding: 8px 11px; border: 1px solid var(--cms-border-strong); border-radius: 6px; color: var(--cms-text); background: var(--cms-surface); }
-.ai-field textarea { font-family: var(--font-mono); font-size: 12.5px; line-height: 1.55; min-height: 240px; resize: vertical; }
-.ai-field input:focus, .ai-field select:focus, .ai-field textarea:focus { outline: none; border-color: var(--cms-primary); box-shadow: 0 0 0 3px var(--cms-primary-soft); }
-.ai-field .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-.ai-models { display: flex; flex-direction: column; gap: 8px; }
-.ai-model-opt { display: flex; gap: 10px; padding: 10px 12px; border: 1px solid var(--cms-border-strong); border-radius: 6px; cursor: pointer; align-items: flex-start; font-family: var(--font-ui); font-size: 13px; color: var(--cms-text); }
-.ai-model-opt:hover { background: var(--cms-surface-2); }
-.ai-model-opt.checked { background: var(--cms-primary-soft); border-color: var(--cms-primary); }
-.ai-model-opt input[type="radio"] { margin-top: 3px; accent-color: var(--cms-primary); }
-.ai-model-opt strong { display: block; font-weight: 600; color: var(--cms-text); font-size: 13px; margin-bottom: 2px; }
-.ai-model-opt .id { font-family: var(--font-mono); font-size: 11px; color: var(--cms-muted); }
-.ai-model-opt .meta { font-size: 11.5px; color: var(--cms-muted); margin-top: 4px; }
-
-.ai-key-row { display: flex; gap: 8px; align-items: center; }
-.ai-key-row input { flex: 1; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; }
-.ai-key-row .key-status { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; font-family: var(--font-ui); font-size: 11px; font-weight: 600; letter-spacing: 0; background: var(--cms-warning-soft); color: var(--cms-warning-text); }
-.ai-key-row .key-status.bound { background: var(--cms-success-soft); color: var(--cms-success-text); }
-.ai-key-row .key-status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--cms-warning); }
-.ai-key-row .key-status.bound::before { background: var(--cms-success); }
-
-.ai-secret-info { display: grid; grid-template-columns: auto 1fr; gap: 10px 18px; font-family: var(--font-ui); font-size: 12.5px; padding: 12px 14px; background: var(--cms-surface-2); border: 1px solid var(--cms-border); border-radius: 6px; margin-top: 10px; }
-.ai-secret-info .k { font-weight: 600; color: var(--cms-text-2); font-size: 11.5px; }
-.ai-secret-info .v { color: var(--cms-text); font-size: 12.5px; }
-.ai-secret-info .v.mono { font-family: var(--font-mono); font-size: 11.5px; color: var(--cms-muted); }
-
-.ai-btn-row { display: flex; gap: 8px; align-items: center; padding-top: 14px; border-top: 1px solid var(--cms-border); margin-top: 4px; flex-wrap: wrap; }
-.ai-btn { font-family: var(--font-ui); font-size: 12.5px; font-weight: 500; padding: 7px 14px; border-radius: 6px; border: 1px solid var(--cms-border-strong); color: var(--cms-text); background: var(--cms-surface); cursor: pointer; letter-spacing: 0; }
-.ai-btn:hover { background: var(--cms-surface-2); }
-.ai-btn.primary { background: var(--cms-primary); border-color: var(--cms-primary); color: #ffffff; }
-.ai-btn.primary:hover { background: var(--cms-primary-hover); border-color: var(--cms-primary-hover); }
-.ai-btn.danger { color: var(--cms-danger); border-color: var(--cms-danger); }
-.ai-btn.danger:hover { background: var(--cms-danger); color: #ffffff; }
-
-.ai-prompt-meta { display: flex; gap: 14px; font-family: var(--font-ui); font-size: 11.5px; color: var(--cms-muted); margin-top: 6px; }
-.ai-prompt-meta strong { color: var(--cms-text); font-weight: 600; }
-
-.ai-generation-log { background: var(--cms-surface); border: 1px solid var(--cms-border); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); }
-.ai-log-row { display: grid; grid-template-columns: 140px 1fr 100px 100px 100px 80px; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--cms-border); font-family: var(--font-ui); font-size: 12.5px; align-items: center; }
-.ai-log-row:last-child { border-bottom: none; }
-.ai-log-row.head { background: var(--cms-surface-2); font-size: 11px; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase; color: var(--cms-text-2); }
-.ai-log-row .ts { font-family: var(--font-mono); font-size: 11.5px; color: var(--cms-muted); }
-.ai-log-row .id { font-family: var(--font-mono); font-size: 12px; color: var(--cms-text-2); }
-.ai-log-row .id strong { color: var(--cms-text); font-weight: 600; }
-.ai-log-row .num { font-variant-numeric: tabular-nums; text-align: right; }
-
-/* Responsive */
-@media (max-width: 1100px) {
-  .ai-config { grid-template-columns: 1fr; }
-  .ai-log-row { grid-template-columns: 120px 1fr 90px 80px 80px 70px; font-size: 11.5px; }
-}
-@media (max-width: 700px) {
-  .masthead-inner { grid-template-columns: 1fr; gap: 4px; text-align: center; height: auto; padding: 10px 16px; }
-  .masthead-left, .masthead-right { font-size: 11px; }
-  .admin-page-inner { padding: 18px 16px 64px; }
-  .metric-grid { grid-template-columns: 1fr; }
-  .health-grid { grid-template-columns: 1fr 1fr; }
-  .sku-grid { grid-template-columns: 1fr; }
-  .ai-log-row { grid-template-columns: 1fr; gap: 4px; padding: 12px 14px; }
-  .ai-log-row.head { display: none; }
-}
-
-
-
-
-/* ============================================================
-   MARKETING TAGS · GTM, GA4, PostHog, Meta Pixel
-   ============================================================ */
-
-.tag-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-.tag-card { background: var(--cms-surface); border: 1px solid var(--cms-border); border-radius: 8px; padding: 18px 20px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); display: flex; flex-direction: column; gap: 12px; }
-.tag-card-head { display: flex; align-items: center; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid var(--cms-border); }
-.tag-card-head .name { font-family: var(--font-ui); font-size: 14px; font-weight: 600; color: var(--cms-text); letter-spacing: 0; }
-.tag-card-head .name .vendor { font-family: var(--font-mono); font-size: 11px; font-weight: 500; color: var(--cms-muted); letter-spacing: 0; margin-left: 8px; }
-.tag-card-head .tag-status { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-family: var(--font-ui); font-size: 11px; font-weight: 600; letter-spacing: 0; background: var(--cms-surface-2); color: var(--cms-muted); }
-.tag-card-head .tag-status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--cms-muted); }
-.tag-card-head .tag-status.configured { background: var(--cms-success-soft); color: var(--cms-success-text); }
-.tag-card-head .tag-status.configured::before { background: var(--cms-success); }
-.tag-card-head .tag-status.disabled { background: var(--cms-surface-2); color: var(--cms-muted); }
-
-.tag-field { display: flex; flex-direction: column; gap: 6px; }
-.tag-field label { font-family: var(--font-ui); font-size: 11.5px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--cms-text-2); display: flex; justify-content: space-between; }
-.tag-field label .hint { font-weight: 500; color: var(--cms-muted); font-size: 11px; }
-.tag-field input, .tag-field select { font-family: var(--font-mono); font-size: 12.5px; padding: 8px 11px; border: 1px solid var(--cms-border-strong); border-radius: 6px; color: var(--cms-text); background: var(--cms-surface); }
-.tag-field select { font-family: var(--font-ui); }
-.tag-field input:focus, .tag-field select:focus { outline: none; border-color: var(--cms-primary); box-shadow: 0 0 0 3px var(--cms-primary-soft); }
-.tag-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-.tag-toggles { display: flex; gap: 14px; padding-top: 10px; border-top: 1px solid var(--cms-border); margin-top: 2px; }
-.tag-toggles label { display: flex; gap: 8px; align-items: center; font-family: var(--font-ui); font-size: 12px; font-weight: 500; color: var(--cms-text-2); cursor: pointer; }
-.tag-toggles input[type="checkbox"] { accent-color: var(--cms-primary); width: 14px; height: 14px; }
-
-.tag-card .tag-actions { display: flex; gap: 8px; align-items: center; padding-top: 10px; border-top: 1px solid var(--cms-border); flex-wrap: wrap; }
-
-.consent-panel { background: var(--cms-surface); border: 1px solid var(--cms-border); border-radius: 8px; padding: 18px 22px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); margin-top: 14px; }
-.consent-panel h4 { font-family: var(--font-ui); font-size: 13px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--cms-text); margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--cms-border); display: flex; align-items: center; justify-content: space-between; }
-.consent-panel h4 .helper { font-weight: 500; font-size: 11px; color: var(--cms-muted); }
-.consent-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 14px; align-items: start; }
-.consent-panel .preview { background: var(--cms-text); color: #ffffff; padding: 14px 18px; border-radius: 8px; font-family: var(--font-ui); font-size: 12.5px; line-height: 1.55; }
-.consent-panel .preview .preview-label { display: block; font-size: 10.5px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #94a3b8; margin-bottom: 8px; }
-.consent-panel .preview .preview-actions { display: flex; gap: 8px; margin-top: 12px; }
-.consent-panel .preview .preview-btn { font-family: var(--font-ui); font-size: 11.5px; font-weight: 500; padding: 6px 12px; border-radius: 4px; border: 1px solid #475569; color: #f1f5f9; background: transparent; }
-.consent-panel .preview .preview-btn.primary { background: var(--cms-primary); border-color: var(--cms-primary); color: #ffffff; }
-
-@media (max-width: 1100px) {
-  .tag-grid { grid-template-columns: 1fr; }
-  .consent-grid { grid-template-columns: 1fr; }
-}
-
-
+  /* Admin uses its own palette · slate/blue CMS aesthetic, NOT the
+     white+wine brand. Per project_admin_stack.md. */
+  :root {
+    --bg:        #0b1a2b;
+    --surface:   #142a44;
+    --surface-2: #1e3a5c;
+    --border:    #2a4870;
+    --rule:      #1c3354;
+    --ink:       #e8eef7;
+    --ink-soft:  #b9c5d8;
+    --muted:     #7b8aa5;
+    --accent:    #6aa3ff;
+    --accent-soft: #1c3a6b;
+    --green:     #4ade80;
+    --yellow:    #fbbf24;
+    --red:       #f87171;
+    --grey:      #6b7280;
+    --font-ui:   -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-ui); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 28px; display: flex; align-items: center; justify-content: space-between; }
+  .topbar .brand { font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.12em; color: var(--accent); }
+  .topbar .brand .tld { color: var(--ink); }
+  .topbar .meta { font-family: var(--font-mono); font-size: 11px; color: var(--muted); display: flex; gap: 18px; }
+  .topbar .meta a { color: var(--muted); }
+  .topbar .meta a:hover { color: var(--ink); }
+
+  .shell { max-width: 1480px; margin: 0 auto; padding: 24px 28px 60px; }
+  h1 { font-size: 22px; font-weight: 600; margin: 0 0 4px; color: var(--ink); letter-spacing: -0.005em; }
+  h2 { font-size: 14px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); margin: 28px 0 12px; }
+  h3 { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+
+  .lede { color: var(--ink-soft); font-size: 13px; margin: 0 0 24px; }
+  .lede .ts { font-family: var(--font-mono); color: var(--muted); }
+
+  /* Card grids */
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  @media (max-width: 1100px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } .grid-3 { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 700px)  { .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; } }
+
+  .card { background: var(--surface); border: 1px solid var(--border); padding: 16px 18px; }
+  .card .label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .card .value { font-size: 26px; font-weight: 600; color: var(--ink); line-height: 1; font-variant-numeric: tabular-nums; }
+  .card .sub { font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-top: 8px; }
+  .card .sub .pos { color: var(--green); }
+  .card .sub .neg { color: var(--red); }
+
+  /* Integration row */
+  .int-row { display: grid; grid-template-columns: 18px 1.4fr 1fr 3fr auto; gap: 14px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--rule); }
+  .int-row:last-child { border-bottom: none; }
+  .int-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .int-dot.green  { background: var(--green); box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.15); }
+  .int-dot.yellow { background: var(--yellow); box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15); }
+  .int-dot.red    { background: var(--red);   box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.15); }
+  .int-dot.not-configured { background: var(--grey); box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.15); }
+  .int-name { font-weight: 600; color: var(--ink); }
+  .int-category { font-family: var(--font-mono); font-size: 11px; color: var(--muted); letter-spacing: 0.04em; }
+  .int-detail { color: var(--ink-soft); font-size: 13px; }
+  .int-links { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+  .int-links a { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em; color: var(--accent); padding: 4px 10px; border: 1px solid var(--rule); }
+  .int-links a:hover { background: var(--accent-soft); text-decoration: none; }
+
+  /* Tables */
+  table.adm { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); font-size: 13px; }
+  table.adm th { text-align: left; padding: 10px 14px; background: var(--surface-2); color: var(--ink); font-weight: 600; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+  table.adm td { padding: 10px 14px; border-bottom: 1px solid var(--rule); color: var(--ink-soft); vertical-align: top; }
+  table.adm td.mono { font-family: var(--font-mono); font-size: 12px; }
+  table.adm tr:last-child td { border-bottom: none; }
+  table.adm code { font-family: var(--font-mono); font-size: 11px; background: var(--surface-2); padding: 1px 5px; color: var(--accent); }
+
+  /* Buttons */
+  .btn { display: inline-block; font-family: var(--font-ui); font-size: 13px; font-weight: 500; padding: 8px 14px; background: var(--accent); color: var(--bg); border: none; cursor: pointer; }
+  .btn:hover { filter: brightness(1.1); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+  .btn-secondary:hover { background: var(--accent-soft); }
+
+  /* Cron control */
+  .cron-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .cron-cell { background: var(--surface); border: 1px solid var(--border); padding: 14px 16px; }
+  .cron-cell .name { font-family: var(--font-mono); font-size: 12px; color: var(--ink); margin-bottom: 4px; letter-spacing: 0.04em; }
+  .cron-cell .desc { color: var(--muted); font-size: 12px; margin-bottom: 10px; }
+  .cron-cell .out { font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); white-space: pre-wrap; max-height: 100px; overflow-y: auto; margin-top: 8px; padding: 8px; background: var(--bg); border: 1px solid var(--rule); display: none; }
+  .cron-cell .out.is-shown { display: block; }
+
+  .status-banner { padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); margin-bottom: 18px; }
+  .status-banner.is-error { border-left-color: var(--red); }
+  .status-banner.is-success { border-left-color: var(--green); }
+  .status-banner.is-loading { color: var(--muted); }
 </style>
 </head>
 <body>
 
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
-
-
-<a class="skip-link" href="#main-content">Skip to main content</a>
-
-
-<header class="masthead">
-  <div class="masthead-inner">
-    <div class="masthead-left"></div>
-    <a class="masthead-brand" href="index.html" aria-label="Counsel.day home"><svg class="brand-mark" viewBox="0 0 56 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="20" cy="16" r="11" fill="none" stroke="#2E4438" stroke-width="3"/><circle cx="36" cy="16" r="11" fill="none" stroke="#6B2737" stroke-width="3"/><path d="M 23.6 6.4 A 11 11 0 0 1 29.4 11" fill="none" stroke="#2E4438" stroke-width="3" stroke-linecap="round"/></svg><span class="brand-wordmark">Counsel<span class="tld">.day</span></span></a>
-    <div class="masthead-right">James (admin) · 14:32 NZDT</div>
-  </div>
-</header>
-<hr class="masthead-rule">
-
-<main id="main-content">
-  <div class="admin-page-inner">
-
-    <div class="admin-banner">
-      <span class="label">⌬ Internal · Admin portal · Mockup</span>
-      <span class="desc">Wireframe of the operator dashboard, with illustrative sample data. In production this page lives at admin.counsel.day behind hardware-key MFA, served from the same Hetzner box as the API. Not linked from the public site nav.</span>
-    </div>
-
-    <div class="admin-head">
-      <div class="admin-head-left">
-        <div class="eyebrow">Admin · Operations dashboard</div>
-        <h1>Operations dashboard</h1>
-      </div>
-      <div class="admin-period-bar" role="tablist" aria-label="Reporting period">
-        <a>Today</a>
-        <a>7 days</a>
-        <a class="active">30 days</a>
-        <a>90 days</a>
-        <a>All time</a>
-      </div>
-    </div>
-
-    <!-- TOP-LINE METRICS -->
-    <div class="metric-grid">
-      <div class="metric-card">
-        <div class="label">Total users</div>
-        <div class="value">247</div>
-        <div class="delta"><span class="up">+38 ▲</span><span>vs prev 30d · +18.2%</span></div>
-        <div class="sub"><strong>198 free</strong> · 41 per-decision · 8 annual</div>
-      </div>
-      <div class="metric-card">
-        <div class="label">Paid users</div>
-        <div class="value">49</div>
-        <div class="delta"><span class="up">+11 ▲</span><span>vs prev 30d · +28.9%</span></div>
-        <div class="sub"><strong>USD 487</strong> recurring + per-decision revenue this 30d</div>
-      </div>
-      <div class="metric-card">
-        <div class="label">Conversion · free to paid</div>
-        <div class="value">24.7<span class="unit">%</span></div>
-        <div class="delta"><span class="up">+2.1 pp ▲</span><span>vs prev 30d</span></div>
-        <div class="sub">Of solo-tier users who started a decision, <strong>1 in 4</strong> upgraded to partner mode</div>
-      </div>
-      <div class="metric-card">
-        <div class="label">Decisions opened · 30d</div>
-        <div class="value">67</div>
-        <div class="delta"><span class="up">+12 ▲</span><span>vs prev 30d · +21.8%</span></div>
-        <div class="sub"><strong>43 still active</strong> · 24 closed in window</div>
-      </div>
-      <div class="metric-card">
-        <div class="label">Verdicts generated · 30d</div>
-        <div class="value">41</div>
-        <div class="delta"><span class="up">+9 ▲</span><span>vs prev 30d · +28.1%</span></div>
-        <div class="sub"><strong>40 successful</strong> · 1 retried + auto-refunded</div>
-      </div>
-      <div class="metric-card">
-        <div class="label">Gross revenue · 30d</div>
-        <div class="value">$487<span class="unit">USD</span></div>
-        <div class="delta"><span class="up">+$128 ▲</span><span>vs prev 30d · +35.7%</span></div>
-        <div class="sub">After Stripe + Anthropic + Brevo costs: <strong>net $441</strong> (90.5%)</div>
-      </div>
-    </div>
-
-    <!-- USERS -->
-    <section class="admin-section">
-      <div class="admin-section-head">
-        <div class="num">§ 1 · Users</div>
-        <h2>Signups across the period, free and <span class="ital">paid.</span></h2>
-      </div>
-
-      <div class="admin-grid-2">
-        <div class="admin-card">
-          <div class="admin-card-head">Signups · last 30 days</div>
-          <div class="admin-chart">
-            <canvas id="chart-signups" aria-label="Daily signups across the last 30 days, free vs paid" role="img" height="240"></canvas>
-          </div>
-          <div style="display: flex; gap: 24px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--rule); font-family: 'Manrope', sans-serif; font-size: 10.5px; letter-spacing: 0.10em; text-transform: uppercase; color: var(--muted);">
-            <span><span style="display: inline-block; width: 16px; height: 2px; background: var(--clay); vertical-align: middle; margin-right: 6px;"></span>Free signups</span>
-            <span><span style="display: inline-block; width: 16px; height: 2px; background: var(--rose); vertical-align: middle; margin-right: 6px;"></span>Paid (Couple + III)</span>
-          </div>
-        </div>
-
-        <div class="admin-card">
-          <div class="admin-card-head">Breakdown by edition</div>
-          <div class="breakdown-row">
-            <div class="name"><strong>Solo</strong> · free + $4.99/decision</div>
-            <div class="bar"><span class="bar-fill" style="width: 100%"></span></div>
-            <div class="count">191</div>
-            <div class="pct">77.3%</div>
-          </div>
-          <div class="breakdown-row b">
-            <div class="name"><strong>Couple</strong> · $9.99/decision</div>
-            <div class="bar"><span class="bar-fill" style="width: 21.4%"></span></div>
-            <div class="count">41</div>
-            <div class="pct">16.6%</div>
-          </div>
-          <div class="breakdown-row b">
-            <div class="name"><strong>Family</strong> · $14.99/decision</div>
-            <div class="bar"><span class="bar-fill" style="width: 2.1%"></span></div>
-            <div class="count">4</div>
-            <div class="pct">1.6%</div>
-          </div>
-          <div class="breakdown-row c">
-            <div class="name"><strong>Solo Annual</strong> · $49/yr · 100 decisions</div>
-            <div class="bar"><span class="bar-fill" style="width: 1.6%"></span></div>
-            <div class="count">3</div>
-            <div class="pct">1.2%</div>
-          </div>
-          <div class="breakdown-row c">
-            <div class="name"><strong>Couple Annual</strong> · $99/yr · 100 decisions</div>
-            <div class="bar"><span class="bar-fill" style="width: 4.1%"></span></div>
-            <div class="count">8</div>
-            <div class="pct">3.2%</div>
-          </div>
-          <div class="breakdown-row c">
-            <div class="name"><strong>Family Annual</strong> · $149/yr · 100 decisions</div>
-            <div class="bar"><span class="bar-fill" style="width: 1.1%"></span></div>
-            <div class="count">2</div>
-            <div class="pct">0.8%</div>
-          </div>
-          <div class="breakdown-row" style="border-top: 1px solid var(--rule-strong); margin-top: 8px; padding-top: 16px;">
-            <div class="name" style="font-weight: 500; color: var(--ink);">Total</div>
-            <div class="bar"></div>
-            <div class="count" style="color: var(--clay);">247</div>
-            <div class="pct" style="color: var(--clay);">100%</div>
-          </div>
-          <p style="margin-top: 18px; font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 14px; color: var(--muted); line-height: 1.55;">Solo-tier users self-promote to paid most often on the day-thirty verdict screen. <strong style="font-style: normal; color: var(--ink); font-weight: 500;">25 of the 41 per-decision users started as solo first.</strong></p>
-        </div>
-      </div>
-
-      <h3 style="font-family: 'Manrope', sans-serif; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--clay); margin-top: 32px; margin-bottom: 14px;">Recent signups · last 8</h3>
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>When</th>
-            <th>User ID</th>
-            <th>Method</th>
-            <th>Country</th>
-            <th>Edition</th>
-            <th>First decision</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td class="mono">11 May · 13:42</td><td class="mono">user_b7e2</td><td>Google OAuth</td><td>NZ</td><td><span class="pill grey">Free</span></td><td>Not yet</td></tr>
-          <tr><td class="mono">11 May · 11:08</td><td class="mono">user_3a91</td><td>Magic link</td><td>AU</td><td><span class="pill clay">Couple</span></td><td>Strong/Lean · 30d · today</td></tr>
-          <tr><td class="mono">10 May · 21:33</td><td class="mono">user_f4d8</td><td>Google OAuth</td><td>UK</td><td><span class="pill grey">Free</span></td><td>Yes/No · 14d · today</td></tr>
-          <tr><td class="mono">10 May · 19:14</td><td class="mono">user_19c5</td><td>Magic link</td><td>US</td><td><span class="pill clay">Couple</span></td><td>Strong/Lean · 60d · today</td></tr>
-          <tr><td class="mono">10 May · 17:52</td><td class="mono">user_82b0</td><td>Google OAuth</td><td>NZ</td><td><span class="pill rose">Couple Annual</span></td><td>Yes/No · 90d · today</td></tr>
-          <tr><td class="mono">10 May · 14:01</td><td class="mono">user_5ec6</td><td>Magic link</td><td>AU</td><td><span class="pill grey">Free</span></td><td>Strong/Lean · 30d · today</td></tr>
-          <tr><td class="mono">10 May · 10:22</td><td class="mono">user_d3a7</td><td>Google OAuth</td><td>CA</td><td><span class="pill grey">Free</span></td><td>Not yet</td></tr>
-          <tr><td class="mono">09 May · 22:48</td><td class="mono">user_0e44</td><td>Magic link</td><td>NZ</td><td><span class="pill clay">Couple</span></td><td>Yes/No · 30d · 1 of 30</td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <!-- USER MANAGEMENT -->
-    <section class="admin-section">
-      <div class="admin-section-head">
-        <div class="num">§ 2 · User management</div>
-        <h2>Find a user. Manage their <span class="ital">subscription, login, or data.</span></h2>
-      </div>
-
-      <div class="um-toolbar">
-        <div class="um-search">
-          <span class="icon">⌕</span>
-          <input id="um-search" type="text" placeholder="Search by email, user ID, or display name…" autocomplete="off" />
-        </div>
-        <div id="um-filters" class="um-filters">
-          <a data-filter="all" class="active">All</a>
-        </div>
-      </div>
-
-      <div class="um-stats">
-        <span class="stat" id="um-stats-info">Showing 1-10 of 30</span>
-        <span class="stat" id="um-stats-sort">Sort: Last sign-in ↓</span>
-        <span class="stat">View: <strong>Compact</strong></span>
-        <span class="stat right">Operator: <strong>James (admin)</strong></span>
-      </div>
-
-      <div id="um-bulk-actions" class="um-actions">
-        <span id="um-bulk-label" class="label">Bulk on selected (0)</span>
-        <a class="bulk-act disabled" data-bulk="email">Email selected</a>
-        <a class="bulk-act disabled" data-bulk="reset">Send password reset (Auth0)</a>
-        <a class="bulk-act disabled" data-bulk="tier">Change tier</a>
-        <a class="bulk-act disabled" data-bulk="suspend">Suspend</a>
-        <span class="spacer"></span>
-        <a class="bulk-act" data-bulk="add">+ Add user</a>
-        <a class="bulk-act" data-bulk="export">⤓ Export visible (CSV)</a>
-      </div>
-
-      <div class="um-table-wrap">
-        <table class="admin-table um-table">
-          <thead>
-            <tr>
-              <th class="cb">☐</th>
-              <th><a data-sort="email" class="sort-h">Email</a></th>
-              <th>User ID</th>
-              <th>Edition</th>
-              <th>Country</th>
-              <th><a data-sort="signupAt" class="sort-h">Signed up</a></th>
-              <th><a data-sort="lastSignIn" class="sort-h">Last sign-in</a></th>
-              <th><a data-sort="decisions" class="sort-h">Decisions</a></th>
-              <th><a data-sort="lifetimeRevenue" class="sort-h">Lifetime $</a></th>
-              <th>Status</th>
-              <th class="actions-cell">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="um-tbody"></tbody>
-        </table>
-      </div>
-
-      <div class="um-pagination">
-        <span id="um-page-info" class="info">Showing 1-10 of 30 users</span>
-        <div id="um-page-controls" class="pages"></div>
-      </div>
-
-      <!-- User detail panel (rendered by admin-app.js for the openUserId) -->
-      <div id="user-detail-mount"></div>
-    </section>
-
-    <!-- SUBSCRIPTIONS -->
-    <section class="admin-section">
-      <div class="admin-section-head">
-        <div class="num">§ 3 · Subscriptions and billing</div>
-        <h2>Annual subscribers across three plans, upfront-charge per-decision activity, <span class="ital">refunds.</span></h2>
-      </div>
-
-      <div class="metric-grid" style="margin-bottom: 32px;">
-        <div class="metric-card">
-          <div class="label">Active annual subscriptions</div>
-          <div class="value">13</div>
-          <div class="delta"><span class="up">+3 ▲</span><span>vs prev 30d</span></div>
-          <div class="sub"><strong>3 Solo Annual</strong> · <strong>8 Couple Annual</strong> · <strong>2 Family Annual</strong></div>
-        </div>
-        <div class="metric-card">
-          <div class="label">Per-decision revenue · 30d</div>
-          <div class="value">$579</div>
-          <div class="delta"><span class="up">+$172 ▲</span><span>vs prev 30d · +42.3%</span></div>
-          <div class="sub">Charged upfront: <strong>40 Couple</strong> · <strong>4 Family</strong> · <strong>14 Solo</strong></div>
-        </div>
-        <div class="metric-card">
-          <div class="label">Stripe failure rate · 30d</div>
-          <div class="value">0.6<span class="unit">%</span></div>
-          <div class="delta"><span class="up">−0.3 pp ▼</span><span>vs prev 30d</span></div>
-          <div class="sub"><strong>1 retry attempted</strong> · 0 ultimately failed</div>
-        </div>
-        <div class="metric-card">
-          <div class="label">Operator-issued refunds · 30d</div>
-          <div class="value">$9.99</div>
-          <div class="delta"><span class="flat">+1 ▬</span><span>vs prev 30d</span></div>
-          <div class="sub"><strong>1 refund</strong> · technical defect on №0156 · operator-approved</div>
-        </div>
-        <div class="metric-card">
-          <div class="label">Next renewal</div>
-          <div class="value">18 May</div>
-          <div class="sub">Couple Annual · t.nicolas@… · $99 USD</div>
-        </div>
-        <div class="metric-card">
-          <div class="label">Churn · 30d</div>
-          <div class="value">0<span class="unit">%</span></div>
-          <div class="sub">No annual cancellations or expirations this window</div>
-        </div>
-      </div>
-
-      <h3 class="section-sub-h3">Active annual subscriptions · 13 across three plans</h3>
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>User</th>
-            <th>Plan</th>
-            <th>Subscription ID</th>
-            <th>Started</th>
-            <th>Renews</th>
-            <th>Price</th>
-            <th>Decisions used · cap 100</th>
-            <th>Auto-renew</th>
-            <th class="actions-cell">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>j.olsen@example.com</td><td><span class="pill green">Solo Annual</span></td><td class="mono">sub_3PqKad6aN1tE3</td><td class="mono">03 May 2026</td><td class="mono">03 May 2027</td><td class="num">$49</td><td class="num">3 / 100</td><td><span class="pill green">On</span></td><td class="actions-cell"><a>View</a><a>Edit</a></td></tr>
-          <tr><td>p.ferreira@example.com</td><td><span class="pill green">Solo Annual</span></td><td class="mono">sub_3PqKad7aN1tE3</td><td class="mono">14 Mar 2026</td><td class="mono">14 Mar 2027</td><td class="num">$49</td><td class="num">4 / 100</td><td><span class="pill green">On</span></td><td class="actions-cell"><a>View</a><a>Edit</a></td></tr>
-          <tr><td>k.adeyemi@example.com</td><td><span class="pill green">Solo Annual</span></td><td class="mono">sub_3PqKad8aN1tE3</td><td class="mono">22 Apr 2026</td><td class="mono">22 Apr 2027</td><td class="num">$49</td><td class="num">2 / 100</td><td><span class="pill green">On</span></td><td class="actions-cell"><a>View</a><a>Edit</a></td></tr>
-          <tr><td>t.nicolas@example.com</td><td><span class="pill rose">Couple Annual</span></td><td class="mono">sub_3PqK4r9aN1tE3</td><td class="mono">18 May 2025</td><td class="mono">18 May 2026 (7d)</td><td class="num">$99</td><td class="num">7 / 100</td><td><span class="pill green">On</span></td><td class="actions-cell"><a>View</a><a>Edit</a></td></tr>
-          <tr><td>p.morrison@example.com</td><td><span class="pill rose">Couple Annual</span></td><td class="mono">sub_3PqK7b2aN1tE3</td><td class="mono">04 Jun 2025</td><td class="mono">04 Jun 2026 (24d)</td><td class="num">$99</td><td class="num">4 / 100</td><td><span class="pill green">On</span></td><td class="actions-cell"><a>View</a><a>Edit</a></td></tr>
-          <tr><td>n.silva@example.com</td><td><span class="pill rose">Couple Annual</span></td><td class="mono">sub_3PqK9d1aN1tE3</td><td class="mono">22 Aug 2025</td><td class="mono">22 Aug 2026</td><td class="num">$99</td><td class="num">5 / 100</td><td><span class="pill green">On</span></td><td class="actions-cell"><a>View</a><a>Edit</a></td></tr>
-          <tr><td>m.lefevre@example.com</td><td><span class="pill rose">Couple Annual</span></td><td class="mono">sub_3PqKaa2aN1tE3</td><td class="mono">14 Sep 2025</td><td class="mono">14 Sep 2026</td><td class="num">$99</td><td class="num">3 / 100</td><td><span class="pill green">On</span></td><td class="actions-cell"><a>View</a><a>Edit</a></td></tr>
-          <tr><td>g.brennan@example.com</td><td><span class="pill rose">Couple Annual</span></td><td class="mono">sub_3PqKab3aN1tE3</td><td class="mono">02 Nov 2025</td><td class="mono">02 Nov 2026</td><td class="num">$99</td><td class="num">2 / 100</td><td><span class="pill green">On</span></td><td class="actions-cell"><a>View</a><a>Edit</a></td></tr>
-          <tr><td>k.tarava@example.com</td><td><span class="pill rose">Couple Annual</span></td><td class="mono">sub_3PqKac4aN1tE3</td><td class="mono">28 Jan 2026</td><td class="mono">28 Jan 2027</td><td class="num">$99</td><td class="num">2 / 100</td><td><span class="pill green">On</span></td><td class="actions-cell"><a>View</a><a>Edit</a></td></tr>
-          <tr><td>i.makhno@example.com</td><td><span class="pill rose">Couple Annual</span></td><td class="mono">sub_3PqKad5aN1tE3</td><td class="mono">10 Apr 2026</td><td class="mono">10 Apr 2027</td><td class="num">$99</td><td class="num">1 / 100</td><td><span class="pill green">On</span></td><td class="actions-cell"><a>View</a><a>Edit</a></td></tr>
-          <tr><td>e.duarte@example.com</td><td><span class="pill rose">Couple Annual</span></td><td class="mono">sub_3PqKad9aN1tE3</td><td class="mono">02 Mar 2026</td><td class="mono">02 Mar 2027</td><td class="num">$99</td><td class="num">3 / 100</td><td><span class="pill green">On</span></td><td class="actions-cell"><a>View</a><a>Edit</a></td></tr>
-          <tr><td>h.singh@example.com</td><td><span class="pill rose">Family Annual</span></td><td class="mono">sub_3PqK8c0aN1tE3</td><td class="mono">04 Feb 2026</td><td class="mono">04 Feb 2027</td><td class="num">$149</td><td class="num">3 / 100</td><td><span class="pill green">On</span></td><td class="actions-cell"><a>View</a><a>Edit</a></td></tr>
-          <tr><td>r.makoa@example.com</td><td><span class="pill rose">Family Annual</span></td><td class="mono">sub_3PqKae0aN1tE3</td><td class="mono">12 Mar 2026</td><td class="mono">12 Mar 2027</td><td class="num">$149</td><td class="num">2 / 100</td><td><span class="pill green">On</span></td><td class="actions-cell"><a>View</a><a>Edit</a></td></tr>
-        </tbody>
-      </table>
-
-      <h3 class="section-sub-h3">Per-decision charges · last 30 days · charged upfront on composition</h3>
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>Decision</th>
-            <th>User</th>
-            <th>Plan</th>
-            <th>Format</th>
-            <th>Composed</th>
-            <th>Verdict on</th>
-            <th>Amount</th>
-            <th>Status</th>
-            <th class="actions-cell">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td class="num">№0198</td><td>e.murphy@example.com</td><td><span class="pill clay">Couple</span></td><td>Strong / Lean</td><td class="mono">13 Apr</td><td class="mono">13 May (today)</td><td class="num">$9.99</td><td><span class="pill green">Charged · verdict generating</span></td><td class="actions-cell"><a>View</a></td></tr>
-          <tr><td class="num">№0197</td><td>d.hoffmann@example.com</td><td><span class="pill clay">Family</span></td><td>Yes / No</td><td class="mono">20 Apr</td><td class="mono">20 May (9d)</td><td class="num">$14.99</td><td><span class="pill green">Charged · voting</span></td><td class="actions-cell"><a>View</a></td></tr>
-          <tr><td class="num">№0195</td><td>m.tanaka@example.com</td><td><span class="pill clay">Couple</span></td><td>Strong / Lean</td><td class="mono">27 Apr</td><td class="mono">10 Jun (30d)</td><td class="num">$9.99</td><td><span class="pill green">Charged · voting</span></td><td class="actions-cell"><a>View</a></td></tr>
-          <tr><td class="num">№0193</td><td>a.chen@example.com</td><td><span class="pill clay">Couple</span></td><td>Yes / No</td><td class="mono">29 Apr</td><td class="mono">07 Aug (87d)</td><td class="num">$9.99</td><td><span class="pill clay">Charged · partner not yet voting</span></td><td class="actions-cell"><a>View</a></td></tr>
-          <tr><td class="num">№0189</td><td>r.fernandes@example.com</td><td><span class="pill clay">Couple</span></td><td>Strong / Lean</td><td class="mono">04 May</td><td class="mono">18 May (7d)</td><td class="num">$9.99</td><td><span class="pill green">Charged · voting</span></td><td class="actions-cell"><a>View</a></td></tr>
-          <tr><td class="num">№0184</td><td>g.papadopoulos@example.com</td><td><span class="pill clay">Family</span></td><td>Yes / No</td><td class="mono">05 May</td><td class="mono">04 Jun (24d)</td><td class="num">$14.99</td><td><span class="pill green">Charged · voting</span></td><td class="actions-cell"><a>View</a></td></tr>
-          <tr><td class="num">№0182</td><td>q.adekoya@example.com</td><td><span class="pill grey">Solo (paid)</span></td><td>A vs B</td><td class="mono">07 May</td><td class="mono">07 Jun (27d)</td><td class="num">$4.99</td><td><span class="pill green">Charged · voting</span></td><td class="actions-cell"><a>View</a></td></tr>
-          <tr><td class="num">№0179</td><td>j.lloyd@example.com (this user)</td><td><span class="pill grey">Solo (free)</span></td><td>Yes / No</td><td class="mono">10 May</td><td class="mono">10 Jun (30d)</td><td class="num">$0.00</td><td><span class="pill green">First decision free</span></td><td class="actions-cell"><a>View</a></td></tr>
-        </tbody>
-      </table>
-
-      <h3 class="section-sub-h3">Refunds processed · 30d</h3>
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>When</th>
-            <th>Decision</th>
-            <th>User</th>
-            <th>Amount</th>
-            <th>Reason</th>
-            <th>Initiated by</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td class="mono">09 May · 16:02</td><td class="num">№0156</td><td>a.chen@example.com</td><td class="num">−$9.99</td><td>Claude pipeline defect · 3 retries failed</td><td>Automated (kill switch)</td><td><span class="pill rose">Refunded</span></td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <!-- PRODUCTS / SKUs -->
-    <section class="admin-section">
-      <div class="admin-section-head">
-        <div class="num">§ 4 · Products and SKUs</div>
-        <h2>Six SKUs across three audiences. <span class="ital">Admin-editable pricing.</span></h2>
-      </div>
-
-      <h3 class="section-sub-h3" style="margin-top: 0;">Pay per decision · 4 SKUs (Solo free + 3 paid)</h3>
-      <div class="sku-grid" style="grid-template-columns: 1fr 1fr;">
-        <div class="sku-cell">
-          <span class="label">SKU 01 · Solo · first decision free</span>
-          <div class="name">Solo</div>
-          <div class="price">$0 / $4.99<span class="unit">USD / decision</span></div>
-          <div class="terms">First Solo decision free per account (lifetime). Additional Solo decisions $4.99 USD each, charged upfront.</div>
-          <div class="ids">
-            Stripe Product <strong>prod_N1tSoloS01</strong><br>
-            Stripe Price (free) <strong>price_N1tSoloS01_0</strong><br>
-            Stripe Price (paid) <strong>price_N1tSoloS01_4_99</strong><br>
-            Tax behaviour <strong>exclusive · Stripe Tax handles GST/VAT</strong>
-          </div>
-          <div class="counts">
-            <div>Active users<strong>198</strong></div>
-            <div>Free-tier signups<strong>247</strong></div>
-            <div>Paid Solo decisions<strong>14</strong></div>
-            <div>30d revenue<strong>$69.86</strong></div>
-          </div>
-          <div class="sku-actions"><a>Edit price</a><a>View customers</a></div>
-        </div>
-
-        <div class="sku-cell featured">
-          <span class="label">SKU 02 · Couple</span>
-          <div class="name">Couple</div>
-          <div class="price">$9.99<span class="unit">USD / decision</span></div>
-          <div class="terms">Two participants. Charged upfront on the day you compose.</div>
-          <div class="ids">
-            Stripe Product <strong>prod_N1tCpS02</strong><br>
-            Stripe Price <strong>price_N1tCpS02_9_99</strong><br>
-            Tax behaviour <strong>exclusive · Stripe Tax handles GST/VAT</strong>
-          </div>
-          <div class="counts">
-            <div>Active now<strong>41</strong></div>
-            <div>Lifetime<strong>89</strong></div>
-            <div>30d revenue<strong>$410</strong></div>
-          </div>
-          <div class="sku-actions"><a>Edit price</a><a>Add coupon</a><a>View customers</a><a class="danger">Disable for new</a></div>
-        </div>
-
-        <div class="sku-cell">
-          <span class="label">SKU 03 · Family</span>
-          <div class="name">Family</div>
-          <div class="price">$14.99<span class="unit">USD / decision</span></div>
-          <div class="terms">Three to six participants. Family-aware verdict.</div>
-          <div class="ids">
-            Stripe Product <strong>prod_N1tFmS03</strong><br>
-            Stripe Price <strong>price_N1tFmS03_14_99</strong><br>
-            Tax behaviour <strong>exclusive · Stripe Tax handles GST/VAT</strong>
-          </div>
-          <div class="counts">
-            <div>Active now<strong>4</strong></div>
-            <div>Lifetime<strong>11</strong></div>
-            <div>30d revenue<strong>$60</strong></div>
-          </div>
-          <div class="sku-actions"><a>Edit price</a><a>Add coupon</a><a>View customers</a><a class="danger">Disable for new</a></div>
-        </div>
-      </div>
-
-      <h3 class="section-sub-h3">Pay annually · up to 100 decisions per year · 3 SKUs</h3>
-      <div class="sku-grid">
-        <div class="sku-cell">
-          <span class="label">SKU 04 · Solo Annual</span>
-          <div class="name">Solo Annual</div>
-          <div class="price">$49<span class="unit">USD / year</span></div>
-          <div class="terms">Auto-renews · cancel anytime · up to 100 Solo decisions per year.</div>
-          <div class="ids">
-            Stripe Product <strong>prod_N1tSoloAS04</strong><br>
-            Stripe Price <strong>price_N1tSoloAS04_49</strong><br>
-            Tax behaviour <strong>exclusive · Stripe Tax handles GST/VAT</strong>
-          </div>
-          <div class="counts">
-            <div>Active<strong>3</strong></div>
-            <div>Annual MRR<strong>$12.25</strong></div>
-            <div>Renewing in 30d<strong>0</strong></div>
-          </div>
-          <div class="sku-actions"><a>Edit price</a><a>Add coupon</a><a>View customers</a></div>
-        </div>
-
-        <div class="sku-cell">
-          <span class="label">SKU 05 · Couple Annual</span>
-          <div class="name">Couple Annual</div>
-          <div class="price">$99<span class="unit">USD / year</span></div>
-          <div class="terms">Auto-renews · cancel anytime · up to 100 Couple decisions per year.</div>
-          <div class="ids">
-            Stripe Product <strong>prod_N1tCpAS04</strong><br>
-            Stripe Price <strong>price_N1tCpAS04_99</strong><br>
-            Tax behaviour <strong>exclusive · Stripe Tax handles GST/VAT</strong>
-          </div>
-          <div class="counts">
-            <div>Active<strong>8</strong></div>
-            <div>Annual MRR<strong>$66</strong></div>
-            <div>Renewing in 30d<strong>1</strong></div>
-          </div>
-          <div class="sku-actions"><a>Edit price</a><a>Add coupon</a><a>View customers</a></div>
-        </div>
-
-        <div class="sku-cell">
-          <span class="label">SKU 06 · Family Annual</span>
-          <div class="name">Family Annual</div>
-          <div class="price">$149<span class="unit">USD / year</span></div>
-          <div class="terms">Auto-renews · cancel anytime · up to 100 Family decisions per year.</div>
-          <div class="ids">
-            Stripe Product <strong>prod_N1tFmAS06</strong><br>
-            Stripe Price <strong>price_N1tFmAS06_149</strong><br>
-            Tax behaviour <strong>exclusive · Stripe Tax handles GST/VAT</strong>
-          </div>
-          <div class="counts">
-            <div>Active<strong>2</strong></div>
-            <div>Annual MRR<strong>$24.83</strong></div>
-            <div>Renewing in 30d<strong>0</strong></div>
-          </div>
-          <div class="sku-actions"><a>Edit price</a><a>Add coupon</a><a>View customers</a></div>
-        </div>
-      </div>
-
-      <h3 class="section-sub-h3">Price change history</h3>
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>When</th>
-            <th>SKU</th>
-            <th>Field</th>
-            <th>Old value</th>
-            <th>New value</th>
-            <th>Effective</th>
-            <th>Initiated by</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td class="mono">14 May · 17:24</td><td>SKU 01 (Solo)</td><td>Added paid tier + lifetime free-decision cap</td><td>Free unlimited</td><td>1 free + $4.99/decision</td><td class="mono">Immediate</td><td>James · operator</td></tr>
-          <tr><td class="mono">14 May · 17:24</td><td>SKU 04 (Solo Annual)</td><td>Created new SKU</td><td>·</td><td>$49 USD / year, 100 decisions</td><td class="mono">Immediate</td><td>James · operator</td></tr>
-          <tr><td class="mono">14 May · 17:24</td><td>SKU 06 (Family Annual)</td><td>Created new SKU</td><td>·</td><td>$149 USD / year, 100 decisions</td><td class="mono">Immediate</td><td>James · operator</td></tr>
-          <tr><td class="mono">14 May · 14:32</td><td>SKU 03 (Family)</td><td>Created new SKU</td><td>·</td><td>$14.99 USD per decision</td><td class="mono">Immediate</td><td>James · operator</td></tr>
-          <tr><td class="mono">12 May · 11:08</td><td>SKU 02 (Couple)</td><td>Price</td><td class="num">$19.99</td><td class="num">$9.99</td><td class="mono">Immediate</td><td>James · operator</td></tr>
-          <tr><td class="mono">12 May · 11:08</td><td>SKU 05 (Couple Annual)</td><td>Annual decision cap</td><td>Unlimited</td><td>100 decisions/year</td><td class="mono">Immediate</td><td>James · operator</td></tr>
-          <tr><td class="mono">11 May · 09:42</td><td>SKU 01 (Solo)</td><td>Initial creation</td><td>·</td><td>Free, $0 USD</td><td class="mono">11 May</td><td>System · seed</td></tr>
-          <tr><td class="mono">11 May · 09:42</td><td>SKU 02 (Couple)</td><td>Initial creation</td><td>·</td><td>$19.99 USD per decision</td><td class="mono">11 May</td><td>System · seed</td></tr>
-          <tr><td class="mono">11 May · 09:42</td><td>SKU 05 (Couple Annual)</td><td>Initial creation</td><td>·</td><td>$99 USD / year</td><td class="mono">11 May</td><td>System · seed</td></tr>
-        </tbody>
-      </table>
-
-      <h3 class="section-sub-h3">Active coupon codes · 3</h3>
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>Code</th>
-            <th>Applies to</th>
-            <th>Discount</th>
-            <th>Limit</th>
-            <th>Redemptions</th>
-            <th>Expires</th>
-            <th>Status</th>
-            <th class="actions-cell">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td class="mono"><strong>PRACTITIONER50</strong></td><td>SKU 05 + SKU 06 (Annual plans)</td><td class="num">50%</td><td class="num">100</td><td class="num">7 / 100</td><td class="mono">31 Dec 2026</td><td><span class="pill green">Active</span></td><td class="actions-cell"><a>View</a><a class="danger">Deactivate</a></td></tr>
-          <tr><td class="mono"><strong>FOUNDING20</strong></td><td>SKU 02 (Couple)</td><td class="num">$2.00 off</td><td class="num">50</td><td class="num">12 / 50</td><td class="mono">30 Jun 2026</td><td><span class="pill green">Active</span></td><td class="actions-cell"><a>View</a><a class="danger">Deactivate</a></td></tr>
-          <tr><td class="mono"><strong>PRESSKIT</strong></td><td>SKU 02 + SKU 03 (Couple, Family)</td><td class="num">100%</td><td class="num">25</td><td class="num">3 / 25</td><td class="mono">Indefinite</td><td><span class="pill green">Active</span></td><td class="actions-cell"><a>View</a><a class="danger">Deactivate</a></td></tr>
-        </tbody>
-      </table>
-
-      <p style="margin-top: 28px; font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 14.5px; color: var(--muted); line-height: 1.6; max-width: 820px;">Stripe sync status: last reconciled with Stripe Dashboard <strong style="font-style: normal; color: var(--ink); font-weight: 500;">14:30 NZDT today</strong>. Pulls from Stripe are automatic on every Product or Price change made in the Stripe Dashboard; manual sync available via the <strong style="font-style: normal; color: var(--ink); font-weight: 500;">Re-sync from Stripe</strong> action above. The local prices on this page are the source of truth for marketing-site display; Stripe Dashboard is the source of truth for charges.</p>
-    </section>
-
-    <!-- DECISIONS -->
-    <section class="admin-section">
-      <div class="admin-section-head">
-        <div class="num">§ 5 · Decisions</div>
-        <h2>What people are <span class="ital">actually deciding.</span></h2>
-      </div>
-
-      <div class="admin-grid-2">
-        <div class="admin-card">
-          <div class="admin-card-head">Decisions opened by format · 30d</div>
-          <div class="breakdown-row">
-            <div class="name"><strong>Yes / No</strong></div>
-            <div class="bar"><span class="bar-fill" style="width: 100%"></span></div>
-            <div class="count">42</div>
-            <div class="pct">62.7%</div>
-          </div>
-          <div class="breakdown-row b">
-            <div class="name"><strong>Strong / Lean</strong></div>
-            <div class="bar"><span class="bar-fill" style="width: 50%"></span></div>
-            <div class="count">21</div>
-            <div class="pct">31.3%</div>
-          </div>
-          <div class="breakdown-row c">
-            <div class="name"><strong>A vs B</strong></div>
-            <div class="bar"><span class="bar-fill" style="width: 9.5%"></span></div>
-            <div class="count">4</div>
-            <div class="pct">6.0%</div>
-          </div>
-          <p style="margin-top: 18px; font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 14px; color: var(--muted); line-height: 1.55;">Other six formats not in v0.1; "coming soon" badge in the picker. Photo A vs B and Round-robin pairwise have the most requests in the waitlist email.</p>
-        </div>
-
-        <div class="admin-card">
-          <div class="admin-card-head">Decisions opened by duration · 30d</div>
-          <div class="breakdown-row">
-            <div class="name"><strong>14 days</strong> · fortnight</div>
-            <div class="bar"><span class="bar-fill" style="width: 29%"></span></div>
-            <div class="count">9</div>
-            <div class="pct">13.4%</div>
-          </div>
-          <div class="breakdown-row">
-            <div class="name"><strong>30 days</strong> · month</div>
-            <div class="bar"><span class="bar-fill" style="width: 100%"></span></div>
-            <div class="count">31</div>
-            <div class="pct">46.3%</div>
-          </div>
-          <div class="breakdown-row">
-            <div class="name"><strong>60 days</strong> · season</div>
-            <div class="bar"><span class="bar-fill" style="width: 58%"></span></div>
-            <div class="count">18</div>
-            <div class="pct">26.9%</div>
-          </div>
-          <div class="breakdown-row">
-            <div class="name"><strong>90 days</strong> · quarter</div>
-            <div class="bar"><span class="bar-fill" style="width: 29%"></span></div>
-            <div class="count">9</div>
-            <div class="pct">13.4%</div>
-          </div>
-          <p style="margin-top: 18px; font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 14px; color: var(--muted); line-height: 1.55;">30-day decisions are the modal choice; 60-day partnership-question decisions are second. <strong style="font-style: normal; color: var(--ink); font-weight: 500;">Average duration: 41.2 days.</strong></p>
-        </div>
-      </div>
-
-      <h3 style="font-family: 'Manrope', sans-serif; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--clay); margin-top: 32px; margin-bottom: 14px;">Active decisions · sample of 8 (of 43 active)</h3>
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>Decision</th>
-            <th>Format</th>
-            <th>Day</th>
-            <th>Votes</th>
-            <th>Mode</th>
-            <th>Reveals</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td class="num">№0198</td><td>Strong / Lean</td><td class="mono">28 of 30</td><td class="mono">52 of 60</td><td>Partner</td><td class="mono">13 May</td><td><span class="pill green">On track</span></td></tr>
-          <tr><td class="num">№0197</td><td>Yes / No</td><td class="mono">21 of 30</td><td class="mono">38 of 42</td><td>Partner</td><td class="mono">20 May</td><td><span class="pill green">On track</span></td></tr>
-          <tr><td class="num">№0195</td><td>Strong / Lean</td><td class="mono">14 of 60</td><td class="mono">14 of 28</td><td>Solo</td><td class="mono">10 Jun</td><td><span class="pill green">On track</span></td></tr>
-          <tr><td class="num">№0193</td><td>Yes / No</td><td class="mono">12 of 90</td><td class="mono">18 of 24</td><td>Partner</td><td class="mono">07 Aug</td><td><span class="pill clay">Partner late</span></td></tr>
-          <tr><td class="num">№0189</td><td>Strong / Lean</td><td class="mono">7 of 14</td><td class="mono">11 of 14</td><td>Partner</td><td class="mono">18 May</td><td><span class="pill green">On track</span></td></tr>
-          <tr><td class="num">№0184</td><td>Yes / No</td><td class="mono">5 of 30</td><td class="mono">9 of 10</td><td>Partner</td><td class="mono">04 Jun</td><td><span class="pill green">On track</span></td></tr>
-          <tr><td class="num">№0182</td><td>A vs B</td><td class="mono">3 of 30</td><td class="mono">6 of 6</td><td>Partner</td><td class="mono">07 Jun</td><td><span class="pill green">On track</span></td></tr>
-          <tr><td class="num">№0179</td><td>Yes / No</td><td class="mono">1 of 30</td><td class="mono">2 of 2</td><td>Partner</td><td class="mono">10 Jun</td><td><span class="pill green">On track</span></td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <!-- REVENUE -->
-    <section class="admin-section">
-      <div class="admin-section-head">
-        <div class="num">§ 6 · Revenue</div>
-        <h2>What's coming in, in <span class="ital">US dollars.</span></h2>
-      </div>
-
-      <div class="admin-grid-2">
-        <div class="admin-card">
-          <div class="admin-card-head">Revenue · last 30 days</div>
-          <div class="admin-chart">
-            <canvas id="chart-revenue" aria-label="Daily revenue across the last 30 days, USD" role="img" height="240"></canvas>
-          </div>
-          <p style="margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--rule); font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 14px; color: var(--muted); line-height: 1.55;">Revenue is captured on the verdict-reveal day, not the decision-open day. The lumpy shape reflects the thirty-day lag between cohort sign-up and cohort cash, per the design-notes finance section.</p>
-        </div>
-
-        <div class="admin-card">
-          <div class="admin-card-head">Revenue by source · 30d</div>
-          <div class="breakdown-row">
-            <div class="name"><strong>Couple</strong> · per-decision</div>
-            <div class="bar"><span class="bar-fill" style="width: 100%"></span></div>
-            <div class="count">$410</div>
-            <div class="pct">84.2%</div>
-          </div>
-          <div class="breakdown-row c">
-            <div class="name"><strong>Couple Annual</strong> · annual prorated</div>
-            <div class="bar"><span class="bar-fill" style="width: 16%"></span></div>
-            <div class="count">$66</div>
-            <div class="pct">13.5%</div>
-          </div>
-          <div class="breakdown-row b">
-            <div class="name"><strong>Couple Annual</strong> · new annual</div>
-            <div class="bar"><span class="bar-fill" style="width: 2.7%"></span></div>
-            <div class="count">$11</div>
-            <div class="pct">2.3%</div>
-          </div>
-          <div class="breakdown-row" style="border-top: 1px solid var(--rule-strong); margin-top: 8px; padding-top: 16px;">
-            <div class="name" style="font-weight: 500; color: var(--ink);">Gross · 30d</div>
-            <div class="bar"></div>
-            <div class="count" style="color: var(--clay);">$487</div>
-            <div class="pct" style="color: var(--clay);">100%</div>
-          </div>
-          <p style="margin-top: 18px; font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 14px; color: var(--muted); line-height: 1.55;">Net after Stripe (~2.9% + $0.30/txn) and Anthropic (~$0.15/verdict avg): <strong style="font-style: normal; color: var(--ink); font-weight: 500;">USD 441</strong>. Net margin <strong style="font-style: normal; color: var(--ink); font-weight: 500;">90.5%</strong>.</p>
-        </div>
-      </div>
-
-      <h3 style="font-family: 'Manrope', sans-serif; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--clay); margin-top: 32px; margin-bottom: 14px;">Recent Stripe events · last 8</h3>
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>When</th>
-            <th>Decision</th>
-            <th>Event</th>
-            <th>Amount</th>
-            <th>Card region</th>
-            <th>Tax (added)</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td class="mono">11 May · 09:14</td><td class="num">№0163</td><td>Couple · upfront charge on composition</td><td class="num">$9.99</td><td>NZ</td><td class="num">$1.50</td><td><span class="pill green">Captured</span></td></tr>
-          <tr><td class="mono">10 May · 21:08</td><td class="num">№0161</td><td>Couple · upfront charge on composition</td><td class="num">$9.99</td><td>AU</td><td class="num">$1.00</td><td><span class="pill green">Captured</span></td></tr>
-          <tr><td class="mono">10 May · 19:33</td><td class="num">№0162</td><td>Family · upfront charge on composition</td><td class="num">$14.99</td><td>DE</td><td class="num">$2.85</td><td><span class="pill green">Captured</span></td></tr>
-          <tr><td class="mono">10 May · 18:22</td><td class="num">№0179</td><td>Couple · upfront charge on composition</td><td class="num">$9.99</td><td>NZ</td><td class="num">$1.50</td><td><span class="pill green">Captured</span></td></tr>
-          <tr><td class="mono">10 May · 14:55</td><td class="num">№0160</td><td>Solo · paid decision (post-free) upfront</td><td class="num">$4.99</td><td>UK</td><td class="num">$1.00</td><td><span class="pill green">Captured</span></td></tr>
-          <tr><td class="mono">09 May · 21:43</td><td class="num">·</td><td>Couple Annual · new annual subscription</td><td class="num">$99.00</td><td>US</td><td class="num">$8.21</td><td><span class="pill green">Captured</span></td></tr>
-          <tr><td class="mono">09 May · 19:31</td><td class="num">·</td><td>Solo Annual · new annual subscription</td><td class="num">$49.00</td><td>NZ</td><td class="num">$7.35</td><td><span class="pill green">Captured</span></td></tr>
-          <tr><td class="mono">09 May · 16:02</td><td class="num">№0156</td><td>Operator refund · Claude pipeline defect</td><td class="num">−$9.99</td><td>AU</td><td class="num">−$1.00</td><td><span class="pill rose">Refunded</span></td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <!-- OPERATIONAL HEALTH -->
-    <section class="admin-section">
-      <div class="admin-section-head">
-        <div class="num">§ 7 · Operational health</div>
-        <h2>What broke this week, and what <span class="ital">did not.</span></h2>
-      </div>
-
-      <div class="health-grid">
-        <div class="health-cell">
-          <div class="label">Verdict generation success · 30d</div>
-          <div class="value">99.4<span class="unit">%</span></div>
-          <div class="status green">Within target</div>
-        </div>
-        <div class="health-cell">
-          <div class="label">Email deliverability · Brevo</div>
-          <div class="value">99.8<span class="unit">%</span></div>
-          <div class="status green">Within target</div>
-        </div>
-        <div class="health-cell">
-          <div class="label">API uptime · 30d</div>
-          <div class="value">99.97<span class="unit">%</span></div>
-          <div class="status green">Within target</div>
-        </div>
-        <div class="health-cell">
-          <div class="label">Sentry errors · 7d</div>
-          <div class="value">3</div>
-          <div class="status green">All resolved</div>
-        </div>
-        <div class="health-cell">
-          <div class="label">Stripe failure rate · 30d</div>
-          <div class="value">0.6<span class="unit">%</span></div>
-          <div class="status green">Below 5% threshold</div>
-        </div>
-        <div class="health-cell">
-          <div class="label">Anthropic latency p95</div>
-          <div class="value">14.2<span class="unit">s</span></div>
-          <div class="status green">Within target (≤30s)</div>
-        </div>
-        <div class="health-cell">
-          <div class="label">Backup verification · last run</div>
-          <div class="value">OK</div>
-          <div class="status green">Restored to scratch DB · 11 May 03:14</div>
-        </div>
-        <div class="health-cell">
-          <div class="label">Kill switches · status</div>
-          <div class="value">3 / 3</div>
-          <div class="status green">Armed and untriggered</div>
-        </div>
-      </div>
-
-      <p style="margin-top: 24px; font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 14.5px; color: var(--muted); line-height: 1.55; max-width: 820px;">All four health categories from the design-notes Engineering &amp; Security section currently green. The single defect this 30d (Decision №0156 verdict generation failure after three Claude retries) auto-refunded as designed; the customer received the apology email; the operator's weekly digest flagged it on the next Sunday. The privacy-row-level-security policy audit (run automatically every fortnight) found no policy bypass attempts.</p>
-    </section>
-
-    <!-- RECENT ACTIVITY -->
-    <section class="admin-section">
-      <div class="admin-section-head">
-        <div class="num">§ 8 · Recent activity</div>
-        <h2>Real-time event feed, last <span class="ital">two hours.</span></h2>
-      </div>
-
-      <div class="activity-feed">
-        <div class="activity-row">
-          <div class="when">12 min ago</div>
-          <div class="kind">Verdict generated</div>
-          <div class="what">Decision concluded · Strong / Lean · 30 days · partner mode <span class="id">№0163</span></div>
-          <div class="meta">Synth ok · 11.8s</div>
-        </div>
-        <div class="activity-row">
-          <div class="when">14 min ago</div>
-          <div class="kind">Payment captured</div>
-          <div class="what">USD 9.99 + $1.50 GST · NZ card · Couple <span class="id">№0163</span></div>
-          <div class="meta">Stripe ch_3PqK4r</div>
-        </div>
-        <div class="activity-row">
-          <div class="when">22 min ago</div>
-          <div class="kind">Note written</div>
-          <div class="what">Day-vote with note · 247 chars · sealed <span class="id">№0197</span></div>
-          <div class="meta">Partner A</div>
-        </div>
-        <div class="activity-row">
-          <div class="when">38 min ago</div>
-          <div class="kind">Daily vote</div>
-          <div class="what">Strong Yes · no note · sealed <span class="id">№0198</span></div>
-          <div class="meta">Partner B</div>
-        </div>
-        <div class="activity-row">
-          <div class="when">47 min ago</div>
-          <div class="kind">New signup</div>
-          <div class="what">Google OAuth · NZ · referred from organic search "indecisive" <span class="id">user_b7e2</span></div>
-          <div class="meta">Free tier</div>
-        </div>
-        <div class="activity-row">
-          <div class="when">1h 06m ago</div>
-          <div class="kind">Decision opened</div>
-          <div class="what">Yes / No · 30 days · partner invited via magic link <span class="id">№0199</span></div>
-          <div class="meta">Stripe charge $9.99 (upfront)</div>
-        </div>
-        <div class="activity-row">
-          <div class="when">1h 19m ago</div>
-          <div class="kind">Partner accepted</div>
-          <div class="what">Magic link consumed · invitee created account via Google OAuth <span class="id">№0197</span></div>
-          <div class="meta">AU partner</div>
-        </div>
-        <div class="activity-row">
-          <div class="when">1h 41m ago</div>
-          <div class="kind">Notification sent</div>
-          <div class="what">Daily prompt email · 43 active decisions · 0 bounces <span class="id">Brevo batch 11may19</span></div>
-          <div class="meta">19:00 NZDT</div>
-        </div>
-        <div class="activity-row">
-          <div class="when">1h 53m ago</div>
-          <div class="kind">Account deleted</div>
-          <div class="what">User-initiated deletion · 24h SLA started <span class="id">user_c2e8</span></div>
-          <div class="meta">Data export emailed</div>
-        </div>
-        <div class="activity-row">
-          <div class="when">1h 58m ago</div>
-          <div class="kind">Daily vote</div>
-          <div class="what">Lean No · 142-char note · sealed <span class="id">№0193</span></div>
-          <div class="meta">Partner A</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- VERDICT AI -->
-    <section class="admin-section" id="section-verdict-ai">
-      <div class="admin-section-head">
-        <div class="num">§ 9 · Verdict AI</div>
-        <h2>Model, prompt, and the secret that signs each verdict.</h2>
-      </div>
-
-      <div id="verdict-ai-mount">
-        <div class="empty-note" style="padding: 28px 0;">Loading verdict-AI configuration…</div>
-      </div>
-
-      <h3 class="section-sub-h3" style="margin-top: 28px; margin-bottom: 10px;">Recent verdict generations · last 6</h3>
-      <div id="verdict-log-mount" class="ai-generation-log"></div>
-    </section>
-
-
-    <!-- MARKETING TAGS -->
-    <section class="admin-section" id="section-marketing-tags">
-      <div class="admin-section-head">
-        <div class="num">§ 10 · Marketing tags</div>
-        <h2>GTM, GA4, PostHog, Meta Pixel. Per-surface scope. Consent-aware.</h2>
-      </div>
-
-      <div id="marketing-tags-mount">
-        <div class="empty-note" style="padding: 28px 0;">Loading marketing tag configuration…</div>
-      </div>
-    </section>
-
-    <!-- DESIGN NOTE -->
-    <section class="admin-section">
-      <div class="admin-section-head">
-        <div class="num">§ 11 · Notes for the build</div>
-        <h2>How this page will be wired <span class="ital">in production.</span></h2>
-      </div>
-      <div style="font-family: 'Newsreader', Georgia, serif; font-size: 17px; line-height: 1.7; color: var(--ink); max-width: 880px;">
-        <p>The admin portal in production lives at <strong>admin.counsel.day</strong>, served from the same Hetzner box as the API but routed by Caddy to a separate FastAPI router. Operator access is gated by <strong>Auth0</strong>, configured with a separate "Operators" connection that only whitelisted email addresses can sign in through, plus hardware-key WebAuthn as a mandatory second factor enforced by an Auth0 Multi-Factor rule. End-user authentication flows for the public product also run through the same Auth0 tenant, but the operator role is governed by a separate Auth0 Application and a custom claim in the JWT.</p>
-        <p>Every figure on this page is computed on read from the live Postgres database using read-only credentials with a row-level security bypass scoped only to aggregate queries (per-decision content is never read). Charts render via <strong>Chart.js</strong> (industry-standard CMS chart library); the admin portal is deliberately decoupled from the customer-facing editorial palette, since operator ergonomics and pattern recognition matter more than visual continuity for an internal tool. Secrets (Anthropic API key, Stripe, Auth0, Brevo, Postgres) live in <strong>Infisical</strong> (self-hosted on the same Hetzner box); the Verdict AI section above is the operator surface for binding, rotation, and audit.</p>
-        <p>The page auto-refreshes every five minutes; a manual refresh button sits in the period bar. Activity-feed events stream in via Server-Sent Events when the page is open. Nothing on this page leaves the operator's session: no telemetry to third-party analytics, no screenshots cached, no public URL.</p>
-        <p><strong>What is intentionally not on this page (for v0.1):</strong> per-decision content inspection (privacy by design), prompt-template editor, customer-support ticket queue with SLA timers, A/B test reporting, cohort retention curves. The user, subscription, and SKU management tools added in this iteration cover the standard SaaS-admin top level; the listed deferrals are their own future tabs.</p>
-      </div>
-    </section>
-
-  </div>
-
-<!-- Modal overlay (filled by admin-app.js) -->
-<div id="modal-overlay" hidden>
-  <div id="modal-dialog" role="dialog" aria-modal="true">
-    <div id="modal-content"></div>
+<div class="topbar">
+  <div class="brand">counsel<span class="tld">.day</span> · admin</div>
+  <div class="meta">
+    <a href="/account.html">← User-facing site</a>
+    <span id="adm-identity">…</span>
+    <a href="#" id="adm-logout">Log out</a>
   </div>
 </div>
 
-<!-- Toast container (filled by admin-app.js) -->
-<div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+<div class="shell">
 
-</main>
+  <h1>Operations dashboard</h1>
+  <p class="lede">Live data from production · auto-refreshes every 60 seconds · <span class="ts" id="adm-last-loaded"></span></p>
 
-<footer class="colophon">
-  <div class="colophon-inner">
-    <div class="colophon-bottom">
-      <div>Internal · Admin portal · Counsel.day · Not for public distribution</div>
-      <div>Mockup data · admin.counsel.day (internal)</div>
+  <div id="adm-error" class="status-banner is-error" style="display:none;"></div>
+
+  <!-- Counts -->
+  <h2>Users</h2>
+  <div class="grid-4">
+    <div class="card"><div class="label">Total users</div><div class="value" id="m-users-total">…</div><div class="sub" id="m-users-total-sub"></div></div>
+    <div class="card"><div class="label">Email-verified</div><div class="value" id="m-users-verified">…</div><div class="sub" id="m-users-verified-sub"></div></div>
+    <div class="card"><div class="label">Last 7 days</div><div class="value" id="m-users-7">…</div><div class="sub">New signups in the last week</div></div>
+    <div class="card"><div class="label">Last 30 days</div><div class="value" id="m-users-30">…</div><div class="sub">New signups in the last month</div></div>
+  </div>
+
+  <h2>Decisions</h2>
+  <div class="grid-4">
+    <div class="card"><div class="label">Total decisions</div><div class="value" id="m-dec-total">…</div></div>
+    <div class="card"><div class="label">Active</div><div class="value" id="m-dec-active">…</div></div>
+    <div class="card"><div class="label">Awaiting verdict</div><div class="value" id="m-dec-vg">…</div></div>
+    <div class="card"><div class="label">Completed</div><div class="value" id="m-dec-completed">…</div></div>
+  </div>
+  <div class="grid-4" style="margin-top: 12px;">
+    <div class="card"><div class="label">Solo · free</div><div class="value" id="m-tier-sf">…</div></div>
+    <div class="card"><div class="label">Solo · paid</div><div class="value" id="m-tier-sp">…</div></div>
+    <div class="card"><div class="label">Couple</div><div class="value" id="m-tier-c">…</div></div>
+    <div class="card"><div class="label">Family</div><div class="value" id="m-tier-f">…</div></div>
+  </div>
+
+  <h2>Verdicts &amp; AI spend</h2>
+  <div class="grid-4">
+    <div class="card"><div class="label">Verdicts generated · all-time</div><div class="value" id="m-v-total">…</div></div>
+    <div class="card"><div class="label">Verdicts · last 7 days</div><div class="value" id="m-v-7">…</div></div>
+    <div class="card"><div class="label">Anthropic spend · all-time</div><div class="value" id="m-v-cost">…</div><div class="sub" id="m-v-tokens"></div></div>
+    <div class="card"><div class="label">Last verdict</div><div class="value" id="m-v-last" style="font-size: 14px; font-family: var(--font-mono); font-weight: 500;">…</div></div>
+  </div>
+
+  <h2>Other</h2>
+  <div class="grid-4">
+    <div class="card"><div class="label">Stripe webhook events (deduped)</div><div class="value" id="m-stripe-total">…</div><div class="sub" id="m-stripe-last"></div></div>
+    <div class="card"><div class="label">Pending refund requests</div><div class="value" id="m-refunds-pending">…</div><div class="sub" id="m-refunds-total"></div></div>
+    <div class="card"><div class="label">Active sessions</div><div class="value" id="m-sessions">…</div><div class="sub" id="m-sessions-sub"></div></div>
+    <div class="card"><div class="label">Consent log rows</div><div class="value" id="m-consent">…</div><div class="sub">GDPR Article 7(1) trail</div></div>
+  </div>
+
+  <!-- Integrations -->
+  <h2>Integrations</h2>
+  <div id="adm-int-summary" style="font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin-bottom: 12px;">Loading…</div>
+  <div class="card" style="padding: 0;" id="adm-int-list">
+    <div style="padding: 24px; color: var(--muted); text-align: center;">Loading integrations…</div>
+  </div>
+
+  <!-- Cron controls -->
+  <h2>Cron controls</h2>
+  <p class="lede" style="margin-bottom: 12px;">Trigger any background job immediately. Output is captured below and audit-logged.</p>
+  <div class="cron-grid">
+    <div class="cron-cell">
+      <div class="name">evening-prompt</div>
+      <div class="desc">Email "tonight's vote" prompts to active-decision participants who have not voted today.</div>
+      <button class="btn btn-secondary" data-cron="evening-prompt">Run now</button>
+      <div class="out" data-cron-out="evening-prompt"></div>
+    </div>
+    <div class="cron-cell">
+      <div class="name">verdict-generate</div>
+      <div class="desc">For every decision past unseals_at, generate verdict via Anthropic + email participants.</div>
+      <button class="btn btn-secondary" data-cron="verdict-generate">Run now</button>
+      <div class="out" data-cron-out="verdict-generate"></div>
+    </div>
+    <div class="cron-cell">
+      <div class="name">session-purge</div>
+      <div class="desc">DELETE FROM sessions WHERE expires_at &lt; NOW().</div>
+      <button class="btn btn-secondary" data-cron="session-purge">Run now</button>
+      <div class="out" data-cron-out="session-purge"></div>
+    </div>
+    <div class="cron-cell">
+      <div class="name">invite-expiry</div>
+      <div class="desc">NULL invite_tokens older than 30 days; cancel parent decision.</div>
+      <button class="btn btn-secondary" data-cron="invite-expiry">Run now</button>
+      <div class="out" data-cron-out="invite-expiry"></div>
+    </div>
+    <div class="cron-cell">
+      <div class="name">invite-reminder</div>
+      <div class="desc">Single reminder email 48h after invite (tracked in audit_log).</div>
+      <button class="btn btn-secondary" data-cron="invite-reminder">Run now</button>
+      <div class="out" data-cron-out="invite-reminder"></div>
+    </div>
+    <div class="cron-cell">
+      <div class="name">pg-dump</div>
+      <div class="desc">Postgres backup to /var/backups/counsel-day/ (14-day retention).</div>
+      <button class="btn btn-secondary" data-cron="pg-dump">Run now</button>
+      <div class="out" data-cron-out="pg-dump"></div>
+    </div>
+    <div class="cron-cell">
+      <div class="name">sitemap</div>
+      <div class="desc">Crawl /var/www and regenerate sitemap.xml.</div>
+      <button class="btn btn-secondary" data-cron="sitemap">Run now</button>
+      <div class="out" data-cron-out="sitemap"></div>
     </div>
   </div>
-</footer>
 
+  <!-- Audit log -->
+  <h2>Audit log · most recent 25</h2>
+  <p class="lede" style="margin-bottom: 12px;">Every state-changing action (admin triggers, Stripe webhooks, refund requests, account deletes, etc.). Newest first.</p>
+  <table class="adm" id="adm-audit">
+    <thead><tr><th style="width:160px;">When</th><th style="width:180px;">Action</th><th>Target</th><th>Metadata</th></tr></thead>
+    <tbody><tr><td colspan="4" style="text-align:center; color: var(--muted); padding: 24px;">Loading audit log…</td></tr></tbody>
+  </table>
 
-<!-- Chart.js (admin CMS charts). Production: pin to a self-hosted copy + real SRI hash. -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script src="admin-app.js"></script>
-<a class="go-to-top" id="go-to-top" href="#top" aria-label="Go to top of page">
-  <svg viewBox="0 0 24 24" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
-  <span class="label">Top</span>
-</a>
+</div>
+
 <script>
 (function () {
-  var btn = document.getElementById('go-to-top');
-  if (!btn) return;
-  function update() { if (window.scrollY > 600) { btn.classList.add('visible'); } else { btn.classList.remove('visible'); } }
-  window.addEventListener('scroll', update, { passive: true });
-  update();
-  btn.addEventListener('click', function (e) {
+  'use strict';
+
+  // ---- Identity + log out ----
+  fetch('/api/me', { credentials: 'include' })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d && d.ok && d.user) {
+        document.getElementById('adm-identity').textContent = d.user.email + ' · admin';
+      }
+    })
+    .catch(function () {});
+  document.getElementById('adm-logout').addEventListener('click', function (e) {
     e.preventDefault();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    fetch('/api/signout', { method: 'POST', credentials: 'include' }).finally(function () { window.location.href = '/'; });
   });
+
+  // ---- Helpers ----
+  function set(id, val) { var el = document.getElementById(id); if (el) el.textContent = (val == null ? '·' : String(val)); }
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+  function fmtTs(s) { if (!s) return '·'; try { return new Date(s).toLocaleString(); } catch (e) { return s; } }
+  function showErr(msg) { var el = document.getElementById('adm-error'); el.style.display = 'block'; el.textContent = msg; }
+
+  // ---- Overview ----
+  function loadOverview() {
+    fetch('/api/admin/overview', { credentials: 'include' })
+      .then(function (r) {
+        if (r.status === 401 || r.status === 403) { window.location.href = '/signin?next=/admin.html'; throw new Error('redirect'); }
+        return r.json();
+      })
+      .then(function (d) {
+        if (!d || !d.ok) { showErr('Failed to load overview'); return; }
+        document.getElementById('adm-last-loaded').textContent = 'Loaded ' + fmtTs(d.generated_at);
+
+        // Users
+        set('m-users-total', d.users.total.toLocaleString());
+        set('m-users-total-sub', d.users.admins + ' admin · ' + d.users.deleted + ' soft-deleted');
+        set('m-users-verified', d.users.verified.toLocaleString());
+        set('m-users-verified-sub', d.users.with_password + ' have a password set');
+        set('m-users-7', d.users.last_7_days.toLocaleString());
+        set('m-users-30', d.users.last_30_days.toLocaleString());
+
+        // Decisions
+        set('m-dec-total', d.decisions.total.toLocaleString());
+        set('m-dec-active', (d.decisions.by_status.active || 0).toLocaleString());
+        set('m-dec-vg', (d.decisions.by_status.verdict_generating || 0).toLocaleString());
+        set('m-dec-completed', (d.decisions.by_status.completed || 0).toLocaleString());
+        set('m-tier-sf', (d.decisions.by_tier.solo_free || 0).toLocaleString());
+        set('m-tier-sp', (d.decisions.by_tier.solo_paid || 0).toLocaleString());
+        set('m-tier-c', (d.decisions.by_tier.couple || 0).toLocaleString());
+        set('m-tier-f', (d.decisions.by_tier.family || 0).toLocaleString());
+
+        // Verdicts
+        set('m-v-total', d.verdicts.total.toLocaleString());
+        set('m-v-7', d.verdicts.last_7_days.toLocaleString());
+        set('m-v-cost', '$' + d.verdicts.cost_usd.toFixed(2) + ' USD');
+        set('m-v-tokens', (d.verdicts.tokens_input + d.verdicts.tokens_output).toLocaleString() + ' tokens total');
+        set('m-v-last', fmtTs(d.verdicts.last_generated_at));
+
+        // Stripe / refunds / misc
+        set('m-stripe-total', d.stripe.total_events_dedupe.toLocaleString());
+        set('m-stripe-last', d.stripe.last_event_type ? d.stripe.last_event_type + ' · ' + fmtTs(d.stripe.last_event_at) : 'No webhook events yet');
+        set('m-refunds-pending', d.refunds.pending.toLocaleString());
+        set('m-refunds-total', d.refunds.total + ' total requests all-time');
+        set('m-sessions', d.misc.sessions_active.toLocaleString());
+        set('m-sessions-sub', d.misc.sessions_expired + ' expired (purged on next cron run)');
+        set('m-consent', d.misc.consent_log_total.toLocaleString());
+
+        // Audit log
+        var tbody = document.querySelector('#adm-audit tbody');
+        tbody.innerHTML = '';
+        if (!d.audit_log_recent || d.audit_log_recent.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: var(--muted); padding: 24px;">No audit log entries yet.</td></tr>';
+        } else {
+          d.audit_log_recent.forEach(function (row) {
+            var meta = row.metadata ? JSON.stringify(row.metadata).slice(0, 200) : '';
+            var target = row.target_type ? (escapeHtml(row.target_type) + (row.target_id ? ' · <code>' + escapeHtml(String(row.target_id).slice(0,8)) + '</code>' : '')) : '';
+            var tr = document.createElement('tr');
+            tr.innerHTML =
+              '<td class="mono">' + escapeHtml(fmtTs(row.created_at)) + '</td>' +
+              '<td><code>' + escapeHtml(row.action) + '</code></td>' +
+              '<td>' + target + '</td>' +
+              '<td class="mono" style="color: var(--muted); word-break: break-all;">' + escapeHtml(meta) + '</td>';
+            tbody.appendChild(tr);
+          });
+        }
+      })
+      .catch(function (e) {
+        if (e && e.message === 'redirect') return;
+        showErr('Overview load failed: ' + e.message);
+      });
+  }
+
+  // ---- Integrations ----
+  function loadIntegrations() {
+    fetch('/api/admin/integrations', { credentials: 'include' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.ok) return;
+        var s = d.summary;
+        document.getElementById('adm-int-summary').innerHTML =
+          '<span style="color: var(--green);">● ' + s.green + ' healthy</span> · ' +
+          '<span style="color: var(--yellow);">● ' + s.yellow + ' degraded</span> · ' +
+          '<span style="color: var(--red);">● ' + s.red + ' failing</span> · ' +
+          '<span style="color: var(--grey);">● ' + s.not_configured + ' not configured</span>';
+        var list = document.getElementById('adm-int-list');
+        list.innerHTML = '';
+        d.integrations.forEach(function (it) {
+          var row = document.createElement('div');
+          row.className = 'int-row';
+          var links = (it.links || []).map(function (l) {
+            return '<a href="' + escapeHtml(l.url) + '" target="_blank" rel="noopener">' + escapeHtml(l.label) + '</a>';
+          }).join('');
+          row.innerHTML =
+            '<span class="int-dot ' + escapeHtml(it.status) + '"></span>' +
+            '<div><div class="int-name">' + escapeHtml(it.name) + '</div></div>' +
+            '<div class="int-category">' + escapeHtml(it.category) + '</div>' +
+            '<div class="int-detail">' + escapeHtml(it.detail) + '</div>' +
+            '<div class="int-links">' + links + '</div>';
+          list.appendChild(row);
+        });
+      })
+      .catch(function (e) { showErr('Integrations load failed: ' + e.message); });
+  }
+
+  // ---- Cron triggers ----
+  document.querySelectorAll('[data-cron]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var job = btn.getAttribute('data-cron');
+      var out = document.querySelector('[data-cron-out="' + job + '"]');
+      if (!window.confirm('Trigger ' + job + ' now?')) return;
+      btn.disabled = true; var orig = btn.textContent; btn.textContent = 'Running…';
+      out.classList.add('is-shown');
+      out.textContent = 'Triggered at ' + new Date().toLocaleTimeString() + ' · please wait (up to 5 min for verdict-generate)…';
+      fetch('/api/admin/cron/trigger', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ job: job }),
+      })
+        .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+        .then(function (res) {
+          var output = '[exit ' + res.body.exit_code + ' · ' + (res.body.duration_ms / 1000).toFixed(1) + 's]\n';
+          if (res.body.stdout) output += res.body.stdout + '\n';
+          if (res.body.stderr) output += '[stderr]\n' + res.body.stderr;
+          out.textContent = output;
+          loadOverview(); // refresh counts in case the cron mutated state
+        })
+        .catch(function (e) { out.textContent = 'Trigger failed: ' + e.message; })
+        .finally(function () { btn.disabled = false; btn.textContent = orig; });
+    });
+  });
+
+  loadOverview();
+  loadIntegrations();
+  setInterval(function () { loadOverview(); loadIntegrations(); }, 60 * 1000);
 })();
 </script>
 </body>

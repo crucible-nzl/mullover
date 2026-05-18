@@ -13,12 +13,19 @@ counsel.day {
     @blocked path /scripts /scripts/* /og-image-generator.html /homepage.html /components /components.html
     respond @blocked 404
 
-    # Admin panel + its runtime JS bundle. HTTP Basic Auth.
-    # Password hash generated 17 May 2026 via `caddy hash-password`.
-    # Rotate quarterly; rotate immediately on any team change.
+    # Admin panel · session-based auth via Next.js. Every request to
+    # /admin* is forwarded to /api/admin-auth-check first; the endpoint
+    # verifies (a) a valid session cookie AND (b) users.is_admin = true.
+    # 401/403 → redirect to /signin?next=<original>.
+    # Replaces the old Caddy basic-auth gate (removed 2026-05-18) so the
+    # admin browser can use the same session cookie to call /api/admin/*.
     @admin path /admin /admin.html /admin-app.js
-    basicauth @admin {
-        admin@counsel.day $2a$14$gwnD/x2rWxEYu4hoRErSFey3.9SvAwpd9YKC44iXcJbhF3yd0H6si
+    forward_auth @admin 127.0.0.1:3000 {
+        uri /api/admin-auth-check
+        @admin_fail status 401 403
+        handle_response @admin_fail {
+            redir * /signin?next={uri}
+        }
     }
 
     # Signed-in app surface · session-cookie auth via Next.js. Every request

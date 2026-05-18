@@ -169,12 +169,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <div class="bill-head">
       <div class="who">
-        <div class="eyebrow">File · Billing · The complete ledger</div>
+        <div class="eyebrow">Billing</div>
         <h1>Billing <span class="ital">history.</span></h1>
-        <p class="lede">Every charge, refund, and Stripe-generated invoice on your account. All amounts in <strong>USD</strong>. Invoices are also emailed to <strong>jamie@example.com</strong> at the moment of each charge.</p>
+        <p class="lede">Stripe is the source of truth for every charge, refund, and invoice on your account. The summary below is live from <strong>your Counsel.day account</strong>; the full ledger lives in the <strong>Stripe Customer Portal</strong>, where you can download invoice PDFs, update your card, and cancel a subscription.</p>
       </div>
       <div class="actions">
-        <a href="#export" class="btn btn-ghost">Export all as CSV</a>
         <button type="button" id="cd-portal-btn-top" class="btn">Open Stripe Customer Portal</button>
       </div>
       <div id="cd-portal-err" role="alert" aria-live="polite" style="display: none; margin-top: 14px; padding: 12px 16px; background: #fdecea; border-left: 3px solid #c0392b; color: #6b1e16; font-family: var(--font-body); font-size: 14px; line-height: 1.5; max-width: 760px;"></div>
@@ -185,174 +184,51 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="bill-summary">
         <div class="cell">
           <div class="lbl">Current plan</div>
-          <div class="val">Couple <span class="ital">Annual</span></div>
-          <div class="sub">Up to 100 Couple decisions / year</div>
+          <div class="val" id="cd-bill-plan">Loading…</div>
+          <div class="sub" id="cd-bill-plan-sub"></div>
         </div>
         <div class="cell">
-          <div class="lbl">Next renewal</div>
-          <div class="val">12 Mar 2027</div>
-          <div class="sub">In 301 days · auto-renews</div>
+          <div class="lbl">Billing model</div>
+          <div class="val" id="cd-bill-model">…</div>
+          <div class="sub" id="cd-bill-model-sub"></div>
         </div>
         <div class="cell">
-          <div class="lbl">Renewal amount</div>
-          <div class="val">$99.00<span class="unit">USD</span></div>
-          <div class="sub">Charged to •••• 4242</div>
+          <div class="lbl">Receipt email</div>
+          <div class="val" id="cd-bill-email" style="font-size: 16px; font-family: var(--font-body);">…</div>
+          <div class="sub">Invoices and receipts are sent here</div>
         </div>
         <div class="cell">
-          <div class="lbl">Total billed · lifetime</div>
-          <div class="val">$143.97<span class="unit">USD</span></div>
-          <div class="sub">Net of $25 USD in refunds</div>
+          <div class="lbl">Stripe customer</div>
+          <div class="val" id="cd-bill-stripe-customer" style="font-size: 14px; font-family: var(--font-mono);">…</div>
+          <div class="sub" id="cd-bill-stripe-customer-sub">Open the portal for full history</div>
         </div>
       </div>
     </section>
 
-    <!-- LEDGER -->
     <section class="method-stage" style="border-bottom: none; padding-bottom: 0;">
       <div class="method-stage-head">
-        <div class="method-stage-eyebrow">§ 01 · Ledger</div>
-        <h2 class="method-stage-title">Every charge and <span class="ital">refund.</span></h2>
+        <div class="method-stage-eyebrow">Full ledger</div>
+        <h2 class="method-stage-title">Every charge and refund lives in <span class="ital">Stripe.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>Counsel.day does not maintain its own ledger UI. Stripe is the source of truth for every charge, every refund, every invoice. The Stripe Customer Portal gives you the full history at any time:</p>
+        <ul style="font-family: var(--font-body); font-size: 17px; line-height: 1.7; color: var(--ink-soft); padding-left: 22px; max-width: 760px;">
+          <li>Download invoice PDFs and receipts for every charge.</li>
+          <li>Update the card we charge.</li>
+          <li>See upcoming renewals (Consumer Annual subscribers).</li>
+          <li>Cancel a subscription (takes effect at the end of the current period).</li>
+          <li>Update the billing email address.</li>
+        </ul>
       </div>
 
-      <div class="ledger" role="table" aria-label="Billing ledger">
-        <div class="ledger-row head" role="row">
-          <div class="ledger-cell" role="columnheader">Date</div>
-          <div class="ledger-cell" role="columnheader">Description</div>
-          <div class="ledger-cell" role="columnheader" style="text-align:right;">Amount</div>
-          <div class="ledger-cell" role="columnheader" style="text-align:center;">Status</div>
-          <div class="ledger-cell" role="columnheader" style="text-align:right;">Invoice</div>
-        </div>
-
-        <div class="ledger-row" role="row">
-          <div class="ledger-cell date">12 Mar 2026</div>
-          <div class="ledger-cell desc">
-            <span class="desc-title">Consumer Annual · subscription · year one</span>
-            <span class="desc-sub">CD-INV-2026-03-0001 · Stripe pi_3O...8a</span>
-          </div>
-          <div class="ledger-cell amount">$99.00<span class="currency">USD</span></div>
-          <div class="ledger-cell status"><span class="status-tag paid">Paid</span></div>
-          <div class="ledger-cell invoice"><a href="#">Download PDF</a></div>
-        </div>
-
-        <div class="ledger-row" role="row">
-          <div class="ledger-cell date">28 Feb 2026</div>
-          <div class="ledger-cell desc">
-            <span class="desc-title">Family · decision CD-2026-02-7741</span>
-            <span class="desc-sub">"Should we move to Australia for two years?" · 60-day decision</span>
-          </div>
-          <div class="ledger-cell amount">16.99<span class="currency">USD</span></div>
-          <div class="ledger-cell status"><span class="status-tag paid">Paid</span></div>
-          <div class="ledger-cell invoice"><a href="#">Download PDF</a></div>
-        </div>
-
-        <div class="ledger-row" role="row">
-          <div class="ledger-cell date">14 Feb 2026</div>
-          <div class="ledger-cell desc">
-            <span class="desc-title">Couple · decision CD-2026-02-5512</span>
-            <span class="desc-sub">"Should we put an offer on the Cashmere house?" · 14-day decision</span>
-          </div>
-          <div class="ledger-cell amount">12.99<span class="currency">USD</span></div>
-          <div class="ledger-cell status"><span class="status-tag paid">Paid</span></div>
-          <div class="ledger-cell invoice"><a href="#">Download PDF</a></div>
-        </div>
-
-        <div class="ledger-row" role="row">
-          <div class="ledger-cell date">02 Feb 2026</div>
-          <div class="ledger-cell desc">
-            <span class="desc-title">Couple · decision CD-2026-02-4108</span>
-            <span class="desc-sub">Refund processed within 24 hours of purchase · unused decision</span>
-          </div>
-          <div class="ledger-cell amount refund">−12.99<span class="currency">USD</span></div>
-          <div class="ledger-cell status"><span class="status-tag refunded">Refunded</span></div>
-          <div class="ledger-cell invoice"><a href="#">Credit note</a></div>
-        </div>
-
-        <div class="ledger-row" role="row">
-          <div class="ledger-cell date">02 Feb 2026</div>
-          <div class="ledger-cell desc">
-            <span class="desc-title">Couple · decision CD-2026-02-4108</span>
-            <span class="desc-sub">Original charge · later refunded</span>
-          </div>
-          <div class="ledger-cell amount">12.99<span class="currency">USD</span></div>
-          <div class="ledger-cell status"><span class="status-tag paid">Paid</span></div>
-          <div class="ledger-cell invoice"><a href="#">Download PDF</a></div>
-        </div>
-
-        <div class="ledger-row" role="row">
-          <div class="ledger-cell date">19 Jan 2026</div>
-          <div class="ledger-cell desc">
-            <span class="desc-title">Solo · decision CD-2026-01-3209</span>
-            <span class="desc-sub">"Should I take the offer at the second firm?" · 30-day decision</span>
-          </div>
-          <div class="ledger-cell amount">9.99<span class="currency">USD</span></div>
-          <div class="ledger-cell status"><span class="status-tag paid">Paid</span></div>
-          <div class="ledger-cell invoice"><a href="#">Download PDF</a></div>
-        </div>
-
-        <div class="ledger-row" role="row">
-          <div class="ledger-cell date">08 Jan 2026</div>
-          <div class="ledger-cell desc">
-            <span class="desc-title">Couple · decision CD-2026-01-2074</span>
-            <span class="desc-sub">"Should we have a second child this year?" · 90-day decision</span>
-          </div>
-          <div class="ledger-cell amount">12.99<span class="currency">USD</span></div>
-          <div class="ledger-cell status"><span class="status-tag paid">Paid</span></div>
-          <div class="ledger-cell invoice"><a href="#">Download PDF</a></div>
-        </div>
-
-        <div class="ledger-row" role="row">
-          <div class="ledger-cell date">22 Dec 2025</div>
-          <div class="ledger-cell desc">
-            <span class="desc-title">Family · decision CD-2025-12-9933</span>
-            <span class="desc-sub">"Where does the family spend Christmas next year?" · 14-day decision · refunded after dispute</span>
-          </div>
-          <div class="ledger-cell amount refund">−16.99<span class="currency">USD</span></div>
-          <div class="ledger-cell status"><span class="status-tag refunded">Refunded</span></div>
-          <div class="ledger-cell invoice"><a href="#">Credit note</a></div>
-        </div>
-
-        <div class="ledger-row" role="row">
-          <div class="ledger-cell date">22 Dec 2025</div>
-          <div class="ledger-cell desc">
-            <span class="desc-title">Family · decision CD-2025-12-9933</span>
-            <span class="desc-sub">Original charge · later refunded</span>
-          </div>
-          <div class="ledger-cell amount">16.99<span class="currency">USD</span></div>
-          <div class="ledger-cell status"><span class="status-tag paid">Paid</span></div>
-          <div class="ledger-cell invoice"><a href="#">Download PDF</a></div>
-        </div>
-
-        <div class="ledger-row" role="row">
-          <div class="ledger-cell date">04 Dec 2025</div>
-          <div class="ledger-cell desc">
-            <span class="desc-title">Solo · decision CD-2025-12-7702</span>
-            <span class="desc-sub">"Should I leave the partnership at the firm?" · 60-day decision</span>
-          </div>
-          <div class="ledger-cell amount">9.99<span class="currency">USD</span></div>
-          <div class="ledger-cell status"><span class="status-tag paid">Paid</span></div>
-          <div class="ledger-cell invoice"><a href="#">Download PDF</a></div>
-        </div>
-
-        <div class="ledger-row" role="row">
-          <div class="ledger-cell date">15 Nov 2025</div>
-          <div class="ledger-cell desc">
-            <span class="desc-title">Solo · first decision · free</span>
-            <span class="desc-sub">Free first lifetime Solo decision · no charge made</span>
-          </div>
-          <div class="ledger-cell amount">$0.00<span class="currency">USD</span></div>
-          <div class="ledger-cell status"><span class="status-tag paid">Paid</span></div>
-          <div class="ledger-cell invoice"><span class="none">No invoice</span></div>
-        </div>
-      </div>
-
-      <div class="bill-actions-row">
-        <a href="#export" class="btn btn-ghost">Export all as CSV</a>
-        <button type="button" id="cd-portal-btn-bottom" class="btn">Open Stripe Customer Portal</button>
+      <div class="bill-actions-row" style="margin-top: 24px;">
+        <button type="button" id="cd-portal-btn-bottom" class="btn btn-large">Open Stripe Customer Portal</button>
         <a href="refunds.html" class="btn-text" style="border-bottom: 1px solid var(--wine); padding-bottom: 2px;">Read the refund policy →</a>
       </div>
 
       <div class="stripe-note">
-        <div class="note-label">§ How billing works</div>
-        <p><strong>Counsel.day uses Stripe for payments.</strong> Every charge is made directly by Stripe and shows up under "Counsel.day" on your statement. Invoices are generated by Stripe at the moment of each charge and emailed to the address on the account; they can also be downloaded as PDFs from the ledger above.</p>
+        <div class="note-label">How billing works</div>
+        <p><strong>Counsel.day uses Stripe for payments.</strong> Every charge is made directly by Stripe and shows up under "Counsel.day" on your bank statement. Invoices and receipts are emailed to the address on your account at the moment of each charge.</p>
         <p>The Stripe Customer Portal lets you update your card, change your billing address, and cancel or pause your subscription. Refunds follow the policy on <a href="refunds.html">refunds.html</a> · we refund only where our tool failed or where local consumer-protection law requires it. No change-of-mind, no partial-completion refunds.</p>
       </div>
     </section>
@@ -492,6 +368,56 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   }
 
   btns.forEach(function (b) { b.addEventListener('click', openPortal); });
+})();
+</script>
+<script>
+// Hydrate the billing summary from /api/me · drops the fake ledger
+// for a tight real-data card. Stripe Customer Portal owns the full history.
+(function () {
+  function set(id, value) { var el = document.getElementById(id); if (el) el.textContent = value; }
+  fetch('/api/me', { credentials: 'include', headers: { accept: 'application/json' } })
+    .then(function (r) {
+      if (r.status === 401) { window.location.href = '/signin?next=/billing.html'; throw new Error('redirect'); }
+      return r.json();
+    })
+    .then(function (d) {
+      if (!d || !d.ok) return;
+      var u = d.user || {};
+      var plan = u.current_plan || 'free';
+      var planLabel = {
+        'free':            'No active subscription',
+        'consumer_annual': 'Consumer · Annual',
+        'solo':            'Solo · paid',
+        'couple':          'Couple · paid',
+        'family':          'Family · paid',
+      }[plan] || plan;
+      var planSub = {
+        'free':            'Pay per decision at compose time',
+        'consumer_annual': 'Unlimited decisions in any tier',
+        'solo':            'Single Solo decision paid this billing cycle',
+        'couple':          'Single Couple decision paid this billing cycle',
+        'family':          'Single Family decision paid this billing cycle',
+      }[plan] || '';
+      var modelLabel = plan === 'consumer_annual' ? 'Annual subscription' : 'Pay per decision';
+      var modelSub   = plan === 'consumer_annual'
+        ? '$99 USD / year · manage in Stripe portal'
+        : 'Solo first decision free · Solo $9.99 / Couple $25 / Family $40 USD';
+      set('cd-bill-plan', planLabel);
+      set('cd-bill-plan-sub', planSub);
+      set('cd-bill-model', modelLabel);
+      set('cd-bill-model-sub', modelSub);
+      set('cd-bill-email', u.email || '');
+      var stripeEl = document.getElementById('cd-bill-stripe-customer');
+      var stripeSubEl = document.getElementById('cd-bill-stripe-customer-sub');
+      if (u.has_stripe_customer === false || (u.stripe_customer_id === null && !u.has_stripe_customer)) {
+        if (stripeEl) stripeEl.textContent = 'No charges yet';
+        if (stripeSubEl) stripeSubEl.textContent = 'A Stripe customer will be created on your first checkout';
+      } else {
+        if (stripeEl) stripeEl.textContent = 'Active';
+        if (stripeSubEl) stripeSubEl.textContent = 'Open the portal for full history';
+      }
+    })
+    .catch(function (e) { if (e && e.message !== 'redirect') console.warn('[billing] hydrate failed', e); });
 })();
 </script>
 <script src="ga4.js" defer></script>

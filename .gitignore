@@ -27,6 +27,7 @@ Thumbs.db
 .claude/projects/
 .claude/shell-snapshots/
 .claude/todos/
+.claude/*.lock
 
 # ---- Env files ----
 .env

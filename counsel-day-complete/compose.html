@@ -179,9 +179,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
 
     <div class="record-envelope preview-envelope">
-      <div class="record-header">
-        <span class="file-ref">FILE · № PENDING</span>
-        <span class="status-pill pending">Drafting</span>
+      <div class="record-header"><span class="status-pill pending">Drafting</span>
         <span class="date-stamp muted">15 MAY 2026 · NOT YET FILED</span>
       </div>
       <div class="envelope-body">
@@ -224,25 +222,34 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="field-label">FIELD 04 · INVITED PARTNER <span class="req">·</span> OPTIONAL</div>
       <h2 class="field-title">Running this <span class="ital">with someone?</span></h2>
       <p class="field-help">Add a partner by email to run the decision jointly. Either of you may invite, and the invitation is single-use. Leave blank to run a Solo decision; you may add a partner later, but only before any votes have been cast.</p>
-      <input type="email" class="partner-input" name="partner_email" placeholder="partner@example.com">
+      <div id="cd-saved-contacts" style="display: none; margin-bottom: 12px;">
+        <div style="font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px;">Quick-pick from saved contacts</div>
+        <div id="cd-contact-chips" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+      </div>
+      <input type="email" class="partner-input" id="cd-partner-email-input" name="partner_email" placeholder="partner@example.com">
+      <p style="font-family: var(--font-body); font-style: italic; font-size: 13px; color: var(--muted); margin: 6px 0 0;">People you invite are saved automatically · you will not need to retype their email next time.</p>
     </div>
 
     <div class="compose-field">
       <div class="field-label">FIELD 05 · TIER <span class="req">·</span> REQUIRED</div>
       <h2 class="field-title">Which tier covers this <span class="ital">decision?</span></h2>
-      <p class="field-help">Solo Free files a single decision with your conviction chart and your own notes back. Solo Paid adds the AI-written verdict paragraph and the conversation prompt. Couple and Family run the decision with one or more partners. Consumer Annual is the single all-access plan; while active, any consumer decision is included with no per-decision charge.</p>
-      <div class="tier-grid" role="radiogroup" aria-label="Tier">
-        <label class="tier-radio selected" onclick="selectTier(this)"><input type="radio" name="tier" value="solo_free" checked><div class="tier-name">Solo Free</div><div class="tier-price">$0.00 USD</div><div class="tier-help">One decision · chart + your own notes only</div></label>
-        <label class="tier-radio" onclick="selectTier(this)"><input type="radio" name="tier" value="solo_paid"><div class="tier-name">Solo Paid</div><div class="tier-price">$14 USD</div><div class="tier-help">One decision · written verdict + prompt</div></label>
-        <label class="tier-radio" onclick="selectTier(this)"><input type="radio" name="tier" value="couple"><div class="tier-name">Couple</div><div class="tier-price">$25 USD</div><div class="tier-help">Two partners · full analysis · per decision</div></label>
-        <label class="tier-radio" onclick="selectTier(this)"><input type="radio" name="tier" value="family"><div class="tier-name">Family</div><div class="tier-price">$49 USD</div><div class="tier-help">Three to six participants · per decision</div></label>
+      <p class="field-help" id="cd-tier-intro">Loading your available tiers…</p>
+      <div class="tier-grid" id="cd-tier-grid" role="radiogroup" aria-label="Tier">
+        <label class="tier-radio selected" onclick="selectTier(this)" data-tier="solo_free"><input type="radio" name="tier" value="solo_free" checked><div class="tier-name">Solo Free</div><div class="tier-price">$0.00 USD</div><div class="tier-help" data-base-help="First Solo decision · free · chart + your own notes only">First Solo decision · free · chart + your own notes only</div></label>
+        <label class="tier-radio" onclick="selectTier(this)" data-tier="solo_paid"><input type="radio" name="tier" value="solo_paid"><div class="tier-name">Solo</div><div class="tier-price">$9.99 USD</div><div class="tier-help" data-base-help="One decision · written verdict + conversation prompt">One decision · written verdict + conversation prompt</div></label>
+        <label class="tier-radio" onclick="selectTier(this)" data-tier="couple"><input type="radio" name="tier" value="couple"><div class="tier-name">Couple</div><div class="tier-price">$25 USD</div><div class="tier-help" data-base-help="Two participants · full analysis · per decision">Two participants · full analysis · per decision</div></label>
+        <label class="tier-radio" onclick="selectTier(this)" data-tier="family"><input type="radio" name="tier" value="family"><div class="tier-name">Family</div><div class="tier-price">$40 USD</div><div class="tier-help" data-base-help="Three to six participants · per decision">Three to six participants · per decision</div></label>
       </div>
-      <p class="field-help" style="margin-top: 12px;">On Consumer Annual ($99 USD / year)? Decisions are free for you while active. Manage on the <a href="pricing.html#annual">pricing page</a>.</p>
+      <div id="cd-tier-upgrade" style="display: none; margin-top: 18px; padding: 18px 22px; background: var(--wine-soft); border-left: 3px solid var(--wine);">
+        <div style="font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin-bottom: 8px;">Upgrade for unlimited decisions</div>
+        <p style="font-family: var(--font-body); font-size: 15px; line-height: 1.55; color: var(--ink); margin: 0 0 12px;">Filing one Couple or Family decision charges you per-decision. If you'll file more than four in a year, <strong>Consumer Annual ($99 USD / year)</strong> is cheaper and includes unlimited Solo, Couple, and Family decisions.</p>
+        <a href="pricing.html#annual" class="btn-text" style="border-bottom: 1px solid var(--wine); padding-bottom: 2px;">See Consumer Annual →</a>
+      </div>
     </div>
 
     <div class="compose-confirm">
       <div class="label">ON FILING, THIS DECISION WILL BE ASSIGNED</div>
-      <p><strong>File reference</strong> <span class="ref" id="next-ref">№ 0049-A</span> · concluding <strong id="end-date">14 June 2026</strong> at 22:00 NZST · sealed-read from day one until the reveal day. The reference and the dates are permanent once you file.</p>
+      <p>concluding <strong id="end-date">14 June 2026</strong> at 22:00 NZST · sealed-read from day one until the reveal day. The reference and the dates are permanent once you file.</p>
     </div>
 
     <div class="compose-submit-row">
@@ -454,6 +461,104 @@ function saveDraft() {
     update();
     top.addEventListener('click', function (e) { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
   }
+})();
+</script>
+<script>
+// Tier-aware compose · hydrate from /api/me to mark "FREE for you" tiles
+// for Consumer Annual subscribers, hide Solo Free if already used, and
+// surface the upgrade-to-annual nudge when paying per-decision.
+(function () {
+  fetch('/api/me', { credentials: 'include', headers: { accept: 'application/json' } })
+    .then(function (r) {
+      if (r.status === 401) { window.location.href = '/signin.html?next=/compose.html'; throw new Error('redirect'); }
+      return r.json();
+    })
+    .then(function (d) {
+      if (!d || !d.ok) return;
+      var u = d.user || {};
+      var decisions = d.decisions || [];
+      var intro = document.getElementById('cd-tier-intro');
+      var upgrade = document.getElementById('cd-tier-upgrade');
+      var hasUsedFree = decisions.some(function (dec) { return dec.tier === 'solo_free'; });
+
+      // ---- pre-select tier from decision_kind_intent ----
+      var intentToTier = { solo: 'solo_paid', couple: 'couple', family: 'family', exploring: 'solo_paid' };
+      var preferredTier = intentToTier[u.decision_kind_intent || 'exploring'] || 'solo_paid';
+
+      if (u.current_plan === 'consumer_annual') {
+        // ---- ANNUAL · everything is included ----
+        if (intro) intro.textContent = 'You are on Consumer Annual · every tier below is included with no per-decision charge. Pick the one that fits this decision.';
+        if (upgrade) upgrade.style.display = 'none';
+        document.querySelectorAll('#cd-tier-grid .tier-radio').forEach(function (el) {
+          var price = el.querySelector('.tier-price');
+          var help = el.querySelector('.tier-help');
+          if (price) price.textContent = 'INCLUDED';
+          if (price) price.style.color = 'var(--wine)';
+          if (help) help.textContent = (help.getAttribute('data-base-help') || help.textContent) + ' · covered by your annual plan';
+        });
+        // Switch selection to preferred tier
+        document.querySelectorAll('#cd-tier-grid .tier-radio').forEach(function (r) { r.classList.remove('selected'); });
+        var prefEl = document.querySelector('#cd-tier-grid .tier-radio[data-tier="' + preferredTier + '"]');
+        if (prefEl) {
+          prefEl.classList.add('selected');
+          var inp = prefEl.querySelector('input[type="radio"]'); if (inp) inp.checked = true;
+        }
+      } else {
+        // ---- FREE plan · pay per decision ----
+        if (hasUsedFree) {
+          // Hide Solo Free entirely
+          var freeEl = document.querySelector('#cd-tier-grid .tier-radio[data-tier="solo_free"]');
+          if (freeEl) freeEl.style.display = 'none';
+          if (intro) intro.textContent = 'You have already used your one free Solo decision. Pick a paid tier below · you will be charged at the moment of filing. Or subscribe to Consumer Annual for unlimited decisions across every tier.';
+          // Select preferred paid tier
+          document.querySelectorAll('#cd-tier-grid .tier-radio').forEach(function (r) { r.classList.remove('selected'); });
+          var prefEl = document.querySelector('#cd-tier-grid .tier-radio[data-tier="' + preferredTier + '"]');
+          if (prefEl) {
+            prefEl.classList.add('selected');
+            var inp = prefEl.querySelector('input[type="radio"]'); if (inp) inp.checked = true;
+          }
+        } else {
+          // First-ever decision · Solo Free is available
+          if (intro) intro.textContent = 'Your first Solo decision is free. Paid tiers are charged at the moment of filing. Subscribe to Consumer Annual for unlimited decisions across every tier.';
+        }
+        if (upgrade) upgrade.style.display = '';
+      }
+    })
+    .catch(function (e) {
+      if (e && e.message === 'redirect') return;
+      var intro = document.getElementById('cd-tier-intro');
+      if (intro) intro.textContent = 'Sign in to see which tiers are available to you.';
+    });
+})();
+
+// Saved contacts · render quick-pick chips above the partner email input.
+// Clicking a chip fills the input; user can edit further or just file.
+(function () {
+  fetch('/api/me/contacts', { credentials: 'include', headers: { accept: 'application/json' } })
+    .then(function (r) { if (r.status === 401) return null; return r.json(); })
+    .then(function (d) {
+      if (!d || !d.ok || !d.contacts || d.contacts.length === 0) return;
+      var wrap = document.getElementById('cd-saved-contacts');
+      var chipsEl = document.getElementById('cd-contact-chips');
+      var input = document.getElementById('cd-partner-email-input');
+      if (!wrap || !chipsEl || !input) return;
+      wrap.style.display = '';
+      function escapeHtml(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; });
+      }
+      d.contacts.slice(0, 8).forEach(function (c) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.setAttribute('data-email', c.email);
+        btn.style.cssText = 'font-family: var(--font-body); font-size: 14px; padding: 8px 14px; border: 1px solid var(--ink); background: var(--paper); color: var(--ink); cursor: pointer; border-radius: 0;';
+        btn.innerHTML = '<strong>' + escapeHtml(c.display_name) + '</strong> <span style="color: var(--muted); margin-left: 6px; font-size: 13px;">' + escapeHtml(c.email) + '</span>';
+        btn.addEventListener('mouseover', function () { btn.style.borderColor = 'var(--wine)'; btn.style.color = 'var(--wine)'; });
+        btn.addEventListener('mouseout',  function () { btn.style.borderColor = 'var(--ink)';  btn.style.color = 'var(--ink)'; });
+        btn.addEventListener('click', function () { input.value = c.email; input.focus(); });
+        chipsEl.appendChild(btn);
+      });
+    })
+    .catch(function () { /* silently ignore · feature is enhancement */ });
 })();
 </script>
 <script src="ga4.js" defer></script>

@@ -24,7 +24,7 @@ import { db, schema } from '@/lib/db';
 import { readSession, readSessionCookie } from '@/lib/sessions';
 import { newToken } from '@/lib/tokens';
 import { sendTransactional, buildInviteEmail } from '@/lib/email';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -151,6 +151,41 @@ export async function POST(req: Request) {
     });
   }
   await db.insert(schema.participants).values(participantRows);
+
+  // ---- auto-save invited partners to the user's saved_contacts ----
+  // So the next time they compose a Couple/Family decision they can
+  // quick-pick from a list instead of retyping every email. Upsert
+  // keyed on (user_id, LOWER(email)) bumps the last_invited_at and
+  // count when the same person is invited again.
+  const contactRows = participantRows
+    .slice(1)
+    .filter((p) => p.inviteEmail)
+    .map((p) => ({
+      userId: session.userId,
+      displayName: p.displayName,
+      email: p.inviteEmail as string,
+      relationship: (input.tier === 'couple' ? 'partner' : input.tier === 'family' ? 'family' : 'other') as
+        'partner' | 'family' | 'other',
+      lastInvitedAt: new Date(),
+      inviteCount: 1,
+    }));
+  if (contactRows.length > 0) {
+    for (const c of contactRows) {
+      await db
+        .insert(schema.savedContacts)
+        .values(c)
+        .onConflictDoUpdate({
+          target: [schema.savedContacts.userId, schema.savedContacts.email],
+          set: {
+            displayName: c.displayName,
+            lastInvitedAt: c.lastInvitedAt,
+            inviteCount: sql`${schema.savedContacts.inviteCount} + 1`,
+            updatedAt: new Date(),
+          },
+        })
+        .catch(() => { /* best-effort · contact-save must never break compose */ });
+    }
+  }
 
   // ---- send invite emails (best-effort, never blocks the response) ----
   // We don't await inside the loop: a slow or failing Brevo call must not

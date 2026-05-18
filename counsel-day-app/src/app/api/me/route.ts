@@ -39,6 +39,7 @@ export async function GET(req: Request) {
       decisionKindIntent: schema.users.decisionKindIntent,
       createdAt: schema.users.createdAt,
       hasPassword: sql<boolean>`${schema.users.passwordHash} IS NOT NULL`,
+      hasStripeCustomer: sql<boolean>`${schema.users.stripeCustomerId} IS NOT NULL`,
     })
     .from(schema.users)
     .where(eq(schema.users.id, session.userId))
@@ -90,6 +91,7 @@ export async function GET(req: Request) {
         marketing_consent: user.marketingConsent,
         decision_kind_intent: user.decisionKindIntent,
         has_password: user.hasPassword,
+        has_stripe_customer: user.hasStripeCustomer,
         created_at: user.createdAt,
       },
       decisions,

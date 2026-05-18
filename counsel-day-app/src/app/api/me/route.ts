@@ -1,5 +1,9 @@
 /**
  * GET    /api/me  · profile + decisions list
+ * PATCH  /api/me  · profile update (first_name, marketing_consent,
+ *                   decision_kind_intent). Cannot change email · email
+ *                   change requires a re-verification flow that's not
+ *                   built yet (deliberately scoped out of v1).
  * DELETE /api/me  · GDPR Article 17 (right to erasure) · soft-delete now,
  *                   hard-delete after a 14-day grace window
  *
@@ -10,6 +14,7 @@
  */
 
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 import { db, schema } from '@/lib/db';
 import { readSession, readSessionCookie, buildClearedSessionCookie } from '@/lib/sessions';
 import { eq, sql } from 'drizzle-orm';
@@ -31,6 +36,7 @@ export async function GET(req: Request) {
       currentPlan: schema.users.currentPlan,
       emailVerifiedAt: schema.users.emailVerifiedAt,
       marketingConsent: schema.users.marketingConsent,
+      decisionKindIntent: schema.users.decisionKindIntent,
       createdAt: schema.users.createdAt,
       hasPassword: sql<boolean>`${schema.users.passwordHash} IS NOT NULL`,
     })
@@ -82,11 +88,70 @@ export async function GET(req: Request) {
         current_plan: user.currentPlan,
         email_verified: !!user.emailVerifiedAt,
         marketing_consent: user.marketingConsent,
+        decision_kind_intent: user.decisionKindIntent,
         has_password: user.hasPassword,
         created_at: user.createdAt,
       },
       decisions,
     },
+    { status: 200, headers: { 'cache-control': 'private, no-store' } }
+  );
+}
+
+/**
+ * PATCH /api/me · update mutable profile fields.
+ *
+ * Email is intentionally NOT mutable here · a real email change requires
+ * re-verification (mint token, send to new address, confirm, swap, log).
+ * That's a separate endpoint when we build it.
+ */
+const patchSchema = z.object({
+  first_name: z.string().trim().min(1).max(80).optional(),
+  marketing_consent: z.boolean().optional(),
+  decision_kind_intent: z.enum(['solo', 'couple', 'family', 'exploring']).optional(),
+});
+
+export async function PATCH(req: Request) {
+  const session = await readSession(readSessionCookie(req.headers));
+  if (!session) {
+    return NextResponse.json({ ok: false, message: 'You must be signed in.' }, { status: 401 });
+  }
+
+  let raw: Record<string, unknown>;
+  try {
+    const ct = req.headers.get('content-type') ?? '';
+    raw = ct.includes('application/json')
+      ? ((await req.json()) as Record<string, unknown>)
+      : Object.fromEntries((await req.formData()).entries());
+  } catch {
+    return NextResponse.json({ ok: false, message: 'Could not read request body.' }, { status: 400 });
+  }
+
+  // Coerce form-string booleans to real booleans (HTML forms send "on"/"true"/"")
+  if (typeof raw.marketing_consent === 'string') {
+    raw.marketing_consent = raw.marketing_consent === 'true' || raw.marketing_consent === 'on';
+  }
+
+  const parsed = patchSchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json({ ok: false, message: 'Some fields were invalid.', field_errors: parsed.error.flatten().fieldErrors }, { status: 422 });
+  }
+  const update = parsed.data;
+
+  // Build the SET clause only for fields that were actually provided
+  const patch: Record<string, unknown> = { updatedAt: new Date() };
+  if (update.first_name !== undefined) patch.firstName = update.first_name;
+  if (update.marketing_consent !== undefined) patch.marketingConsent = update.marketing_consent;
+  if (update.decision_kind_intent !== undefined) patch.decisionKindIntent = update.decision_kind_intent;
+
+  if (Object.keys(patch).length === 1) {
+    return NextResponse.json({ ok: true, message: 'Nothing to update.' }, { status: 200 });
+  }
+
+  await db.update(schema.users).set(patch).where(eq(schema.users.id, session.userId));
+
+  return NextResponse.json(
+    { ok: true, message: 'Profile updated.' },
     { status: 200, headers: { 'cache-control': 'private, no-store' } }
   );
 }

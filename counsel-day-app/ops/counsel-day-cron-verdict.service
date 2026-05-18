@@ -13,6 +13,7 @@ Environment="NODE_ENV=production"
 ExecStart=/usr/bin/npx tsx src/jobs/cron.ts verdict-generate
 ExecStart=/usr/bin/npx tsx src/jobs/cron.ts session-purge
 ExecStart=/usr/bin/npx tsx src/jobs/cron.ts invite-expiry
+ExecStart=/usr/bin/npx tsx src/jobs/cron.ts invite-reminder
 StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=counsel-day-cron-verdict

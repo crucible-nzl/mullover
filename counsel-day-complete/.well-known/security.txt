@@ -7,6 +7,8 @@ Contact: mailto:admin@counsel.day
 Expires: 2027-05-18T00:00:00.000Z
 Preferred-Languages: en
 Canonical: https://counsel.day/.well-known/security.txt
+Policy: https://counsel.day/security
+Acknowledgments: https://counsel.day/changelog
 
 # We welcome responsible disclosure. Please email security@counsel.day
 # with technical details. We aim to acknowledge within 2 business days

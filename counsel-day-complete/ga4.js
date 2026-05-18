@@ -84,6 +84,39 @@
     });
   }
 
+  /* Anonymous id for linking pre-signup consent rows to a user account
+     later (when they sign up). Stable across visits, regenerated only
+     if cleared. Used by /api/consent server-side audit log. */
+  function anonId() {
+    var key = 'cd_consent_anon_id';
+    try {
+      var existing = localStorage.getItem(key);
+      if (existing) return existing;
+      var fresh = 'anon-' + Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 10);
+      localStorage.setItem(key, fresh);
+      return fresh;
+    } catch (e) { return null; }
+  }
+
+  /* Server-side consent log · GDPR Article 7(1) audit trail. Best-effort:
+     a network failure does NOT roll back the local decision. The user's
+     choice is honoured regardless of whether the audit row reached us. */
+  function sendConsentToServer(consent) {
+    try {
+      fetch('/api/consent', {
+        method: 'POST',
+        credentials: 'include',
+        keepalive: true,
+        headers: { 'content-type': 'application/json', accept: 'application/json' },
+        body: JSON.stringify({
+          consent_type: consent.analytics ? 'analytics' : 'essential_only',
+          granted: !!consent.analytics,
+          anon_id: anonId(),
+        })
+      }).catch(function () { /* swallow · audit log is best-effort */ });
+    } catch (e) { /* swallow */ }
+  }
+
   function saveAndApply(decision, source) {
     var consent = {
       essential: true,
@@ -94,6 +127,7 @@
     };
     writeConsent(consent);
     applyConsent(consent);
+    sendConsentToServer(consent);
     closeBanner();
   }
 

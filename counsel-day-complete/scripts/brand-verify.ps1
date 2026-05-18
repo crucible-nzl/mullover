@@ -99,6 +99,9 @@ foreach ($f in $htmlFiles) {
   # Skip pages that are intentional micro-pages with inline-only fonts
   if ($f.Name -in @('homepage.html')) { continue }
   $text = [System.IO.File]::ReadAllText($f.FullName)
+  # Self-hosted path: if the page links /fonts/fonts.css we trust it (the
+  # CSS file is verified separately below).
+  if ($text -match '/fonts/fonts\.css') { continue }
   $missing = @()
   foreach ($key in $requiredFonts.Keys) {
     if ($text -notmatch [regex]::Escape($key)) {
@@ -108,10 +111,36 @@ foreach ($f in $htmlFiles) {
   if ($missing.Count -gt 0) {
     $missingFontPages++
     $rel = $f.FullName.Replace($root, '').TrimStart('\','/')
-    Write-Fail "$rel does not load: $($missing -join ', ')" "Add the Google Fonts <link> for these"
+    Write-Fail "$rel does not load: $($missing -join ', ')" "Link /fonts/fonts.css OR add the Google Fonts <link>"
   }
 }
-if ($missingFontPages -eq 0) { Write-Pass "All HTML pages load Newsreader + Source Serif 4 + Geist + Geist Mono" }
+
+# Verify the central /fonts/fonts.css declares every required @font-face
+$fontsCssPath = Join-Path $root 'fonts/fonts.css'
+if (Test-Path $fontsCssPath) {
+  $fontsCss = [System.IO.File]::ReadAllText($fontsCssPath)
+  $cssRequired = @{
+    "font-family: 'Newsreader'"     = 'Newsreader (display)'
+    "font-family: 'Source Serif 4'" = 'Source Serif 4 (body)'
+    "font-family: 'Geist'"          = 'Geist (UI)'
+    "font-family: 'Geist Mono'"     = 'Geist Mono (metadata)'
+  }
+  $missingInCss = @()
+  foreach ($key in $cssRequired.Keys) {
+    if ($fontsCss -notmatch [regex]::Escape($key)) { $missingInCss += $cssRequired[$key] }
+  }
+  if ($missingInCss.Count -eq 0) {
+    Write-Pass "Self-hosted /fonts/fonts.css declares all four required @font-face families"
+  } else {
+    $missingFontPages++
+    Write-Fail "fonts/fonts.css missing @font-face for: $($missingInCss -join ', ')" "Re-run the fonts download + regenerate fonts.css"
+  }
+} else {
+  $missingFontPages++
+  Write-Fail "fonts/fonts.css missing" "Self-hosted fonts are the canonical loader · regenerate or remove the /fonts/fonts.css references"
+}
+
+if ($missingFontPages -eq 0) { Write-Pass "All HTML pages load Newsreader + Source Serif 4 + Geist + Geist Mono (via /fonts/fonts.css or Google Fonts)" }
 
 # ================================================================
 # 2 · Banned fonts on the public surface
@@ -423,6 +452,38 @@ else                              { Write-Fail "Consent Mode v2 default missing 
 
 if ($missingNoscript.Count -eq 0) { Write-Pass "GTM noscript iframe present on every page" }
 else                              { Write-Fail "GTM noscript iframe missing on $($missingNoscript.Count) page(s)" (($missingNoscript | Select-Object -First 6) -join "`n       ") }
+
+# ================================================================
+# 13 · Sentry config files contain no em-dashes or en-dashes
+#      The project-wide scan in Check 8 already covers these, but
+#      Sentry files are particularly prone to copy-pasted snippets
+#      from Sentry docs that include em-dashes. Calling them out
+#      explicitly here so future failures point right at the file
+#      rather than "somewhere in the project".
+# ================================================================
+Write-Head "13 · Sentry config files (TypeScript + instrumentation) dash-free"
+
+$sentryFiles = @(
+  Join-Path $dashScanRoot 'counsel-day-app/sentry.server.config.ts'
+  Join-Path $dashScanRoot 'counsel-day-app/sentry.edge.config.ts'
+  Join-Path $dashScanRoot 'counsel-day-app/src/instrumentation-client.ts'
+  Join-Path $dashScanRoot 'counsel-day-app/src/instrumentation.ts'
+  Join-Path $dashScanRoot 'counsel-day-app/src/app/global-error.tsx'
+  Join-Path $dashScanRoot 'counsel-day-app/next.config.ts'
+) | Where-Object { Test-Path $_ }
+
+$sentryDashHits = @()
+foreach ($f in $sentryFiles) {
+  $text = [System.IO.File]::ReadAllText($f)
+  if ($text -match "[$emdash$endash]") {
+    $sentryDashHits += $f.Replace($dashScanRoot, '').TrimStart('\','/')
+  }
+}
+if ($sentryDashHits.Count -eq 0) {
+  Write-Pass "Sentry config files contain zero em/en-dashes ($($sentryFiles.Count) files scanned)"
+} else {
+  Write-Fail "Em-dash or en-dash present in Sentry config" ($sentryDashHits -join "`n       ")
+}
 
 # ================================================================
 # Summary

@@ -7,6 +7,8 @@
  * looks for src/instrumentation.ts OR instrumentation.ts at root.
  */
 
+import * as Sentry from '@sentry/nextjs';
+
 export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     await import('../sentry.server.config');
@@ -15,3 +17,8 @@ export async function register() {
     await import('../sentry.edge.config');
   }
 }
+
+// Required by Next.js 15+ App Router so uncaught exceptions inside
+// route handlers and server components are forwarded to Sentry.
+// When SENTRY_DSN is unset, captureRequestError is a no-op.
+export const onRequestError = Sentry.captureRequestError;

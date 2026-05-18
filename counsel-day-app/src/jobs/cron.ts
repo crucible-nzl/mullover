@@ -242,6 +242,117 @@ async function inviteExpiry() {
   );
 }
 
+/**
+ * Send a single reminder email to partner-invitees who haven't accepted
+ * within 48 hours. Bumps acceptance rate without becoming spam · we
+ * never send more than one reminder per invite. Tracked via audit_log
+ * action 'invite.reminder_sent' rather than a new schema column.
+ *
+ * Window: invites created 48h-7d ago. Older than 7 days the invite-expiry
+ * job will null the token anyway; newer than 48h is too soon.
+ */
+async function inviteReminder() {
+  const remindersDue = await db.execute<{
+    participant_id: string;
+    display_name: string;
+    invite_email: string;
+    invite_token: string;
+    decision_id: string;
+    question: string;
+    owner_first_name: string | null;
+  }>(sql`
+    SELECT
+      p.id   AS participant_id,
+      p.display_name,
+      p.invite_email,
+      p.invite_token,
+      d.id   AS decision_id,
+      d.question,
+      u.first_name AS owner_first_name
+    FROM participants p
+    JOIN decisions d ON d.id = p.decision_id
+    JOIN users u ON u.id = d.owner_user_id
+    WHERE p.invite_token IS NOT NULL
+      AND p.invite_accepted_at IS NULL
+      AND p.invite_email IS NOT NULL
+      AND p.created_at < NOW() - INTERVAL '48 hours'
+      AND p.created_at > NOW() - INTERVAL '7 days'
+      AND NOT EXISTS (
+        SELECT 1 FROM audit_log al
+        WHERE al.action = 'invite.reminder_sent'
+          AND al.target_id = p.id
+      )
+    LIMIT 50
+  `);
+
+  const rows = remindersDue as unknown as Array<{
+    participant_id: string;
+    display_name: string;
+    invite_email: string;
+    invite_token: string;
+    decision_id: string;
+    question: string;
+    owner_first_name: string | null;
+  }>;
+
+  if (rows.length === 0) {
+    console.log('[cron · invite-reminder] 0 reminders due');
+    return;
+  }
+
+  let sent = 0;
+  for (const r of rows) {
+    const inviteUrl = `${APP_BASE_URL}/invite?token=${encodeURIComponent(r.invite_token)}`;
+    const owner = r.owner_first_name || 'Your partner';
+    const greeting = r.display_name ? `Hi ${r.display_name},` : 'Hi,';
+    const safeQuestion = r.question.length > 200 ? r.question.slice(0, 197) + '...' : r.question;
+    const text = [
+      greeting,
+      '',
+      `A reminder: ${owner} invited you a couple of days ago to take part in a Counsel.day decision. The question is:`,
+      '',
+      `  ${safeQuestion}`,
+      '',
+      'The decision cannot begin until you accept. The invite link is still valid:',
+      '',
+      inviteUrl,
+      '',
+      'If you would rather not take part, you can just ignore this · the invite will expire on its own in a few weeks.',
+      '',
+      '· Counsel.day',
+    ].join('\n');
+    const html = `
+      <p>${greeting}</p>
+      <p>A reminder: <strong>${owner}</strong> invited you a couple of days ago to take part in a Counsel.day decision. The question is:</p>
+      <blockquote style="margin: 16px 0; padding: 12px 16px; border-left: 3px solid #722F37;">${safeQuestion}</blockquote>
+      <p>The decision cannot begin until you accept. The invite link is still valid:</p>
+      <p><a href="${inviteUrl}" style="color: #722F37;">${inviteUrl}</a></p>
+      <p>If you would rather not take part, you can just ignore this · the invite will expire on its own in a few weeks.</p>
+      <p>· Counsel.day</p>
+    `.trim();
+
+    const res = await sendTransactional({
+      to: { email: r.invite_email, name: r.display_name },
+      subject: `Reminder: ${owner} invited you to a Counsel.day decision`,
+      textContent: text,
+      htmlContent: html,
+    });
+
+    if (res.ok) {
+      sent++;
+      // Mark this participant as reminded so we never send a second one
+      await db.insert(schema.auditLog).values({
+        action: 'invite.reminder_sent',
+        targetType: 'participant',
+        targetId: r.participant_id,
+        metadata: { decision_id: r.decision_id, invite_email: r.invite_email },
+      }).catch(() => { /* best-effort */ });
+    }
+  }
+
+  console.log(`[cron · invite-reminder] sent ${sent}/${rows.length} reminders`);
+}
+
 async function main() {
   const job = process.argv[2];
   switch (job) {
@@ -249,8 +360,9 @@ async function main() {
     case 'verdict-generate': return verdictGenerate();
     case 'session-purge':    return sessionPurge();
     case 'invite-expiry':    return inviteExpiry();
+    case 'invite-reminder':  return inviteReminder();
     default:
-      console.error(`Unknown job: ${job}. Valid: evening-prompt, verdict-generate, session-purge, invite-expiry`);
+      console.error(`Unknown job: ${job}. Valid: evening-prompt, verdict-generate, session-purge, invite-expiry, invite-reminder`);
       process.exit(2);
   }
 }

@@ -1,0 +1,44 @@
+# Root .gitignore for the Counsel.day monorepo.
+# Per-subproject ignores live in counsel-day-app/.gitignore and
+# counsel-day-complete/.gitignore. This file covers tree-wide noise.
+
+# ---- Build artefacts that should never be committed ----
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+node_modules/
+.next/
+dist/
+build/
+out/
+
+# ---- IDE / OS noise ----
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*~
+
+# ---- AI assistant locals · the org-wide settings.json can be checked in;
+#      settings.local.json contains personal preferences/tokens and must not. ----
+.claude/settings.local.json
+.claude/projects/
+.claude/shell-snapshots/
+.claude/todos/
+
+# ---- Env files ----
+.env
+.env.local
+.env.development.local
+.env.production.local
+*.pem
+*.key
+*.p12
+
+# ---- Legacy / archived directories ----
+# counsel-day-server/ was the early Docker Compose + Infisical scaffold.
+# Superseded by Caddy + systemd direct-on-Hetzner. Not deleted here;
+# left in the working tree for reference but removed from git tracking.
+# (When fully archived, delete the directory itself.)

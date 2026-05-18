@@ -92,9 +92,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   "inLanguage": "en"
 }
 </script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/fonts/fonts.css">
 <link rel="stylesheet" href="styles-i8.css">
 <style>
   .legal-list { font-family: var(--font-body); font-size: 17px; line-height: 1.65; color: var(--ink-soft); padding-left: 22px; margin: 0 0 22px; max-width: 760px; }
@@ -234,10 +232,93 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <p><strong>Method:</strong> via Stripe, to the original payment method.</p>
         </div>
       </div>
+
+      <div class="method-stage-body" style="margin-top: 32px;">
+        <h3 style="font-family: var(--font-display); font-size: 24px; font-weight: 500; color: var(--ink); margin: 0 0 14px;">Or file the request <span style="font-style: italic; color: var(--wine);">here</span>, signed in.</h3>
+        <p>If you are signed in to your Counsel.day account, you can file the request below. We acknowledge by email within two business days; the human reviewing is the founder.</p>
+      </div>
+
+      <div id="cd-refund-msg" role="alert" aria-live="polite" style="display: none; margin: 16px 0; padding: 14px 18px; font-family: var(--font-body); font-size: 14px; line-height: 1.55; max-width: 720px;"></div>
+
+      <form id="cd-refund-form" method="POST" action="/api/refunds/request" novalidate style="margin-top: 16px; max-width: 720px;">
+        <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px;">
+          <label for="cd-refund-decision" style="font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink);">Decision ID</label>
+          <span style="font-family: var(--font-body); font-size: 13px; color: var(--muted); font-style: italic;">Visible in your verdict email or on the decision page in your account. Looks like <code>a1b2c3d4-e5f6-7890-...</code></span>
+          <input type="text" id="cd-refund-decision" name="decision_id" required pattern="[0-9a-fA-F-]{36}" placeholder="00000000-0000-0000-0000-000000000000" style="font-family: var(--font-mono); font-size: 14px; padding: 11px 12px; border: 1px solid var(--ink); background: var(--paper); color: var(--ink); border-radius: 0;">
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px;">
+          <label for="cd-refund-reason" style="font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink);">What went wrong</label>
+          <span style="font-family: var(--font-body); font-size: 13px; color: var(--muted); font-style: italic;">Be specific about the defect. Per §02 we refund only where our tool failed or where statutory rights require · context helps us decide quickly.</span>
+          <textarea id="cd-refund-reason" name="reason" required minlength="30" maxlength="2000" rows="6" style="font-family: var(--font-body); font-size: 15px; padding: 12px; border: 1px solid var(--ink); background: var(--paper); color: var(--ink); border-radius: 0; resize: vertical;"></textarea>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px;">
+          <label for="cd-refund-contact" style="font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink);">Reply to (optional)</label>
+          <span style="font-family: var(--font-body); font-size: 13px; color: var(--muted); font-style: italic;">Defaults to the email on your account. Add a different one if you would prefer.</span>
+          <input type="email" id="cd-refund-contact" name="contact" placeholder="leave blank to use account email" style="font-family: var(--font-body); font-size: 15px; padding: 11px 12px; border: 1px solid var(--ink); background: var(--paper); color: var(--ink); border-radius: 0;">
+        </div>
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <button type="submit" class="btn btn-large">File refund request</button>
+          <span style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);">Acknowledged within 2 business days</span>
+        </div>
+      </form>
     </section>
 
   </div>
 </main>
+
+<script>
+(function () {
+  var form = document.getElementById('cd-refund-form');
+  if (!form) return;
+  var msg = document.getElementById('cd-refund-msg');
+  function show(kind, text) {
+    msg.style.display = 'block';
+    if (kind === 'success') {
+      msg.style.background = 'var(--wine-soft)';
+      msg.style.borderLeft = '3px solid var(--wine)';
+      msg.style.color = 'var(--ink)';
+    } else {
+      msg.style.background = '#fdecea';
+      msg.style.borderLeft = '3px solid #c0392b';
+      msg.style.color = '#6b1e16';
+    }
+    msg.textContent = text;
+  }
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var btn = form.querySelector('button[type="submit"]');
+    var orig = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Filing' + String.fromCharCode(0x2026);
+    msg.style.display = 'none';
+    fetch(form.action, {
+      method: 'POST',
+      body: new FormData(form),
+      credentials: 'include',
+      headers: { accept: 'application/json' },
+    })
+      .then(function (r) {
+        if (r.status === 401) {
+          window.location.href = '/signin.html?next=' + encodeURIComponent('/refunds.html');
+          throw new Error('redirect');
+        }
+        return r.json().then(function (j) { return { status: r.status, body: j }; });
+      })
+      .then(function (res) {
+        if (res.status === 200 && res.body && res.body.ok) {
+          form.reset();
+          show('success', res.body.message || 'Refund request received. A human will reply within two business days.');
+        } else {
+          show('error', (res.body && res.body.message) || 'Could not file the refund request.');
+        }
+      })
+      .catch(function (e) {
+        if (e && e.message === 'redirect') return;
+        show('error', 'Network error. Please email refunds@counsel.day directly.');
+      })
+      .finally(function () { btn.disabled = false; btn.textContent = orig; });
+  });
+})();
+</script>
 
 <footer class="colophon">
   <div class="colophon-inner">

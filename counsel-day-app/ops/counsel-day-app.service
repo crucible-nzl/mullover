@@ -1,0 +1,47 @@
+[Unit]
+Description=Counsel.day Next.js app
+Documentation=https://github.com/counsel-day/counsel-day-app
+After=network-online.target postgresql.service
+Wants=network-online.target postgresql.service
+
+[Service]
+Type=simple
+User=deploy
+Group=deploy
+WorkingDirectory=/opt/counsel-day-app
+EnvironmentFile=/etc/counsel-day-app/env.local
+Environment="NODE_ENV=production"
+Environment="HOSTNAME=127.0.0.1"
+Environment="PORT=3000"
+ExecStart=/usr/bin/node /opt/counsel-day-app/.next/standalone/server.js
+Restart=on-failure
+RestartSec=5s
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/counsel-day-app/.next/cache
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+LockPersonality=true
+# MemoryDenyWriteExecute is incompatible with V8's JIT compilation; omit
+# for Node processes or the process SIGTRAPs at startup.
+RestrictRealtime=true
+RestrictSUIDSGID=true
+PrivateDevices=true
+
+# Resource caps · CAX11 has 4GB RAM total; cap the node process at 1.5GB.
+MemoryMax=1536M
+TasksMax=512
+
+# Logs go to journald · view with: journalctl -u counsel-day-app -f
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=counsel-day-app
+
+[Install]
+WantedBy=multi-user.target

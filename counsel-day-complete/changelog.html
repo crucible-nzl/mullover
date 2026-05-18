@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<!-- Order is load-bearing: Consent Mode v2 defaults MUST be set BEFORE -->
+<!-- GTM and gtag load, or the first pageview ships before user choice. -->
+<!-- This block is injected into every public HTML <head> by             -->
+<!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
+
+<!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':         'denied',
+    'ad_user_data':       'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage':  'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage':   'granted',
+    'wait_for_update':    500
+  });
+  // Honour Global Privacy Control + Do-Not-Track before any tag fires.
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':         'denied',
+      'ad_user_data':       'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage':  'denied'
+    });
+  }
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', {
+    'anonymize_ip': true,
+    'allow_google_signals': false,
+    'allow_ad_personalization_signals': false
+  });
+</script>
+<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
+
+<title>Changelog · What has shipped on Counsel.day · Counsel.day</title>
+<meta name="description" content="Versioned, dated changelog of every shipped change to Counsel.day · the marketing site, the application, the verdict pipeline, the pricing, and the policies. Written in plain language with no marketing varnish.">
+<meta name="author" content="James Graham, founder of Counsel.day">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://counsel.day/changelog">
+<link rel="alternate" hreflang="en" href="https://counsel.day/changelog">
+<link rel="alternate" hreflang="x-default" href="https://counsel.day/changelog">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Counsel.day">
+<meta property="og:title" content="Changelog · Counsel.day">
+<meta property="og:description" content="Dated, plain-language record of every shipped change.">
+<meta property="og:url" content="https://counsel.day/changelog">
+<meta property="og:image" content="https://counsel.day/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Changelog · Counsel.day">
+<meta name="twitter:description" content="A dated record of every shipped change.">
+<meta name="twitter:image" content="https://counsel.day/og-image.png">
+<meta property="article:modified_time" content="2026-05-15T19:00:00+12:00">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    { "@type": "WebPage", "@id": "https://counsel.day/changelog#webpage", "url": "https://counsel.day/changelog", "name": "Changelog · Counsel.day", "inLanguage": "en", "isPartOf": { "@id": "https://counsel.day/#website" }, "datePublished": "2026-05-15", "dateModified": "2026-05-15", "author": { "@id": "https://counsel.day/about/james-graham#person" } },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Counsel.day", "item": "https://counsel.day/" },
+        { "@type": "ListItem", "position": 2, "name": "Changelog", "item": "https://counsel.day/changelog" }
+      ]
+    },
+    { "@type": "Person", "@id": "https://counsel.day/about/james-graham#person", "name": "James Graham", "url": "https://counsel.day/about/james-graham" },
+    { "@type": "Organization", "@id": "https://counsel.day/#organization", "name": "Counsel.day", "url": "https://counsel.day/", "founder": { "@id": "https://counsel.day/about/james-graham#person" } },
+    { "@type": "WebSite", "@id": "https://counsel.day/#website", "url": "https://counsel.day/", "name": "Counsel.day", "publisher": { "@id": "https://counsel.day/#organization" }, "inLanguage": "en" }
+  ]
+}
+</script>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles-i8.css">
+<style>
+  .release-meta {
+    display: flex; flex-wrap: wrap; gap: 18px;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--muted); margin-top: 6px;
+  }
+  .release-meta .ver { color: var(--wine); font-weight: 500; }
+  .release-meta .date { color: var(--ink); }
+  .change-list {
+    list-style: none; padding: 0; margin: 18px 0 0;
+    max-width: 820px;
+  }
+  .change-list li {
+    padding: 12px 0 12px 22px;
+    position: relative;
+    font-family: var(--font-body);
+    font-size: 17px; line-height: 1.65;
+    color: var(--ink-soft);
+    border-top: 1px solid var(--rule);
+  }
+  .change-list li:last-child { border-bottom: 1px solid var(--rule); }
+  .change-list li::before {
+    content: "·";
+    position: absolute; left: 0; top: 12px;
+    color: var(--wine); font-weight: 700;
+  }
+  .change-list li strong { color: var(--ink); font-weight: 500; }
+  .change-list li em { font-style: italic; color: var(--wine); }
+  .release-tag {
+    display: inline-block;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    padding: 4px 10px;
+    border: 1px solid var(--wine);
+    color: var(--wine);
+    margin-left: 12px;
+    vertical-align: middle;
+  }
+  .release-tag.superseded {
+    border-color: var(--muted);
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="method.html">The method</a>
+      <a href="why-time.html">Why time</a>
+      <a href="distinction.html">The distinction</a>
+      <a href="verdict.html">A real verdict</a>
+      <a href="family.html">For families</a>
+      <a href="compare.html">Compare</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="faq.html">FAQ</a>
+    </div>
+    <div class="nav-cta">
+      <a href="account.html" class="btn-text">Sign in</a>
+      <a href="signup.html" class="btn">Begin a decision</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content">
+  <div class="method-page-inner">
+
+    <div class="method-page-breadcrumb">
+      <a href="index.html">← Return to overview</a>
+      <span>·</span>
+      <span>Changelog</span>
+    </div>
+
+    <div class="method-page-head">
+      <div class="method-page-eyebrow">WHAT SHIPPED</div>
+      <h1 class="method-page-title">Every shipped change to Counsel.day, dated and in <span class="ital">plain language.</span></h1>
+      <p class="method-page-lede">A dated, versioned record of every change to the marketing site, the application, the verdict pipeline, the pricing, and the policies. Newest releases at the top. No marketing varnish, no "we're excited to announce"; the change, when it shipped, what it does, and what it replaced.</p>
+      <div class="method-page-meta">
+        <div class="item"><span>Latest release</span><span class="val">v0.5 · 15 May 2026</span></div>
+        <div class="item"><span>Entries shown</span><span class="val">Eight</span></div>
+        <div class="item"><span>Subscribe</span><span class="val wine">changelog@counsel.day</span></div>
+      </div>
+    </div>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">15 MAY 2026 · v0.5</div>
+        <h2 class="method-stage-title">Iteration 8 · the white-and-wine <span class="ital">brand.</span> <span class="release-tag">Current</span></h2>
+        <div class="release-meta">
+          <span class="ver">Release v0.5</span>
+          <span class="date">15 May 2026</span>
+          <span>Surface · marketing site</span>
+        </div>
+      </div>
+      <div class="method-stage-body">
+        <p>A full deep-rebuild of the public marketing site to a new visual language we call <em>white and wine</em>. The iteration replaces the sealed-record visual language used in v0.4 with a quieter, paper-and-ink article surface, and introduces the wine accent (<strong>#722F37</strong>) as the single colour signal across all surfaces.</p>
+      </div>
+      <ul class="change-list">
+        <li><strong>Paper</strong> is now pure white (<strong>#ffffff</strong>); body copy is set in Source Serif 4 with a deep-ink ramp (<strong>#0a0a0a</strong> through <strong>#6b635a</strong>).</li>
+        <li><strong>Display type</strong> is Newsreader, with italics carrying the wine accent on every emphasis call.</li>
+        <li><strong>UI type</strong> is Geist; <strong>metadata type</strong> is Geist Mono. The previous fonts (Inter, Fraunces, Public Sans, IBM Plex Mono) have been removed; none are referenced.</li>
+        <li><strong>GA4 funnel tracking</strong> has been added across the funnel pages with <code>ga4.js</code> loaded at the bottom of every page.</li>
+        <li><strong>The press, security, status, changelog, help, accessibility, editorial-standards, and practitioner-referral pages</strong> have been rewritten to the new pattern; nine pages in total.</li>
+      </ul>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">10 MAY 2026 · v0.4</div>
+        <h2 class="method-stage-title">The sealed-record <span class="ital">iteration.</span> <span class="release-tag superseded">Superseded</span></h2>
+        <div class="release-meta">
+          <span class="ver">Release v0.4</span>
+          <span class="date">10 May 2026</span>
+          <span>Surface · marketing site</span>
+        </div>
+      </div>
+      <div class="method-stage-body">
+        <p>An experimental visual language built around the metaphor of a sealed archive: wax-seal motifs, cream paper, deep-clay accents, and file-folder typography across the marketing site. The iteration shipped, ran for five days, and was retired on 15 May 2026 in favour of the white-and-wine language above. The page architecture (sections, comparison grids, mechanism panels) was kept; the visual treatment was replaced.</p>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">30 APR 2026 · v0.3</div>
+        <h2 class="method-stage-title">Initial public <span class="ital">site.</span></h2>
+        <div class="release-meta">
+          <span class="ver">Release v0.3</span>
+          <span class="date">30 April 2026</span>
+          <span>Surface · marketing site</span>
+        </div>
+      </div>
+      <div class="method-stage-body">
+        <p>Counsel.day opened to the public web for the first time. The site at this stage was a single long homepage explaining the method, with one secondary page for pricing and one for the founder's note. The application was in private beta with a waitlist.</p>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">18 APR 2026 · v0.2</div>
+        <h2 class="method-stage-title">Verdict pipeline · the five-layer <span class="ital">analysis.</span></h2>
+        <div class="release-meta">
+          <span class="ver">Release v0.2</span>
+          <span class="date">18 April 2026</span>
+          <span>Surface · application</span>
+        </div>
+      </div>
+      <div class="method-stage-body">
+        <p>The verdict view shipped with the five-layer analysis: agreement rate, conviction trajectory, theme extraction from each voter's notes, the synthesis paragraph, and the single concrete question to open the conversation that follows. Solo (free) tier returns a numerical summary only; paid tiers receive the AI-written verdict paragraph generated by Verdict AI.</p>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">04 APR 2026 · v0.1</div>
+        <h2 class="method-stage-title">The evening vote, sealed by <span class="ital">design.</span></h2>
+        <div class="release-meta">
+          <span class="ver">Release v0.1</span>
+          <span class="date">4 April 2026</span>
+          <span>Surface · application</span>
+        </div>
+      </div>
+      <div class="method-stage-body">
+        <p>The evening vote shipped in private beta with the sealed read path enforced at the database. The architecture refuses any read of a vote row before the verdict timestamp; no admin override, no support escape hatch. The first private beta cohort began voting on real questions this evening.</p>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">20 MAR 2026 · v0.0.3</div>
+        <h2 class="method-stage-title">Account and billing <span class="ital">scaffolding.</span></h2>
+        <div class="release-meta">
+          <span class="ver">Release v0.0.3</span>
+          <span class="date">20 March 2026</span>
+          <span>Surface · application</span>
+        </div>
+      </div>
+      <div class="method-stage-body">
+        <p>Account creation, multi-factor authentication, password reset, billing setup, and the three editions (Solo, Couple, Family) shipped end to end. All pricing is in USD worldwide; no regional pricing differences.</p>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">05 MAR 2026 · v0.0.2</div>
+        <h2 class="method-stage-title">Database, key management, <span class="ital">backups.</span></h2>
+        <div class="release-meta">
+          <span class="ver">Release v0.0.2</span>
+          <span class="date">5 March 2026</span>
+          <span>Surface · infrastructure</span>
+        </div>
+      </div>
+      <div class="method-stage-body">
+        <p>Primary Postgres with row-level security shipped, with the sealed read path as the only application-level read path for vote and note tables. Infisical was added as the secrets manager for KEK rotation; nightly encrypted backups to two EU object stores were enabled.</p>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">15 FEB 2026 · v0.0.1</div>
+        <h2 class="method-stage-title">Project <span class="ital">started.</span></h2>
+        <div class="release-meta">
+          <span class="ver">Release v0.0.1</span>
+          <span class="date">15 February 2026</span>
+          <span>Surface · founder</span>
+        </div>
+      </div>
+      <div class="method-stage-body">
+        <p>The Counsel.day company was registered in New Zealand; James Graham began work on the method, the architecture, and the first wireframes. No public surface; this entry is here only for archival completeness.</p>
+      </div>
+    </section>
+
+    <div class="method-cta">
+      <div class="method-cta-eyebrow">§ Stay current</div>
+      <h2 class="method-cta-title">Get release notes by <span class="ital">email.</span></h2>
+      <div class="method-cta-row">
+        <a href="mailto:changelog@counsel.day" class="btn btn-large">Subscribe to changelog</a>
+        <a href="status.html" class="btn btn-ghost">View current system status</a>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Each evening, you cast one private vote on the same question, for a duration you set, with every vote sealed in the database until the final day. When the verdict opens, you see where you converged, where you diverged, the themes underneath your own words, and one specific next conversation. The deciding stays with you; the structure is ours. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The product</h5>
+        <a href="method.html">The method</a>
+        <a href="why-time.html">Why time</a>
+        <a href="distinction.html">The distinction</a>
+          <a href="verdict.html">A real verdict</a>
+        <a href="family.html">For families</a>
+        <a href="compare.html">Compare</a>
+        <a href="signup.html">Start free</a>
+        <a href="pricing.html">The editions</a>
+      </div>
+      <div class="colophon-col">
+        <h5>For practitioners</h5>
+        <a href="therapists.html">For therapists</a>
+        <a href="counsellors.html">For counsellors</a>
+        <a href="engineering/index.html">Engineering</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The company</h5>
+          <a href="about/james-graham.html">James Graham · founder</a>
+        <a href="help.html">Help</a>
+        <a href="contact.html">Contact</a>
+        <a href="security.html">Security</a>
+        <a href="accessibility.html">Accessibility</a>
+        <a href="press.html">Press</a>
+        <a href="status.html">Status</a>
+        <a href="changelog.html">Changelog</a>
+        <a href="journal/">The Journal</a>
+        <a href="faq.html">FAQ</a>
+        <a href="account.html">Your account</a>
+        <a href="mailto:press@counsel.day">Press</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The fine print</h5>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="cookies.html">Cookies</a>
+        <a href="sub-processors.html">Sub-processors</a>
+        <a href="refunds.html">Refunds</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>© 2026 Counsel.day · USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+
+<a class="go-to-top" id="go-to-top" href="#top" aria-label="Go to top of page">
+  <svg viewBox="0 0 24 24" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+  <span class="label">Top</span>
+</a>
+<script>
+(function () {
+  var btn = document.getElementById('go-to-top');
+  if (!btn) return;
+  function update() { if (window.scrollY > 600) { btn.classList.add('visible'); } else { btn.classList.remove('visible'); } }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+  btn.addEventListener('click', function (e) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
+<script src="ga4.js" defer></script>
+</body>
+</html>

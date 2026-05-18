@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Counsel.day · Stripe product images</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,500;1,400;1,500&family=Geist+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Geist Mono', monospace; background: #f7f5f0; margin: 0; padding: 40px; color: #0a0a0a; }
+  h1 { font-family: 'Newsreader', serif; font-weight: 400; font-size: 32px; margin: 0 0 8px; }
+  p.lede { font-family: 'Newsreader', serif; font-size: 16px; color: #6b635a; margin: 0 0 36px; max-width: 680px; }
+  .product { background: #fff; padding: 28px; margin: 0 0 32px; max-width: 1280px; border: 1px solid #e8e6e1; }
+  .product h2 { font-family: 'Newsreader', serif; font-weight: 400; font-size: 20px; margin: 0 0 18px; }
+  .product .render { display: block; max-width: 100%; height: auto; border: 1px solid #e8e6e1; }
+  .product button { display: inline-block; margin-top: 18px; font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; padding: 11px 22px; background: #722F37; color: #fff; border: 1px solid #722F37; cursor: pointer; }
+  .product button:hover { background: #561F26; border-color: #561F26; }
+  .note { font-family: 'Newsreader', serif; font-style: italic; font-size: 14px; color: #6b635a; margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<h1>Counsel.day product images for Stripe</h1>
+<p class="lede">Four product cards, brand-aligned (wine + ink + paper, Newsreader). Click <strong>Download PNG</strong> below each; the file will save as <code>counsel-day-solo.png</code> etc. Upload each as the "Image" when creating the matching Stripe product.</p>
+
+<!-- ============================================================ -->
+<!-- 1 · SOLO                                                     -->
+<!-- ============================================================ -->
+<div class="product">
+  <h2>1 · Solo · $14 USD per decision</h2>
+  <svg id="svg-solo" class="render" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#ffffff"/>
+    <text x="80" y="100" font-family="Geist Mono, monospace" font-size="20" letter-spacing="3" fill="#722F37">COUNSEL · DAY</text>
+    <text x="80" y="130" font-family="Geist Mono, monospace" font-size="14" letter-spacing="2" fill="#6b635a">DECISION TIER · SOLO</text>
+    <line x1="80" y1="155" x2="1120" y2="155" stroke="#0a0a0a" stroke-width="1.5"/>
+    <text x="80" y="300" font-family="Newsreader, serif" font-size="160" font-weight="400" fill="#0a0a0a">Solo.</text>
+    <text x="80" y="380" font-family="Newsreader, serif" font-style="italic" font-size="42" fill="#722F37">One person, one question, thirty evenings.</text>
+    <!-- single envelope -->
+    <g transform="translate(80, 470)">
+      <rect x="0" y="0" width="320" height="200" fill="#fafaf8" stroke="#0a0a0a" stroke-width="2"/>
+      <text x="20" y="38" font-family="Geist Mono, monospace" font-size="11" letter-spacing="2" fill="#722F37">FILE 0001 · SEALED</text>
+      <line x1="20" y1="55" x2="300" y2="55" stroke="#e8e6e1" stroke-width="1"/>
+      <text x="20" y="100" font-family="Newsreader, serif" font-style="italic" font-size="22" fill="#0a0a0a">Should I take the role?</text>
+      <!-- 30 ticks -->
+      <g stroke="#0E9F4C" stroke-width="2.2" stroke-linecap="butt">
+        <g id="solo-ticks"></g>
+      </g>
+      <text x="20" y="180" font-family="Geist Mono, monospace" font-size="10" letter-spacing="2" fill="#6b635a">30 SEALED EVENINGS · ONE VERDICT ON DAY 30</text>
+    </g>
+    <!-- price label, right side -->
+    <text x="1120" y="540" text-anchor="end" font-family="Newsreader, serif" font-size="120" font-weight="400" fill="#722F37">$14</text>
+    <text x="1120" y="585" text-anchor="end" font-family="Geist Mono, monospace" font-size="16" letter-spacing="3" fill="#6b635a">USD · PER DECISION</text>
+    <text x="1120" y="615" text-anchor="end" font-family="Newsreader, serif" font-style="italic" font-size="18" fill="#0a0a0a">First decision free, no card required.</text>
+    <line x1="80" y1="720" x2="1120" y2="720" stroke="#0a0a0a" stroke-width="1.5"/>
+    <text x="80" y="755" font-family="Geist Mono, monospace" font-size="12" letter-spacing="2" fill="#6b635a">COUNSEL.DAY · WORLDWIDE · PRICED IN USD</text>
+  </svg>
+  <button data-svg="svg-solo" data-name="counsel-day-solo">Download PNG</button>
+</div>
+
+<!-- ============================================================ -->
+<!-- 2 · COUPLE                                                   -->
+<!-- ============================================================ -->
+<div class="product">
+  <h2>2 · Couple · $25 USD per decision</h2>
+  <svg id="svg-couple" class="render" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#ffffff"/>
+    <text x="80" y="100" font-family="Geist Mono, monospace" font-size="20" letter-spacing="3" fill="#722F37">COUNSEL · DAY</text>
+    <text x="80" y="130" font-family="Geist Mono, monospace" font-size="14" letter-spacing="2" fill="#6b635a">DECISION TIER · COUPLE</text>
+    <line x1="80" y1="155" x2="1120" y2="155" stroke="#0a0a0a" stroke-width="1.5"/>
+    <text x="80" y="300" font-family="Newsreader, serif" font-size="140" font-weight="400" fill="#0a0a0a">Couple.</text>
+    <text x="80" y="370" font-family="Newsreader, serif" font-style="italic" font-size="38" fill="#722F37">Two partners, one question, sealed from each other.</text>
+    <!-- two envelopes side by side -->
+    <g transform="translate(80, 460)">
+      <rect x="0" y="0" width="280" height="180" fill="#fafaf8" stroke="#0a0a0a" stroke-width="2"/>
+      <text x="20" y="32" font-family="Geist Mono, monospace" font-size="11" letter-spacing="2" fill="#722F37">PARTNER A · JAMES</text>
+      <line x1="20" y1="50" x2="260" y2="50" stroke="#e8e6e1" stroke-width="1"/>
+      <g id="couple-ticks-a"></g>
+      <text x="20" y="160" font-family="Geist Mono, monospace" font-size="10" letter-spacing="2" fill="#6b635a">30 SEALED EVENINGS</text>
+    </g>
+    <g transform="translate(400, 460)">
+      <rect x="0" y="0" width="280" height="180" fill="#fafaf8" stroke="#0a0a0a" stroke-width="2"/>
+      <text x="20" y="32" font-family="Geist Mono, monospace" font-size="11" letter-spacing="2" fill="#c4806b">PARTNER B · ALEX</text>
+      <line x1="20" y1="50" x2="260" y2="50" stroke="#e8e6e1" stroke-width="1"/>
+      <g id="couple-ticks-b"></g>
+      <text x="20" y="160" font-family="Geist Mono, monospace" font-size="10" letter-spacing="2" fill="#6b635a">30 SEALED EVENINGS</text>
+    </g>
+    <text x="1120" y="540" text-anchor="end" font-family="Newsreader, serif" font-size="120" font-weight="400" fill="#722F37">$25</text>
+    <text x="1120" y="585" text-anchor="end" font-family="Geist Mono, monospace" font-size="16" letter-spacing="3" fill="#6b635a">USD · PER DECISION</text>
+    <text x="1120" y="615" text-anchor="end" font-family="Newsreader, serif" font-style="italic" font-size="18" fill="#0a0a0a">Both verdicts open at the same instant.</text>
+    <line x1="80" y1="720" x2="1120" y2="720" stroke="#0a0a0a" stroke-width="1.5"/>
+    <text x="80" y="755" font-family="Geist Mono, monospace" font-size="12" letter-spacing="2" fill="#6b635a">COUNSEL.DAY · WORLDWIDE · PRICED IN USD</text>
+  </svg>
+  <button data-svg="svg-couple" data-name="counsel-day-couple">Download PNG</button>
+</div>
+
+<!-- ============================================================ -->
+<!-- 3 · FAMILY                                                   -->
+<!-- ============================================================ -->
+<div class="product">
+  <h2>3 · Family · $49 USD per decision</h2>
+  <svg id="svg-family" class="render" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#ffffff"/>
+    <text x="80" y="100" font-family="Geist Mono, monospace" font-size="20" letter-spacing="3" fill="#722F37">COUNSEL · DAY</text>
+    <text x="80" y="130" font-family="Geist Mono, monospace" font-size="14" letter-spacing="2" fill="#6b635a">DECISION TIER · FAMILY</text>
+    <line x1="80" y1="155" x2="1120" y2="155" stroke="#0a0a0a" stroke-width="1.5"/>
+    <text x="80" y="300" font-family="Newsreader, serif" font-size="140" font-weight="400" fill="#0a0a0a">Family.</text>
+    <text x="80" y="370" font-family="Newsreader, serif" font-style="italic" font-size="34" fill="#722F37">Three to six voices, one decision, every voice sealed.</text>
+    <!-- 4 envelopes in 2x2 -->
+    <g transform="translate(80, 440)">
+      <g id="family-envelopes"></g>
+    </g>
+    <text x="1120" y="540" text-anchor="end" font-family="Newsreader, serif" font-size="120" font-weight="400" fill="#722F37">$49</text>
+    <text x="1120" y="585" text-anchor="end" font-family="Geist Mono, monospace" font-size="16" letter-spacing="3" fill="#6b635a">USD · PER DECISION</text>
+    <text x="1120" y="615" text-anchor="end" font-family="Newsreader, serif" font-style="italic" font-size="18" fill="#0a0a0a">For the household making a shared call.</text>
+    <line x1="80" y1="720" x2="1120" y2="720" stroke="#0a0a0a" stroke-width="1.5"/>
+    <text x="80" y="755" font-family="Geist Mono, monospace" font-size="12" letter-spacing="2" fill="#6b635a">COUNSEL.DAY · WORLDWIDE · PRICED IN USD</text>
+  </svg>
+  <button data-svg="svg-family" data-name="counsel-day-family">Download PNG</button>
+</div>
+
+<!-- ============================================================ -->
+<!-- 4 · CONSUMER ANNUAL                                          -->
+<!-- ============================================================ -->
+<div class="product">
+  <h2>4 · Consumer Annual · $99 USD per year</h2>
+  <svg id="svg-annual" class="render" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#ffffff"/>
+    <text x="80" y="100" font-family="Geist Mono, monospace" font-size="20" letter-spacing="3" fill="#722F37">COUNSEL · DAY</text>
+    <text x="80" y="130" font-family="Geist Mono, monospace" font-size="14" letter-spacing="2" fill="#6b635a">PLAN · CONSUMER ANNUAL</text>
+    <line x1="80" y1="155" x2="1120" y2="155" stroke="#0a0a0a" stroke-width="1.5"/>
+    <text x="80" y="290" font-family="Newsreader, serif" font-size="100" font-weight="400" fill="#0a0a0a">Consumer</text>
+    <text x="80" y="380" font-family="Newsreader, serif" font-size="100" font-style="italic" font-weight="400" fill="#722F37">Annual.</text>
+    <text x="80" y="440" font-family="Newsreader, serif" font-style="italic" font-size="28" fill="#0a0a0a">Unlimited Solo, Couple, and Family decisions for twelve months.</text>
+    <!-- 12 month strip -->
+    <g transform="translate(80, 480)">
+      <g id="annual-months"></g>
+    </g>
+    <text x="1120" y="540" text-anchor="end" font-family="Newsreader, serif" font-size="120" font-weight="400" fill="#722F37">$99</text>
+    <text x="1120" y="585" text-anchor="end" font-family="Geist Mono, monospace" font-size="16" letter-spacing="3" fill="#6b635a">USD · PER YEAR</text>
+    <text x="1120" y="615" text-anchor="end" font-family="Newsreader, serif" font-style="italic" font-size="18" fill="#0a0a0a">One account, every decision, twelve months.</text>
+    <line x1="80" y1="720" x2="1120" y2="720" stroke="#0a0a0a" stroke-width="1.5"/>
+    <text x="80" y="755" font-family="Geist Mono, monospace" font-size="12" letter-spacing="2" fill="#6b635a">COUNSEL.DAY · WORLDWIDE · PRICED IN USD</text>
+  </svg>
+  <button data-svg="svg-annual" data-name="counsel-day-consumer-annual">Download PNG</button>
+</div>
+
+<p class="note">Generated 17 May 2026 from <code>counsel-day-app/ops/stripe-product-images.html</code>. Re-render any time by re-opening this file.</p>
+
+<script>
+/* Populate the tick patterns into each SVG · easier to do in JS than to type 30 line elements */
+(function () {
+  // Solo: 30 green ticks, slight variance in height
+  var solo = document.getElementById('solo-ticks');
+  for (var i = 0; i < 30; i++) {
+    var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', 24 + i * 9.3);
+    line.setAttribute('x2', 24 + i * 9.3);
+    line.setAttribute('y1', 130);
+    line.setAttribute('y2', 158);
+    line.setAttribute('stroke', i % 7 === 3 ? '#C0392B' : '#0E9F4C');
+    line.setAttribute('stroke-width', 2.4);
+    solo.appendChild(line);
+  }
+
+  // Couple A: trending yes
+  var coupleA = document.getElementById('couple-ticks-a');
+  for (var i = 0; i < 30; i++) {
+    var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', 24 + i * 8);
+    line.setAttribute('x2', 24 + i * 8);
+    line.setAttribute('y1', 90);
+    line.setAttribute('y2', 130);
+    line.setAttribute('stroke', i % 6 === 2 ? '#C0392B' : '#0E9F4C');
+    line.setAttribute('stroke-width', 2.4);
+    coupleA.appendChild(line);
+  }
+
+  // Couple B: lean yes (more variance)
+  var coupleB = document.getElementById('couple-ticks-b');
+  for (var i = 0; i < 30; i++) {
+    var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', 24 + i * 8);
+    line.setAttribute('x2', 24 + i * 8);
+    line.setAttribute('y1', 90);
+    line.setAttribute('y2', 130);
+    line.setAttribute('stroke', i % 4 === 1 || i % 9 === 5 ? '#C0392B' : '#4FB678');
+    line.setAttribute('stroke-width', 2.4);
+    coupleB.appendChild(line);
+  }
+
+  // Family: 4 envelopes
+  var family = document.getElementById('family-envelopes');
+  var labels = ['ADULT · MUM', 'ADULT · DAD', 'CHILD · MAYA', 'GRANDPARENT · NAN'];
+  var hues = ['#722F37', '#c4806b', '#0E9F4C', '#6b635a'];
+  for (var f = 0; f < 4; f++) {
+    var col = f % 2;
+    var row = Math.floor(f / 2);
+    var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('transform', 'translate(' + (col * 320) + ',' + (row * 110) + ')');
+    var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', 0); rect.setAttribute('y', 0);
+    rect.setAttribute('width', 300); rect.setAttribute('height', 90);
+    rect.setAttribute('fill', '#fafaf8'); rect.setAttribute('stroke', '#0a0a0a'); rect.setAttribute('stroke-width', 1.5);
+    g.appendChild(rect);
+    var label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', 16); label.setAttribute('y', 28);
+    label.setAttribute('font-family', 'Geist Mono, monospace'); label.setAttribute('font-size', 11);
+    label.setAttribute('letter-spacing', 2); label.setAttribute('fill', hues[f]);
+    label.textContent = labels[f];
+    g.appendChild(label);
+    for (var i = 0; i < 30; i++) {
+      var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', 16 + i * 9.2);
+      line.setAttribute('x2', 16 + i * 9.2);
+      line.setAttribute('y1', 50);
+      line.setAttribute('y2', 75);
+      line.setAttribute('stroke', (i + f) % 5 === 0 ? '#C0392B' : '#0E9F4C');
+      line.setAttribute('stroke-width', 2);
+      g.appendChild(line);
+    }
+    family.appendChild(g);
+  }
+
+  // Annual: 12 months with multi-decision markers
+  var annual = document.getElementById('annual-months');
+  var monthNames = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+  for (var m = 0; m < 12; m++) {
+    var x = m * 87;
+    var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('transform', 'translate(' + x + ',0)');
+    var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', 0); rect.setAttribute('y', 0);
+    rect.setAttribute('width', 76); rect.setAttribute('height', 120);
+    rect.setAttribute('fill', '#fafaf8'); rect.setAttribute('stroke', '#0a0a0a'); rect.setAttribute('stroke-width', 1);
+    g.appendChild(rect);
+    var label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', 38); label.setAttribute('y', 24);
+    label.setAttribute('text-anchor', 'middle');
+    label.setAttribute('font-family', 'Geist Mono, monospace'); label.setAttribute('font-size', 14);
+    label.setAttribute('letter-spacing', 1); label.setAttribute('fill', '#6b635a');
+    label.textContent = monthNames[m];
+    g.appendChild(label);
+    // 1-2 decision tick(s) per month
+    var n = (m % 3 === 0) ? 2 : 1;
+    for (var i = 0; i < n; i++) {
+      var dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      dot.setAttribute('cx', 25 + i * 28);
+      dot.setAttribute('cy', 70);
+      dot.setAttribute('r', 9);
+      dot.setAttribute('fill', '#722F37');
+      g.appendChild(dot);
+    }
+    var foot = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    foot.setAttribute('x', 38); foot.setAttribute('y', 108);
+    foot.setAttribute('text-anchor', 'middle');
+    foot.setAttribute('font-family', 'Geist Mono, monospace'); foot.setAttribute('font-size', 10);
+    foot.setAttribute('letter-spacing', 1); foot.setAttribute('fill', '#6b635a');
+    foot.textContent = n + ' dec';
+    g.appendChild(foot);
+    annual.appendChild(g);
+  }
+})();
+
+/* SVG → PNG download */
+document.addEventListener('click', function (e) {
+  var btn = e.target.closest('button[data-svg]');
+  if (!btn) return;
+  var svg = document.getElementById(btn.dataset.svg);
+  var name = btn.dataset.name + '.png';
+
+  var serialized = new XMLSerializer().serializeToString(svg);
+  // Prepend XML declaration to ensure proper parsing
+  var blob = new Blob(['<?xml version="1.0" encoding="UTF-8"?>\n', serialized], { type: 'image/svg+xml;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+
+  var img = new Image();
+  img.onload = function () {
+    var canvas = document.createElement('canvas');
+    canvas.width = 1200;
+    canvas.height = 800;
+    var ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, 1200, 800);
+    ctx.drawImage(img, 0, 0, 1200, 800);
+    URL.revokeObjectURL(url);
+    canvas.toBlob(function (out) {
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(out);
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }, 'image/png');
+  };
+  img.onerror = function () {
+    alert('SVG → PNG conversion failed. Try a different browser (Chrome/Edge work best).');
+  };
+  img.src = url;
+});
+</script>
+</body>
+</html>

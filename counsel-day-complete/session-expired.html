@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<!-- Order is load-bearing: Consent Mode v2 defaults MUST be set BEFORE -->
+<!-- GTM and gtag load, or the first pageview ships before user choice. -->
+<!-- This block is injected into every public HTML <head> by             -->
+<!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
+
+<!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':         'denied',
+    'ad_user_data':       'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage':  'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage':   'granted',
+    'wait_for_update':    500
+  });
+  // Honour Global Privacy Control + Do-Not-Track before any tag fires.
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':         'denied',
+      'ad_user_data':       'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage':  'denied'
+    });
+  }
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', {
+    'anonymize_ip': true,
+    'allow_google_signals': false,
+    'allow_ad_personalization_signals': false
+  });
+</script>
+<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
+
+<title>Session expired · Counsel.day</title>
+<meta name="description" content="Your session has expired. Sign in again to continue.">
+<meta name="robots" content="noindex, nofollow">
+<meta property="article:modified_time" content="2026-05-14T19:00:00+12:00">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles-i8.css">
+<style>
+  .util { max-width: 760px; margin: 0 auto; padding: 30px 32px 30px; text-align: center; }
+  .util .eyebrow { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--wine); margin-bottom: 28px; }
+  .util h1 { font-family: var(--font-display); font-size: clamp(36px, 4.6vw, 56px); font-weight: 400; line-height: 1.08; letter-spacing: -0.018em; color: var(--ink); margin: 0 0 30px; }
+  .util h1 .ital { font-style: italic; color: var(--wine); font-weight: 400; }
+  .util .dek { font-family: var(--font-body); font-size: 19px; line-height: 1.6; color: var(--ink-soft); max-width: 640px; margin: 0 auto 30px; }
+  .util .dek strong { color: var(--ink); font-weight: 500; }
+  .util .actions { display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; align-items: center; margin-bottom: 28px; }
+  .util .util-foot { font-family: var(--font-body); font-style: italic; font-size: 15px; line-height: 1.6; color: var(--muted); max-width: 580px; margin: 28px auto 0; }
+  .util .util-foot a { color: var(--wine); }
+</style>
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<main id="main-content">
+  <div class="util">
+    <div class="eyebrow">INACTIVITY TIMEOUT</div>
+    <h1>Your session has <span class="ital">expired.</span></h1>
+    <p class="dek"><strong>For your security, we time sessions out after a period of inactivity.</strong> Anything you had drafted on a vote or a note has been saved locally on this device and will be restored the moment you sign back in. Sign in again to pick up where you left off.</p>
+    <div class="actions">
+      <a class="btn btn-large" href="account.html">Sign in again</a>
+      <a class="btn-text" href="index.html">Return to the front page</a>
+    </div>
+    <p class="util-foot">Session timeout is 30 days of inactivity for the marketing site and 24 hours for the app surface. We do not refresh a session silently; you will always be sent here rather than have a token renewed without your knowledge.</p>
+  </div>
+</main>
+
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The fine print</h5>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="cookies.html">Cookies</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>© 2026 Counsel.day · USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+
+<script src="ga4.js" defer></script>
+</body>
+</html>

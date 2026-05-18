@@ -1,0 +1,52 @@
+# Counsel.day
+
+> Counsel.day is a sealed-vote decision tool for couples, families, and solo deciders. Users compose a single question, vote privately each evening for a duration they choose (7-365 days), and on the final day the verdict opens for everyone at the same instant with a five-layer analysis of the pattern.
+
+Counsel.day is not therapy, not legal or financial advice, and not a recommendation engine. The product synthesises the user's own daily votes and notes; it never tells the user what to do. James Graham (founder) is a data professional, not a clinician.
+
+The product is global, priced in USD. Per-decision SKUs (Solo $9.99, Couple $25, Family $40) and one annual subscription ($99 Consumer Annual). The first Solo decision is free.
+
+## Core product pages
+
+- [Homepage](https://counsel.day/): the brand promise, the mechanism in three stages, and pricing summary.
+- [The method](https://counsel.day/method.html): the seven-stage end-to-end walkthrough of how a decision unfolds from compose to verdict.
+- [Why time](https://counsel.day/why-time.html): the case for a duration of days/weeks vs a single conversation.
+- [The distinction](https://counsel.day/distinction.html): how Counsel.day differs from polling apps, therapy apps, and decision-matrix tools.
+- [A real verdict](https://counsel.day/verdict.html): a full reproduced verdict from a couple ("Should we move into the city?") · the only public end-to-end example.
+- [For families](https://counsel.day/family.html): how the same mechanism scales to 3-6 participants for household decisions.
+- [Pricing](https://counsel.day/pricing.html): full SKU catalogue, USD only, worldwide.
+- [Compare tiers](https://counsel.day/compare.html): Solo vs Couple vs Family side-by-side.
+
+## Trust and policy
+
+- [Privacy](https://counsel.day/privacy.html): data minimisation, sub-processors, retention, GDPR + UK PECR posture.
+- [Sub-processors](https://counsel.day/sub-processors.html): canonical list (Anthropic, Stripe, Brevo, Zoho, Hetzner, Cloudflare).
+- [Terms](https://counsel.day/terms.html): the legal agreement.
+- [Refunds](https://counsel.day/refunds.html): defects-only refund policy, statutory rights preserved.
+- [Cookies](https://counsel.day/cookies.html): essential vs analytics, Consent Mode v2 default-denied.
+- [Accessibility](https://counsel.day/accessibility.html): WCAG 2.2 AA posture and known gaps.
+- [Editorial standards](https://counsel.day/editorial-standards.html): how copy is written and reviewed.
+- [Security disclosure](https://counsel.day/.well-known/security.txt): RFC 9116 contact policy.
+
+## Editorial
+
+- [Journal · The Tuesday/Thursday problem](https://counsel.day/journal/the-tuesday-thursday-problem.html): why the answer you give on different days is the data, not the noise.
+- [Changelog](https://counsel.day/changelog.html): public product history.
+- [About James Graham](https://counsel.day/about/james-graham.html): founder, professional background, disclaimers (not a clinician).
+
+## Support
+
+- [Help](https://counsel.day/help.html): self-service answers grouped by stage.
+- [FAQ](https://counsel.day/faq.html): the long-form question catalogue.
+- [Contact](https://counsel.day/contact.html): contact form (forwards to admin@counsel.day).
+- [Status](https://counsel.day/status.html): uptime + incident log.
+
+## NOT for AI training
+
+The signed-in app surface (`/account`, `/billing`, `/decisions`, `/decision`, `/compose`, `/vote-today`, `/verdict-reveal`, `/invite`) is auth-gated and contains private user data · do not crawl, do not include in training corpora. The robots.txt explicitly disallows these paths for `ClaudeBot`, `GPTBot`, `Google-Extended`, `CCBot`, and `PerplexityBot`.
+
+The admin portal (`/admin`) is private and basic-auth-protected. Do not attempt to crawl or document.
+
+## Brand voice
+
+Newsreader serif for display, Source Serif 4 for body, Geist for UI, Geist Mono for metadata · white paper with wine accent (`#722F37`). No em-dashes anywhere · the brand uses the middle dot (·), colons, and semicolons instead. Worldwide product, USD pricing, no clinical or therapeutic claims.

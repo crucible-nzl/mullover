@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<!-- Order is load-bearing: Consent Mode v2 defaults MUST be set BEFORE -->
+<!-- GTM and gtag load, or the first pageview ships before user choice. -->
+<!-- This block is injected into every public HTML <head> by             -->
+<!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
+
+<!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':         'denied',
+    'ad_user_data':       'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage':  'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage':   'granted',
+    'wait_for_update':    500
+  });
+  // Honour Global Privacy Control + Do-Not-Track before any tag fires.
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':         'denied',
+      'ad_user_data':       'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage':  'denied'
+    });
+  }
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', {
+    'anonymize_ip': true,
+    'allow_google_signals': false,
+    'allow_ad_personalization_signals': false
+  });
+</script>
+<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
+
+<title>Sub-processors · Counsel.day</title>
+<meta name="description" content="Every third-party service that processes Counsel.day user data, with the data category it handles, its location, the legal transfer mechanism, and its DPA status.">
+<meta name="author" content="James Graham, founder of Counsel.day">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://counsel.day/sub-processors">
+<link rel="alternate" hreflang="en" href="https://counsel.day/sub-processors">
+<link rel="alternate" hreflang="x-default" href="https://counsel.day/sub-processors">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Counsel.day">
+<meta property="og:title" content="Sub-processors · Counsel.day">
+<meta property="og:description" content="Every third-party service that processes Counsel.day user data, with location and transfer mechanism.">
+<meta property="og:url" content="https://counsel.day/sub-processors">
+<meta property="og:image" content="https://counsel.day/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Sub-processors · Counsel.day">
+<meta name="twitter:description" content="Every third-party service that processes Counsel.day user data, with location and transfer mechanism.">
+<meta name="twitter:image" content="https://counsel.day/og-image.png">
+<meta property="article:modified_time" content="2026-05-14T19:00:00+12:00">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Counsel.day Sub-processors",
+  "publisher": { "@type": "Organization", "name": "Counsel.day", "url": "https://counsel.day/" },
+  "datePublished": "2026-05-14",
+  "dateModified": "2026-05-14",
+  "inLanguage": "en"
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles-i8.css">
+<style>
+  /* Sub-processors table · 7-column grid; collapses to stack on mobile. */
+  .sp-table { border: 1px solid var(--ink); margin: 18px 0 30px; background: var(--paper); }
+  .sp-row { display: grid; grid-template-columns: 1.2fr 1.3fr 1.4fr 0.9fr 1.3fr 1fr; border-bottom: 1px solid var(--rule); align-items: stretch; }
+  .sp-row:last-child { border-bottom: none; }
+  .sp-row.head { background: var(--ink); color: var(--paper); }
+  .sp-row.head .sp-cell {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 14px 14px; color: var(--paper); border-right: 1px solid rgba(255,255,255,0.15);
+  }
+  .sp-row.head .sp-cell:last-child { border-right: none; }
+  .sp-cell { padding: 18px 14px; border-right: 1px solid var(--rule); font-family: var(--font-body); font-size: 14px; line-height: 1.5; color: var(--ink); }
+  .sp-cell:last-child { border-right: none; }
+  .sp-vendor { font-family: var(--font-display); font-size: 19px; font-weight: 500; color: var(--ink); line-height: 1.2; }
+  .sp-vendor-sub { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-top: 4px; display: block; }
+  .sp-data { font-family: var(--font-body); font-size: 14px; line-height: 1.45; color: var(--ink-soft); }
+  .sp-loc { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); }
+  .sp-mech { font-family: var(--font-body); font-size: 13.5px; line-height: 1.45; color: var(--ink-soft); }
+  .sp-dpa { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine); }
+  .sp-purpose { font-family: var(--font-body); font-size: 14px; line-height: 1.45; color: var(--ink-soft); }
+  @media (max-width: 1000px) {
+    .sp-row { grid-template-columns: 1fr; }
+    .sp-cell { border-right: none; border-bottom: 1px dashed var(--rule); }
+    .sp-cell:last-child { border-bottom: none; }
+    .sp-row.head { display: none; }
+    .sp-cell::before { content: attr(data-label) " · "; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 4px; }
+  }
+  .sp-list { font-family: var(--font-body); font-size: 17px; line-height: 1.65; color: var(--ink-soft); padding-left: 22px; margin: 0 0 22px; max-width: 760px; }
+  .sp-list li { margin-bottom: 8px; }
+  .sp-list li strong { color: var(--ink); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="method.html">The method</a>
+      <a href="why-time.html">Why time</a>
+      <a href="distinction.html">The distinction</a>
+      <a href="verdict.html">A real verdict</a>
+      <a href="family.html">For families</a>
+      <a href="compare.html">Compare</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="faq.html">FAQ</a>
+    </div>
+    <div class="nav-cta">
+      <a href="account.html" class="btn-text">Sign in</a>
+      <a href="signup.html" class="btn">Start a decision</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content">
+  <div class="method-page-inner">
+
+    <div class="method-page-breadcrumb">
+      <a href="index.html">← Return to overview</a>
+      <span>·</span>
+      <span>Sub-processors</span>
+    </div>
+
+    <header class="method-page-head">
+      <div class="method-page-eyebrow">THIRD PARTIES THAT PROCESS DATA</div>
+      <h1 class="method-page-title">Every third party we use, and <span class="ital">what for.</span></h1>
+      <p class="method-page-lede"><strong>This is the complete list of sub-processors Counsel.day relies on to deliver the product.</strong> Each row names the vendor, the data category processed, the location of processing, the legal transfer mechanism used to move data across borders, and the DPA (Data Processing Agreement) status. We publish in advance of using a new vendor; the changes log at the foot of this page records every addition.</p>
+      <div class="method-page-meta">
+        <div class="item"><span>Effective</span><span class="val wine">14 MAY 2026</span></div>
+        <div class="item"><span>Last revised</span><span class="val">14 MAY 2026</span></div>
+        <div class="item"><span>Total vendors</span><span class="val">7</span></div>
+      </div>
+    </header>
+
+    <section class="method-stage" id="vendors">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">§ 01 · THE LIST</div>
+        <h2 class="method-stage-title">The seven vendors, in <span class="ital">full.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>Each vendor below has a signed DPA in place. Where we transfer personal data out of the EU or UK, we rely on the European Commission's Standard Contractual Clauses (SCCs) and the UK Addendum where applicable. Where the destination has an EU adequacy decision, we record that as the transfer mechanism instead.</p>
+
+        <div class="sp-table" role="table" aria-label="Sub-processors">
+          <div class="sp-row head" role="row">
+            <div class="sp-cell" role="columnheader">Vendor</div>
+            <div class="sp-cell" role="columnheader">Purpose</div>
+            <div class="sp-cell" role="columnheader">Data category</div>
+            <div class="sp-cell" role="columnheader">Location</div>
+            <div class="sp-cell" role="columnheader">Transfer mechanism</div>
+            <div class="sp-cell" role="columnheader">DPA</div>
+          </div>
+
+          <div class="sp-row" role="row">
+            <div class="sp-cell" role="cell" data-label="Vendor"><span class="sp-vendor">Stripe, Inc.</span><span class="sp-vendor-sub">stripe.com</span></div>
+            <div class="sp-cell sp-purpose" role="cell" data-label="Purpose">Payment processing, fraud screening, 3-D Secure, tax collection.</div>
+            <div class="sp-cell sp-data" role="cell" data-label="Data">Card token, billing country, last 4 digits, IP, amount, email.</div>
+            <div class="sp-cell" role="cell" data-label="Location"><span class="sp-loc">USA · EU</span></div>
+            <div class="sp-cell sp-mech" role="cell" data-label="Mechanism">SCCs + UK Addendum; EU Data Processing Annex.</div>
+            <div class="sp-cell" role="cell" data-label="DPA"><span class="sp-dpa">Signed</span></div>
+          </div>
+
+          <div class="sp-row" role="row">
+            <div class="sp-cell" role="cell" data-label="Vendor"><span class="sp-vendor">Brevo SAS</span><span class="sp-vendor-sub">brevo.com · formerly Sendinblue</span></div>
+            <div class="sp-cell sp-purpose" role="cell" data-label="Purpose">Transactional email · daily-vote prompts, partner invites, verdict delivery, security alerts.</div>
+            <div class="sp-cell sp-data" role="cell" data-label="Data">Email address, display name, transactional message body, delivery telemetry.</div>
+            <div class="sp-cell" role="cell" data-label="Location"><span class="sp-loc">EU · France</span></div>
+            <div class="sp-cell sp-mech" role="cell" data-label="Mechanism">EU adequacy (in-region).</div>
+            <div class="sp-cell" role="cell" data-label="DPA"><span class="sp-dpa">Signed</span></div>
+          </div>
+
+          <div class="sp-row" role="row">
+            <div class="sp-cell" role="cell" data-label="Vendor"><span class="sp-vendor">Anthropic PBC</span><span class="sp-vendor-sub">anthropic.com</span></div>
+            <div class="sp-cell sp-purpose" role="cell" data-label="Purpose">Verdict synthesis on paid tiers · Claude Opus 4.7 generates the written paragraph and the conversation prompt.</div>
+            <div class="sp-cell sp-data" role="cell" data-label="Data">Anonymised vote series, anonymised note text, anonymised theme list. No account identifier; no email.</div>
+            <div class="sp-cell" role="cell" data-label="Location"><span class="sp-loc">USA</span></div>
+            <div class="sp-cell sp-mech" role="cell" data-label="Mechanism">SCCs + UK Addendum; zero-retention API tier (data not used to train models).</div>
+            <div class="sp-cell" role="cell" data-label="DPA"><span class="sp-dpa">Signed</span></div>
+          </div>
+
+          <div class="sp-row" role="row">
+            <div class="sp-cell" role="cell" data-label="Vendor"><span class="sp-vendor">Cloudflare, Inc.</span><span class="sp-vendor-sub">cloudflare.com</span></div>
+            <div class="sp-cell sp-purpose" role="cell" data-label="Purpose">Edge CDN, TLS termination, Web Application Firewall, DDoS mitigation, bot management.</div>
+            <div class="sp-cell sp-data" role="cell" data-label="Data">IP address, user-agent, request headers, TLS handshake metadata. No request bodies.</div>
+            <div class="sp-cell" role="cell" data-label="Location"><span class="sp-loc">Global edge · USA HQ</span></div>
+            <div class="sp-cell sp-mech" role="cell" data-label="Mechanism">SCCs + UK Addendum; Cloudflare Data Localisation Suite pins logs to EU.</div>
+            <div class="sp-cell" role="cell" data-label="DPA"><span class="sp-dpa">Signed</span></div>
+          </div>
+
+          <div class="sp-row" role="row">
+            <div class="sp-cell" role="cell" data-label="Vendor"><span class="sp-vendor">Zoho Corporation</span><span class="sp-vendor-sub">zoho.com · EU data centre</span></div>
+            <div class="sp-cell sp-purpose" role="cell" data-label="Purpose">Business productivity · Zoho Mail, WorkDrive, Meeting, Cliq for internal communications and documents.</div>
+            <div class="sp-cell sp-data" role="cell" data-label="Data">Counsel.day staff email, internal documents, support email threads (only when a user emails us directly).</div>
+            <div class="sp-cell" role="cell" data-label="Location"><span class="sp-loc">EU · Netherlands</span></div>
+            <div class="sp-cell sp-mech" role="cell" data-label="Mechanism">EU adequacy (in-region); Zoho EU DC contractually locked.</div>
+            <div class="sp-cell" role="cell" data-label="DPA"><span class="sp-dpa">Signed</span></div>
+          </div>
+
+          <div class="sp-row" role="row">
+            <div class="sp-cell" role="cell" data-label="Vendor"><span class="sp-vendor">Infisical, Inc.</span><span class="sp-vendor-sub">infisical.com · self-hosted</span></div>
+            <div class="sp-cell sp-purpose" role="cell" data-label="Purpose">Secrets management · API keys, encryption keys, service tokens. Self-hosted on our own AWS EU infrastructure.</div>
+            <div class="sp-cell sp-data" role="cell" data-label="Data">No user data. Application secrets only.</div>
+            <div class="sp-cell" role="cell" data-label="Location"><span class="sp-loc">EU · self-hosted</span></div>
+            <div class="sp-cell sp-mech" role="cell" data-label="Mechanism">EU adequacy (in-region); no transfer outside EU.</div>
+            <div class="sp-cell" role="cell" data-label="DPA"><span class="sp-dpa">Source-available</span></div>
+          </div>
+
+          <div class="sp-row" role="row">
+            <div class="sp-cell" role="cell" data-label="Vendor"><span class="sp-vendor">Amazon Web Services</span><span class="sp-vendor-sub">aws.amazon.com · eu-central-1</span></div>
+            <div class="sp-cell sp-purpose" role="cell" data-label="Purpose">Compute, storage, managed Postgres, encrypted backups. Production runs in Frankfurt.</div>
+            <div class="sp-cell sp-data" role="cell" data-label="Data">All decision data, account data, encrypted backups. Row-level-security enforced.</div>
+            <div class="sp-cell" role="cell" data-label="Location"><span class="sp-loc">EU · Frankfurt</span></div>
+            <div class="sp-cell sp-mech" role="cell" data-label="Mechanism">EU adequacy (in-region); AWS DPA + EU-pinned regions; SCCs in place for the AWS account itself.</div>
+            <div class="sp-cell" role="cell" data-label="DPA"><span class="sp-dpa">Signed</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="method-stage" id="changes">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">§ 02 · CHANGES</div>
+        <h2 class="method-stage-title">How we notify on a new <span class="ital">sub-processor.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>We publish a proposed change to this list <strong>at least thirty days before a new sub-processor begins to process user data</strong>. The notification is sent by email to every account holder and announced on the marketing site. If you object to a specific sub-processor on reasonable grounds (jurisdiction, audit record, ownership), write to <a href="mailto:privacy@counsel.day">privacy@counsel.day</a> during the notice period; if we cannot accommodate the objection, you have the right to close the account and receive a pro-rata refund of any annual subscription.</p>
+        <p>Material change history is kept indefinitely; the most recent revisions are summarised below.</p>
+        <ul class="sp-list">
+          <li><strong>14 May 2026:</strong> First publication of this page in the Iteration 8 (white + wine) layout. No vendors added or removed since the last revision.</li>
+          <li><strong>28 Apr 2026:</strong> Added Zoho Workspace as the business productivity provider, replacing the previous Microsoft 365 tenancy. EU data centre.</li>
+          <li><strong>14 Apr 2026:</strong> Confirmed Anthropic zero-retention API tier; updated the data category column to reflect the anonymisation pass that runs before any Claude request.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="method-stage" id="questions">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">§ 03 · QUESTIONS</div>
+        <h2 class="method-stage-title">If something on this page does not <span class="ital">add up.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>If you spot a sub-processor we are clearly using and have not listed (a font CDN, a status-page provider, a JavaScript SDK), write to <a href="mailto:privacy@counsel.day">privacy@counsel.day</a>. The omission is either a bug in this page or a vendor we are about to replace; in either case we want to know. Response within five business days.</p>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The product</h5>
+        <a href="method.html">The method</a>
+        <a href="why-time.html">Why time</a>
+        <a href="distinction.html">The distinction</a>
+        <a href="verdict.html">A real verdict</a>
+        <a href="family.html">For families</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The company</h5>
+          <a href="help.html">Help</a>
+        <a href="contact.html">Contact</a>
+        <a href="security.html">Security</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The fine print</h5>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="cookies.html">Cookies</a>
+        <a href="sub-processors.html">Sub-processors</a>
+        <a href="refunds.html">Refunds</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>© 2026 Counsel.day · USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+
+<a class="go-to-top" id="go-to-top" href="#top" aria-label="Go to top of page">
+  <svg viewBox="0 0 24 24" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+  <span class="label">Top</span>
+</a>
+<script>
+(function () {
+  var btn = document.getElementById('go-to-top');
+  if (!btn) return;
+  function update() { if (window.scrollY > 600) { btn.classList.add('visible'); } else { btn.classList.remove('visible'); } }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+  btn.addEventListener('click', function (e) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
+<script src="ga4.js" defer></script>
+</body>
+</html>

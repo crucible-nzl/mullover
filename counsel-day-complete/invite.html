@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<!-- Order is load-bearing: Consent Mode v2 defaults MUST be set BEFORE -->
+<!-- GTM and gtag load, or the first pageview ships before user choice. -->
+<!-- This block is injected into every public HTML <head> by             -->
+<!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
+
+<!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':         'denied',
+    'ad_user_data':       'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage':  'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage':   'granted',
+    'wait_for_update':    500
+  });
+  // Honour Global Privacy Control + Do-Not-Track before any tag fires.
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':         'denied',
+      'ad_user_data':       'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage':  'denied'
+    });
+  }
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', {
+    'anonymize_ip': true,
+    'allow_google_signals': false,
+    'allow_ad_personalization_signals': false
+  });
+</script>
+<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
+
+<title>You have been invited to a decision · Counsel.day</title>
+<meta name="description" content="Your partner has invited you to join a Counsel.day decision. Review the question and accept to participate.">
+<meta name="robots" content="noindex, nofollow">
+<meta property="article:modified_time" content="2026-05-15T19:00:00+12:00">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles-i8.css">
+<style>
+.app-page {
+  min-height: 60vh;
+  padding: 30px 32px 30px;
+  display: flex; justify-content: center;
+  background: var(--paper);
+}
+.app-page-inner {
+  max-width: 640px; width: 100%;
+  text-align: center;
+}
+.app-eyebrow {
+  font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--wine); margin-bottom: 22px;
+}
+.app-title {
+  font-family: var(--font-display);
+  font-size: clamp(34px, 4.2vw, 48px);
+  font-weight: 400; line-height: 1.08; letter-spacing: -0.018em;
+  color: var(--ink); margin: 0 0 30px;
+}
+.app-title .ital { font-style: italic; color: var(--wine); font-weight: 400; }
+.app-card {
+  border: 1px solid var(--ink); background: var(--paper);
+  padding: 30px 36px 30px;
+  text-align: left;
+  margin: 0 0 28px;
+}
+.app-card .ref {
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  padding-bottom: 16px; margin-bottom: 22px;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+}
+.app-card .ref .id { color: var(--wine); font-weight: 500; }
+.app-card .ref .status { color: var(--muted); }
+.app-card .q-label {
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--wine); margin-bottom: 12px;
+}
+.app-card .q {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 2.8vw, 32px);
+  font-weight: 400; line-height: 1.25; letter-spacing: -0.012em;
+  color: var(--ink); margin: 0 0 26px;
+}
+.app-card .q .ital { font-style: italic; color: var(--wine); }
+.app-card .meta-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--rule);
+}
+.app-card .meta-grid .cell {
+  padding: 18px 18px 4px;
+  border-right: 1px solid var(--rule);
+}
+.app-card .meta-grid .cell:last-child { border-right: none; }
+.app-card .meta-grid .k {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 500;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 8px;
+}
+.app-card .meta-grid .v {
+  font-family: var(--font-display); font-size: 20px; font-weight: 500;
+  color: var(--ink); line-height: 1.2; letter-spacing: -0.008em;
+}
+.app-card .meta-grid .v .ital { font-style: italic; color: var(--wine); font-weight: 400; }
+@media (max-width: 640px) {
+  .app-card .meta-grid { grid-template-columns: 1fr; }
+  .app-card .meta-grid .cell { border-right: none; border-bottom: 1px solid var(--rule); }
+  .app-card .meta-grid .cell:last-child { border-bottom: none; }
+}
+.app-actions {
+  display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.app-note {
+  font-family: var(--font-body);
+  font-size: 15px; line-height: 1.6; color: var(--ink-soft);
+  max-width: 520px; margin: 0 auto;
+}
+.app-note strong { color: var(--ink); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="method.html">The method</a>
+      <a href="why-time.html">Why time</a>
+      <a href="distinction.html">The distinction</a>
+      <a href="verdict.html">A real verdict</a>
+      <a href="family.html">For families</a>
+      <a href="faq.html">FAQ</a>
+    </div>
+    <div class="nav-cta">
+      <a href="account.html" class="btn-text">Sign in</a>
+      <a href="signup.html" class="btn">Begin a decision</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content">
+  <div class="app-page">
+    <div class="app-page-inner">
+
+      <div class="app-eyebrow">YOUR PARTNER HAS OPENED A DECISION</div>
+      <h1 class="app-title"><span id="inviter-name">Alex</span> has invited you to join a <span class="ital">decision.</span></h1>
+
+      <div class="app-card">
+        <div class="ref">
+          <span class="id" id="inv-id">INV · 2026-05-15-A7K9</span>
+          <span class="status">Awaiting your response</span>
+        </div>
+
+        <div class="q-label">The question</div>
+        <p class="q" id="inv-question">Should we move to <span class="ital">Christchurch</span> in the new year?</p>
+
+        <div class="meta-grid">
+          <div class="cell">
+            <div class="k">Duration</div>
+            <div class="v" id="inv-duration">30 <span class="ital">days</span></div>
+          </div>
+          <div class="cell">
+            <div class="k">Invited</div>
+            <div class="v" id="inv-sent">15 May 2026</div>
+          </div>
+          <div class="cell">
+            <div class="k">Mode</div>
+            <div class="v">Couple</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="app-actions">
+        <button type="button" class="btn btn-large" id="cd-accept-invite" disabled style="opacity: 0.5;">Loading invite…</button>
+        <a href="/" class="btn btn-ghost">Decline · close this tab</a>
+      </div>
+      <p id="cd-invite-msg" style="display: none; padding: 14px 16px; margin-top: 18px; font-family: var(--font-body); font-size: 14px; line-height: 1.5;"></p>
+
+      <p class="app-note">You will be asked to sign up if you do not already have an account · <strong>invitations are free</strong>. Neither of you will see the other's votes until the decision's final day. The duration is fixed at acceptance; it can be extended later, never shortened.</p>
+
+    </div>
+  </div>
+</main>
+
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The product</h5>
+        <a href="method.html">The method</a>
+        <a href="why-time.html">Why time</a>
+        <a href="verdict.html">A real verdict</a>
+        <a href="family.html">For families</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The company</h5>
+          <a href="help.html">Help</a>
+        <a href="contact.html">Contact</a>
+        <a href="security.html">Security</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The fine print</h5>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="cookies.html">Cookies</a>
+        <a href="refunds.html">Refunds</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>© 2026 Counsel.day · USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+
+<a class="go-to-top" id="go-to-top" href="#top" aria-label="Go to top of page">
+  <svg viewBox="0 0 24 24" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+  <span class="label">Top</span>
+</a>
+<script>
+(function () {
+  var btn = document.getElementById('go-to-top');
+  if (!btn) return;
+  function update() { if (window.scrollY > 600) { btn.classList.add('visible'); } else { btn.classList.remove('visible'); } }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+  btn.addEventListener('click', function (e) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
+<script>
+/* Invite preview + accept flow.
+   - GET /api/invite/preview?token=…  is public (no auth required) so we can
+     show what the invitation is about before bouncing the user to /signup.
+   - POST /api/invite/accept             requires a session. If the user is
+     not signed in we redirect to /signup with a next= back to this URL.
+   - After accept, redirect to /vote-today which will pick up the now-active
+     decision. */
+(function () {
+  var qs = new URLSearchParams(location.search);
+  var token = qs.get('token');
+  var inviteId = qs.get('id');
+  var btn = document.getElementById('cd-accept-invite');
+  var msgEl = document.getElementById('cd-invite-msg');
+  function showMsg(kind, text) {
+    msgEl.style.display = 'block';
+    msgEl.textContent = text;
+    if (kind === 'error') {
+      msgEl.style.background = '#fdecea';
+      msgEl.style.borderLeft = '3px solid #c0392b';
+      msgEl.style.color = '#6b1e16';
+    } else {
+      msgEl.style.background = 'var(--wine-soft)';
+      msgEl.style.borderLeft = '3px solid var(--wine)';
+      msgEl.style.color = 'var(--ink)';
+    }
+  }
+  function set(id, text) { var el = document.getElementById(id); if (el) el.textContent = text; }
+  if (!token) {
+    set('inviter-name', 'No invite token');
+    showMsg('error', 'This invite link is missing a token. Ask the sender to send it again.');
+    btn.textContent = 'Invalid invite';
+    return;
+  }
+  if (inviteId) set('inv-id', 'INV · ' + inviteId);
+
+  /* Preview is public · no cookie needed. */
+  fetch('/api/invite/preview?token=' + encodeURIComponent(token), { credentials: 'include' })
+    .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+    .then(function (res) {
+      if (res.status === 404 || !res.body || !res.body.ok) {
+        showMsg('error', (res.body && res.body.message) || 'This invite is no longer valid.');
+        btn.textContent = 'Invite expired';
+        return;
+      }
+      set('inviter-name', res.body.inviter_first_name || 'Someone');
+      set('inv-question', res.body.question || '');
+      set('inv-duration', (res.body.duration_days || 30) + ' days');
+      btn.textContent = 'Accept invitation';
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.addEventListener('click', function () {
+        btn.disabled = true;
+        var origLabel = btn.textContent;
+        btn.textContent = 'Accepting' + String.fromCharCode(0x2026);
+        fetch('/api/invite/accept', {
+          method: 'POST', credentials: 'include',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ token: token })
+        })
+        .then(function (r) {
+          if (r.status === 401) {
+            window.location.href = '/signup.html?next=' + encodeURIComponent(window.location.pathname + window.location.search);
+            return null;
+          }
+          return r.json().then(function (j) { return { status: r.status, body: j }; });
+        })
+        .then(function (res) {
+          if (!res) return;
+          if (res.status === 200 && res.body.ok) {
+            showMsg('success', 'Accepted. Redirecting to tonight\'s vote.');
+            setTimeout(function () { window.location.href = '/vote-today.html?decision=' + encodeURIComponent(res.body.decision_id); }, 800);
+          } else {
+            btn.disabled = false;
+            btn.textContent = origLabel;
+            showMsg('error', (res.body && res.body.message) || 'Could not accept the invite. Please try again.');
+          }
+        })
+        .catch(function () {
+          btn.disabled = false;
+          btn.textContent = origLabel;
+          showMsg('error', 'Network error. Please try again.');
+        });
+      });
+    });
+})();
+</script>
+<script src="ga4.js" defer></script>
+</body>
+</html>

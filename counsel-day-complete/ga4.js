@@ -1,0 +1,336 @@
+/* ============================================================
+   COUNSEL.DAY · CONSENT BANNER + GA4 EVENTS + MOBILE NAV
+   Loaded on every public page (and ../ga4.js in subdirs).
+
+   This file does THREE things, in order:
+
+     1. Consent banner UI · GDPR/UK PECR-compliant.
+        - Google Consent Mode v2 defaults are set INLINE in the
+          <head> of every page (see counsel-day-complete/ops/cd-head-snippet.html).
+          They default everything to 'denied' BEFORE GTM and gtag
+          load, so this is Google "Advanced consent mode": tags
+          still load and send cookieless pings, but no analytics
+          storage is written until the user grants here.
+        - This file reads the stored decision (cd_consent_v1 in
+          localStorage) and calls gtag('consent', 'update', ...)
+          on every page load to reflect it.
+        - Honours Global Privacy Control and Do-Not-Track silently
+          (no banner shown; defaults stay denied).
+        - Shows the banner once on first visit if no GPC/DNT and
+          no prior decision exists.
+
+     2. GA4 events · 10 funnel events + 3 engagement events.
+        The gtag library is already loaded in <head>; this file just
+        calls gtag('event', ...). Consent Mode v2 in the gtag library
+        respects analytics_storage: denied → cookieless pings only.
+
+     3. Mobile nav toggle · injects a hamburger button into every
+        .nav-bar and toggles a slide-down panel below 1024px.
+
+   Storage key: cd_consent_v1 (localStorage).
+   GA4 ID: G-SX20BZZP59 (set in inline head snippet).
+   GTM container: GTM-PFFSDN3M (set in inline head snippet).
+   ============================================================ */
+(function () {
+  'use strict';
+
+  var STORAGE_KEY = 'cd_consent_v1';
+  var BANNER_ID = 'cd-consent-banner';
+  var GA4_ID = 'G-SX20BZZP59';
+
+  /* gtag is defined in the inline <head> snippet, before this file
+     loads. Fall back to a no-op shim if something has stripped it. */
+  window.dataLayer = window.dataLayer || [];
+  if (typeof window.gtag !== 'function') {
+    window.gtag = function () { window.dataLayer.push(arguments); };
+  }
+  var gtag = window.gtag;
+
+  /* ============================================================
+     PART 1 · CONSENT
+     ============================================================ */
+
+  function readConsent() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (e) { return null; }
+  }
+
+  function writeConsent(consent) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(consent)); }
+    catch (e) { /* private mode · ignore */ }
+  }
+
+  function hasGpcOrDnt() {
+    if (navigator.globalPrivacyControl === true) return true;
+    if (navigator.doNotTrack === '1') return true;
+    if (window.doNotTrack === '1') return true;
+    if (navigator.msDoNotTrack === '1') return true;
+    return false;
+  }
+
+  /* Apply a stored or fresh decision to Google Consent Mode v2.
+     'denied' is already the default (set inline in <head>); this
+     either confirms denial or upgrades to 'granted' on accept. */
+  function applyConsent(consent) {
+    var analytics = !!(consent && consent.analytics);
+    gtag('consent', 'update', {
+      'analytics_storage': analytics ? 'granted' : 'denied',
+      'ad_storage':         'denied',
+      'ad_user_data':       'denied',
+      'ad_personalization': 'denied'
+    });
+  }
+
+  function saveAndApply(decision, source) {
+    var consent = {
+      essential: true,
+      analytics: decision === 'granted',
+      source: source || 'banner',
+      timestamp: Date.now(),
+      version: 2
+    };
+    writeConsent(consent);
+    applyConsent(consent);
+    closeBanner();
+  }
+
+  /* ---------- Banner UI ---------- */
+
+  function buildBanner() {
+    var b = document.createElement('div');
+    b.id = BANNER_ID;
+    b.className = 'cd-consent-banner';
+    b.setAttribute('role', 'dialog');
+    b.setAttribute('aria-labelledby', 'cd-consent-title');
+    b.setAttribute('aria-describedby', 'cd-consent-body');
+    b.innerHTML =
+      '<div class="cd-consent-inner">' +
+        '<div class="cd-consent-copy">' +
+          '<div id="cd-consent-title" class="cd-consent-title">Analytics cookies</div>' +
+          '<p id="cd-consent-body" class="cd-consent-body">We use Google Analytics 4 with IP anonymisation to understand which pages help people decide. No advertising cookies, ever. You can change this any time on <a href="/cookies">the cookies page</a>.</p>' +
+        '</div>' +
+        '<div class="cd-consent-actions">' +
+          '<button type="button" class="cd-consent-btn cd-consent-decline" data-cd-consent="deny">Essential only</button>' +
+          '<button type="button" class="cd-consent-btn cd-consent-accept" data-cd-consent="accept">Accept analytics</button>' +
+        '</div>' +
+      '</div>';
+    return b;
+  }
+
+  function showBanner() {
+    if (document.getElementById(BANNER_ID)) return;
+    var b = buildBanner();
+    document.body.appendChild(b);
+    requestAnimationFrame(function () { b.classList.add('cd-consent-banner-visible'); });
+    b.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-cd-consent]');
+      if (!btn) return;
+      var decision = btn.getAttribute('data-cd-consent') === 'accept' ? 'granted' : 'denied';
+      saveAndApply(decision, 'banner');
+    });
+  }
+
+  function closeBanner() {
+    var b = document.getElementById(BANNER_ID);
+    if (!b) return;
+    b.classList.remove('cd-consent-banner-visible');
+    setTimeout(function () { if (b.parentNode) b.parentNode.removeChild(b); }, 300);
+  }
+
+  /* Public API for cookies.html buttons. */
+  window.CounselDayConsent = {
+    grant:  function () { saveAndApply('granted', 'cookies-page'); },
+    revoke: function () { saveAndApply('denied',  'cookies-page'); },
+    state:  function () { return readConsent(); },
+    show:   function () { showBanner(); }
+  };
+
+  function resolveConsent() {
+    var stored = readConsent();
+    if (stored) {
+      applyConsent(stored);
+    } else if (hasGpcOrDnt()) {
+      saveAndApply('denied', 'gpc-dnt-default');
+    } else {
+      if (document.body) showBanner();
+      else document.addEventListener('DOMContentLoaded', showBanner);
+    }
+  }
+
+  /* ============================================================
+     PART 2 · GA4 EVENTS
+     Consent Mode v2 (set inline in <head>) handles whether these
+     calls store cookies or send cookieless pings.
+     ============================================================ */
+
+  function track(name, params) {
+    try { gtag('event', name, params || {}); } catch (e) { /* swallow */ }
+  }
+
+  var path = (window.location.pathname || '').toLowerCase();
+  function pageIs(name) { return path.indexOf(name) !== -1; }
+
+  function fireAutoEvents() {
+    if (pageIs('compose.html')) track('begin_compose', { surface: 'compose' });
+    if (pageIs('signup.html') || pageIs('start.html') || pageIs('invite.html')) {
+      var surface = pageIs('invite.html') ? 'invite' : (pageIs('signup.html') ? 'signup' : 'start');
+      track('view_account_signup', { surface: surface });
+    }
+    if (pageIs('verify-email.html')) track('complete_signup', { surface: 'verify-email' });
+    if (pageIs('verdict-reveal.html')) track('verdict_view', { surface: 'verdict-reveal' });
+    if (pageIs('vote.html') || pageIs('vote-today.html')) {
+      track('view_vote', { surface: pageIs('vote-today.html') ? 'vote-today' : 'vote' });
+    }
+  }
+
+  function watchPricing() {
+    var el = document.getElementById('editions');
+    if (!el || !('IntersectionObserver' in window)) return;
+    var fired = false;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting && !fired) {
+          fired = true;
+          track('view_pricing', { surface: 'editions' });
+          io.disconnect();
+        }
+      });
+    }, { threshold: 0.4 });
+    io.observe(el);
+  }
+
+  function watchCtas() {
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest('a, button');
+      if (!a) return;
+      var href = (a.getAttribute('href') || '').toLowerCase();
+      var label = (a.textContent || '').trim().toLowerCase();
+      if (
+        href.indexOf('signup.html') !== -1 ||
+        href.indexOf('vote.html') !== -1 ||
+        href.indexOf('compose.html') !== -1 ||
+        href.indexOf('start.html') !== -1 ||
+        label.indexOf('start a decision') !== -1 ||
+        label.indexOf('start your first decision') !== -1 ||
+        label.indexOf('begin a decision') !== -1 ||
+        label.indexOf('start free') !== -1
+      ) {
+        track('click_start_decision', {
+          label: label.slice(0, 60),
+          surface: window.location.pathname,
+          destination: href
+        });
+      }
+      if (a.tagName === 'A' && a.hostname && a.hostname !== window.location.hostname && !href.startsWith('mailto:') && !href.startsWith('tel:')) {
+        track('outbound_click', { url: a.href, surface: window.location.pathname });
+      }
+    }, { passive: true });
+  }
+
+  function watchForms() {
+    document.addEventListener('submit', function (e) {
+      var form = e.target;
+      if (!form || form.tagName !== 'FORM') return;
+      if (pageIs('signup.html')) track('submit_signup', { surface: 'signup' });
+      if (pageIs('compose.html')) track('submit_compose', { surface: 'compose' });
+      if (pageIs('vote.html') || pageIs('vote-today.html')) {
+        track('first_vote', { surface: pageIs('vote-today.html') ? 'vote-today' : 'vote' });
+      }
+    }, true);
+  }
+
+  function watchScroll() {
+    var fired = false;
+    function onScroll() {
+      if (fired) return;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var pct = (window.scrollY || doc.scrollTop) / max;
+      if (pct >= 0.75) {
+        fired = true;
+        track('scroll_75', { surface: window.location.pathname });
+        window.removeEventListener('scroll', onScroll);
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+
+  function watchEngagement() {
+    var interacted = false;
+    function mark() { interacted = true; }
+    ['scroll', 'click', 'keydown', 'pointermove'].forEach(function (ev) {
+      window.addEventListener(ev, mark, { passive: true, once: true });
+    });
+    setTimeout(function () {
+      if (interacted && !document.hidden) {
+        track('engaged_session', { surface: window.location.pathname });
+      }
+    }, 30000);
+  }
+
+  /* ============================================================
+     PART 3 · MOBILE NAV
+     ============================================================ */
+
+  function injectMobileMenu() {
+    document.querySelectorAll('nav.nav-bar').forEach(function (navBar) {
+      if (navBar.querySelector('.nav-toggle')) return; // idempotent
+      var navInner = navBar.querySelector('.nav-inner');
+      if (!navInner) return;
+      var toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'nav-toggle';
+      toggle.setAttribute('aria-label', 'Toggle navigation menu');
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.innerHTML = '<span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span>';
+      navInner.appendChild(toggle);
+
+      function close() {
+        navBar.classList.remove('menu-open');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+      function open() {
+        navBar.classList.add('menu-open');
+        toggle.setAttribute('aria-expanded', 'true');
+      }
+      toggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (navBar.classList.contains('menu-open')) close(); else open();
+      });
+      document.addEventListener('click', function (e) {
+        if (!navBar.contains(e.target) && navBar.classList.contains('menu-open')) close();
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && navBar.classList.contains('menu-open')) {
+          close();
+          toggle.focus();
+        }
+      });
+    });
+  }
+
+  /* ============================================================
+     BOOTSTRAP
+     ============================================================ */
+
+  function start() {
+    injectMobileMenu();
+    fireAutoEvents();
+    watchPricing();
+    watchCtas();
+    watchForms();
+    watchScroll();
+    watchEngagement();
+  }
+
+  resolveConsent();
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start();
+  }
+})();

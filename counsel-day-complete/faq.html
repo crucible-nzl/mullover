@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<!-- Order is load-bearing: Consent Mode v2 defaults MUST be set BEFORE -->
+<!-- GTM and gtag load, or the first pageview ships before user choice. -->
+<!-- This block is injected into every public HTML <head> by             -->
+<!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
+
+<!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':         'denied',
+    'ad_user_data':       'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage':  'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage':   'granted',
+    'wait_for_update':    500
+  });
+  // Honour Global Privacy Control + Do-Not-Track before any tag fires.
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':         'denied',
+      'ad_user_data':       'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage':  'denied'
+    });
+  }
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', {
+    'anonymize_ip': true,
+    'allow_google_signals': false,
+    'allow_ad_personalization_signals': false
+  });
+</script>
+<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
+
+<title>FAQ · Frequently asked questions about Counsel.day</title>
+<meta name="description" content="Plain-language answers to the most-asked questions about Counsel.day: what the product is, how the evening vote works, what sealed actually means, how the analysis is generated, what it costs in USD, and how to reach a real person if your question is not here.">
+<meta name="author" content="James Graham, founder of Counsel.day">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://counsel.day/faq">
+<link rel="alternate" hreflang="en" href="https://counsel.day/faq">
+<link rel="alternate" hreflang="x-default" href="https://counsel.day/faq">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Counsel.day">
+<meta property="og:title" content="FAQ · Frequently asked questions about Counsel.day">
+<meta property="og:description" content="Plain-language answers to the most-asked questions about Counsel.day, organised into seven categories.">
+<meta property="og:url" content="https://counsel.day/faq">
+<meta property="og:image" content="https://counsel.day/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="FAQ · Frequently asked questions about Counsel.day">
+<meta name="twitter:description" content="Plain-language answers to the most-asked questions about Counsel.day.">
+<meta name="twitter:image" content="https://counsel.day/og-image.png">
+<meta property="article:modified_time" content="2026-05-15T19:00:00+12:00">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "What is Counsel.day, in one paragraph?", "acceptedAnswer": { "@type": "Answer", "text": "Counsel.day is a private-voting product for solo decision-makers, couples, and families facing a meaningful joint decision. Participants vote privately each evening on the same question, for a duration of your choosing. The votes are sealed from each other for the whole period. On the final day, every verdict unlocks at the same instant, alongside a five-layer analysis that names the underlying axis of disagreement and one specific question to open the conversation that follows." }},
+    { "@type": "Question", "name": "Who is Counsel.day for?", "acceptedAnswer": { "@type": "Answer", "text": "Solo decision-makers, couples, and families facing a meaningful joint decision that has been on the table for weeks or months. The decision is usually one of four kinds: family and reproduction, home and place, career, or the partnership itself. Family extends the tool to households of three to six." }},
+    { "@type": "Question", "name": "How much does Counsel.day cost?", "acceptedAnswer": { "@type": "Answer", "text": "Solo: your first decision is free, additional Solo decisions are $14 USD each. Couple is $25 USD per decision; Family is $49 USD per decision (three to six participants). A single Consumer Annual at $99 USD per year covers unlimited Solo, Couple, and Family decisions on one account for twelve months · designed for the rare household that runs many decisions. Per-decision plans charge upfront on the day you compose." }},
+    { "@type": "Question", "name": "When am I charged?", "acceptedAnswer": { "@type": "Answer", "text": "Upfront, on the day you compose a decision. Couple, Family, and Consumer Annual all charge upfront; per-decision plans charge the full amount once. We charge upfront because a Stripe authorization cannot be held across the 7-to-365 day decision duration. Refunds are limited to technical defects on our part and to whatever your local consumer-protection law requires · see the refunds page for the closed list." }},
+    { "@type": "Question", "name": "Are the votes really sealed until the final day?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The database is designed so no participant's votes or notes are visible to the others in any form until the verdict is generated on the scheduled day. There is no settings panel and no support workflow to override this." }},
+    { "@type": "Question", "name": "Does anyone at Counsel.day see our notes or verdicts?", "acceptedAnswer": { "@type": "Answer", "text": "No. The verdict is private to the participants. We do not show it to ourselves and we do not show it to anyone else." }},
+    { "@type": "Question", "name": "How is the analysis generated?", "acceptedAnswer": { "@type": "Answer", "text": "On a paid decision, every vote and note is read by a pipeline that computes the trajectory and the agreement curve in Python, clusters the themes locally, then submits the clustered data to our AI synthesis tool for a 600-to-1200-word synthesis paragraph. On the free first Solo decision, the AI synthesis is not run; the verdict ships with a Python-only summary analysis." }},
+    { "@type": "Question", "name": "Why the name Counsel.day?", "acceptedAnswer": { "@type": "Answer", "text": "Counsel is the older word for thoughtful weighing. We did not want advice, coach, or therapy in the name because those words imply a position handed down from outside. The .day suffix is the mechanism: the product runs day by day, evening by evening, across the duration the question deserves." }},
+    { "@type": "Question", "name": "Can I use Counsel.day alone, without a partner?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Solo is built for one-person decisions. Your first lifetime decision is free, no card required. Additional Solo decisions are $14 USD each, charged upfront. If you run several decisions in a year of any type (Solo, Couple, or Family) the Consumer Annual at $99 USD per year covers all consumer decisions." }},
+    { "@type": "Question", "name": "Is Counsel.day a substitute for couples therapy?", "acceptedAnswer": { "@type": "Answer", "text": "No. Couples therapy is a guided conversation with a trained third party. Counsel.day is a data tool for one specific decision, built by a data professional with no clinical training. The two are different categories; many couples will benefit from both." }},
+    { "@type": "Question", "name": "How do I delete my account and data?", "acceptedAnswer": { "@type": "Answer", "text": "From the account page, in a single click, with a single confirmation. Deletion is honoured within twenty-four hours and propagates to backups within thirty days. We do not retain a tombstone copy." }},
+    { "@type": "Question", "name": "Is Counsel.day available worldwide?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The product is built for a worldwide market from day one, in English. Pricing is in US dollars, charged worldwide; local taxes are added at checkout based on your billing address." }},
+    { "@type": "Question", "name": "Does Counsel.day use my data to train AI models?", "acceptedAnswer": { "@type": "Answer", "text": "No. On a paid decision, your notes and votes are submitted to the our AI synthesis tool on the verdict day only, for the single purpose of generating your analysis. Your data is not used to train any model, ours or theirs." }}
+  ]
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles-i8.css">
+<style>
+  /* Page-specific FAQ index grid · uses the canonical q-grid pattern as visual cousin */
+  .faq-toc {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    border: 1px solid var(--ink); margin-top: 30px;
+  }
+  .faq-toc-cell {
+    display: flex; flex-direction: column; gap: 10px;
+    padding: 22px 22px 24px;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper); text-decoration: none;
+    transition: background 120ms ease;
+  }
+  .faq-toc-cell:hover { background: var(--paper-deep); }
+  .faq-toc-cell:nth-child(3n) { border-right: none; }
+  .faq-toc-cell:nth-last-child(-n+2) { border-bottom: none; }
+  .faq-toc-cell:last-child { border-bottom: none; }
+  .faq-toc-cell .num {
+    font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine);
+  }
+  .faq-toc-cell .name {
+    font-family: var(--font-display); font-size: 22px; line-height: 1.25;
+    font-weight: 500; color: var(--ink);
+  }
+  .faq-toc-cell .name .ital { font-style: italic; color: var(--wine); font-weight: 400; }
+  .faq-toc-cell .count {
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.10em; text-transform: uppercase; color: var(--muted);
+    margin-top: auto;
+  }
+  @media (max-width: 900px) { .faq-toc { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 600px) {
+    .faq-toc { grid-template-columns: 1fr; }
+    .faq-toc-cell { border-right: none; }
+  }
+  .faq-contact-panel {
+    margin-top: 30px; padding: 30px 36px 30px;
+    background: var(--paper-deep); border-left: 4px solid var(--wine);
+    max-width: 880px;
+  }
+  .faq-contact-panel .label {
+    font-family: var(--font-mono); font-size: 12px;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--wine); margin-bottom: 14px;
+  }
+  .faq-contact-panel h3 {
+    font-family: var(--font-display); font-size: 28px; font-weight: 500;
+    line-height: 1.25; color: var(--ink); margin: 0 0 16px;
+  }
+  .faq-contact-panel h3 .ital { font-style: italic; color: var(--wine); font-weight: 400; }
+  .faq-contact-panel p {
+    font-family: var(--font-body); font-size: 16px; line-height: 1.65;
+    color: var(--ink-soft); margin: 0 0 14px;
+  }
+  .faq-contact-panel p strong { color: var(--ink); font-weight: 500; }
+  .faq-contact-panel .addresses {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 18px; margin-top: 22px;
+  }
+  .faq-contact-panel .addr {
+    display: flex; flex-direction: column; gap: 4px;
+    padding: 14px 16px; border: 1px solid var(--rule);
+    background: var(--paper);
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.10em; text-transform: uppercase; color: var(--muted);
+  }
+  .faq-contact-panel .addr a {
+    font-family: var(--font-ui); font-size: 14px;
+    letter-spacing: 0; text-transform: none; color: var(--wine);
+    border-bottom: 1px solid var(--wine); padding-bottom: 1px;
+    text-decoration: none; margin-top: 2px;
+  }
+  @media (max-width: 720px) { .faq-contact-panel .addresses { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="method.html">The method</a>
+      <a href="why-time.html">Why time</a>
+      <a href="distinction.html">The distinction</a>
+      <a href="verdict.html">A real verdict</a>
+      <a href="family.html">For families</a>
+      <a href="compare.html">Compare</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="faq.html" class="active">FAQ</a>
+    </div>
+    <div class="nav-cta">
+      <a href="account.html" class="btn-text">Sign in</a>
+      <a href="signup.html" class="btn">Start a decision</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content">
+  <div class="method-page-inner">
+
+    <div class="method-page-breadcrumb">
+      <a href="index.html">← Return to overview</a>
+      <span>·</span>
+      <span>FAQ</span>
+    </div>
+
+    <header class="method-page-head">
+      <div class="method-page-eyebrow">MOST-ASKED QUESTIONS, ANSWERED PLAINLY</div>
+      <h1 class="method-page-title">Questions about the <span class="ital">product, the privacy, and the price.</span></h1>
+      <p class="method-page-lede">What follows are the questions we are most often asked, organised into seven categories and answered in plain language. If your question is not here, write to us at <strong>hello@counsel.day</strong>; we read every message and many of the answers below grew out of those we received in the first weeks.</p>
+      <div class="method-page-meta">
+        <div class="item"><span>Questions</span><span class="val wine">29</span></div>
+        <div class="item"><span>Categories</span><span class="val">7</span></div>
+        <div class="item"><span>Last reviewed</span><span class="val">May 2026</span></div>
+        <div class="item"><span>Reading time</span><span class="val">12 minutes</span></div>
+      </div>
+    </header>
+
+    <nav aria-label="FAQ categories" class="faq-toc">
+      <a class="faq-toc-cell" href="#faq-cat-01">
+        <span class="num">Category 01</span>
+        <span class="name">About the <span class="ital">product</span></span>
+        <span class="count">5 questions</span>
+      </a>
+      <a class="faq-toc-cell" href="#faq-cat-02">
+        <span class="num">Category 02</span>
+        <span class="name">The evening <span class="ital">vote</span></span>
+        <span class="count">5 questions</span>
+      </a>
+      <a class="faq-toc-cell" href="#faq-cat-03">
+        <span class="num">Category 03</span>
+        <span class="name">Privacy and <span class="ital">sealing</span></span>
+        <span class="count">4 questions</span>
+      </a>
+      <a class="faq-toc-cell" href="#faq-cat-04">
+        <span class="num">Category 04</span>
+        <span class="name">Verdict and <span class="ital">analysis</span></span>
+        <span class="count">3 questions</span>
+      </a>
+      <a class="faq-toc-cell" href="#faq-cat-05">
+        <span class="num">Category 05</span>
+        <span class="name">Pricing and <span class="ital">billing</span></span>
+        <span class="count">3 questions</span>
+      </a>
+      <a class="faq-toc-cell" href="#faq-cat-06">
+        <span class="num">Category 06</span>
+        <span class="name">Partners and <span class="ital">edge cases</span></span>
+        <span class="count">4 questions</span>
+      </a>
+      <a class="faq-toc-cell" href="#faq-cat-07">
+        <span class="num">Category 07</span>
+        <span class="name">Therapists and <span class="ital">support</span></span>
+        <span class="count">5 questions</span>
+      </a>
+      <a class="faq-toc-cell" href="#faq-contact">
+        <span class="num">Still stuck?</span>
+        <span class="name">Write to <span class="ital">us</span></span>
+        <span class="count">Reply within one business day</span>
+      </a>
+    </nav>
+
+    <section class="method-stage" id="faq-cat-01" style="margin-top: 30px;">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow"> 01 · ABOUT THE PRODUCT</div>
+        <h2 class="method-stage-title">What Counsel.day is, and who it is <span class="ital">for.</span></h2>
+      </div>
+      <div class="faq-block">
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">What is Counsel.day, in one <span class="ital">paragraph?</span></h3>
+          <p class="faq-block-a">Counsel.day is a private-voting product for solo decision-makers, couples, and families facing a meaningful joint decision. Participants vote privately each evening on the same question, for a duration of your choosing (a week to a year). The votes are sealed from each other for the whole period. On the final day, every verdict unlocks at the same instant, along with a five-layer analysis that names the underlying axis of your disagreement and a single specific question to open the conversation that follows. <strong>Counsel.day comes before the conversation; it does not replace it.</strong></p>
+        </div>
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">Who is Counsel.day <span class="ital">for?</span></h3>
+          <p class="faq-block-a">Solo decision-makers, couples, and households facing a meaningful joint decision that has been on the table for weeks or months without resolving. The decision is usually one of four kinds: family and reproduction (whether to have a baby, second child, IVF, schooling), home and place (whether to move cities or countries, buy a house, downsize), career (whether to leave a job, take a role), or the partnership itself (whether to marry, separate, open or close the relationship). Family extends the tool to households of three to six.</p>
+        </div>
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">What kind of decisions does Counsel.day work <span class="ital">well for?</span></h3>
+          <p class="faq-block-a">The decisions Counsel.day is built for share three properties: <strong>the stakes are high</strong>, <strong>the timeline is long enough that feelings will shift</strong>, and <strong>the question has been circling for some time already</strong>. If your question can be settled in a single dinner conversation, it does not belong here. If it has been on the back of your minds for a month, it does. Counsel.day is not built for low-stakes day-to-day choices, procurement decisions, or work-style decisions.</p>
+        </div>
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">How is Counsel.day different from a couples app like Paired or <span class="ital">Lasting?</span></h3>
+          <p class="faq-block-a">Paired, Lasting, Coupleness, and the rest of the couples-app category sell daily relationship prompts and conversation starters. They are built for the steady-state work of a relationship. Counsel.day is built for the punctuated work of resolving a single hard decision over a period of time. The unit of value is the verdict produced on the final day, not the daily prompt. The product is also priced per decision ($25 USD) rather than per month, on the principle that you pay for the analysis you have already decided is valuable.</p>
+        </div>
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">Why the name <span class="ital">Counsel.day?</span></h3>
+          <p class="faq-block-a">The name is the product, said in two parts. <strong>Counsel</strong> is the older word for thoughtful weighing: the act of seeking and giving counsel, of considering a question with care, of arriving at a position rather than being told one. We did not want a name with <em>advice</em>, <em>coach</em>, or <em>therapy</em> inside it, because those words imply a position handed down from outside; counsel implies a position arrived at from within. <strong>.day</strong> is the mechanism, said as the domain. The product runs day by day, evening by evening, across the duration the question deserves. The .day TLD was a deliberate choice over .com; the suffix is part of the meaning.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="method-stage" id="faq-cat-02">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow"> 02 · THE EVENING VOTE</div>
+        <h2 class="method-stage-title">How a typical evening <span class="ital">works.</span></h2>
+      </div>
+      <div class="faq-block">
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">How does a typical evening vote <span class="ital">work?</span></h3>
+          <p class="faq-block-a">At a time you set during composition (typically after dinner), each participant receives a single private prompt. The prompt opens to the question, the format you chose, and the buttons or fields appropriate to that format. You tap once. You may, if a thought has landed, add a sentence or two or a paragraph. The vote takes between five seconds and a couple of minutes, depending on whether you write a note. No other participant can see your vote or your note before the verdict day.</p>
+        </div>
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">What are the eight question <span class="ital">formats?</span></h3>
+          <p class="faq-block-a">Yes / No (clean binaries); Strong / Lean (a four-point conviction scale, recommended as the default for most life decisions); A vs B (two named alternatives); Photo A vs B (a daily tap between two uploaded images); Scale 1 to 10 (magnitude rather than direction); Pros vs Cons (reasons that accumulate over the period); Pick best of N (one of up to six named alternatives); and Rank options (a daily ordering of up to six options). Full descriptions and worked examples live on <a href="method.html">the method page</a>.</p>
+        </div>
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">How do I choose the right <span class="ital">duration?</span></h3>
+          <p class="faq-block-a">Match the duration to the weight of the question. A fortnight suits a house with an offer deadline. A month suits most career and home decisions. Sixty days suits questions about the shape of the partnership itself: marriage, ending it, moving countries. Ninety days suits the decisions that need to survive a season of moods, especially family and reproduction. You set the duration once, at the start. You may extend a running decision; you may not shorten one.</p>
+        </div>
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">What happens if one of us misses an <span class="ital">evening?</span></h3>
+          <p class="faq-block-a">Nothing breaks. The progress bar registers a skipped day; the verdict still arrives on the scheduled date; the analysis still runs on whatever votes and notes did land. If a participant misses three consecutive evenings the product sends them one gentle reminder. Beyond that we leave you alone. We will not nudge a person into voting on a question they have decided not to engage with.</p>
+        </div>
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">Can I change the question or format <span class="ital">mid-decision?</span></h3>
+          <p class="faq-block-a">No. A change mid-decision contaminates the data: votes you cast on the old question are not comparable with votes you cast on the new one, and the analysis would be reading two different decisions stitched together. If your question has materially shifted, close the decision and open a fresh one with the new framing. Solo decisions close at no cost; paid decisions are not refunded once composed (see the <a href="refunds.html">refund policy</a>).</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="method-stage" id="faq-cat-03">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow"> 03 · PRIVACY AND SEALING</div>
+        <h2 class="method-stage-title">What sealed actually <span class="ital">means.</span></h2>
+      </div>
+      <div class="faq-block">
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">Are the votes really sealed until the final <span class="ital">day?</span></h3>
+          <p class="faq-block-a">Yes. The database is designed so that no participant's votes or notes are visible to any other, in any form, until the verdict is generated on the scheduled day. The only thing visible to anyone before then is whether the other participants have voted today. There is no settings panel to override this. There is no support workflow to override this. We could not show you another participant's votes early, even if you asked us to.</p>
+        </div>
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">What does my partner see while the decision is <span class="ital">open?</span></h3>
+          <p class="faq-block-a">They see the question you both agreed to, the format, the duration, the day count, and whether you have voted today. They do not see the direction of your vote, the value of your vote, or any of your notes. They see nothing else about your activity. The same is true in reverse.</p>
+        </div>
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">Where is my data <span class="ital">stored?</span></h3>
+          <p class="faq-block-a">Encrypted at rest, in a managed PostgreSQL instance in the region closest to your account location. Encryption keys are per-decision, not per-account, so the failure mode of any single key compromise is one decision rather than your full history. Backups are encrypted with a separate key. Vote and note content never appears in our application logs, and the logs themselves ship to an append-only store. Full architectural detail is described on <a href="method.html">the method page</a>.</p>
+        </div>
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">What about analytics, cookies, <span class="ital">advertising?</span></h3>
+          <p class="faq-block-a">We measure how visitors arrive at the marketing site with standard analytics, gated behind a cookie-consent banner you see on first visit. Those tools see which page you read, which campaign sent you, whether you signed up. They never see the question you composed inside a decision, the votes you cast, the notes you wrote, or the verdict you received. The in-app content lives in a separate database with row-level security; analytics SDKs are not loaded on those pages. The only third party that ever sees note content is the our AI vendor API on verdict day, and that request carries no identifying metadata. You can review the full cookie list and reject non-essential ones from the <a href="privacy.html">privacy page</a> at any time.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="method-stage" id="faq-cat-04">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow"> 04 · THE VERDICT AND THE ANALYSIS</div>
+        <h2 class="method-stage-title">What arrives on the final <span class="ital">day.</span></h2>
+      </div>
+      <div class="faq-block">
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">What does the verdict look like on the final <span class="ital">day?</span></h3>
+          <p class="faq-block-a">On a paid decision, at the same instant for every participant, the verdicts publish on the same page. Beneath them, a five-layer analysis: the agreement rate across the period, the conviction trajectory for each participant, the themes extracted from your notes, the synthesis paragraph that names the underlying axis of your disagreement, and one specific question to open the conversation that follows. The full verdict can be exported as a branded PDF. A walked-through example lives on the <a href="verdict.html">verdict page</a>. On the <strong>free first Solo decision</strong>, the verdict ships with the Python summary analysis only (trajectory, trend, stability, sentiment, top themes, readiness), without the AI-written synthesis paragraph or the conversation prompt.</p>
+        </div>
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">What are the five layers of the <span class="ital">analysis?</span></h3>
+          <p class="faq-block-a">Layer 01: the agreement rate (and how it moved across the period). Layer 02: each participant's conviction trajectory (rising, falling, flat, or spiky). Layer 03: the themes extracted from your notes with frequencies per participant. Layer 04: the synthesis paragraph that names the axis of your disagreement underneath the surface question. Layer 05: a single specific question for the conversation that follows. The layers are stacked so every claim further down is checkable against the data above it.</p>
+        </div>
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">How is the analysis <span class="ital">generated?</span></h3>
+          <p class="faq-block-a">In two distinct tiers. <strong>On a paid decision</strong> (Solo at $14 USD, Couple at $25 USD, Family at $49 USD, or covered by Consumer Annual at $99 USD/year), every vote and every note is read by a pipeline that computes the trajectory and the agreement curve in pure Python, clusters the themes locally, then submits the clustered data and the question framing to our AI synthesis tool with a prompt template iterated through hundreds of test verdicts. our AI synthesis tool writes the 600-to-1200-word synthesis paragraph that names the underlying axis of the disagreement in plain English. The model receives the data with no identifying metadata; it is not used to train any further system on your content. <strong>On the free first Solo decision</strong>, the AI synthesis is not run; the verdict ships with your own conviction chart and your own notes back. The 600-to-1200-word written verdict is the part reserved for paid decisions, because that single our AI vendor API call is the part of the output that costs us real money to produce.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="method-stage" id="faq-cat-05">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow"> 05 · PRICING AND BILLING</div>
+        <h2 class="method-stage-title">What it costs, in <span class="ital">US dollars.</span></h2>
+      </div>
+      <div class="faq-block">
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">How much does Counsel.day <span class="ital">cost?</span></h3>
+          <p class="faq-block-a">Four SKUs across three audiences. <strong>Solo</strong>: your first lifetime decision is free; additional Solo decisions are <strong>$14 USD each</strong>. <strong>Couple</strong> is <strong>$25 USD per decision</strong> for two participants. <strong>Family</strong> is <strong>$49 USD per decision</strong> for three to six participants. <strong>Consumer Annual is $99 USD per year</strong> · a single all-access plan that covers unlimited Solo, Couple, and Family decisions on one account for twelve months. Per-decision plans charge upfront on the day you compose; Consumer Annual is upfront for the year.</p>
+        </div>
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">When am I <span class="ital">charged?</span></h3>
+          <p class="faq-block-a">Upfront, on the day you compose a decision. Couple, Family, and Consumer Annual all charge upfront; the verdict is generated on the final day of the duration you chose. We charge upfront because a Stripe authorization cannot be held for the full 7-to-365 day duration. <strong>Charges are final at checkout.</strong> Refunds are limited to technical defects on our part (the verdict pipeline failed, you were double-charged, the product was offline for a meaningful portion of your decision) and to whatever your local consumer-protection law requires. No change-of-mind, no partial-completion, no didn't-use-it refunds. See the <a href="refunds.html">refund policy</a> for the full detail.</p>
+        </div>
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">Is there a free <span class="ital">version?</span></h3>
+          <p class="faq-block-a">Yes. Your first Solo decision is free, no card required. You can run a full thirty-day Solo decision end to end and decide for yourself whether to continue. The free decision ships with <strong>your own conviction chart and your own notes back</strong> · no third-party AI call, no five-layer written analysis. The 600-to-1200-word written verdict paragraph (the synthesis that names the axis of your question in plain English) is generated by our AI synthesis tool and is reserved for paid decisions, because that single API call is the part of the verdict that costs us real money to produce. After your first decision, additional Solo decisions are $14 USD each, or Consumer Annual at $99 USD per year covers unlimited Solo, Couple, and Family decisions for the year.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="method-stage" id="faq-cat-06">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow"> 06 · PARTNERS AND EDGE CASES</div>
+        <h2 class="method-stage-title">When it does not look like a textbook <span class="ital">couple.</span></h2>
+      </div>
+      <div class="faq-block">
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">Can I use Counsel.day alone, without a <span class="ital">partner?</span></h3>
+          <p class="faq-block-a">Yes. Solo is built for one-person decisions, in full, free for the first lifetime decision. Many of our users begin alone with a question they have not yet brought to their partner. Some never invite a partner at all; the Solo product is the whole product for them.</p>
+        </div>
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">What if my partner stops engaging <span class="ital">mid-decision?</span></h3>
+          <p class="faq-block-a">You can pause the decision, extend its duration, or convert it to a Solo decision without losing your data. Your partner receives one gentle reminder if they miss three consecutive evenings; beyond that we leave them alone. We will not nudge a person into voting on a question they have decided not to engage with. If your partner withdrew from the decision entirely, the verdict day for the Solo version produces a verdict and the agreement-rate and trajectory layers for your votes alone.</p>
+        </div>
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">Can same-sex, polyamorous, or non-traditional couples use <span class="ital">Counsel.day?</span></h3>
+          <p class="faq-block-a">Yes. The product is built around participants in a decision held jointly; the relationship structure between those people is your business, not ours. The pronoun and the name of each participant are set by you at composition. Group decisions for three to six participants run on the Family edition.</p>
+        </div>
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">Is Counsel.day a substitute for couples <span class="ital">therapy?</span></h3>
+          <p class="faq-block-a">No. Therapy is the guided conversation, with a trained third party present. Counsel.day is the data underneath one specific decision: the captured private positions across the period, the themes from your notes, the synthesis. We have no clinical training and the product is not a therapeutic intervention. Many users will benefit from both, in sequence; bring the verdict to a therapist when the verdict reveals the decision sits on something larger. See the full <a href="compare.html">Counsel.day vs Couples Therapy comparison</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="method-stage" id="faq-cat-07">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow"> 07 · THERAPISTS, SUPPORT, AND OPERATIONS</div>
+        <h2 class="method-stage-title">The rest of the practical <span class="ital">questions.</span></h2>
+      </div>
+      <div class="faq-block">
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">Do you offer a therapist <span class="ital">program?</span></h3>
+          <p class="faq-block-a">Yes. We run a simple referral program for therapists, counsellors, and other practitioners who recommend the tool to clients. Write to <strong>therapists@counsel.day</strong> (or <strong>counsellors@counsel.day</strong> if you are a non-clinical decision-support practitioner) with your practice details and we issue a unique referral code. When a client mentions the code at composition, the client pays the standard price (nothing about their billing changes), and we pay you <strong>20% of the attributed spend at the end of each quarter</strong> via Stripe Connect, bank transfer, or PayPal. No billing to your practice, no subscription cost, no enrolment commitment. The program is a sales channel, not an endorsement: we have no clinical training and we do not offer workshops or training on therapeutic use of the verdict.</p>
+        </div>
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">Can a therapist see our <span class="ital">verdict?</span></h3>
+          <p class="faq-block-a">Only if you choose to share it. The verdict is private to the participants by default. Many couples bring a printed copy to their first session; some share the PDF directly. Therapists do not have any back-channel access to your data.</p>
+        </div>
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">How do I delete my account and <span class="ital">data?</span></h3>
+          <p class="faq-block-a">From the account page, in a single click, with a single confirmation. Deletion is honoured within twenty-four hours and propagates to backups within thirty days. We do not retain a tombstone copy. If you have a paid decision in flight at the moment of deletion, the verdict is generated and emailed to you before the data is destroyed, so you receive the analysis you paid for.</p>
+        </div>
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">Is Counsel.day available <span class="ital">worldwide?</span></h3>
+          <p class="faq-block-a">Yes. The product is built for a worldwide market from day one, in English. Pricing is in US dollars (USD), charged worldwide; local taxes are added at checkout based on your billing address. Stripe handles the currency conversion at the moment of charge using the rate your card issuer posts. Additional language localisations are on the roadmap for the second year.</p>
+        </div>
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">Does Counsel.day use my data to train <span class="ital">AI models?</span></h3>
+          <p class="faq-block-a">No. On a paid decision, your notes and votes are submitted to the our AI synthesis tool on the verdict day only, for the single purpose of generating your synthesis paragraph. our AI vendor does not train on data submitted via the API, and our integration disables data sharing in addition. Your data is not used to train any model, ours or theirs. On the free first Solo decision, no data reaches our AI vendor at all; the summary analysis is generated entirely by Python models running on our own server.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="faq-contact-panel" id="faq-contact">
+      <div class="label">§ Still have a question</div>
+      <h3>Write to us, and we will <span class="ital">write back.</span></h3>
+      <p>Every message is read by a person, replied to within one business day, and very often added to this page if it turns out to be a question we have not heard yet. Plain prose is welcome. There is no form.</p>
+      <p>For most questions, write to <strong>hello@counsel.day</strong>. For the therapist referral program, write to <strong>therapists@counsel.day</strong>. For security disclosure, write to <strong>security@counsel.day</strong> and you will be acknowledged within one business day.</p>
+      <div class="addresses">
+        <div class="addr">General line<a href="mailto:hello@counsel.day">hello@counsel.day</a></div>
+        <div class="addr">Therapists<a href="mailto:therapists@counsel.day">therapists@counsel.day</a></div>
+        <div class="addr">Security<a href="mailto:security@counsel.day">security@counsel.day</a></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="method-cta">
+    <div class="method-cta-eyebrow">§ Ready to begin</div>
+    <h2 class="method-cta-title">Open a decision and answer your own <span class="ital">question.</span></h2>
+    <div class="method-cta-row">
+      <a href="signup.html" class="btn btn-large btn-arrow">Start a decision · free</a>
+      <a href="about.html" class="btn-text">Read about us</a>
+    </div>
+  </div>
+</main>
+
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Each evening, you cast one private vote on the same question, for a duration you set, with every vote sealed in the database until the final day. When the verdict opens, you see where you converged, where you diverged, the themes underneath your own words, and one specific next conversation. The deciding stays with you; the structure is ours. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The product</h5>
+        <a href="method.html">The method</a>
+        <a href="why-time.html">Why time</a>
+        <a href="distinction.html">The distinction</a>
+          <a href="verdict.html">A real verdict</a>
+        <a href="family.html">For families</a>
+        <a href="compare.html">Compare</a>
+        <a href="signup.html">Start free</a>
+        <a href="pricing.html">The editions</a>
+      </div>
+      <div class="colophon-col">
+        <h5>For practitioners</h5>
+        <a href="therapists.html">For therapists</a>
+        <a href="counsellors.html">For counsellors</a>
+        <a href="engineering/index.html">Engineering</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The company</h5>
+          <a href="about/james-graham.html">James Graham · founder</a>
+        <a href="help.html">Help</a>
+        <a href="contact.html">Contact</a>
+        <a href="security.html">Security</a>
+        <a href="accessibility.html">Accessibility</a>
+        <a href="press.html">Press</a>
+        <a href="status.html">Status</a>
+        <a href="changelog.html">Changelog</a>
+        <a href="journal/">The Journal</a>
+        <a href="faq.html">FAQ</a>
+        <a href="account.html">Your account</a>
+        <a href="mailto:press@counsel.day">Press</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The fine print</h5>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="cookies.html">Cookies</a>
+        <a href="sub-processors.html">Sub-processors</a>
+        <a href="refunds.html">Refunds</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>© 2026 Counsel.day · USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+
+<a class="go-to-top" id="go-to-top" href="#top" aria-label="Go to top of page">
+  <svg viewBox="0 0 24 24" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+  <span class="label">Top</span>
+</a>
+<script>
+(function () {
+  var btn = document.getElementById('go-to-top');
+  if (!btn) return;
+  function update() { if (window.scrollY > 600) { btn.classList.add('visible'); } else { btn.classList.remove('visible'); } }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+  btn.addEventListener('click', function (e) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
+<script src="ga4.js" defer></script>
+</body>
+</html>

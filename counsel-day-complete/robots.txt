@@ -1,0 +1,152 @@
+# ============================================================
+# Counsel.day · robots.txt
+# Last updated: 14 May 2026
+#
+# Allows crawling of every public marketing, article, and legal
+# page.  Excludes the signed-in app surface, account/billing
+# screens, the admin portal, system-error pages, auth-edge
+# pages, and the SPA prototype.  The Sitemap directive points
+# at the canonical sitemap.xml at the site root.
+#
+# Notes for operators:
+#   - Keep this file at https://counsel.day/robots.txt
+#   - The sitemap URL is absolute as required by spec
+#   - The Disallow paths match the routes the production
+#     server should serve; if production URLs change, update
+#     this file in lockstep.
+# ============================================================
+
+User-agent: *
+Allow: /
+
+# === Signed-in app surface · session-bound private data ===
+Disallow: /account
+Disallow: /account.html
+Disallow: /billing
+Disallow: /billing.html
+Disallow: /decisions
+Disallow: /decisions.html
+Disallow: /decision
+Disallow: /decision.html
+Disallow: /compose
+Disallow: /compose.html
+Disallow: /vote-today
+Disallow: /vote-today.html
+Disallow: /verdict-reveal
+Disallow: /verdict-reveal.html
+Disallow: /invite
+Disallow: /invite.html
+
+# === Admin portal · operator-only ===
+Disallow: /admin
+Disallow: /admin.html
+
+# === Auth-edge pages · transient, no SEO value ===
+Disallow: /verify-email
+Disallow: /verify-email.html
+Disallow: /signed-out
+Disallow: /signed-out.html
+Disallow: /session-expired
+Disallow: /session-expired.html
+
+# === System pages · noindex pages we do not want crawled ===
+Disallow: /404
+Disallow: /404.html
+Disallow: /500
+Disallow: /500.html
+Disallow: /maintenance
+Disallow: /maintenance.html
+Disallow: /offline
+Disallow: /offline.html
+
+# === SPA prototype · duplicates the marketing pages, never canonical ===
+Disallow: /homepage
+Disallow: /homepage.html
+
+# === Components reference · internal copy-paste page, not public ===
+Disallow: /components
+Disallow: /components.html
+
+# === Tracking and query parameters · prevent duplicate indexing ===
+Disallow: /*?utm_*
+Disallow: /*?fbclid=*
+Disallow: /*?gclid=*
+Disallow: /*?ref=*
+Disallow: /*?session=*
+Disallow: /*?token=*
+
+# === Sitemap ===
+Sitemap: https://counsel.day/sitemap.xml
+
+# ============================================================
+# Per-crawler overrides
+# ============================================================
+
+# Anthropic crawler · we use Claude commercially via the API,
+# and we are content for our public marketing pages to be
+# read for general-knowledge purposes.  We do not authorise
+# any AI vendor to scrape the in-product surface (which is
+# already excluded above).
+User-agent: ClaudeBot
+Allow: /
+Disallow: /account
+Disallow: /billing
+Disallow: /admin
+Disallow: /decisions
+Disallow: /decision
+Disallow: /compose
+Disallow: /vote-today
+Disallow: /verdict-reveal
+Disallow: /invite
+
+# OpenAI crawler · same posture as above.
+User-agent: GPTBot
+Allow: /
+Disallow: /account
+Disallow: /billing
+Disallow: /admin
+Disallow: /decisions
+Disallow: /decision
+Disallow: /compose
+Disallow: /vote-today
+Disallow: /verdict-reveal
+Disallow: /invite
+
+# Google extended (Vertex/Gemini training) · same posture.
+User-agent: Google-Extended
+Allow: /
+Disallow: /account
+Disallow: /billing
+Disallow: /admin
+Disallow: /decisions
+Disallow: /decision
+Disallow: /compose
+Disallow: /vote-today
+Disallow: /verdict-reveal
+Disallow: /invite
+
+# Common Crawl · open crawler used by many vendors.
+User-agent: CCBot
+Allow: /
+Disallow: /account
+Disallow: /billing
+Disallow: /admin
+Disallow: /decisions
+Disallow: /decision
+Disallow: /compose
+Disallow: /vote-today
+Disallow: /verdict-reveal
+Disallow: /invite
+
+# Perplexity · same posture.
+User-agent: PerplexityBot
+Allow: /
+Disallow: /account
+Disallow: /billing
+Disallow: /admin
+Disallow: /decisions
+Disallow: /decision
+Disallow: /compose
+Disallow: /vote-today
+Disallow: /verdict-reveal
+Disallow: /invite

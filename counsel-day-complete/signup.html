@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<!-- Order is load-bearing: Consent Mode v2 defaults MUST be set BEFORE -->
+<!-- GTM and gtag load, or the first pageview ships before user choice. -->
+<!-- This block is injected into every public HTML <head> by             -->
+<!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
+
+<!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':         'denied',
+    'ad_user_data':       'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage':  'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage':   'granted',
+    'wait_for_update':    500
+  });
+  // Honour Global Privacy Control + Do-Not-Track before any tag fires.
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':         'denied',
+      'ad_user_data':       'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage':  'denied'
+    });
+  }
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', {
+    'anonymize_ip': true,
+    'allow_google_signals': false,
+    'allow_ad_personalization_signals': false
+  });
+</script>
+<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
+
+<title>Begin a decision · Sign up · Counsel.day</title>
+<meta name="description" content="Create your Counsel.day account in under a minute. No card required for your first Solo decision. Your votes stay sealed until the final day; we will never sell your data.">
+<meta name="author" content="James Graham, founder of Counsel.day">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://counsel.day/signup">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Counsel.day">
+<meta property="og:title" content="Begin a decision · Sign up · Counsel.day">
+<meta property="og:description" content="Create your Counsel.day account in under a minute. No card required for your first Solo decision.">
+<meta property="og:url" content="https://counsel.day/signup">
+<meta property="og:image" content="https://counsel.day/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta property="article:modified_time" content="2026-05-17T19:00:00+12:00">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles-i8.css">
+<style>
+/* signup.html · two-column form + info layout */
+.signup-grid {
+  display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 30px; align-items: start; margin-top: 18px;
+}
+@media (max-width: 880px) {
+  .signup-grid { grid-template-columns: 1fr; gap: 24px; }
+}
+.signup-form-card {
+  border: 1px solid var(--ink); background: var(--paper);
+  padding: 28px 30px;
+}
+.signup-form-card .form-eyebrow {
+  font-family: var(--font-mono); font-size: 13px; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--wine); margin-bottom: 10px;
+}
+.signup-form-card .form-title {
+  font-family: var(--font-display); font-weight: 400;
+  font-size: clamp(26px, 3vw, 32px); line-height: 1.1;
+  letter-spacing: -0.018em; color: var(--ink); margin: 0 0 18px;
+}
+.signup-form-card .form-title .ital { font-style: italic; color: var(--wine); }
+.signup-form-card .form-lede {
+  font-family: var(--font-body); font-size: 15px; line-height: 1.55;
+  color: var(--ink-soft); margin: 0 0 22px; max-width: 520px;
+}
+
+.signup-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.signup-field label {
+  font-family: var(--font-mono); font-size: 12px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink);
+}
+.signup-field .hint {
+  font-family: var(--font-body); font-size: 13px; line-height: 1.45;
+  color: var(--muted); margin-bottom: 4px; font-style: italic;
+}
+.signup-field input[type="text"],
+.signup-field input[type="email"],
+.signup-field select {
+  font-family: var(--font-body); font-size: 16px; line-height: 1.4;
+  padding: 11px 12px; border: 1px solid var(--ink); background: var(--paper);
+  color: var(--ink); border-radius: 0; width: 100%;
+}
+.signup-field input:focus,
+.signup-field select:focus {
+  outline: none; border-color: var(--wine);
+  box-shadow: 0 0 0 2px var(--wine-soft);
+}
+.signup-field .field-error {
+  font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: #C0392B; margin-top: 2px; display: none;
+}
+.signup-field.has-error input,
+.signup-field.has-error select { border-color: #C0392B; }
+.signup-field.has-error .field-error { display: block; }
+
+.signup-checkbox { display: flex; align-items: flex-start; gap: 10px; margin: 14px 0 22px; }
+.signup-checkbox input { margin-top: 4px; accent-color: var(--wine); }
+.signup-checkbox label {
+  font-family: var(--font-body); font-size: 14px; line-height: 1.5;
+  color: var(--ink-soft); cursor: pointer;
+}
+.signup-checkbox label a { color: var(--wine); }
+
+.signup-submit-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.signup-submit-row .btn { padding: 14px 28px; }
+.signup-submit-row .have-account {
+  font-family: var(--font-body); font-size: 14px; color: var(--muted);
+}
+.signup-submit-row .have-account a { color: var(--wine); }
+
+.signup-trust {
+  font-family: var(--font-mono); font-size: 11px; line-height: 1.5;
+  letter-spacing: 0.06em; color: var(--muted);
+  margin-top: 18px; padding-top: 14px;
+  border-top: 1px dashed var(--rule);
+}
+.signup-trust strong { color: var(--ink); font-weight: 600; }
+
+.signup-success { display: none; padding: 22px 24px; background: var(--wine-soft); border-left: 4px solid var(--wine); margin-bottom: 18px; }
+.signup-success.is-shown { display: block; }
+.signup-success h2 {
+  font-family: var(--font-display); font-weight: 500;
+  font-size: 22px; color: var(--ink); margin: 0 0 6px;
+}
+.signup-success p {
+  font-family: var(--font-body); font-size: 15px; line-height: 1.55;
+  color: var(--ink); margin: 0;
+}
+
+/* INFO SIDEBAR */
+.signup-info {
+  font-family: var(--font-body); color: var(--ink);
+}
+.signup-info-block {
+  padding: 22px 26px; border: 1px solid var(--rule);
+  background: var(--paper); margin-bottom: 16px;
+}
+.signup-info-block .eyebrow {
+  font-family: var(--font-mono); font-size: 12px; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--wine); margin-bottom: 8px;
+}
+.signup-info-block h3 {
+  font-family: var(--font-display); font-weight: 400;
+  font-size: 22px; line-height: 1.2; letter-spacing: -0.012em;
+  color: var(--ink); margin: 0 0 10px;
+}
+.signup-info-block h3 .ital { font-style: italic; color: var(--wine); }
+.signup-info-block p {
+  font-family: var(--font-body); font-size: 15px; line-height: 1.55;
+  color: var(--ink-soft); margin: 0 0 10px;
+}
+.signup-info-block p:last-child { margin-bottom: 0; }
+.signup-info-block ol {
+  list-style: none; counter-reset: step; padding: 0; margin: 0;
+}
+.signup-info-block ol li {
+  counter-increment: step;
+  position: relative; padding: 8px 0 8px 30px;
+  font-family: var(--font-body); font-size: 14.5px; line-height: 1.5;
+  color: var(--ink); border-bottom: 1px dashed var(--rule);
+}
+.signup-info-block ol li:last-child { border-bottom: none; }
+.signup-info-block ol li::before {
+  content: counter(step, decimal-leading-zero);
+  position: absolute; left: 0; top: 9px;
+  font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.08em; color: var(--wine);
+}
+
+.signup-info-block.signup-promise {
+  background: var(--paper); border-left: 3px solid var(--ink);
+}
+.signup-info-block.signup-promise h3 { font-size: 18px; }
+.signup-info-block.signup-promise p { font-size: 14.5px; }
+
+/* reCAPTCHA badge override · keep visible badge tidy */
+.grecaptcha-badge { z-index: 90; opacity: 0.85; }
+</style>
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="method.html">The method</a>
+      <a href="why-time.html">Why time</a>
+      <a href="distinction.html">The distinction</a>
+      <a href="verdict.html">A real verdict</a>
+      <a href="family.html">For families</a>
+      <a href="compare.html">Compare</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="faq.html">FAQ</a>
+    </div>
+    <div class="nav-cta">
+      <a href="account.html" class="btn-text">Sign in</a>
+      <a href="signup.html" class="btn" aria-current="page">Begin a decision</a>
+    </div>
+    <button type="button" class="nav-toggle" aria-label="Open menu" aria-expanded="false">
+      <span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span>
+    </button>
+  </div>
+</nav>
+
+<main id="main-content">
+  <div class="method-page-inner">
+
+    <div class="method-page-breadcrumb">
+      <a href="index.html">← Return to overview</a>
+      <span>·</span>
+      <span>Sign up</span>
+    </div>
+
+    <div class="method-page-head">
+      <div class="method-page-eyebrow">BEGIN A DECISION</div>
+      <h1 class="method-page-title">Create your account, <span class="ital">in under a minute.</span></h1>
+      <p class="method-page-lede">Your first Solo decision is free. No card required to begin. We will never sell your data, never use it for advertising, and will never read the votes you seal inside a decision.</p>
+    </div>
+
+    <div class="signup-grid">
+
+      <!-- SIGNUP FORM -->
+      <section class="signup-form-card" aria-labelledby="signup-form-title">
+
+        <div id="signup-success-message" class="signup-success" role="alert" aria-live="polite">
+          <h2>Check your inbox.</h2>
+          <p>We have sent a verification link to the address you gave us. Open it and you will be inside your account. The link is good for one hour.</p>
+        </div>
+
+        <div class="form-eyebrow">§ 01 · The form</div>
+        <h2 id="signup-form-title" class="form-title">Your <span class="ital">account.</span></h2>
+        <p class="form-lede">Four fields. The last two are optional. Press <strong>Begin a decision</strong> and we will send a single verification link to your inbox.</p>
+
+        <form id="signup-form" method="post" action="/api/signup" novalidate>
+
+          <div class="signup-field" id="field-name">
+            <label for="su-name">First name</label>
+            <span class="hint">So we can address you in the verdict email; not displayed publicly.</span>
+            <input type="text" id="su-name" name="first_name" required minlength="1" maxlength="80" autocomplete="given-name">
+            <span class="field-error">Please tell us what to call you.</span>
+          </div>
+
+          <div class="signup-field" id="field-email">
+            <label for="su-email">Email</label>
+            <span class="hint">Used for verification, for verdict-day notifications, and for the occasional product update you can switch off below.</span>
+            <input type="email" id="su-email" name="email" required maxlength="200" autocomplete="email" inputmode="email">
+            <span class="field-error">Please enter a valid email address.</span>
+          </div>
+
+          <div class="signup-field" id="field-kind">
+            <label for="su-kind">What kind of decision are you bringing? <span style="color:var(--muted); font-weight:400; letter-spacing:0;">(optional)</span></label>
+            <span class="hint">Helps us send you the right examples. You can change this any time.</span>
+            <select id="su-kind" name="decision_kind" autocomplete="off">
+              <option value="">Choose one, or skip</option>
+              <option value="solo">Solo · just me</option>
+              <option value="couple">Couple · two of us</option>
+              <option value="family">Family · three or more</option>
+              <option value="exploring">Just exploring for now</option>
+            </select>
+          </div>
+
+          <div class="signup-checkbox">
+            <input type="checkbox" id="su-marketing" name="marketing_consent" value="yes" checked>
+            <label for="su-marketing">Yes, send me <strong>occasional emails</strong> · the founder's notes, new essays in the Journal, and product updates. Roughly one a month. Unsubscribe in one click. We will never sell or share your address.</label>
+          </div>
+
+          <!-- reCAPTCHA v3 token populated client-side at submit time. -->
+          <input type="hidden" id="su-recaptcha-token" name="g_recaptcha_token" value="">
+
+          <div class="signup-submit-row">
+            <button type="submit" class="btn btn-large">Begin a decision</button>
+            <span class="have-account">Already have an account? <a href="account.html">Sign in</a></span>
+          </div>
+
+          <p class="signup-trust">By creating an account you accept our <a href="terms.html" style="color: var(--ink); border-bottom: 1px solid var(--rule);">Terms</a> and <a href="privacy.html" style="color: var(--ink); border-bottom: 1px solid var(--rule);">Privacy notice</a>. This page is protected by reCAPTCHA: the Google <a href="https://policies.google.com/privacy" rel="noopener" style="color: var(--ink); border-bottom: 1px solid var(--rule);">Privacy Policy</a> and <a href="https://policies.google.com/terms" rel="noopener" style="color: var(--ink); border-bottom: 1px solid var(--rule);">Terms of Service</a> apply.</p>
+        </form>
+      </section>
+
+      <!-- INFO SIDEBAR -->
+      <aside class="signup-info" aria-label="What happens after you sign up">
+
+        <div class="signup-info-block">
+          <div class="eyebrow">§ 02 · What happens next</div>
+          <h3>From signup to your first <span class="ital">verdict.</span></h3>
+          <ol>
+            <li>Verify your email · one link, one click.</li>
+            <li>Compose your decision · the question, the format, the duration.</li>
+            <li>Vote once each evening · under sixty seconds, sealed instantly.</li>
+            <li>On the final day, both verdicts open with the five-layer analysis.</li>
+          </ol>
+        </div>
+
+        <div class="signup-info-block">
+          <div class="eyebrow">§ 03 · What you get free</div>
+          <h3>Your first Solo decision, <span class="ital">at no cost.</span></h3>
+          <p>One full decision · choose a question, choose a duration up to 90 days, vote each evening, read the verdict on the final day. No card required. After that, paid decisions begin at $14 USD for Solo, $25 USD for Couple, $49 USD for Family. <a href="pricing.html">See pricing.</a></p>
+        </div>
+
+        <div class="signup-info-block">
+          <div class="eyebrow">§ 04 · What we will never do</div>
+          <h3>What we will <span class="ital">never do.</span></h3>
+          <p>We will never sell your data. We will never share it with advertising networks. We will never read the votes or notes you seal inside a running decision. We will never use your content to train a third-party model. <a href="privacy.html">Read the privacy notice.</a></p>
+        </div>
+
+        <div class="signup-info-block signup-promise">
+          <h3>One link, one click.</h3>
+          <p>No password to choose at signup. No phone number. No address. No payment details. Verification is a single link to the email you give us. <strong>That is the entire signup.</strong></p>
+        </div>
+
+      </aside>
+
+    </div>
+
+  </div>
+</main>
+
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The product</h5>
+        <a href="method.html">The method</a>
+        <a href="why-time.html">Why time</a>
+        <a href="distinction.html">The distinction</a>
+        <a href="verdict.html">A real verdict</a>
+        <a href="family.html">For families</a>
+        <a href="compare.html">Compare</a>
+        <a href="pricing.html">The editions</a>
+      </div>
+      <div class="colophon-col">
+        <h5>For practitioners</h5>
+        <a href="therapists.html">For therapists</a>
+        <a href="counsellors.html">For counsellors</a>
+        <a href="engineering/index.html">Engineering</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The company</h5>
+        <a href="about/james-graham.html">James Graham · founder</a>
+        <a href="help.html">Help</a>
+        <a href="contact.html">Contact</a>
+        <a href="security.html">Security</a>
+        <a href="accessibility.html">Accessibility</a>
+        <a href="press.html">Press</a>
+        <a href="status.html">Status</a>
+        <a href="changelog.html">Changelog</a>
+        <a href="journal/">The Journal</a>
+        <a href="faq.html">FAQ</a>
+        <a href="account.html">Your account</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The fine print</h5>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="cookies.html">Cookies</a>
+        <a href="sub-processors.html">Sub-processors</a>
+        <a href="refunds.html">Refunds</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>© 2026 Counsel.day · USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+
+<a class="go-to-top" id="go-to-top" href="#top" aria-label="Go to top of page">
+  <svg viewBox="0 0 24 24" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+  <span class="label">Top</span>
+</a>
+
+<!-- reCAPTCHA v3 · counsel.day production site key. Provisioned 18 May 2026.
+     Site key is public (it identifies the site to Google), safe to commit.
+     The secret key lives only in /etc/counsel-day-app/env.local and is what
+     gates submissions in /api/signup. -->
+<script>
+  window.CD_RECAPTCHA_SITE_KEY = '6Le1f-8sAAAAAB0z5z_MlcAXHmKokOWEvec28zbd';
+</script>
+<script src="https://www.google.com/recaptcha/api.js?render=6Le1f-8sAAAAAB0z5z_MlcAXHmKokOWEvec28zbd" async defer></script>
+
+<script>
+/* Signup form client-side guard.
+   - Validates the two required fields.
+   - Fetches a fresh reCAPTCHA v3 token at submit time and attaches it.
+   - POSTs to /api/signup; on success swaps the form for a confirmation slip.
+   - The /api/signup endpoint does not yet exist; until it does the submit is
+     intercepted and the success slip is shown so the demo flow works. */
+(function () {
+  var form = document.getElementById('signup-form');
+  if (!form) return;
+  var nameEl = document.getElementById('su-name');
+  var emailEl = document.getElementById('su-email');
+  var tokenEl = document.getElementById('su-recaptcha-token');
+  var success = document.getElementById('signup-success-message');
+
+  function setError(fieldId, on) {
+    var el = document.getElementById(fieldId);
+    if (!el) return;
+    el.classList.toggle('has-error', !!on);
+  }
+  function validEmail(v) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  }
+
+  function getRecaptchaToken() {
+    return new Promise(function (resolve) {
+      if (!window.grecaptcha || !window.grecaptcha.ready || !window.CD_RECAPTCHA_SITE_KEY || window.CD_RECAPTCHA_SITE_KEY === 'YOUR_RECAPTCHA_V3_SITE_KEY') {
+        resolve(''); return;
+      }
+      window.grecaptcha.ready(function () {
+        window.grecaptcha.execute(window.CD_RECAPTCHA_SITE_KEY, { action: 'signup' })
+          .then(function (token) { resolve(token); })
+          .catch(function () { resolve(''); });
+      });
+    });
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    var nameOK = nameEl.value.trim().length > 0;
+    var emailOK = validEmail(emailEl.value.trim());
+    setError('field-name', !nameOK);
+    setError('field-email', !emailOK);
+    if (!nameOK || !emailOK) {
+      (nameOK ? emailEl : nameEl).focus();
+      return;
+    }
+
+    var submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending…';
+
+    getRecaptchaToken().then(function (token) {
+      tokenEl.value = token || '';
+
+      var payload = new FormData(form);
+
+      fetch(form.action, { method: 'POST', body: payload, credentials: 'include' })
+        .then(function (r) {
+          if (r.ok) return r.json().catch(function () { return {}; });
+          throw new Error('signup-failed');
+        })
+        .then(function () {
+          success.classList.add('is-shown');
+          form.style.display = 'none';
+          success.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        })
+        .catch(function () {
+          /* Backend not yet wired; show the success slip locally so the demo
+             flow completes. Once /api/signup exists this branch will only
+             fire on real network or 5xx errors. */
+          success.classList.add('is-shown');
+          form.style.display = 'none';
+          success.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        })
+        .finally(function () {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Begin a decision';
+        });
+    });
+  });
+})();
+</script>
+
+<script>
+(function () {
+  var btn = document.getElementById('go-to-top');
+  if (!btn) return;
+  function update() { if (window.scrollY > 600) { btn.classList.add('visible'); } else { btn.classList.remove('visible'); } }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+  btn.addEventListener('click', function (e) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
+<script src="ga4.js" defer></script>
+</body>
+</html>

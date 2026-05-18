@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<!-- Order is load-bearing: Consent Mode v2 defaults MUST be set BEFORE -->
+<!-- GTM and gtag load, or the first pageview ships before user choice. -->
+<!-- This block is injected into every public HTML <head> by             -->
+<!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
+
+<!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':         'denied',
+    'ad_user_data':       'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage':  'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage':   'granted',
+    'wait_for_update':    500
+  });
+  // Honour Global Privacy Control + Do-Not-Track before any tag fires.
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':         'denied',
+      'ad_user_data':       'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage':  'denied'
+    });
+  }
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', {
+    'anonymize_ip': true,
+    'allow_google_signals': false,
+    'allow_ad_personalization_signals': false
+  });
+</script>
+<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
+
+<title>The math behind the verdict · Counsel.day Engineering</title>
+<meta name="description" content="How Counsel.day turns daily votes and sealed notes into a five-layer verdict. The trajectory chart, the divergence index, theme clustering, and the prompt-engineering choices behind the AI synthesis, with the failure modes we test for.">
+<meta name="author" content="James Graham, founder of Counsel.day">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://counsel.day/engineering/the-math-behind-the-verdict">
+<link rel="alternate" hreflang="en" href="https://counsel.day/engineering/the-math-behind-the-verdict">
+<link rel="alternate" hreflang="x-default" href="https://counsel.day/engineering/the-math-behind-the-verdict">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Counsel.day">
+<meta property="og:title" content="The math behind the verdict · Counsel.day Engineering">
+<meta property="og:description" content="Trajectory chart, divergence index, theme clustering, prompt engineering, and the failure modes we test for.">
+<meta property="og:url" content="https://counsel.day/engineering/the-math-behind-the-verdict">
+<meta property="og:image" content="https://counsel.day/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The math behind the verdict">
+<meta name="twitter:description" content="Trajectory chart, divergence index, theme clustering, prompt engineering, and the failure modes we test for.">
+<meta name="twitter:image" content="https://counsel.day/og-image.png">
+<meta property="article:modified_time" content="2026-05-15T19:00:00+12:00">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "The math behind the verdict",
+  "datePublished": "2026-05-15",
+  "author": { "@type": "Person", "name": "James Graham" },
+  "publisher": { "@type": "Organization", "name": "Counsel.day" }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" as="style">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"></noscript>
+<link rel="stylesheet" href="../styles-i8.css">
+<style>
+.method-stage-body pre {
+  background: var(--ink); color: var(--paper-deep);
+  padding: 22px 26px;
+  font-family: var(--font-mono); font-size: 13.5px; line-height: 1.65;
+  overflow-x: auto; margin: 22px 0;
+  border-left: 3px solid var(--wine);
+}
+.method-stage-body pre code { background: transparent; padding: 0; color: var(--paper-deep); border: none; font-family: var(--font-mono); font-size: 13.5px; }
+.method-stage-body code {
+  font-family: var(--font-mono); font-size: 14px;
+  background: var(--paper-deep);
+  padding: 2px 7px; color: var(--wine-deep);
+  border: 1px solid var(--rule);
+}
+.method-stage-body ul { font-family: var(--font-body); font-size: 18px; line-height: 1.7; color: var(--ink-soft); padding-left: 22px; margin: 0 0 22px; }
+.method-stage-body li { margin-bottom: 8px; }
+.method-stage-body li strong { font-weight: 500; color: var(--ink); }
+.formula {
+  padding: 24px 28px;
+  background: var(--paper-deep);
+  border-left: 3px solid var(--wine);
+  margin: 24px 0;
+  text-align: center;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 22px;
+  line-height: 1.4;
+  color: var(--ink);
+}
+.formula .lbl {
+  display: block;
+  font-family: var(--font-mono); font-size: 11px;
+  font-style: normal;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--wine); margin-bottom: 10px;
+}
+</style>
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="../index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="../method.html">The method</a>
+      <a href="../why-time.html">Why time</a>
+      <a href="../distinction.html">The distinction</a>
+      <a href="../verdict.html">A real verdict</a>
+      <a href="../family.html">For families</a>
+      <a href="../compare.html">Compare</a>
+      <a href="../pricing.html">Pricing</a>
+      <a href="../faq.html">FAQ</a>
+    </div>
+    <div class="nav-cta">
+      <a href="../account.html" class="btn-text">Sign in</a>
+      <a href="../signup.html" class="btn">Begin a decision</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content">
+  <div class="method-page-inner">
+
+    <div class="method-page-breadcrumb">
+      <a href="index.html">← Engineering</a>
+      <span>·</span>
+      <span>The math behind the verdict</span>
+    </div>
+
+    <div class="method-page-head">
+      <div class="method-page-eyebrow">HOW THE VERDICT IS COMPUTED</div>
+      <h1 class="method-page-title">From thirty days of votes to a one-paragraph <span class="ital">synthesis.</span></h1>
+      <p class="method-page-lede">The verdict is not a single AI prompt; it is a sequence of separate computations, each validated before the next runs. <strong>Solo Free runs the numerical summary in Python only</strong>; paid Solo, Couple, and Family tiers add the our AI synthesis tool synthesis paragraph on top of the same numbers.</p>
+      <div class="method-page-meta">
+        <div class="item"><span>Reading time</span><span class="val">14 minutes</span></div>
+        <div class="item"><span>Free tier</span><span class="val">Python summary only</span></div>
+        <div class="item"><span>Paid tiers</span><span class="val wine">our AI synthesis tool synthesis</span></div>
+      </div>
+    </div>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">THE CONVICTION SERIES</div>
+        <h2 class="method-stage-title">The trajectory <span class="ital">chart.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>Each evening vote is recorded as one of five ordered levels · Strong No, Lean No, Unsure, Lean Yes, Strong Yes · mapped to the integer set <code>{-2, -1, 0, +1, +2}</code>. For each participant, the sequence of daily values across the decision period forms the raw conviction series.</p>
+        <p>Two transformations are applied. First a missing-day fill: if a participant skipped a day, the gap is left as <code>null</code>, never interpolated; trajectory math runs on the present-day mask. Second a smoothing pass: an Exponentially Weighted Moving Average (EWMA) with a half-life of three days, chosen to follow weekly mood swings without erasing them.</p>
+        <div class="formula">
+          <span class="lbl">Smoothing function</span>
+          s<sub>t</sub> = α · v<sub>t</sub> + (1 - α) · s<sub>t-1</sub>, with α chosen so the half-life equals 3 days
+        </div>
+        <p>The smoothed series is what the trajectory chart on the verdict page renders. The raw series is preserved alongside it; both are exported in the data export.</p>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">AGREEMENT RATE</div>
+        <h2 class="method-stage-title">Overlap of the two <span class="ital">streams.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>For decisions with two participants, the agreement rate measures the share of days on which the two participants landed on the same side of the Unsure midpoint. A day counts as agreement if both votes are non-null and lie on the same side of zero; an Unsure day counts as a half-agreement.</p>
+        <div class="formula">
+          <span class="lbl">Agreement rate</span>
+          A = ( Σ<sub>t</sub> agree(v<sub>1,t</sub>, v<sub>2,t</sub>) ) / N
+        </div>
+        <p>The agreement rate is published as a percentage. It is not a verdict by itself; a 90% agreement rate on a question both participants leaned No to is a different verdict from 90% on a question they leaned Yes to. The synthesis paragraph reads agreement rate alongside the trajectory rather than in isolation.</p>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">DIVERGENCE INDEX</div>
+        <h2 class="method-stage-title">A signed gap, not an <span class="ital">absolute one.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>The divergence index measures, for couples and families, how far apart the participants' smoothed series sit on average, with sign preserved. A positive value means participant A leaned more positive than participant B across the period; a negative value, the opposite. This is the signed average gap rather than the absolute one, so that the verdict can describe who pulled toward yes and who toward no.</p>
+        <div class="formula">
+          <span class="lbl">Divergence index</span>
+          D = (1 / N) · Σ<sub>t</sub> ( s<sub>1,t</sub> - s<sub>2,t</sub> )
+        </div>
+        <p>For Family Mode (three to four participants) we compute a divergence pair matrix rather than a single index. The pair with the largest absolute divergence is surfaced as the principal disagreement in the verdict.</p>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">THEME CLUSTERING</div>
+        <h2 class="method-stage-title">TF-IDF on the notes, k-means on the <span class="ital">embeddings.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>The free-text notes attached to each vote are the richest data the product collects. They are processed in two passes. First, TF-IDF is run across the note corpus for the decision, with a small stopword list extended for couples-decision language (we drop "feel," "think," "today" and the like; they appear in nearly every note and carry no information). The top fifty terms by TF-IDF score are the candidate vocabulary.</p>
+        <p>Second, each note is embedded (a 768-dimensional vector from a small open-weight model run in-house, never via an external API) and clustered with k-means. The number of clusters is chosen by the gap statistic on a 2-to-6 range; in practice the answer is usually three or four. Each cluster is labelled by the highest-TF-IDF term that appears in a majority of its notes. The output is a small set of named themes with the day-indices on which each theme appeared.</p>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">THE CLAUDE SYNTHESIS</div>
+        <h2 class="method-stage-title">Prompt engineering, in plain <span class="ital">language.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>On paid tiers, the numerical layers above are passed to our AI synthesis tool to produce the one-paragraph synthesis at the top of the verdict. The prompt is engineered around a single load-bearing constraint: <strong>the model writes the synthesis using only the themes the Python layer already extracted</strong>. It is forbidden to invent themes, to introduce content not present in the notes, or to override the trajectory with a different reading of the data.</p>
+
+<pre><code>SYSTEM:
+You are the synthesis writer for a Counsel.day verdict.
+You will be given a structured input containing:
+  - the question
+  - participant trajectories (smoothed)
+  - agreement rate, divergence index
+  - extracted themes with day-indices
+
+Constraints:
+  - Write ONE paragraph, 90-140 words.
+  - Use ONLY the themes provided. Do not invent themes.
+  - Do not introduce content not present in the notes corpus
+    (the corpus is summarised in the themes list).
+  - Do not contradict the trajectory: if both participants
+    ended at Lean Yes, do not write that the decision is "no."
+  - Do not give advice, do not recommend a course of action,
+    do not name a clinician or therapist.
+  - Refer to participants by the names provided, not generic terms.
+
+OUTPUT_SCHEMA:
+{
+  "synthesis": "string, 90-140 words",
+  "next_conversation_prompt": "string, one sentence"
+}</code></pre>
+
+        <p>The model is called with structured output enabled, so the response shape is enforced rather than parsed. The <code>next_conversation_prompt</code> field is the concrete question the verdict suggests opening the post-verdict conversation with; it is rendered separately on the page.</p>
+        <p>Solo Free tier never calls our AI synthesis tool. The free-tier verdict surfaces the trajectory chart, the agreement rate (for couples), the divergence index, and the theme list, with a one-line numerical summary written by a deterministic Python template. The synthesis paragraph is a paid feature; the underlying data is the same.</p>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">FAILURE MODES WE TEST FOR</div>
+        <h2 class="method-stage-title">What can go wrong, and what we do when it <span class="ital">does.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>We hold a regression test set of synthetic decisions whose expected outputs are known. The set is the basis for a nightly evaluation run that flags any drift in model behaviour. Three failure modes are explicitly tested.</p>
+        <ul>
+          <li><strong>Model returns prose with no themes.</strong> Detected by checking that every theme in the input appears as a noun phrase in the synthesis, or that the synthesis explicitly states which theme it is focusing on. Failure: regenerate once; if it fails again, fall back to the Python-only verdict and flag the decision for human review.</li>
+          <li><strong>Model hallucinates themes not in the notes.</strong> Detected by checking that no noun phrase in the synthesis is outside the extracted theme vocabulary plus a small allow-list of bridging words. Failure: regenerate once; on second failure, fall back as above.</li>
+          <li><strong>Model produces a synthesis that contradicts the trajectory.</strong> Detected by a separate classifier that reads the synthesis and predicts the implied verdict polarity; if it does not match the trajectory's end-state, the synthesis is rejected. Failure: regenerate; on second failure, fall back.</li>
+        </ul>
+        <p class="method-pullquote">Every failure mode resolves to either a regenerated synthesis or a fall-back to the numerical-only verdict. The verdict never publishes a synthesis the validators rejected.</p>
+        <p>The validators are unit-tested against the synthetic decision set; the model itself is held to that bar in production by the same validators running in the verdict-worker job before the verdict is written to the database.</p>
+      </div>
+      <p class="method-stage-aside"><a href="index.html">← Return to Engineering</a></p>
+    </section>
+
+  </div>
+</main>
+
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The product</h5>
+        <a href="../method.html">The method</a>
+        <a href="../why-time.html">Why time</a>
+        <a href="../distinction.html">The distinction</a>
+          <a href="../verdict.html">A real verdict</a>
+        <a href="../family.html">For families</a>
+        <a href="../compare.html">Compare</a>
+        <a href="../signup.html">Start free</a>
+        <a href="../pricing.html">The editions</a>
+      </div>
+      <div class="colophon-col">
+        <h5>For practitioners</h5>
+        <a href="../therapists.html">For therapists</a>
+        <a href="../counsellors.html">For counsellors</a>
+        <a href="index.html">Engineering</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The company</h5>
+          <a href="../about/james-graham.html">James Graham · founder</a>
+        <a href="../help.html">Help</a>
+        <a href="../contact.html">Contact</a>
+        <a href="../security.html">Security</a>
+        <a href="../accessibility.html">Accessibility</a>
+        <a href="../press.html">Press</a>
+        <a href="../status.html">Status</a>
+        <a href="../changelog.html">Changelog</a>
+        <a href="../journal/">The Journal</a>
+        <a href="../faq.html">FAQ</a>
+        <a href="../account.html">Your account</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The fine print</h5>
+        <a href="../privacy.html">Privacy</a>
+        <a href="../terms.html">Terms</a>
+        <a href="../cookies.html">Cookies</a>
+        <a href="../sub-processors.html">Sub-processors</a>
+        <a href="../refunds.html">Refunds</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>© 2026 Counsel.day · USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+
+<a class="go-to-top" id="go-to-top" href="#top" aria-label="Go to top of page">
+  <svg viewBox="0 0 24 24" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+  <span class="label">Top</span>
+</a>
+<script>
+(function () {
+  var btn = document.getElementById('go-to-top');
+  if (!btn) return;
+  function update() { if (window.scrollY > 600) { btn.classList.add('visible'); } else { btn.classList.remove('visible'); } }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+  btn.addEventListener('click', function (e) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
+<script src="../ga4.js" defer></script>
+</body>
+</html>

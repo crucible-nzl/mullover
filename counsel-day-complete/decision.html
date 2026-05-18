@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<!-- Order is load-bearing: Consent Mode v2 defaults MUST be set BEFORE -->
+<!-- GTM and gtag load, or the first pageview ships before user choice. -->
+<!-- This block is injected into every public HTML <head> by             -->
+<!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
+
+<!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':         'denied',
+    'ad_user_data':       'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage':  'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage':   'granted',
+    'wait_for_update':    500
+  });
+  // Honour Global Privacy Control + Do-Not-Track before any tag fires.
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':         'denied',
+      'ad_user_data':       'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage':  'denied'
+    });
+  }
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', {
+    'anonymize_ip': true,
+    'allow_google_signals': false,
+    'allow_ad_personalization_signals': false
+  });
+</script>
+<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
+
+<title>Your decision · Counsel.day</title>
+<meta name="description" content="View a running Counsel.day decision. See the day count, your participation status, the partner's participation status, and a specimen of the verdict to come.">
+<meta name="robots" content="noindex, nofollow">
+<meta property="article:modified_time" content="2026-05-15T19:00:00+12:00">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles-i8.css">
+<style>
+  /* Single decision view · app surface · scoped */
+  .dx-shell { max-width: 1100px; margin: 0 auto; padding: 30px 32px 30px; }
+  .dx-bread { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 28px; }
+  .dx-bread a { color: var(--wine); border-bottom: 1px solid var(--wine); padding-bottom: 1px; text-decoration: none; }
+
+  .dx-counter-row { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--ink); background: var(--paper); margin: 28px 0 30px; }
+  .dx-counter-row .cell { padding: 22px 22px 24px; border-right: 1px solid var(--rule); }
+  .dx-counter-row .cell:last-child { border-right: none; }
+  .dx-counter-row .cell .lbl { font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .dx-counter-row .cell .val { font-family: var(--font-display); font-weight: 500; font-size: 32px; line-height: 1; letter-spacing: -0.015em; color: var(--ink); }
+  .dx-counter-row .cell .val .ital { font-style: italic; font-weight: 400; color: var(--wine); }
+  .dx-counter-row .cell .sub { font-family: var(--font-body); font-style: italic; font-size: 13px; color: var(--muted); margin-top: 8px; }
+  @media (max-width: 720px) { .dx-counter-row { grid-template-columns: 1fr 1fr; } .dx-counter-row .cell:nth-child(2n) { border-right: none; } .dx-counter-row .cell:nth-child(-n+2) { border-bottom: 1px solid var(--rule); } }
+
+  .dx-section-label { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine); margin: 30px 0 18px; padding-bottom: 12px; border-bottom: 1px solid var(--rule); }
+
+  .dx-strip { display: grid; grid-template-columns: repeat(14, 1fr); gap: 6px; margin: 18px 0 14px; }
+  .dx-strip .day { padding: 12px 6px 10px; border: 1px solid var(--rule); background: var(--paper); text-align: center; min-height: 70px; display: flex; flex-direction: column; justify-content: space-between; font-family: var(--font-mono); }
+  .dx-strip .day.sealed { background: var(--wine-soft); border-color: var(--wine); }
+  .dx-strip .day.today { background: var(--ink); border-color: var(--ink); color: var(--paper); box-shadow: 0 0 0 2px var(--wine); }
+  .dx-strip .day.skipped { background: transparent; opacity: 0.5; }
+  .dx-strip .day.pending { background: var(--paper-deep); color: var(--muted); }
+  .dx-strip .day .num { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; color: var(--muted); }
+  .dx-strip .day.sealed .num { color: var(--wine); }
+  .dx-strip .day.today .num { color: var(--paper); }
+  .dx-strip .day .date { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .dx-strip .day.sealed .date { color: var(--wine); }
+  .dx-strip .day.today .date { color: var(--paper); }
+  .dx-strip .day .glyph { font-family: var(--font-display); font-size: 14px; font-style: italic; font-weight: 500; }
+  .dx-strip .day.sealed .glyph { color: var(--wine); }
+  .dx-strip .day.today .glyph { color: var(--paper); }
+  .dx-strip .day.skipped .glyph { color: var(--muted); }
+  .dx-strip .day.pending .glyph { color: var(--subtle); }
+  @media (max-width: 760px) { .dx-strip { grid-template-columns: repeat(7, 1fr); } }
+
+  .dx-strip-legend { display: flex; gap: 24px; flex-wrap: wrap; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; margin-top: 16px; }
+  .dx-strip-legend .item { display: inline-flex; align-items: center; gap: 8px; }
+  .dx-strip-legend .swatch { width: 12px; height: 12px; border: 1px solid var(--wine); background: var(--wine-soft); }
+  .dx-strip-legend .swatch.today { background: var(--ink); border-color: var(--ink); }
+  .dx-strip-legend .swatch.pending { background: var(--paper-deep); border-color: var(--rule); }
+  .dx-strip-legend .swatch.skipped { background: transparent; border-color: var(--rule); }
+
+  .dx-cta-card { padding: 28px 32px; background: var(--wine-soft); border: 1px solid var(--wine); margin: 30px 0; display: grid; grid-template-columns: 1fr auto; gap: 28px; align-items: center; }
+  @media (max-width: 720px) { .dx-cta-card { grid-template-columns: 1fr; } }
+  .dx-cta-card .label { font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin-bottom: 12px; }
+  .dx-cta-card h3 { font-family: var(--font-display); font-weight: 500; font-size: clamp(22px, 2.6vw, 28px); line-height: 1.25; color: var(--ink); margin: 0 0 8px; }
+  .dx-cta-card h3 .ital { font-style: italic; color: var(--wine); font-weight: 400; }
+  .dx-cta-card p { font-family: var(--font-body); font-size: 15px; line-height: 1.55; color: var(--ink-soft); margin: 0; max-width: 560px; }
+
+  .dx-reveal-explainer { padding: 28px 32px; border: 1px solid var(--rule); background: var(--paper); margin: 0 0 30px; }
+  .dx-reveal-explainer h3 { font-family: var(--font-display); font-size: 24px; font-weight: 500; line-height: 1.25; color: var(--ink); margin: 0 0 14px; }
+  .dx-reveal-explainer h3 .ital { font-style: italic; color: var(--wine); font-weight: 400; }
+  .dx-reveal-explainer p { font-family: var(--font-body); font-size: 16px; line-height: 1.65; color: var(--ink-soft); margin: 0 0 12px; }
+  .dx-reveal-explainer p:last-child { margin-bottom: 0; }
+  .dx-reveal-explainer p strong { font-weight: 500; color: var(--ink); }
+
+  .dx-specimen-wrap { margin: 0 0 30px; border: 1px dashed var(--rule); background: var(--paper-deep); padding: 30px; opacity: 0.86; }
+  .dx-specimen-wrap .lock-line { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine); margin-bottom: 18px; text-align: center; }
+  .dx-specimen-wrap .lock-line strong { color: var(--ink); font-weight: 500; }
+  .dx-specimen-wrap .awaiting-verdict { font-family: var(--font-display); font-style: italic; font-size: clamp(38px, 5vw, 56px); line-height: 1; color: var(--muted); text-align: center; margin: 14px 0 18px; }
+  .dx-specimen-wrap .awaiting-caption { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); text-align: center; }
+
+  .dx-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 30px; }
+  @media (max-width: 720px) { .dx-meta-grid { grid-template-columns: 1fr; } }
+  .dx-meta-panel { border: 1px solid var(--rule); background: var(--paper); padding: 22px 24px; }
+  .dx-meta-panel h4 { font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin: 0 0 14px; }
+  .dx-meta-panel .row { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px dotted var(--rule); align-items: baseline; }
+  .dx-meta-panel .row:last-child { border-bottom: none; }
+  .dx-meta-panel .row .k { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .dx-meta-panel .row .v { font-family: var(--font-body); font-size: 14px; color: var(--ink); text-align: right; }
+  .dx-meta-panel .row .v.mono { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.04em; }
+  .dx-meta-panel .row .v.wine { color: var(--wine); font-style: italic; }
+
+  .dx-actions { display: flex; gap: 14px; flex-wrap: wrap; padding-top: 30px; margin-top: 30px; border-top: 1px solid var(--ink); }
+</style>
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="decisions.html">Your decisions</a>
+      <a href="vote-today.html">Tonight's vote</a>
+      <a href="compose.html">Compose</a>
+      <a href="account.html">Account</a>
+      <a href="help.html">Help</a>
+    </div>
+    <div class="nav-cta">
+      <a href="account.html" class="btn-text">James G.</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content">
+  <div class="dx-shell">
+
+    <div class="dx-bread">
+      <a href="decisions.html">← Your decisions</a>
+      <span style="margin: 0 10px;">·</span>
+      <span id="cd-bread-day">LOADING…</span>
+    </div>
+
+    <div id="cd-err" class="pwr-msg" role="alert" aria-live="polite" style="display: none; padding: 14px 16px; margin-bottom: 16px; background: #fdecea; border-left: 3px solid #c0392b; color: #6b1e16; font-family: var(--font-body); font-size: 14px; line-height: 1.5;"></div>
+
+    <div class="record-envelope" id="cd-envelope" style="max-width: none; padding: 28px 32px;">
+      <div class="record-header">
+        <span class="file-ref seal">CURRENT DECISION</span>
+        <span class="status-pill sealed" id="cd-env-status">Loading</span>
+        <span class="date-stamp" id="cd-env-dates">…</span>
+        <span class="date-stamp muted" id="cd-env-partner">…</span>
+      </div>
+      <div class="envelope-body">
+        <div class="slip-question" id="cd-env-question" style="font-family: var(--font-display); font-size: clamp(30px, 4vw, 48px); font-weight: 400; line-height: 1.08; letter-spacing: -0.018em; margin: 8px 0 14px;">…</div>
+        <p id="cd-env-blurb" style="font-family: var(--font-body); font-size: 17px; line-height: 1.6; color: var(--ink-soft); margin: 0;"><strong style="font-weight: 500; color: var(--ink);">Sealed-read from day one.</strong> The question, the format, and the duration are now permanent. Each evening between now and the close date, every participant casts one sealed vote. No one can see how anyone else is drifting until the reveal day.</p>
+      </div>
+    </div>
+
+    <div class="dx-counter-row">
+      <div class="cell">
+        <div class="lbl">DAY</div>
+        <div class="val" id="cd-c-day-val">…</div>
+        <div class="sub" id="cd-c-day-sub">…</div>
+      </div>
+      <div class="cell">
+        <div class="lbl">REMAINING</div>
+        <div class="val" id="cd-c-remaining-val">…</div>
+        <div class="sub" id="cd-c-remaining-sub">Until reveal</div>
+      </div>
+      <div class="cell">
+        <div class="lbl">YOUR VOTES</div>
+        <div class="val" id="cd-c-you-val">…</div>
+        <div class="sub" id="cd-c-you-sub">…</div>
+      </div>
+      <div class="cell">
+        <div class="lbl" id="cd-c-partner-lbl">PARTNER VOTES</div>
+        <div class="val" id="cd-c-partner-val">…</div>
+        <div class="sub" id="cd-c-partner-sub">…</div>
+      </div>
+    </div>
+
+    <div class="dx-cta-card" id="cd-cta-card">
+      <div class="left">
+        <div class="label" id="cd-cta-label">LOADING TONIGHT'S STATUS…</div>
+        <h3>Cast tonight's <span class="ital">vote.</span></h3>
+        <p id="cd-cta-blurb">One tap, one optional sentence, sealed instantly. The pattern of votes across the period is the data the analysis on the final day reads.</p>
+      </div>
+      <div class="right">
+        <a href="vote-today.html" class="btn btn-large">Cast tonight's vote</a>
+      </div>
+    </div>
+
+    <div class="dx-section-label" id="cd-strip-label">…</div>
+
+    <div class="dx-strip" id="cd-strip"></div>
+
+    <div class="dx-strip-legend">
+      <span class="item"><span class="swatch"></span> Sealed (already voted)</span>
+      <span class="item"><span class="swatch today"></span> Tonight</span>
+      <span class="item"><span class="swatch skipped"></span> Skipped</span>
+      <span class="item"><span class="swatch pending"></span> Pending (future)</span>
+    </div>
+
+    <p id="cd-strip-foot" style="font-family: var(--font-body); font-size: 15px; line-height: 1.6; color: var(--ink-soft); margin: 20px 0 0; max-width: 760px;">Skips are honest data; the analysis reads them as part of the trajectory, not a flaw in it. The strip shows your votes only; every other participant's strip is mirrored on their own account and is invisible to you until the reveal.</p>
+
+    <div class="dx-section-label" id="cd-reveal-label">THE REVEAL</div>
+
+    <div class="dx-reveal-explainer">
+      <h3>On the final evening both verdicts <span class="ital">publish</span> together.</h3>
+      <p><strong>The reveal happens at one instant for everyone.</strong> The written verdict paragraphs publish on the same page. Underneath them: the agreement rate across the period, the conviction trajectory for each of you, the themes clustered from your notes, the synthesis paragraph naming what was actually being disagreed about underneath the surface question, and one specific concrete question to open the conversation that follows.</p>
+      <p>Nothing about the analysis is reachable before the close date. The keys are bound to the date; the database row is sealed-read; not even a member of staff can look. Every participant sees the verdict at the same instant, no one anchoring anyone else beforehand.</p>
+    </div>
+
+    <div class="dx-section-label">WHAT THE VERDICT WILL LOOK LIKE</div>
+
+    <div class="dx-specimen-wrap">
+      <div class="lock-line" id="cd-spec-lock"><strong>AWAITING REVEAL</strong></div>
+
+      <div class="specimen-head" style="border-bottom-color: var(--rule);">
+        <span class="id">SEALED</span>
+        <span id="cd-spec-head">VERDICT</span>
+      </div>
+
+      <div style="padding: 28px 28px 12px;">
+        <div class="specimen-q" id="cd-spec-q" style="color: var(--muted); font-style: italic;">…</div>
+      </div>
+
+      <div class="awaiting-verdict">Sealed.</div>
+
+      <div class="specimen-verdicts" style="opacity: 0.7;">
+        <div class="specimen-v a">
+          <div class="specimen-v-name">PARTNER A · YOU</div>
+          <div class="specimen-v-verdict" style="color: var(--muted);">·  ·</div>
+          <div class="specimen-v-meta">VERDICT WORDING · <strong>SEALED</strong></div>
+        </div>
+        <div class="specimen-v b">
+          <div class="specimen-v-name">PARTNER B · ALEX</div>
+          <div class="specimen-v-verdict" style="color: var(--muted);">·  ·</div>
+          <div class="specimen-v-meta">VERDICT WORDING · <strong>SEALED</strong></div>
+        </div>
+      </div>
+
+      <div style="padding: 24px 28px 4px;">
+        <div class="specimen-analysis-label">SEALED</div>
+        <div class="specimen-analysis" style="color: var(--muted);">The agreement rate, the conviction trajectory for each of you, the themes clustered from your notes across the period, the synthesis paragraph naming what you were actually arguing about underneath the surface question, and one specific concrete question for the conversation that follows. None of it readable before 28 May.</div>
+
+        <div class="specimen-prompt" style="border-top-color: var(--rule);">
+          <div class="specimen-prompt-label">SEALED</div>
+          <p class="specimen-prompt-text" style="color: var(--muted);">"·  ·  ·  ·  ·  ·"</p>
+        </div>
+      </div>
+
+      <div class="awaiting-caption" id="cd-spec-caption">SPECIMEN ONLY · NOT YOUR REAL VERDICT</div>
+    </div>
+
+    <div class="dx-meta-grid">
+      <div class="dx-meta-panel" id="cd-meta-decision">
+        <h4></h4>
+        <div class="row"><span class="k">Decision</span><span class="v mono" id="cd-meta-status">…</span></div>
+        <div class="row"><span class="k">Format</span><span class="v" id="cd-meta-format">…</span></div>
+        <div class="row"><span class="k">Duration</span><span class="v" id="cd-meta-duration">…</span></div>
+        <div class="row"><span class="k">Filed</span><span class="v mono" id="cd-meta-filed">…</span></div>
+        <div class="row"><span class="k">Concludes</span><span class="v mono" id="cd-meta-concludes">…</span></div>
+        <div class="row"><span class="k">Tier</span><span class="v" id="cd-meta-tier">…</span></div>
+      </div>
+      <div class="dx-meta-panel" id="cd-meta-participants">
+        <h4></h4>
+        <!-- rows injected by hydration script -->
+        <div class="row"><span class="k">Mutual visibility</span><span class="v">Voted / not-voted only</span></div>
+        <div class="row"><span class="k">Sealing</span><span class="v">ed25519 + AES-256-GCM</span></div>
+      </div>
+    </div>
+
+    <div class="dx-actions">
+      <a href="vote-today.html" class="btn">Cast tonight's vote</a>
+      <a href="decisions.html" class="btn btn-ghost">Back to your decisions</a>
+      <a href="help.html" style="font-family: var(--font-ui); font-size: 14px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; align-self: center; margin-left: auto;">Help with this decision</a>
+    </div>
+
+  </div>
+</main>
+
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Each evening, you cast one private vote on the same question, for a duration you set, with every vote sealed in the database until the final day. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The app</h5>
+        <a href="decisions.html">Your decisions</a>
+        <a href="vote-today.html">Tonight's vote</a>
+        <a href="compose.html">Compose</a>
+        <a href="account.html">Your account</a>
+        <a href="billing.html">Billing</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The product</h5>
+        <a href="method.html">The method</a>
+        <a href="why-time.html">Why time</a>
+          <a href="verdict.html">A real verdict</a>
+      </div>
+      <div class="colophon-col">
+        <h5>Support</h5>
+        <a href="help.html">Help</a>
+        <a href="contact.html">Contact</a>
+        <a href="faq.html">FAQ</a>
+        <a href="status.html">Status</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The fine print</h5>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="refunds.html">Refunds</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>© 2026 Counsel.day · USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+
+<a class="go-to-top" id="go-to-top" href="#top" aria-label="Go to top of page">
+  <svg viewBox="0 0 24 24" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+  <span class="label">Top</span>
+</a>
+
+<script>
+(function () {
+  var top = document.getElementById('go-to-top');
+  if (top) {
+    function update() { if (window.scrollY > 600) { top.classList.add('visible'); } else { top.classList.remove('visible'); } }
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+    top.addEventListener('click', function (e) { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  }
+})();
+</script>
+<script>
+(function () {
+  var qs = new URLSearchParams(location.search);
+  var id = qs.get('id');
+  var errEl = document.getElementById('cd-err');
+  var envEl = document.getElementById('cd-envelope');
+
+  function showErr(msg) {
+    errEl.style.display = 'block';
+    errEl.textContent = msg;
+  }
+  function txt(idSel, value) { var el = document.getElementById(idSel); if (el) el.textContent = value; }
+  function html(idSel, value) { var el = document.getElementById(idSel); if (el) el.innerHTML = value; }
+
+  if (!id || !/^[0-9a-f-]{36}$/i.test(id)) {
+    showErr('No decision id in the URL. Open a decision from the list on Your decisions.');
+    envEl.style.display = 'none';
+    return;
+  }
+
+  var MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  function fmtStamp(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    return d.getUTCDate().toString().padStart(2,'0') + ' ' + MONTHS[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
+  }
+  function fmtShort(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    return d.getUTCDate().toString().padStart(2,'0') + ' ' + MONTHS[d.getUTCMonth()];
+  }
+  function fmtLong(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    var day = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getUTCDay()];
+    var mon = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getUTCMonth()];
+    return day + ' ' + d.getUTCDate() + ' ' + mon + ' ' + d.getUTCFullYear();
+  }
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+    });
+  }
+  function formatLabel(f) {
+    return { yes_no: 'Yes / No', strong_lean: 'Strong / Lean (4-band)', a_b: 'Option A / Option B' }[f] || f;
+  }
+  function tierLabel(t) {
+    return ({ solo_free: 'Solo · free', solo_paid: 'Solo · $9.99 USD', couple: 'Couple · $25 USD', family: 'Family · $40 USD' })[t] || t;
+  }
+  function statusPill(status, isUnsealed) {
+    if (status === 'pending_invites') return { cls: 'awaiting', txt: 'Awaiting invites' };
+    if (status === 'cancelled')       return { cls: 'returned', txt: 'Cancelled' };
+    if (status === 'refunded')        return { cls: 'returned', txt: 'Refunded' };
+    if (status === 'verdict_generating') return { cls: 'sealed', txt: 'Generating verdict' };
+    if (status === 'completed' || isUnsealed) return { cls: 'reveal', txt: 'Verdict ready' };
+    return { cls: 'sealed', txt: 'Sealed · running' };
+  }
+
+  fetch('/api/decision?id=' + encodeURIComponent(id), { credentials: 'include', headers: { accept: 'application/json' } })
+    .then(function (r) {
+      if (r.status === 401) { window.location.href = '/signin.html?next=' + encodeURIComponent(location.pathname + location.search); throw new Error('redirect'); }
+      return r.json().then(function (j) { return { status: r.status, body: j }; });
+    })
+    .then(function (res) {
+      if (res.status !== 200 || !res.body.ok) {
+        showErr((res.body && res.body.message) || 'Could not load this decision.');
+        envEl.style.display = 'none';
+        return;
+      }
+      var d = res.body.decision;
+      var participants = res.body.participants || [];
+      var days = res.body.days || [];
+
+      // ---- breadcrumb ----
+      if (d.day_number > 0 && d.total_days) {
+        txt('cd-bread-day', 'DAY ' + d.day_number + ' OF ' + d.total_days);
+      } else {
+        txt('cd-bread-day', d.status === 'pending_invites' ? 'AWAITING INVITES' : 'NOT YET STARTED');
+      }
+
+      // ---- envelope ----
+      var pill = statusPill(d.status, d.is_unsealed);
+      var pillEl = document.getElementById('cd-env-status');
+      pillEl.className = 'status-pill ' + pill.cls;
+      pillEl.textContent = pill.txt;
+      var datesText = d.starts_at && d.unseals_at
+        ? 'FILED ' + fmtStamp(d.starts_at) + ' · CONCLUDES ' + fmtStamp(d.unseals_at)
+        : 'FILED ' + fmtStamp(d.created_at) + ' · NOT YET STARTED';
+      txt('cd-env-dates', datesText);
+      var partnerNames = participants.filter(function (p) { return !p.is_you; }).map(function (p) { return p.display_name; });
+      var partnerLabel = partnerNames.length === 0 ? 'SOLO' :
+        partnerNames.length === 1 ? ('PARTNER · ' + partnerNames[0].toUpperCase()) :
+        ('PARTNERS · ' + partnerNames.length);
+      txt('cd-env-partner', partnerLabel);
+      html('cd-env-question', escapeHtml(d.question));
+
+      // ---- counter row ----
+      if (d.day_number > 0) {
+        html('cd-c-day-val', '<span class="ital">' + d.day_number + '</span> / ' + d.total_days);
+        txt('cd-c-day-sub', fmtLong(new Date().toISOString()));
+      } else {
+        txt('cd-c-day-val', '·');
+        txt('cd-c-day-sub', 'Not started');
+      }
+      txt('cd-c-remaining-val', d.days_remaining + ' day' + (d.days_remaining === 1 ? '' : 's'));
+      txt('cd-c-remaining-sub', 'Until reveal');
+
+      var me = participants.filter(function (p) { return p.is_you; })[0];
+      var myDates = (me && me.voted_dates) || [];
+      txt('cd-c-you-val', myDates.length + ' sealed');
+      var pending = Math.max(0, d.total_days - d.day_number);
+      txt('cd-c-you-sub', pending + ' pending');
+
+      if (partnerNames.length === 0) {
+        txt('cd-c-partner-lbl', 'PARTNER VOTES');
+        txt('cd-c-partner-val', 'n/a');
+        txt('cd-c-partner-sub', 'Solo decision');
+      } else if (partnerNames.length === 1) {
+        var partner = participants.filter(function (p) { return !p.is_you; })[0];
+        txt('cd-c-partner-lbl', partner.display_name.toUpperCase() + ' VOTES');
+        txt('cd-c-partner-val', (partner.voted_dates || []).length + ' sealed');
+        txt('cd-c-partner-sub', partner.accepted ? 'Invite accepted' : 'Awaiting acceptance');
+      } else {
+        txt('cd-c-partner-lbl', 'OTHERS’ VOTES');
+        var totalOthers = participants.filter(function (p) { return !p.is_you; })
+          .reduce(function (a, p) { return a + (p.voted_dates || []).length; }, 0);
+        txt('cd-c-partner-val', totalOthers + ' sealed');
+        var allAccepted = participants.every(function (p) { return p.accepted; });
+        txt('cd-c-partner-sub', allAccepted ? 'All accepted' : 'Awaiting acceptances');
+      }
+
+      // ---- CTA card ----
+      if (d.status === 'pending_invites') {
+        txt('cd-cta-label', 'AWAITING ' + partnerNames.length + ' INVITE' + (partnerNames.length === 1 ? '' : 'S'));
+        txt('cd-cta-blurb', 'Each invitee receives an email with a one-time link. The decision becomes active when everyone has accepted.');
+        var cta = document.querySelector('#cd-cta-card .right .btn'); if (cta) { cta.textContent = 'Resend invites'; cta.setAttribute('href', '#'); }
+      } else if (d.is_unsealed) {
+        txt('cd-cta-label', 'VERDICT READY · OPEN BELOW');
+        txt('cd-cta-blurb', 'The decision period has ended. Open the verdict to read the synthesis, themes, and the question to open the conversation that follows.');
+        var ctaR = document.querySelector('#cd-cta-card .right .btn'); if (ctaR) { ctaR.textContent = 'Open verdict'; ctaR.setAttribute('href', '/verdict-reveal.html?id=' + encodeURIComponent(d.id)); }
+      } else if (d.you_voted_today) {
+        txt('cd-cta-label', 'TONIGHT · DAY ' + d.day_number + ' · VOTED');
+        txt('cd-cta-blurb', 'Your vote for tonight is sealed. Come back tomorrow evening for the next one. The pattern across the period is what the analysis reads.');
+        var ctaV = document.querySelector('#cd-cta-card .right .btn'); if (ctaV) { ctaV.textContent = 'View tonight’s status'; ctaV.setAttribute('href', '/vote-today.html'); }
+      } else {
+        txt('cd-cta-label', 'TONIGHT · DAY ' + d.day_number + ' · NOT YET VOTED');
+      }
+
+      // ---- day strip ----
+      var strip = document.getElementById('cd-strip');
+      strip.innerHTML = '';
+      var shownDays = days.slice(0, d.day_number || days.length);
+      shownDays.forEach(function (day) {
+        var glyph = day.state === 'today' ? 'today' :
+                    day.state === 'skipped' ? 'skip' :
+                    day.state === 'pending' ? '·' : '·';
+        var el = document.createElement('div');
+        el.className = 'day ' + day.state;
+        el.innerHTML = '<span class="num">' + String(day.n).padStart(2, '0') + '</span>' +
+                       '<span class="glyph">' + glyph + '</span>' +
+                       '<span class="date">' + fmtShort(day.iso_date).toUpperCase() + '</span>';
+        strip.appendChild(el);
+      });
+      txt('cd-strip-label', (shownDays.length || 0) + ' DAYS SHOWN · ALL SEALED UNTIL ' + (d.unseals_at ? fmtStamp(d.unseals_at) : 'CLOSE'));
+
+      // ---- reveal section + specimen ----
+      txt('cd-reveal-label', (d.unseals_at ? fmtStamp(d.unseals_at) + ' · ' : '') + 'THE REVEAL');
+      var daysToReveal = d.days_remaining;
+      txt('cd-spec-lock', '');
+      var lock = document.getElementById('cd-spec-lock');
+      lock.innerHTML = '<strong>' + (d.is_unsealed ? 'REVEALED' : 'AWAITING REVEAL') + '</strong>' +
+        (d.is_unsealed ? '' : ' · UNLOCKS IN ' + daysToReveal + ' DAY' + (daysToReveal === 1 ? '' : 'S') + ' · ' + fmtStamp(d.unseals_at));
+      txt('cd-spec-head', 'VERDICT · ' + (d.unseals_at ? fmtStamp(d.unseals_at) : 'TBD'));
+      html('cd-spec-q', escapeHtml(d.question));
+      txt('cd-spec-caption', 'SPECIMEN ONLY · NOT YOUR REAL VERDICT' + (d.unseals_at ? ' · REAL VERDICT OPENS ON ' + fmtStamp(d.unseals_at) : ''));
+
+      // ---- meta panels ----
+      txt('cd-meta-status', d.is_unsealed ? 'Unsealed' : (d.status === 'pending_invites' ? 'Awaiting invites' : 'Currently sealed'));
+      txt('cd-meta-format', formatLabel(d.format));
+      txt('cd-meta-duration', d.duration_days + ' days');
+      txt('cd-meta-filed', fmtStamp(d.created_at));
+      txt('cd-meta-concludes', d.unseals_at ? fmtStamp(d.unseals_at) : '·');
+      txt('cd-meta-tier', tierLabel(d.tier));
+
+      // Participants panel · rebuild with real rows, keeping the trailing 2 static rows
+      var partPanel = document.getElementById('cd-meta-participants');
+      var staticTail = partPanel.querySelectorAll('.row');
+      // Keep the last two rows (mutual visibility + sealing); remove any prior dynamic rows.
+      Array.prototype.slice.call(partPanel.querySelectorAll('.row.dyn')).forEach(function (n) { n.remove(); });
+      participants.forEach(function (p) {
+        var row = document.createElement('div');
+        row.className = 'row dyn';
+        var label = p.is_you ? 'You' : (p.is_owner ? 'Owner' : 'Participant');
+        var status = p.is_you
+          ? (d.you_voted_today ? 'Voted tonight' : 'Not yet voted tonight')
+          : (p.voted_today ? 'Voted tonight' : (p.accepted ? 'Not yet voted tonight' : 'Awaiting acceptance'));
+        var statusCls = (p.is_you && d.you_voted_today) || (!p.is_you && p.voted_today) ? 'v wine' : 'v';
+        row.innerHTML = '<span class="k">' + escapeHtml(label) + ' · ' + escapeHtml(p.display_name) + '</span>' +
+                        '<span class="' + statusCls + '">' + escapeHtml(status) + '</span>';
+        partPanel.insertBefore(row, staticTail[0]);
+      });
+    })
+    .catch(function (e) {
+      if (e && e.message === 'redirect') return;
+      showErr('Network error. Refresh to try again.');
+      envEl.style.display = 'none';
+    });
+})();
+</script>
+<script src="ga4.js" defer></script>
+</body>
+</html>

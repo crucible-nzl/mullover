@@ -1,0 +1,69 @@
+{
+    email admin@counsel.day
+    acme_ca https://acme-v02.api.letsencrypt.org/directory
+}
+
+counsel.day {
+    root * /var/www/counsel.day
+    encode gzip zstd
+
+    # Block internal-only paths at the edge. Defence-in-depth: even if a
+    # build script accidentally puts these files back on disk, the edge
+    # will 404 them. Update this list when adding new internal pages.
+    @blocked path /scripts /scripts/* /og-image-generator.html /homepage.html /components /components.html
+    respond @blocked 404
+
+    # Admin panel + its runtime JS bundle. HTTP Basic Auth.
+    # Password hash generated 17 May 2026 via `caddy hash-password`.
+    # Rotate quarterly; rotate immediately on any team change.
+    @admin path /admin /admin.html /admin-app.js
+    basicauth @admin {
+        admin@counsel.day $2a$14$gwnD/x2rWxEYu4hoRErSFey3.9SvAwpd9YKC44iXcJbhF3yd0H6si
+    }
+
+    # Signed-in app surface · session-cookie auth via Next.js. Every request
+    # to these paths is forwarded to /api/auth-check first; 401 → redirect
+    # to /signin?next=<original>. The static HTML is then served by Caddy.
+    # /invite is intentionally NOT in this list: invitees may follow a link
+    # before they have an account, so the preview must be readable without
+    # a session. The Accept action 401s server-side and the page JS bounces
+    # the user to /signup with a return-to.
+    @protected path /account /account.html /billing /billing.html /decisions /decisions.html /decision /decision.html /compose /compose.html /vote-today /vote-today.html /verdict-reveal /verdict-reveal.html
+    forward_auth @protected 127.0.0.1:3000 {
+        uri /api/auth-check
+        copy_headers X-Auth-User-Id
+        @auth_fail status 401
+        handle_response @auth_fail {
+            redir * /signin?next={uri}
+        }
+    }
+
+    # Dynamic routes · reverse-proxied to the Next.js app (systemd:
+    # counsel-day-app, bound to 127.0.0.1:3000). Everything else stays
+    # on file_server. Keep this list in sync with the routes Next.js owns.
+    @app path /api/* /api
+    reverse_proxy @app 127.0.0.1:3000 {
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Real-IP {remote_host}
+        transport http {
+            keepalive 30s
+        }
+    }
+
+    try_files {path} {path}.html
+    file_server
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy "interest-cohort=(), camera=(), microphone=(), geolocation=()"
+        Cross-Origin-Opener-Policy "same-origin"
+        Content-Security-Policy "default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://*.googletagmanager.com https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://*.analytics.google.com https://www.google.com/recaptcha/; frame-src https://www.googletagmanager.com https://www.google.com/recaptcha/; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+    }
+}
+
+www.counsel.day {
+    redir https://counsel.day{uri} permanent
+}

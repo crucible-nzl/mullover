@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<!-- Order is load-bearing: Consent Mode v2 defaults MUST be set BEFORE -->
+<!-- GTM and gtag load, or the first pageview ships before user choice. -->
+<!-- This block is injected into every public HTML <head> by             -->
+<!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
+
+<!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':         'denied',
+    'ad_user_data':       'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage':  'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage':   'granted',
+    'wait_for_update':    500
+  });
+  // Honour Global Privacy Control + Do-Not-Track before any tag fires.
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':         'denied',
+      'ad_user_data':       'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage':  'denied'
+    });
+  }
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', {
+    'anonymize_ip': true,
+    'allow_google_signals': false,
+    'allow_ad_personalization_signals': false
+  });
+</script>
+<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
+
+<title>Cookie Policy · Counsel.day</title>
+<meta name="description" content="Every cookie and similar tracking technology set by Counsel.day on the marketing site, with category, purpose, vendor, retention, and how to opt out.">
+<meta name="author" content="James Graham, founder of Counsel.day">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://counsel.day/cookies">
+<link rel="alternate" hreflang="en" href="https://counsel.day/cookies">
+<link rel="alternate" hreflang="x-default" href="https://counsel.day/cookies">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Counsel.day">
+<meta property="og:title" content="Cookie Policy · Counsel.day">
+<meta property="og:description" content="Every cookie set by Counsel.day, with category, purpose, vendor, retention, and how to opt out.">
+<meta property="og:url" content="https://counsel.day/cookies">
+<meta property="og:image" content="https://counsel.day/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Cookie Policy · Counsel.day">
+<meta name="twitter:description" content="Every cookie set by Counsel.day, with category, purpose, vendor, retention, and how to opt out.">
+<meta name="twitter:image" content="https://counsel.day/og-image.png">
+<meta property="article:modified_time" content="2026-05-14T19:00:00+12:00">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Counsel.day Cookie Policy",
+  "publisher": { "@type": "Organization", "name": "Counsel.day", "url": "https://counsel.day/" },
+  "datePublished": "2026-05-14",
+  "dateModified": "2026-05-14",
+  "inLanguage": "en"
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles-i8.css">
+<style>
+  /* Cookie table tweaks · re-skin the duration-table cells for cookie rows */
+  .cookie-table { border: 1px solid var(--ink); margin: 18px 0 30px; background: var(--paper); }
+  .cookie-row { display: grid; grid-template-columns: 1.4fr 1fr 1.4fr 1fr 1fr; border-bottom: 1px solid var(--rule); align-items: stretch; }
+  .cookie-row:last-child { border-bottom: none; }
+  .cookie-row.head { background: var(--ink); color: var(--paper); }
+  .cookie-row.head .cookie-cell {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+    padding: 14px 16px; color: var(--paper);
+    border-right: 1px solid rgba(255,255,255,0.15);
+  }
+  .cookie-row.head .cookie-cell:last-child { border-right: none; }
+  .cookie-cell { padding: 18px 16px; border-right: 1px solid var(--rule); font-family: var(--font-body); font-size: 14.5px; line-height: 1.5; color: var(--ink); }
+  .cookie-cell:last-child { border-right: none; }
+  .cookie-name { font-family: var(--font-mono); font-size: 13px; color: var(--wine); font-weight: 500; }
+  .cookie-vendor { font-family: var(--font-body); font-size: 14.5px; color: var(--ink); }
+  .cookie-purpose { font-family: var(--font-body); font-size: 14.5px; color: var(--ink-soft); }
+  .cookie-cat {
+    display: inline-block; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 3px 8px; border: 1px solid var(--rule); color: var(--muted);
+  }
+  .cookie-cat.essential { color: var(--ink); border-color: var(--ink); }
+  .cookie-cat.analytics { color: var(--wine); border-color: var(--wine); }
+  .cookie-retention { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink); }
+  @media (max-width: 900px) {
+    .cookie-row { grid-template-columns: 1fr; }
+    .cookie-cell { border-right: none; border-bottom: 1px dashed var(--rule); }
+    .cookie-cell:last-child { border-bottom: none; }
+    .cookie-row.head { display: none; }
+  }
+  .cookie-list { font-family: var(--font-body); font-size: 17px; line-height: 1.65; color: var(--ink-soft); padding-left: 22px; margin: 0 0 22px; max-width: 760px; }
+  .cookie-list li { margin-bottom: 8px; }
+  .cookie-list li strong { color: var(--ink); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="method.html">The method</a>
+      <a href="why-time.html">Why time</a>
+      <a href="distinction.html">The distinction</a>
+      <a href="verdict.html">A real verdict</a>
+      <a href="family.html">For families</a>
+      <a href="compare.html">Compare</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="faq.html">FAQ</a>
+    </div>
+    <div class="nav-cta">
+      <a href="account.html" class="btn-text">Sign in</a>
+      <a href="signup.html" class="btn">Start a decision</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content">
+  <div class="method-page-inner">
+
+    <div class="method-page-breadcrumb">
+      <a href="index.html">← Return to overview</a>
+      <span>·</span>
+      <span>Cookies</span>
+    </div>
+
+    <header class="method-page-head">
+      <div class="method-page-eyebrow">WHAT WE SET AND WHY</div>
+      <h1 class="method-page-title">Every cookie we <span class="ital">set, listed.</span></h1>
+      <p class="method-page-lede"><strong>This is the full list of cookies and similar storage technologies set by Counsel.day on the marketing site and inside the app.</strong> Each row names the cookie, the category, the purpose, the vendor, the retention, and the opt-out path. We do not run a cookie carousel of dark-pattern toggles; the categories are honest and short.</p>
+      <div class="method-page-meta">
+        <div class="item"><span>Effective</span><span class="val wine">14 MAY 2026</span></div>
+        <div class="item"><span>Last revised</span><span class="val">14 MAY 2026</span></div>
+        <div class="item"><span>Total cookies</span><span class="val">11</span></div>
+      </div>
+    </header>
+
+    <section class="method-stage" id="essential">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">§ 01 · STRICTLY NECESSARY</div>
+        <h2 class="method-stage-title">Cookies the product cannot run <span class="ital">without.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>These cookies are required to sign you in, keep your session live, and protect against cross-site request forgery. They cannot be disabled inside the app; if you block them, the product will not work. They carry no advertising payload and no third-party data is shared.</p>
+
+        <div class="cookie-table" role="table" aria-label="Strictly necessary cookies">
+          <div class="cookie-row head" role="row">
+            <div class="cookie-cell" role="columnheader">Cookie</div>
+            <div class="cookie-cell" role="columnheader">Vendor</div>
+            <div class="cookie-cell" role="columnheader">Purpose</div>
+            <div class="cookie-cell" role="columnheader">Retention</div>
+            <div class="cookie-cell" role="columnheader">Category</div>
+          </div>
+          <div class="cookie-row" role="row">
+            <div class="cookie-cell" role="cell"><span class="cookie-name">cd_session</span></div>
+            <div class="cookie-cell cookie-vendor" role="cell">Counsel.day</div>
+            <div class="cookie-cell cookie-purpose" role="cell">Authenticated session identifier; HttpOnly, Secure, SameSite=Lax.</div>
+            <div class="cookie-cell" role="cell"><span class="cookie-retention">30 days</span></div>
+            <div class="cookie-cell" role="cell"><span class="cookie-cat essential">Essential</span></div>
+          </div>
+          <div class="cookie-row" role="row">
+            <div class="cookie-cell" role="cell"><span class="cookie-name">cd_csrf</span></div>
+            <div class="cookie-cell cookie-vendor" role="cell">Counsel.day</div>
+            <div class="cookie-cell cookie-purpose" role="cell">CSRF token, validated on every state-changing request.</div>
+            <div class="cookie-cell" role="cell"><span class="cookie-retention">Session</span></div>
+            <div class="cookie-cell" role="cell"><span class="cookie-cat essential">Essential</span></div>
+          </div>
+          <div class="cookie-row" role="row">
+            <div class="cookie-cell" role="cell"><span class="cookie-name">cd_auth</span></div>
+            <div class="cookie-cell cookie-vendor" role="cell">Counsel.day</div>
+            <div class="cookie-cell cookie-purpose" role="cell">Refresh token for silent re-authentication on the app surface.</div>
+            <div class="cookie-cell" role="cell"><span class="cookie-retention">90 days</span></div>
+            <div class="cookie-cell" role="cell"><span class="cookie-cat essential">Essential</span></div>
+          </div>
+          <div class="cookie-row" role="row">
+            <div class="cookie-cell" role="cell"><span class="cookie-name">cd_consent_v1</span></div>
+            <div class="cookie-cell cookie-vendor" role="cell">Counsel.day <em>(localStorage, not a cookie)</em></div>
+            <div class="cookie-cell cookie-purpose" role="cell">Records your analytics-banner choice so we do not ask again. Stored in your browser's local storage; never transmitted to our server.</div>
+            <div class="cookie-cell" role="cell"><span class="cookie-retention">Until cleared</span></div>
+            <div class="cookie-cell" role="cell"><span class="cookie-cat essential">Essential</span></div>
+          </div>
+          <div class="cookie-row" role="row">
+            <div class="cookie-cell" role="cell"><span class="cookie-name">__cf_bm</span></div>
+            <div class="cookie-cell cookie-vendor" role="cell">Cloudflare</div>
+            <div class="cookie-cell cookie-purpose" role="cell">Bot management at the edge; mitigates automated abuse and DDoS.</div>
+            <div class="cookie-cell" role="cell"><span class="cookie-retention">30 minutes</span></div>
+            <div class="cookie-cell" role="cell"><span class="cookie-cat essential">Essential</span></div>
+          </div>
+          <div class="cookie-row" role="row">
+            <div class="cookie-cell" role="cell"><span class="cookie-name">cf_clearance</span></div>
+            <div class="cookie-cell cookie-vendor" role="cell">Cloudflare</div>
+            <div class="cookie-cell cookie-purpose" role="cell">Records that you have passed the Cloudflare bot challenge.</div>
+            <div class="cookie-cell" role="cell"><span class="cookie-retention">30 days</span></div>
+            <div class="cookie-cell" role="cell"><span class="cookie-cat essential">Essential</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="method-stage" id="payment">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">§ 02 · PAYMENT</div>
+        <h2 class="method-stage-title">Cookies set by <span class="ital">Stripe.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>Stripe handles every payment for Counsel.day. The cookies below are set on Stripe's domain (not ours) and are required for fraud screening and 3-D Secure flows. Blocking them prevents the checkout from completing. Stripe's full cookie disclosure lives at <a href="https://stripe.com/cookies-policy/legal">stripe.com/cookies-policy/legal</a>.</p>
+
+        <div class="cookie-table" role="table" aria-label="Stripe cookies">
+          <div class="cookie-row head" role="row">
+            <div class="cookie-cell" role="columnheader">Cookie</div>
+            <div class="cookie-cell" role="columnheader">Vendor</div>
+            <div class="cookie-cell" role="columnheader">Purpose</div>
+            <div class="cookie-cell" role="columnheader">Retention</div>
+            <div class="cookie-cell" role="columnheader">Category</div>
+          </div>
+          <div class="cookie-row" role="row">
+            <div class="cookie-cell" role="cell"><span class="cookie-name">__stripe_mid</span></div>
+            <div class="cookie-cell cookie-vendor" role="cell">Stripe</div>
+            <div class="cookie-cell cookie-purpose" role="cell">Merchant identifier; binds a session to fraud-detection signals.</div>
+            <div class="cookie-cell" role="cell"><span class="cookie-retention">12 months</span></div>
+            <div class="cookie-cell" role="cell"><span class="cookie-cat essential">Essential</span></div>
+          </div>
+          <div class="cookie-row" role="row">
+            <div class="cookie-cell" role="cell"><span class="cookie-name">__stripe_sid</span></div>
+            <div class="cookie-cell cookie-vendor" role="cell">Stripe</div>
+            <div class="cookie-cell cookie-purpose" role="cell">Short-lived session id used for fraud and 3-D Secure flows.</div>
+            <div class="cookie-cell" role="cell"><span class="cookie-retention">30 minutes</span></div>
+            <div class="cookie-cell" role="cell"><span class="cookie-cat essential">Essential</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="method-stage" id="analytics">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">§ 03 · ANALYTICS</div>
+        <h2 class="method-stage-title">Google Analytics <span class="ital">4, by default.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>Counsel.day uses Google Analytics 4 to count pageviews, measure broad referral patterns, and detect outages from the user-side. <strong>GA4 is off by default and fires only after you accept it in the consent banner.</strong> Aggregate counts are useful; individual journeys are not. When enabled we set GA4 with IP anonymisation, a fourteen-month retention, no Google Signals, and no advertising features.</p>
+        <p>You can change your mind any time:</p>
+        <ul class="cookie-list">
+          <li><strong>Decline analytics in the consent banner</strong> on first visit; the banner will not re-appear, and your choice is stored in <code>cd_consent_v1</code> in your browser's localStorage.</li>
+          <li><strong>Send a Global Privacy Control or Do-Not-Track header.</strong> We honour both silently; the banner does not appear and GA4 does not load.</li>
+          <li><strong>Use the buttons under § 05 below</strong> to grant or revoke at any time without re-opening the banner.</li>
+          <li><strong>Install Google's official browser opt-out add-on</strong> at <a href="https://tools.google.com/dlpage/gaoptout">tools.google.com/dlpage/gaoptout</a>.</li>
+        </ul>
+
+        <div class="cookie-table" role="table" aria-label="Analytics cookies">
+          <div class="cookie-row head" role="row">
+            <div class="cookie-cell" role="columnheader">Cookie</div>
+            <div class="cookie-cell" role="columnheader">Vendor</div>
+            <div class="cookie-cell" role="columnheader">Purpose</div>
+            <div class="cookie-cell" role="columnheader">Retention</div>
+            <div class="cookie-cell" role="columnheader">Category</div>
+          </div>
+          <div class="cookie-row" role="row">
+            <div class="cookie-cell" role="cell"><span class="cookie-name">_ga</span></div>
+            <div class="cookie-cell cookie-vendor" role="cell">Google Analytics 4</div>
+            <div class="cookie-cell cookie-purpose" role="cell">Anonymised client id used to distinguish unique visitors.</div>
+            <div class="cookie-cell" role="cell"><span class="cookie-retention">13 months</span></div>
+            <div class="cookie-cell" role="cell"><span class="cookie-cat analytics">Analytics</span></div>
+          </div>
+          <div class="cookie-row" role="row">
+            <div class="cookie-cell" role="cell"><span class="cookie-name">_ga_&lt;ID&gt;</span></div>
+            <div class="cookie-cell cookie-vendor" role="cell">Google Analytics 4</div>
+            <div class="cookie-cell cookie-purpose" role="cell">Session state for the GA4 property; one cookie per measurement id.</div>
+            <div class="cookie-cell" role="cell"><span class="cookie-retention">13 months</span></div>
+            <div class="cookie-cell" role="cell"><span class="cookie-cat analytics">Analytics</span></div>
+          </div>
+          <div class="cookie-row" role="row">
+            <div class="cookie-cell" role="cell"><span class="cookie-name">_gid</span></div>
+            <div class="cookie-cell cookie-vendor" role="cell">Google Analytics 4</div>
+            <div class="cookie-cell cookie-purpose" role="cell">Distinguishes users within a 24-hour window; legacy GA helper.</div>
+            <div class="cookie-cell" role="cell"><span class="cookie-retention">24 hours</span></div>
+            <div class="cookie-cell" role="cell"><span class="cookie-cat analytics">Analytics</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="method-stage" id="what-we-do-not-set">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">§ 04 · WHAT WE DO NOT SET</div>
+        <h2 class="method-stage-title">Categories that are <span class="ital">absent.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>We do not set marketing cookies, advertising pixels, retargeting tags, social-network share-trackers, or session-replay tools. Counsel.day does not use Meta Pixel, X Pixel, LinkedIn Insight, Reddit Pixel, Pinterest Tag, TikTok Pixel, Hotjar, FullStory, Heap, or Mixpanel. We have no plan to add them. If that changes, we will publish the change here at least thirty days before the cookie first fires.</p>
+        <div class="method-pullquote">No marketing pixels. No retargeting. No session replay. If you see one, it is a bug; please write to us.</div>
+      </div>
+    </section>
+
+    <section class="method-stage" id="manage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">§ 05 · MANAGING YOUR PREFERENCES</div>
+        <h2 class="method-stage-title">How to change your <span class="ital">mind.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>Use the buttons below to grant or revoke analytics consent immediately. Your current status will update on the next page load.</p>
+        <p style="margin-top: 14px; display: flex; gap: 12px; flex-wrap: wrap;">
+          <button type="button" id="cd-cookies-grant" class="btn">Accept analytics</button>
+          <button type="button" id="cd-cookies-revoke" class="btn-text" style="border: 1px solid var(--ink); padding: 10px 18px;">Revoke analytics</button>
+          <span id="cd-cookies-state" class="cookie-state" style="font-family: var(--font-mono); font-size: 12px; color: var(--muted); align-self: center;"></span>
+        </p>
+        <script>
+          (function () {
+            function update() {
+              var s = window.CounselDayConsent && window.CounselDayConsent.state();
+              var el = document.getElementById('cd-cookies-state');
+              if (!el) return;
+              if (!s) { el.textContent = 'STATUS: NOT YET DECIDED'; return; }
+              el.textContent = 'STATUS: ANALYTICS ' + (s.analytics ? 'GRANTED' : 'DENIED') + ' (' + (s.source || 'unknown') + ')';
+            }
+            document.addEventListener('DOMContentLoaded', function () {
+              var g = document.getElementById('cd-cookies-grant');
+              var r = document.getElementById('cd-cookies-revoke');
+              if (g) g.addEventListener('click', function () {
+                if (window.CounselDayConsent) { window.CounselDayConsent.grant(); update(); }
+              });
+              if (r) r.addEventListener('click', function () {
+                if (window.CounselDayConsent) { window.CounselDayConsent.revoke(); update(); }
+              });
+              update();
+            });
+          })();
+        </script>
+        <ul class="cookie-list" style="margin-top: 28px;">
+          <li><strong>Clear site data</strong> in your browser to reset every Counsel.day cookie and the <code>cd_consent_v1</code> localStorage entry; the consent banner will then re-appear on your next visit.</li>
+          <li><strong>Block third-party cookies</strong> in your browser settings; the product still runs because all essential cookies are first-party.</li>
+          <li><strong>Email <a href="mailto:privacy@counsel.day">privacy@counsel.day</a></strong> with any cookie question we have not answered above; we respond within five business days.</li>
+        </ul>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The product</h5>
+        <a href="method.html">The method</a>
+        <a href="why-time.html">Why time</a>
+        <a href="distinction.html">The distinction</a>
+        <a href="verdict.html">A real verdict</a>
+        <a href="family.html">For families</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The company</h5>
+          <a href="help.html">Help</a>
+        <a href="contact.html">Contact</a>
+        <a href="security.html">Security</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The fine print</h5>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="cookies.html">Cookies</a>
+        <a href="sub-processors.html">Sub-processors</a>
+        <a href="refunds.html">Refunds</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>© 2026 Counsel.day · USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+
+<a class="go-to-top" id="go-to-top" href="#top" aria-label="Go to top of page">
+  <svg viewBox="0 0 24 24" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+  <span class="label">Top</span>
+</a>
+<script>
+(function () {
+  var btn = document.getElementById('go-to-top');
+  if (!btn) return;
+  function update() { if (window.scrollY > 600) { btn.classList.add('visible'); } else { btn.classList.remove('visible'); } }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+  btn.addEventListener('click', function (e) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
+<script src="ga4.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+[Unit]
+Description=Counsel.day · verdict + session-purge · every 30 minutes
+Requires=counsel-day-cron-verdict.service
+
+[Timer]
+OnCalendar=*-*-* *:00,30:00
+Persistent=true
+AccuracySec=1m
+
+[Install]
+WantedBy=timers.target

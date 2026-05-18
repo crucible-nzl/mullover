@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat)",
+      "Bash(cat /tmp/css_prepend.txt counsel-day-complete/styles.css)",
+      "Bash(mv /tmp/styles_new.css counsel-day-complete/styles.css)",
+      "Bash(cat >> *)",
+      "Bash(python3)",
+      "Bash(command -v python)",
+      "Bash(command -v py)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\James\\OneDrive\\Documents\\_Counsel.day.ai\\counsel-day-complete"
+    ]
+  }
+}

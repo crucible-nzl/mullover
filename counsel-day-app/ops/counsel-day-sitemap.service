@@ -1,0 +1,26 @@
+[Unit]
+Description=Counsel.day · sitemap.xml regeneration (crawl /var/www → write urlset)
+After=network.target
+
+[Service]
+Type=oneshot
+User=deploy
+Group=deploy
+Environment="SITE_ROOT=/var/www/counsel.day"
+Environment="SITE_HOST=https://counsel.day"
+ExecStart=/opt/counsel-day-app/scripts/regenerate-sitemap.sh
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=counsel-day-sitemap
+TimeoutStartSec=5min
+
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+PrivateTmp=true
+ReadWritePaths=/var/www/counsel.day

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<!-- Order is load-bearing: Consent Mode v2 defaults MUST be set BEFORE -->
+<!-- GTM and gtag load, or the first pageview ships before user choice. -->
+<!-- This block is injected into every public HTML <head> by             -->
+<!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
+
+<!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':         'denied',
+    'ad_user_data':       'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage':  'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage':   'granted',
+    'wait_for_update':    500
+  });
+  // Honour Global Privacy Control + Do-Not-Track before any tag fires.
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':         'denied',
+      'ad_user_data':       'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage':  'denied'
+    });
+  }
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', {
+    'anonymize_ip': true,
+    'allow_google_signals': false,
+    'allow_ad_personalization_signals': false
+  });
+</script>
+<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
+
+<title>A real verdict · What thirty days of private voting actually produces</title>
+<meta name="description" content="An illustrative walkthrough of a thirty-day Counsel.day decision. Day-by-day votes, agreement rate, conviction trajectories, theme frequencies, the synthesis paragraph, and the conversation prompt that opens what comes next.">
+<meta name="author" content="James Graham, founder of Counsel.day">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://counsel.day/verdict">
+<link rel="alternate" hreflang="en" href="https://counsel.day/verdict">
+<link rel="alternate" hreflang="x-default" href="https://counsel.day/verdict">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Counsel.day">
+<meta property="og:title" content="A real verdict · What thirty days of private voting actually produces">
+<meta property="og:description" content="An illustrative walkthrough of a thirty-day Counsel.day decision, layer by layer. Day-by-day votes, agreement rate, conviction trajectories, theme frequencies, the synthesis, the conversation prompt.">
+<meta property="og:url" content="https://counsel.day/verdict">
+<meta property="og:image" content="https://counsel.day/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="A real verdict · What thirty days of private voting actually produces">
+<meta name="twitter:description" content="An illustrative walkthrough of a thirty-day Counsel.day decision, layer by layer.">
+<meta name="twitter:image" content="https://counsel.day/og-image.png">
+<meta property="article:modified_time" content="2026-05-15T19:00:00+12:00">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "A real verdict. What thirty days of private voting actually produces.",
+  "description": "An illustrative walkthrough of a thirty-day Counsel.day decision, layer by layer.",
+  "author": { "@type": "Person", "name": "James Graham" },
+  "publisher": { "@type": "Organization", "name": "Counsel.day", "url": "https://counsel.day/" },
+  "datePublished": "2026-05-12",
+  "dateModified": "2026-05-15",
+  "inLanguage": "en"
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles-i8.css">
+<style>
+/* verdict.html · two-slip grid + vote strip + theme table flourishes */
+.verdict-slips { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 12px; }
+@media (max-width: 720px) { .verdict-slips { grid-template-columns: 1fr; } }
+.slip-card { border: 1px solid var(--ink); background: var(--paper); padding: 28px 30px; }
+.slip-card.a { border-left: 4px solid var(--wine); }
+.slip-card.b { border-left: 4px solid var(--rose); }
+.slip-card .partner-name { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 18px; }
+.slip-card.a .partner-name { color: var(--wine); }
+.slip-card.b .partner-name { color: var(--rose); }
+.slip-card .verdict-word { font-family: var(--font-display); font-size: 56px; font-weight: 500; line-height: 1; margin: 0 0 14px; color: var(--ink); }
+/* Verdict-word colour reflects the verdict DIRECTION, not the partner.
+   Green family for yes-leans; red family for no-leans. */
+.slip-card .verdict-word.yes      { color: #0E9F4C; }
+.slip-card .verdict-word.lean-yes { color: #0E9F4C; font-style: italic; }
+.slip-card .verdict-word.no       { color: #C0392B; }
+.slip-card .verdict-word.lean-no  { color: #C0392B; font-style: italic; }
+.slip-card .verdict-word.uncertain { color: var(--muted); font-style: italic; }
+.slip-card .traj-line { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+.slip-card .traj-line strong { color: var(--ink); font-weight: 500; }
+.slip-card .note-summary { font-family: var(--font-body); font-size: 16px; line-height: 1.55; color: var(--ink-soft); border-top: 1px solid var(--rule); padding-top: 14px; margin: 0; }
+
+.vote-strip { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; padding: 22px 0; }
+.vote-chip { display: inline-flex; flex-direction: column; align-items: center; gap: 4px; width: calc((100% / 15) - 6px); min-width: 52px; padding: 8px 4px; border: 1px solid var(--rule); background: var(--paper); }
+.vote-chip .day-num { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; color: var(--muted); }
+.vote-chip .vote-bar { display: flex; gap: 2px; align-items: end; height: 28px; width: 100%; justify-content: center; }
+.vote-chip .vote-bar .bar { width: 8px; background: var(--rule); }
+/* Bar colour reflects vote DIRECTION, not partner identity.
+   Partner A sits on the left (.a position), Partner B sits on the right (.b).
+   Both demo partners trend YES across the 30 days, so all bars are green. */
+.vote-chip .vote-bar .bar.a { background: #0E9F4C; }
+.vote-chip .vote-bar .bar.b { background: #4FB678; }
+/* For mixed verdicts (real data later), .bar.no / .bar.lean-no override to red. */
+.vote-chip .vote-bar .bar.no       { background: #C0392B; }
+.vote-chip .vote-bar .bar.lean-no  { background: #D88A82; }
+.vote-chip.skipped { opacity: 0.4; }
+@media (max-width: 720px) { .vote-chip { width: calc((100% / 6) - 6px); } }
+
+.theme-table { border: 1px solid var(--ink); margin-top: 12px; }
+.theme-row { display: grid; grid-template-columns: 1fr 90px 1fr; border-bottom: 1px solid var(--rule); align-items: center; }
+.theme-row:last-child { border-bottom: none; }
+.theme-row.head { background: var(--ink); color: var(--paper); }
+.theme-row.head .theme-cell { color: var(--paper); font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; padding: 14px 20px; border-right: 1px solid rgba(255,255,255,0.15); }
+.theme-row.head .theme-cell:last-child { border-right: none; }
+.theme-cell { padding: 18px 20px; border-right: 1px solid var(--rule); font-family: var(--font-body); font-size: 16px; color: var(--ink-soft); }
+.theme-cell:last-child { border-right: none; }
+.theme-cell.label { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine); }
+.theme-cell.count { font-family: var(--font-display); font-size: 22px; font-weight: 500; color: var(--wine); text-align: center; }
+@media (max-width: 600px) { .theme-row { grid-template-columns: 1fr; } .theme-row.head { display: none; } .theme-cell { border-right: none; border-bottom: 1px solid var(--rule); } .theme-cell.count { text-align: left; } }
+</style>
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="method.html">The method</a>
+      <a href="why-time.html">Why time</a>
+      <a href="distinction.html">The distinction</a>
+      <a href="verdict.html" class="active">A real verdict</a>
+      <a href="family.html">For families</a>
+      <a href="compare.html">Compare</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="faq.html">FAQ</a>
+    </div>
+    <div class="nav-cta">
+      <a href="account.html" class="btn-text">Sign in</a>
+      <a href="signup.html" class="btn">Start a decision</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content">
+  <div class="method-page-inner">
+
+    <div class="method-page-breadcrumb">
+      <a href="index.html">← Return to overview</a>
+      <span>·</span>
+      <span>A real verdict</span>
+    </div>
+
+    <div class="method-page-head">
+      <div class="method-page-eyebrow">VERDICT · WHAT A FULL CYCLE PRODUCES</div>
+      <h1 class="method-page-title">A worked example, <span class="ital">layer by layer.</span></h1>
+      <p class="method-page-lede">Thirty private votes, cast one per evening, by two partners who never saw each other's drift. The pages below are an illustrative reproduction of what the last day produces: two verdict words, a thirty-day trajectory, the themes that surfaced in the notes, the synthesis paragraph naming the axis underneath, and the one specific question that opens what comes next. <strong>Names and content are fictional;</strong> the structure is exactly what the live product produces.</p>
+      <div class="method-page-meta">
+        <div class="item"><span>Sample opened</span><span class="val">15 April 2026</span></div>
+        <div class="item"><span>Sample sealed</span><span class="val">15 May 2026</span></div>
+        <div class="item"><span>Participants</span><span class="val">2 · Couple plan</span></div>
+        <div class="item"><span>Case reference</span><span class="val wine">CD-2026-04-9417</span></div>
+      </div>
+    </div>
+
+    <!-- STAGE 01 · THE QUESTION -->
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">File 01 · The question, set on day one</div>
+        <h2 class="method-stage-title">"Should we move into the city for school, or stay in the village and homeschool for another <span class="ital">two years?</span>"</h2>
+      </div>
+      <div class="method-stage-body">
+        <p>The question was entered on the evening of 15 April 2026. Both partners agreed the duration · thirty days · before either of them cast their first vote. The product then sealed the read path: neither partner could see the other's vote, note, or running average until the morning of 15 May.</p>
+      </div>
+    </section>
+
+    <!-- STAGE 02 · THE TWO VERDICTS -->
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">File 02 · The two verdicts, on the final morning</div>
+        <h2 class="method-stage-title">Two partners. Two private trajectories. One <span class="ital">opening.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>At 06:00 local time on day thirty, both verdict cards published simultaneously. Below is the reproduction of that moment.</p>
+      </div>
+      <div class="verdict-slips">
+        <div class="slip-card a">
+          <div class="partner-name">James · Partner A</div>
+          <div class="verdict-word yes">YES</div>
+          <div class="traj-line">Conviction · <strong>rose 28%</strong> across 30 days</div>
+          <p class="note-summary">"The school's curriculum changed the shape of the question. Once we toured, the city move stopped being about us and started being about him."</p>
+        </div>
+        <div class="slip-card b">
+          <div class="partner-name">Alex · Partner B</div>
+          <div class="verdict-word lean-yes">LEAN YES</div>
+          <div class="traj-line">Conviction · <strong>rose 14%</strong> across 30 days</div>
+          <p class="note-summary">"I am closer to yes than I was, but the village is still the loss I keep weighing. Yes, with a quiet grief."</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- STAGE 03 · 30 DAY VOTE STRIP -->
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">File 03 · Thirty days, side by side</div>
+        <h2 class="method-stage-title">The shape of each <span class="ital">evening.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>Each chip below is one evening. The wine bar is James's vote, the rose bar is Alex's. Both bars rise toward yes as the period progresses. The shape, not the average, is what the analysis reads.</p>
+      </div>
+      <div class="vote-strip" aria-label="Thirty daily votes, two participants">
+        <div class="vote-chip"><div class="day-num">D01</div><div class="vote-bar"><span class="bar a" style="height:30%"></span><span class="bar b" style="height:20%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D02</div><div class="vote-bar"><span class="bar a" style="height:35%"></span><span class="bar b" style="height:25%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D03</div><div class="vote-bar"><span class="bar a" style="height:40%"></span><span class="bar b" style="height:30%"></span></div></div>
+        <div class="vote-chip skipped"><div class="day-num">D04</div><div class="vote-bar"><span class="bar" style="height:10%"></span><span class="bar b" style="height:30%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D05</div><div class="vote-bar"><span class="bar a" style="height:45%"></span><span class="bar b" style="height:35%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D06</div><div class="vote-bar"><span class="bar a" style="height:50%"></span><span class="bar b" style="height:40%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D07</div><div class="vote-bar"><span class="bar a" style="height:55%"></span><span class="bar b" style="height:40%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D08</div><div class="vote-bar"><span class="bar a" style="height:60%"></span><span class="bar b" style="height:45%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D09</div><div class="vote-bar"><span class="bar a" style="height:65%"></span><span class="bar b" style="height:50%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D10</div><div class="vote-bar"><span class="bar a" style="height:65%"></span><span class="bar b" style="height:55%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D11</div><div class="vote-bar"><span class="bar a" style="height:70%"></span><span class="bar b" style="height:50%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D12</div><div class="vote-bar"><span class="bar a" style="height:70%"></span><span class="bar b" style="height:55%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D13</div><div class="vote-bar"><span class="bar a" style="height:75%"></span><span class="bar b" style="height:60%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D14</div><div class="vote-bar"><span class="bar a" style="height:75%"></span><span class="bar b" style="height:55%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D15</div><div class="vote-bar"><span class="bar a" style="height:80%"></span><span class="bar b" style="height:60%"></span></div></div>
+        <div class="vote-chip skipped"><div class="day-num">D16</div><div class="vote-bar"><span class="bar a" style="height:80%"></span><span class="bar" style="height:10%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D17</div><div class="vote-bar"><span class="bar a" style="height:80%"></span><span class="bar b" style="height:65%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D18</div><div class="vote-bar"><span class="bar a" style="height:85%"></span><span class="bar b" style="height:60%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D19</div><div class="vote-bar"><span class="bar a" style="height:85%"></span><span class="bar b" style="height:65%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D20</div><div class="vote-bar"><span class="bar a" style="height:85%"></span><span class="bar b" style="height:70%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D21</div><div class="vote-bar"><span class="bar a" style="height:90%"></span><span class="bar b" style="height:65%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D22</div><div class="vote-bar"><span class="bar a" style="height:90%"></span><span class="bar b" style="height:70%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D23</div><div class="vote-bar"><span class="bar a" style="height:85%"></span><span class="bar b" style="height:70%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D24</div><div class="vote-bar"><span class="bar a" style="height:90%"></span><span class="bar b" style="height:75%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D25</div><div class="vote-bar"><span class="bar a" style="height:95%"></span><span class="bar b" style="height:70%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D26</div><div class="vote-bar"><span class="bar a" style="height:95%"></span><span class="bar b" style="height:75%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D27</div><div class="vote-bar"><span class="bar a" style="height:90%"></span><span class="bar b" style="height:70%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D28</div><div class="vote-bar"><span class="bar a" style="height:95%"></span><span class="bar b" style="height:75%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D29</div><div class="vote-bar"><span class="bar a" style="height:95%"></span><span class="bar b" style="height:80%"></span></div></div>
+        <div class="vote-chip"><div class="day-num">D30</div><div class="vote-bar"><span class="bar a" style="height:100%"></span><span class="bar b" style="height:80%"></span></div></div>
+      </div>
+      <p style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-top: 14px;">28 of 30 days voted by each partner · 2 skipped days each, never the same evening</p>
+    </section>
+
+    <!-- STAGE 04 · THEME FREQUENCIES -->
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">File 04 · Themes that surfaced in the notes</div>
+        <h2 class="method-stage-title">What you wrote, when no one was <span class="ital">reading.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>The notes both partners typed across the period were processed locally for theme extraction. The five themes below carry the highest frequency in the combined notes corpus.</p>
+      </div>
+      <div class="theme-table">
+        <div class="theme-row head">
+          <div class="theme-cell">Theme</div>
+          <div class="theme-cell">Mentions</div>
+          <div class="theme-cell">Carried by</div>
+        </div>
+        <div class="theme-row">
+          <div class="theme-cell label">Child's social world</div>
+          <div class="theme-cell count">21</div>
+          <div class="theme-cell">Both partners; rose from week two onward</div>
+        </div>
+        <div class="theme-row">
+          <div class="theme-cell label">Loss of place</div>
+          <div class="theme-cell count">18</div>
+          <div class="theme-cell">Mostly Alex; weighed against gains, not against the move itself</div>
+        </div>
+        <div class="theme-row">
+          <div class="theme-cell label">School curriculum fit</div>
+          <div class="theme-cell count">14</div>
+          <div class="theme-cell">James; tipped after the open evening on day six</div>
+        </div>
+        <div class="theme-row">
+          <div class="theme-cell label">Financial reality</div>
+          <div class="theme-cell count">11</div>
+          <div class="theme-cell">Both partners; settled by week three with a clear budget</div>
+        </div>
+        <div class="theme-row">
+          <div class="theme-cell label">Commute and rhythm</div>
+          <div class="theme-cell count">9</div>
+          <div class="theme-cell">Alex; surfaced late, never resolved within the period</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STAGE 05 · SYNTHESIS -->
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">File 05 · Synthesis · The axis underneath</div>
+        <h2 class="method-stage-title">What you were actually <span class="ital">arguing about.</span></h2>
+      </div>
+      <div class="founder-case">
+        <div class="label">Synthesis paragraph · written on day 30</div>
+        <p><strong>The surface question was whether to move into the city for school.</strong> The axis underneath, as both partners' notes consistently revealed across the period, was a different question: <em>what does each of you owe the village you have built, and what does each of you owe the child you are raising inside it?</em> James moved first because the curriculum question was decisive for him; Alex moved second, more slowly, because the loss of the village was a real cost that the curriculum did not erase. The trajectories converged but did not match. The verdict is a yes, with a quiet grief.</p>
+          <p>The thirty-day arc shows a real shift, not a coin flip. Both partners are firmer at the end than at the beginning. The decision is durable. The grief is real and survives the verdict; it does not contradict it.</p>
+      </div>
+    </section>
+
+    <!-- STAGE 06 · CONVERSATION PROMPT -->
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">File 06 · The one specific question</div>
+        <h2 class="method-stage-title">What to talk about <span class="ital">tonight.</span></h2>
+      </div>
+      <p class="method-pullquote">"Alex, what do you want to keep from the village, deliberately, even after the move? James, what specifically do you want to make sure he carries with him from the place he was born?"</p>
+      <div class="method-stage-body">
+        <p>The prompt is shaped by what both of you actually wrote across the thirty days. Not "communicate more openly." A real, concrete question that the data underneath the verdict has earned.</p>
+      </div>
+    </section>
+
+    <!-- CLOSING CTA -->
+    <div class="method-cta">
+      <div class="method-cta-eyebrow">§ Ready to begin</div>
+      <h2 class="method-cta-title">Give your hardest decision the <span class="ital">season it deserves.</span></h2>
+      <div class="method-cta-row">
+        <a href="signup.html" class="btn btn-large">Start your first decision · free</a>
+        <a href="method.html" class="btn btn-ghost">Read the method</a>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ============================================================ -->
+<!-- COLOPHON                                                     -->
+<!-- ============================================================ -->
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Each evening, you cast one private vote on the same question, for a duration you set, with every vote sealed in the database until the final day. When the verdict opens, you see where you converged, where you diverged, the themes underneath your own words, and one specific next conversation. The deciding stays with you; the structure is ours. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The product</h5>
+        <a href="method.html">The method</a>
+        <a href="why-time.html">Why time</a>
+        <a href="distinction.html">The distinction</a>
+          <a href="verdict.html">A real verdict</a>
+        <a href="family.html">For families</a>
+        <a href="compare.html">Compare</a>
+        <a href="signup.html">Start free</a>
+        <a href="pricing.html">The editions</a>
+      </div>
+      <div class="colophon-col">
+        <h5>For practitioners</h5>
+        <a href="therapists.html">For therapists</a>
+        <a href="counsellors.html">For counsellors</a>
+        <a href="engineering/index.html">Engineering</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The company</h5>
+          <a href="about/james-graham.html">James Graham · founder</a>
+        <a href="help.html">Help</a>
+        <a href="contact.html">Contact</a>
+        <a href="security.html">Security</a>
+        <a href="accessibility.html">Accessibility</a>
+        <a href="press.html">Press</a>
+        <a href="status.html">Status</a>
+        <a href="changelog.html">Changelog</a>
+        <a href="journal/">The Journal</a>
+        <a href="faq.html">FAQ</a>
+        <a href="account.html">Your account</a>
+        <a href="mailto:press@counsel.day">Press</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The fine print</h5>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="cookies.html">Cookies</a>
+        <a href="sub-processors.html">Sub-processors</a>
+        <a href="refunds.html">Refunds</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>© 2026 Counsel.day · USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+
+<a class="go-to-top" id="go-to-top" href="#top" aria-label="Go to top of page">
+  <svg viewBox="0 0 24 24" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+  <span class="label">Top</span>
+</a>
+<script>
+(function () {
+  var btn = document.getElementById('go-to-top');
+  if (!btn) return;
+  function update() { if (window.scrollY > 600) { btn.classList.add('visible'); } else { btn.classList.remove('visible'); } }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+  btn.addEventListener('click', function (e) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
+<script src="ga4.js" defer></script>
+</body>
+</html>

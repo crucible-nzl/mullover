@@ -1,0 +1,217 @@
+# Counsel.day Capabilities Ledger
+
+A complete audit of every promise made in the customer-facing UI, the admin portal, and the product docs, with the implementation path that backs each one. Run this list every release. If a promise here cannot be delivered when a customer invokes it, the promise is removed from the UI before the next release, not after.
+
+**Status legend**
+- ✅ **Implemented** · the capability works end-to-end in the prototype or production code.
+- 🟡 **Designed** · the implementation path is documented and the build hour assigned; not yet running.
+- 🔴 **At risk** · no clear delivery path; the UI promise must be removed before launch.
+
+**Last reviewed:** 14 May 2026 · against [`design-notes.md`](design-notes.md), [`PRODUCTION_PLAN.md`](PRODUCTION_PLAN.md), [`counsel-day-complete/account.html`](../counsel-day-complete/account.html), [`counsel-day-complete/admin.html`](../counsel-day-complete/admin.html), [`counsel-day-complete/privacy.html`](../counsel-day-complete/privacy.html).
+
+---
+
+## 1 · GDPR / Privacy rights (account.html § 8 + privacy.html § 7)
+
+| # | Promise | Where it appears | Article | Implementation | Status |
+|---|---|---|---|---|---|
+| 1.1 | Right of access · download a copy of every piece of data we hold | account.html § 8 · "Request data download" + privacy.html § 7.1 | GDPR Art. 15 | Background job reads from Postgres (decrypts per-decision keys via Infisical) + Stripe Customer API; assembles ZIP with `account.json`, `decisions/{id}/{decision,votes,notes,verdict}.json`, `verdict.pdf`, `billing/charges.json`, `schema.md`; uploads to Cloudflare R2 with a 7-day signed URL; emails the URL to the user. SLA: 30 days max, target 24 hours. | 🟡 Designed · backed by data-architecture post §7 export shape |
+| 1.2 | Right of rectification · edit profile fields | account.html § 2 · Display name + country dropdowns | GDPR Art. 16 | Direct UPDATE on `users` row via FastAPI authenticated endpoint, audit-logged. Email change goes through Auth0 (verify-new-before-deactivate-old). | 🟡 Designed |
+| 1.3 | Right of erasure · delete my account | account.html § 8 · 3-stage confirmation + privacy.html § 7.3 | GDPR Art. 17 | Three-stage UI confirmation already implemented in account.html. On final confirm: enqueue a 24-hour-deferred deletion job; cascade through `users` / `decision_participants` / `votes` / `notes` / `verdicts` / `invitations` / `notification_log` / `cookie_consents` plus Auth0 user deletion via Management API. Billing rows in `stripe_charges` have user_id severed but retained 7 years (NZ Tax Administration Act 1994). Backups expire within 30 days. | ✅ UI prototype · 🟡 Backend designed |
+| 1.4 | Right to restrict processing | privacy.html § 7.4 | GDPR Art. 18 | Email-only request flow. On receipt: set `users.processing_restricted = true`; FastAPI middleware rejects any non-read endpoint while flag is set. 5-business-day response SLA. | 🟡 Designed |
+| 1.5 | Right of data portability | privacy.html § 7.5 (same artefact as 1.1) | GDPR Art. 20 | Same ZIP as 1.1; JSON schema published at `/engineering/the-data-architecture` so a future tool could import it. | 🟡 Designed |
+| 1.6 | Right to object · opt out of marketing / analytics | account.html § 5 + cookie banner | GDPR Art. 21 | Marketing email: Brevo unsubscribe + account toggle, syncs via Brevo webhook. Analytics: cookie banner sets `counselday_consent='reject'` in localStorage; GTM container reads consent before firing any non-essential tags. Consent Mode v2 on. | ✅ UI prototype · 🟡 Backend designed |
+| 1.7 | Right not to be subject to automated decision-making | privacy.html § 7.7 | GDPR Art. 22 | Verdict is presented, not enforced. No legal effect on the user; no decision is made about them. Article 22 not engaged. Privacy policy states this explicitly. | ✅ Documented |
+| 1.8 | Right to lodge a complaint | privacy.html § 13 | GDPR Art. 77 | Supervisory authority list published. EU lead: Irish DPC. NZ: Office of the Privacy Commissioner. | ✅ Documented |
+| 1.9 | DPO contact | privacy.html § 1 | GDPR Art. 37 | `privacy@counsel.day` routed to operator. No formal DPO required at our scale. | 🟡 Mailbox to configure in Brevo |
+| 1.10 | Breach notification within 72 hours | privacy.html § 11 | GDPR Art. 33 | Runbook in `/docs/INCIDENT_RUNBOOK.md` (to be written before launch). Test annually. | 🔴 Runbook not yet written |
+
+---
+
+## 2 · Billing and subscription (account.html § 1 + admin.html § 3-4)
+
+| # | Promise | Where it appears | Implementation | Status |
+|---|---|---|---|---|
+| 2.1 | View full billing history · all charges, refunds, invoices | account.html § 1 · "View full billing history" | Live read from Stripe Customer API via FastAPI `/api/billing`; cached 60 seconds. Modal already renders the Stripe-shape table. Filter chips, CSV export, "Open Stripe Customer Portal" all working in the prototype. | ✅ UI prototype · 🟡 API endpoint |
+| 2.2 | Download invoice PDF (per charge) | Billing modal · "Invoice PDF" link per row | Direct link to Stripe-hosted PDF at `invoice.stripe.com/i/{invoice_id}`. We do not store invoice copies; Stripe is the system of record. | 🟡 Designed (no code, only links) |
+| 2.3 | Download receipt (per charge) | Billing modal · "Receipt" link per row | Direct link to Stripe-hosted receipt at `receipt.stripe.com/r/{receipt_id}`. | 🟡 Designed |
+| 2.4 | Download all invoices as ZIP | account.html § 1 · "Download all invoices (ZIP)" | Backend zips Stripe-hosted PDFs (fetch each, bundle, sign R2 URL, email link). | 🟡 Designed |
+| 2.5 | Export billing as CSV | Billing modal footer | Implemented as a real Blob/download in the JS prototype. Production uses the same `/api/billing` data, server-rendered CSV. | ✅ UI prototype · 🟡 API endpoint |
+| 2.6 | Open Stripe Customer Portal | Billing modal footer | Backend calls Stripe `billing_portal.sessions.create`, redirects user to the returned URL. | 🟡 Designed |
+| 2.7 | Update card | account.html § 1 · "Update card" | Stripe Elements modal (or Customer Portal). | 🟡 Designed |
+| 2.8 | Remove card | account.html § 1 · "Remove" | Blocked while annual subscription is active (warning toast). Otherwise direct Stripe API call. | ✅ UI logic · 🟡 Backend |
+| 2.9 | Cancel renewal · annual plans only | account.html § 1 · "Cancel renewal" | Stripe `subscription.update(cancel_at_period_end=true)`. Period-end date and post-cancellation pricing fall-back explained in the cancel modal. | ✅ UI prototype · 🟡 Backend |
+| 2.10 | Change plan · 6 SKUs | account.html § 1 · "Change plan" modal + admin.html operator action | Stripe Checkout for upgrades; Stripe Subscription update for downgrades; both audit-logged. All 6 plans wired in the prototype modal. | ✅ UI prototype · 🟡 Backend |
+| 2.11 | Refund on technical defect | refunds.html + admin.html § 3 | Operator-issued only (not customer-initiated). Operator clicks refund in admin user-detail, FastAPI calls Stripe `refund.create`. Auto-email sent via Brevo. | 🟡 Designed |
+| 2.12 | Change billing email | account.html § 1 · "Use a different email for billing" | Stripe Customer email update via API; does not change the Auth0 sign-in email. | 🟡 Designed |
+| 2.13 | Stripe Tax handles GST/VAT | terms.html + account.html § 1 · "Tax region" | Stripe Tax enabled on the account; taxes added at checkout based on billing address. | 🟡 Stripe Dashboard setting |
+
+---
+
+## 3 · Decision mechanics (vote.html + verdict.html + locked settings)
+
+| # | Promise | Where it appears | Implementation | Status |
+|---|---|---|---|---|
+| 3.1 | One prompt per evening, at your chosen time | vote.html + account.html § 3 | RQ scheduled job runs every minute; queries decisions whose `prompt_time` (in user's tz) matches the current minute; sends one notification per participant per decision per day. Idempotency check prevents duplicate sends. | 🟡 Designed |
+| 3.2 | Prompt time customisable in profile (default 19:00) | account.html § 3 | `users.prompt_time` TIME column; user-editable; saved via PATCH. | 🟡 Designed |
+| 3.3 | Quiet hours respected | account.html § 3 · "From / to" time pickers | Send job checks user's quiet-hours window before firing. If chosen prompt time falls inside quiet hours, the notification is suppressed for that day. | 🟡 Designed |
+| 3.4 | Quiet days (Sat/Sun toggles) | account.html § 3 | Day-of-week checks in send job. | 🟡 Designed |
+| 3.5 | Missed-three-days reminder (opt-out) | account.html § 3 | Send job checks engagement; fires once after 3 consecutive missed days; logged so it never fires twice. | 🟡 Designed |
+| 3.6 | Pause prompts (travel / hard weeks) | account.html § 3 | `users.prompts_paused_until` DATE column; send job skips while in past. | 🟡 Designed |
+| 3.7 | Email + push channels (no SMS) | account.html § 3 | Email via Brevo (transactional). Push via Expo Push (Phase 3 only; falls back to email if push fails). | 🟡 Email designed · Push Phase 3 |
+| 3.8 | Sealed votes until verdict day | vote.html + privacy.html | PostgreSQL row-level-security policy on `votes` blocks read of partner's votes while `decisions.verdict_revealed_at IS NULL`. See [engineering/the-privacy-mechanism.html](../counsel-day-complete/engineering/the-privacy-mechanism.html) § 2 for the SQL. | ✅ Documented · 🟡 Coded in Phase 1 Hour 5 |
+| 3.9 | Vote correction until midnight | locked settings | Vote UPDATEs allowed where `votes.created_at >= today_local AND verdict_revealed_at IS NULL`. RLS policy enforces. | 🟡 Designed |
+| 3.10 | Notes capped at 3,000 characters | vote.html + design-notes § Notes | `CHECK (length(note_body) <= 3000)` on the column. Client-side counter shown live. | ✅ UI prototype · 🟡 Schema constraint |
+| 3.11 | Decision durations · Solo 7-90, Couple 7-365, Family 14-365 | terms.html + family.html + locked settings | `CHECK (duration_days BETWEEN min AND max)` per plan in the schema. Composer UI enforces client-side; FastAPI validates server-side. | 🟡 Designed |
+| 3.12 | Multi-stage close confirmation (mid-decision close) | locked settings | Three-stage UI confirm; final stage soft-deletes the decision (no refund per Refund Policy). | 🟡 Designed |
+| 3.13 | Duration extendable mid-decision | locked settings | Owner can extend via account-page action; new `verdict_scheduled_at` computed; partner notified by email. | 🟡 Designed |
+| 3.14 | Family mode · 3 to 6 participants | family.html | `CHECK (participant_count BETWEEN 3 AND 6)` on Family decisions. | 🟡 Designed |
+| 3.15 | Cross-timezone partners · own local 19:00 each | locked settings | Each participant has own `prompt_time` + `timezone`. Send job evaluates per participant. Verdict reveal fires once globally at owner's tz midnight. | 🟡 Designed |
+| 3.16 | Verdict delivered as HTML + designed PDF | locked settings + verdict.html | Verdict text returned to in-app HTML view; same content piped through WeasyPrint server-side to a designed PDF (Newsreader, Knot mark, embedded trajectory chart). Both delivered by email simultaneously to both participants. | 🟡 Designed |
+| 3.17 | Both partners receive verdict at the same minute | locked settings | Single transactional Brevo send to both addresses, queued atomically. | 🟡 Designed |
+
+---
+
+## 4 · Authentication and sessions (account.html § 7 + Auth0)
+
+| # | Promise | Where it appears | Implementation | Status |
+|---|---|---|---|---|
+| 4.1 | Sign in via Google | nav · "Sign in" + account.html | Auth0 Google connection. | 🟡 Designed |
+| 4.2 | Sign in via magic-link email | locked settings | Auth0 email-magic-link connection. | 🟡 Designed |
+| 4.3 | View active sessions | account.html § 7 | Auth0 Management API `users/{id}/sessions` returns the list; rendered in account UI. | 🟡 Designed |
+| 4.4 | Sign out this device | account.html § 9 + § 7 | Auth0 SDK logout (clears local session cookie). | 🟡 Designed |
+| 4.5 | Sign out specific device | account.html § 7 per-row "Sign out" | Auth0 Management API `users/{id}/sessions/{session_id}` DELETE. | 🟡 Designed |
+| 4.6 | Sign out all devices | account.html § 7 | Auth0 Management API `users/{id}/multifactor` revoke or full session purge. | 🟡 Designed |
+| 4.7 | Change email (via Auth0) | account.html § 2 | Auth0 hosts the email-change flow; verify-new-before-deactivate-old per locked settings. | 🟡 Designed |
+| 4.8 | MFA opt-in (TOTP / hardware key) | locked settings (no requirement at launch) | Auth0 MFA rule allows opt-in; not required at launch. Operators required to use hardware key in Phase 2. | 🟡 Designed |
+| 4.9 | 24h account-deletion SLA + cascade | privacy.html § 7.3 + account.html § 8 | Backend job; cascade across Postgres + Auth0 + backup expiry; reversal email window. | 🟡 Designed |
+
+---
+
+## 5 · Admin portal (admin.html · operator-only)
+
+| # | Promise | Where it appears | Implementation | Status |
+|---|---|---|---|---|
+| 5.1 | View all users with filter/search/pagination | admin.html § 2 | FastAPI `/admin/users` returns paginated user list; client-side filter and sort. | ✅ UI prototype · 🟡 Backend |
+| 5.2 | View user detail (5 tabs: account, subscription, usage, audit, notes) | admin.html § 2 user detail | Five endpoints under `/admin/users/{id}/*`. Vote/note content never returned to the operator surface. | ✅ UI prototype · 🟡 Backend |
+| 5.3 | Send password reset (Auth0 magic link) | admin user-detail · Operator actions | Auth0 Management API `users/{id}/password-reset`. | 🟡 Designed |
+| 5.4 | Suspend / restore account | admin user-detail | Auth0 `blocked = true/false` + audit log entry. | 🟡 Designed |
+| 5.5 | Change subscription tier (6 plans) | admin Change-tier modal | Stripe subscription update + immediate UI sync. | ✅ UI prototype · 🟡 Backend |
+| 5.6 | Force sign-out all sessions | admin user-detail | Auth0 Management API session-purge. | 🟡 Designed |
+| 5.7 | Add internal note (operator-only) | admin user-detail Notes tab | INSERT into `user_notes` table (operator-readable only). | ✅ UI prototype · 🟡 Backend |
+| 5.8 | Mark as VIP | admin user-detail | Boolean flag on user; surfaces in UI; no functional change. | ✅ UI prototype · 🟡 Backend |
+| 5.9 | Email a user (one-off, via Brevo) | admin Email modal | Brevo transactional send. | ✅ UI prototype · 🟡 Backend |
+| 5.10 | Initiate deletion / cancel deletion | admin user-detail · danger actions | Same 24h cascade job; operator can cancel within window. | ✅ UI prototype · 🟡 Backend |
+| 5.11 | Open user in Auth0 dashboard | admin user-detail | Deep-link to `manage.auth0.com/dashboard/.../users/{sub}`. | ✅ Link present · Auth0 tenant pending |
+| 5.12 | Bulk email / reset / suspend / change tier | admin bulk actions | Loop the per-user endpoints with audit log capturing batch id. | ✅ UI prototype · 🟡 Backend |
+| 5.13 | Export users as CSV | admin bulk actions | Real CSV blob in the prototype; production server-renders. | ✅ Works in prototype |
+| 5.14 | Configure marketing tags (GTM/GA4/PostHog/Meta Pixel) | admin § 10 | Settings stored in `marketing_tags` table; injected at build time into the Cloudflare Pages deploy. | ✅ UI prototype · 🟡 Backend |
+| 5.15 | Configure verdict AI (model, prompt, params) | admin § 9 | Settings stored in `ai_config` table; FastAPI reads on every verdict run; per-verdict capture of which version was used. | ✅ UI prototype · 🟡 Backend |
+| 5.16 | Bind / rotate Anthropic API key from Infisical | admin § 9 | Infisical SDK; webhook on rotation; 24h overlap window. | 🟡 Designed |
+| 5.17 | Test verdict on sample data | admin § 9 | Triggers an out-of-band Claude call with a fixed fixture; result shown to operator only, not stored against any real decision. | 🟡 Designed |
+| 5.18 | Append-only audit log | admin all operator actions | `audit_log` table with INSERT-only grant on the operator role. Reviewed weekly. | 🟡 Designed |
+
+---
+
+## 6 · Customer-facing features beyond the account page
+
+| # | Promise | Where it appears | Implementation | Status |
+|---|---|---|---|---|
+| 6.1 | Cookie consent banner with granular categories | start.html + cookie banner on every marketing page | localStorage `counselday_consent`; reread on every page load before GTM init. | ✅ UI prototype · 🟡 GTM container wiring |
+| 6.2 | Read full cookie list with retention | cookies.html | Static page; updated on every sub-processor change. | ✅ Documented |
+| 6.3 | Read sub-processor list with transfer mechanism | sub-processors.html | Static page; updated within 5 business days of any change per the policy. | ✅ Documented |
+| 6.4 | Read privacy policy | privacy.html | Static page; 13 sections covering GDPR + NZ Privacy Act + APP. | ✅ Documented |
+| 6.5 | Read terms of service | terms.html | Static page; 15 sections. | ✅ Documented |
+| 6.6 | Read refund policy | refunds.html | Static page; no-refunds-except-technical-defect policy. | ✅ Documented |
+| 6.7 | Request a data download | account.html § 8 | See 1.1. | 🟡 Designed |
+| 6.8 | Compose a decision | vote.html | FastAPI `/decisions` POST endpoint; multi-step composer UI in Expo (Phase 3). | 🟡 Designed |
+| 6.9 | Resume a draft decision | account.html § 6 · "Resume" link | Drafts persisted in `decisions` with state='draft'; resumable from account page. | 🟡 Designed |
+| 6.10 | Read a delivered verdict | account.html § 6 · "Read verdict" + verdict.html | HTML render in-app + downloadable PDF (see 3.16). | 🟡 Designed |
+| 6.11 | View active decision status | account.html § 6 · "Active · day N of M" | Computed live from `decisions.composed_at` + `duration_days`. | 🟡 Designed |
+| 6.12 | Therapist referral program | therapists.html | Mailto with practice details → operator hand-rolls a discount code in Stripe. | 🟡 Manual flow at launch |
+
+---
+
+## 7 · Operational guarantees (PRODUCTION_PLAN.md + design-notes)
+
+| # | Promise | Where it appears | Implementation | Status |
+|---|---|---|---|---|
+| 7.1 | 99.5% uptime | terms.html § 9 | Hetzner + Cloudflare; Better Stack monitoring; manual restart runbook. | 🟡 Monitoring designed |
+| 7.2 | Sentry-tagged privacy errors auto-pause new signups | PRODUCTION_PLAN § kill switches | Sentry webhook → FastAPI maintenance-mode flag. Existing decisions continue. | 🟡 Designed |
+| 7.3 | Stripe failure rate > 5% over 30 min → pause payments | PRODUCTION_PLAN § kill switches | Stripe webhook + sliding window in Postgres + maintenance flag. | 🟡 Designed |
+| 7.4 | 3 consecutive Anthropic failures → pause verdict delivery | PRODUCTION_PLAN § kill switches | Counter in Redis; reset on first success; on third fail pause + apology email. | 🟡 Designed |
+| 7.5 | Operator-issued refund on technical defect (within SLA) | refunds.html | Operator clicks refund in admin; Stripe API call; email confirmation. | 🟡 Designed |
+| 7.6 | Weekly Sunday digest email to operator | PRODUCTION_PLAN | RQ cron job aggregating week's metrics. | 🟡 Designed |
+| 7.7 | Customer support reply within 5 business days (urgent within 2) | terms.html + locked settings | `hello@counsel.day` Brevo inbox; operator triages weekly. | 🟡 Mailbox to configure |
+| 7.8 | Daily encrypted Postgres backup to R2 | PRODUCTION_PLAN Hour 2 | `pg_dump` piped through age-encrypt; uploaded to R2 with 30-day lifecycle. Weekly restore test. | 🟡 Designed |
+| 7.9 | Quarterly secret rotation (Anthropic 60d, Stripe/Auth0/Brevo 90d) | design-notes Infisical section | Infisical rotation policy + webhook to FastAPI. | 🟡 Designed |
+| 7.10 | Anthropic prompt caching enabled (5-min TTL) | locked settings | `cache_control: ephemeral` on the system prompt portion of every Anthropic call. | 🟡 Designed |
+| 7.11 | Verdict regenerated manually within SLA on defect | locked settings + refunds.html | Operator action in admin; one-click rerun. | 🟡 Designed |
+
+---
+
+## 8 · Items that need a build before launch
+
+This is the "do not launch with the UI promise visible unless this is built" list. Reviewed at every release.
+
+- 🔴 Incident runbook · `/docs/INCIDENT_RUNBOOK.md` not yet drafted (referenced by privacy.html § 11 and the breach-notification promise).
+- 🔴 DPIA document · `/docs/DPIA.md` not yet drafted (required because we process emotionally-sensitive content).
+- 🔴 Record of Processing Activities (RoPA) · `/docs/RoPA.md` not yet drafted (GDPR Art. 30 requires it for any processor).
+- 🟡 `privacy@counsel.day` mailbox · configure in Brevo before launch.
+- 🟡 `hello@counsel.day` mailbox · configure in Brevo before launch.
+- 🟡 `security@counsel.day` mailbox · configure in Brevo before launch.
+- 🟡 `therapists@counsel.day` mailbox · configure in Brevo before launch.
+- 🟡 FastAPI `/api/billing` · backed by Stripe Customer API; specified above, not yet coded.
+- 🟡 FastAPI `/api/data-export` · backed by Postgres + Stripe + R2; specified above, not yet coded.
+- 🟡 FastAPI `/api/delete-account` · 24h-deferred cascade job; specified above, not yet coded.
+- 🟡 RQ scheduled jobs · prompt sending, missed-day reminder, verdict generation, kill switches.
+- 🟡 Stripe webhook handler · subscription lifecycle, charge events, refund events.
+- 🟡 Auth0 Management API client · session list/purge, MFA enrol, password reset, user delete.
+- 🟡 Infisical Python SDK integration · secret read at boot + rotation webhook handler.
+- 🟡 WeasyPrint PDF generation for verdicts · deterministic template, embedded SVG chart.
+- 🟡 OWASP ASVS Level 2 self-audit · checklist at `/docs/asvs_l2_audit.md` to write before launch.
+
+---
+
+## 9 · Items currently in the UI that we should remove if not built by launch
+
+If any of the following is not delivered by the release-readiness check, the corresponding UI element must be removed or relabelled "coming soon" before launch:
+
+- "Download my data" button · if 1.1 is not built, replace with "Email privacy@counsel.day to request your data" (manual flow).
+- "Open Stripe Customer Portal" button in billing modal · if 2.6 is not built, hide the button.
+- "Download all invoices (ZIP)" · if 2.4 is not built, hide and link instead to "View full billing history".
+- "Sign out all devices" / per-device sign-out · if 4.5 / 4.6 are not built, hide § 7 entirely.
+- "Family Annual" plan in pricing · if Stripe Product not created in dashboard, mark as "Coming Phase 2".
+- "Push" notification toggle in account.html § 3 · ship disabled with tooltip "Available when the iOS / Android app ships in Phase 3."
+
+The principle: **a promise the customer can click that fails is worse than no promise at all.** Better to ship a smaller surface that works completely than a wider surface where actions toast a 'Coming soon'.
+
+---
+
+## 10 · Release-readiness check (run before every release)
+
+Run this list. If any answer is "no", do not release.
+
+1. Every promise in sections 1-7 above maps to an implemented or designed-with-build-hour state. No 🔴 statuses remain on customer-facing surfaces.
+2. Every CTA on `account.html` either hits a real endpoint or has been removed from the UI.
+3. Every CTA on `admin.html` either hits a real endpoint or has been removed.
+4. The `/docs/INCIDENT_RUNBOOK.md`, `/docs/DPIA.md`, `/docs/RoPA.md`, and `/docs/asvs_l2_audit.md` exist and have been reviewed in the current quarter.
+5. The OWASP ASVS L2 self-audit checklist is signed off by the founder.
+6. The kill switches (7.2, 7.3, 7.4) have been tested in staging with simulated failures.
+7. The data-export pipeline (1.1) has been tested end-to-end with a real ZIP delivered to a test inbox.
+8. The deletion cascade (1.3) has been tested end-to-end with a test account, including the 24h reversal cancellation path.
+9. Stripe webhooks fire on staging for: charge.succeeded, charge.refunded, invoice.payment_succeeded, customer.subscription.updated, customer.subscription.deleted.
+10. Auth0 sessions/MFA/deletion all tested through the Management API.
+11. Sentry `priv`-tag → maintenance-mode kill switch tested by emitting a synthetic priv error.
+12. Backup restore test passed within the last 7 days.
+
+---
+
+## How this document is maintained
+
+- Updated on every release.
+- Reviewed in the weekly Sunday digest pass.
+- New UI promises added to the relevant section the same PR that ships them.
+- Any "Designed" item that ships moves to "Implemented" the same PR.
+- Any "Implemented" item that breaks moves to "At risk" until fixed.
+- The file lives at `docs/CAPABILITIES.md` and is publicly readable in the repo; it is not a customer-facing artefact.

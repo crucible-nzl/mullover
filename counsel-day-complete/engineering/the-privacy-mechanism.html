@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<!-- Order is load-bearing: Consent Mode v2 defaults MUST be set BEFORE -->
+<!-- GTM and gtag load, or the first pageview ships before user choice. -->
+<!-- This block is injected into every public HTML <head> by             -->
+<!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
+
+<!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':         'denied',
+    'ad_user_data':       'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage':  'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage':   'granted',
+    'wait_for_update':    500
+  });
+  // Honour Global Privacy Control + Do-Not-Track before any tag fires.
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':         'denied',
+      'ad_user_data':       'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage':  'denied'
+    });
+  }
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', {
+    'anonymize_ip': true,
+    'allow_google_signals': false,
+    'allow_ad_personalization_signals': false
+  });
+</script>
+<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
+
+<title>The privacy mechanism, in full · Counsel.day Engineering</title>
+<meta name="description" content="How Counsel.day enforces the private-vote guarantee in the database, the application layer, the routing layer, and the operator audit trail. Row-level security, per-decision encryption keys, Infisical, kill switches, and the things we deliberately did not build.">
+<meta name="author" content="James Graham, founder of Counsel.day">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://counsel.day/engineering/the-privacy-mechanism">
+<link rel="alternate" hreflang="en" href="https://counsel.day/engineering/the-privacy-mechanism">
+<link rel="alternate" hreflang="x-default" href="https://counsel.day/engineering/the-privacy-mechanism">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Counsel.day">
+<meta property="og:title" content="The privacy mechanism, in full · Counsel.day Engineering">
+<meta property="og:description" content="Row-level security, per-decision keys, Infisical secrets, kill switches, and the things we deliberately did not build.">
+<meta property="og:url" content="https://counsel.day/engineering/the-privacy-mechanism">
+<meta property="og:image" content="https://counsel.day/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The privacy mechanism, in full">
+<meta name="twitter:description" content="Row-level security, per-decision keys, Infisical secrets, kill switches, and the things we deliberately did not build.">
+<meta name="twitter:image" content="https://counsel.day/og-image.png">
+<meta property="article:modified_time" content="2026-05-15T19:00:00+12:00">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "The privacy mechanism, in full",
+  "description": "How Counsel.day enforces the private-vote guarantee in the database, application, routing, and audit trail layers.",
+  "datePublished": "2026-05-15",
+  "dateModified": "2026-05-15",
+  "author": { "@type": "Person", "name": "James Graham" },
+  "publisher": { "@type": "Organization", "name": "Counsel.day" }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" as="style">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"></noscript>
+<link rel="stylesheet" href="../styles-i8.css">
+<style>
+.method-stage-body pre {
+  background: var(--ink);
+  color: var(--paper-deep);
+  padding: 22px 26px;
+  font-family: var(--font-mono);
+  font-size: 13.5px; line-height: 1.65;
+  overflow-x: auto;
+  margin: 22px 0;
+  border-left: 3px solid var(--wine);
+}
+.method-stage-body pre code {
+  background: transparent; padding: 0;
+  color: var(--paper-deep); border: none;
+  font-family: var(--font-mono); font-size: 13.5px;
+}
+.method-stage-body code {
+  font-family: var(--font-mono); font-size: 14px;
+  background: var(--paper-deep);
+  padding: 2px 7px; color: var(--wine-deep);
+  border: 1px solid var(--rule);
+}
+.method-stage-body ul { font-family: var(--font-body); font-size: 18px; line-height: 1.7; color: var(--ink-soft); padding-left: 22px; margin: 0 0 22px; }
+.method-stage-body li { margin-bottom: 8px; }
+.method-stage-body li strong { font-weight: 500; color: var(--ink); }
+</style>
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="../index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="../method.html">The method</a>
+      <a href="../why-time.html">Why time</a>
+      <a href="../distinction.html">The distinction</a>
+      <a href="../verdict.html">A real verdict</a>
+      <a href="../family.html">For families</a>
+      <a href="../compare.html">Compare</a>
+      <a href="../pricing.html">Pricing</a>
+      <a href="../faq.html">FAQ</a>
+    </div>
+    <div class="nav-cta">
+      <a href="../account.html" class="btn-text">Sign in</a>
+      <a href="../signup.html" class="btn">Begin a decision</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content">
+  <div class="method-page-inner">
+
+    <div class="method-page-breadcrumb">
+      <a href="index.html">← Engineering</a>
+      <span>·</span>
+      <span>The privacy mechanism</span>
+    </div>
+
+    <div class="method-page-head">
+      <div class="method-page-eyebrow">THE MECHANISM IN FULL</div>
+      <h1 class="method-page-title">How the seal is enforced, layer by <span class="ital">layer.</span></h1>
+      <p class="method-page-lede">The promise that neither partner sees the other's votes until verdict day, and that no Counsel.day operator reads them through the application or the service-role key at any point, has to be enforced somewhere that does not depend on trust. <strong>Trust is fragile; database structure is not.</strong> This piece walks each enforcement layer from the threat model down to the workflows we deliberately refused to build · including the one exception where, on paid tiers, an anonymised copy of the notes is sent to our AI vendor (zero-retention API) on verdict day to write the synthesis paragraph.</p>
+      <div class="method-page-meta">
+        <div class="item"><span>Reading time</span><span class="val">16 minutes</span></div>
+        <div class="item"><span>Layers covered</span><span class="val">Five, plus what we did not build</span></div>
+        <div class="item"><span>Last revised</span><span class="val wine">15 May 2026</span></div>
+      </div>
+    </div>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">THE THREAT MODEL</div>
+        <h2 class="method-stage-title">What could go wrong if the seal <span class="ital">failed.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>The threat model is small and specific. A user of Counsel.day is trusting us not to leak their daily votes or the notes attached to them, in three distinct directions. <strong>To their partner</strong>, before the verdict day. <strong>To Counsel.day staff</strong>, ever. <strong>To anyone else</strong> · a subpoena, a database breach, a hostile insider, a third-party analytics vendor accidentally hoovering form values.</p>
+        <p>The first of these three is the load-bearing one for the product. If either partner can read the other's vote mid-period · even indirectly, through a count, a rounded average, an indicator of conviction strength · the anchoring problem the product exists to solve has reappeared inside the product itself. The other two are the load-bearing ones for the business. If staff can see votes, the product has become a confessional kept by strangers; if an attacker can see votes, every user has to assume an audience.</p>
+        <p>Each subsequent section addresses one direction of leakage. The threat model is the test: a change to the codebase that loosens any of these directions, even on a code path that "would never be called in production," is a regression.</p>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">THE DATABASE LAYER</div>
+        <h2 class="method-stage-title">Row-level security in <span class="ital">Postgres.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>The <code>votes</code> table holds one row per (decision, participant, day). Row-level security is enabled on it at the table level, and the policy is the smallest, strictest thing we could write: a participant may select rows belonging to their own user id, and only when the decision is past its verdict day. Before that day the only path that reads <code>votes</code> is the verdict-computation worker, which runs under a service role with a narrow grant scoped to a single decision id passed in at job time.</p>
+        <p>The policy is shaped so the partner case is impossible to express. There is no condition like "participant is in this decision" · only "participant is this user, and the verdict is open." A bug in application code that forgets to scope a query, or a future engineer who tries to add a "preview" feature, will get an empty result set rather than a leak.</p>
+<pre><code>-- Enabled on votes, vote_notes, conviction_smoothed
+ALTER TABLE votes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE votes FORCE ROW LEVEL SECURITY;
+
+CREATE POLICY votes_owner_after_verdict
+  ON votes
+  FOR SELECT
+  TO app_user
+  USING (
+    participant_id = current_setting('app.user_id')::uuid
+    AND EXISTS (
+      SELECT 1 FROM decisions d
+      WHERE d.id = votes.decision_id
+        AND d.verdict_opened_at IS NOT NULL
+        AND d.verdict_opened_at &lt;= now()
+    )
+  );
+
+-- No UPDATE or DELETE policy is granted to app_user on votes.
+-- The only mutator is the evening-vote endpoint, which runs as
+-- a separate role with INSERT only, scoped to today's date.</code></pre>
+        <p>The same shape repeats on <code>vote_notes</code> (the free-text Why a vote was cast that way) and on the daily <code>conviction_smoothed</code> view that the verdict worker consumes. Three tables, three policies, all expressed in the same primitive: own id, after verdict.</p>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">THE APPLICATION LAYER</div>
+        <h2 class="method-stage-title">No admin override; the sealed path is the only <span class="ital">path.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>The application has no "view as user" mode for sealed data. The admin portal can see, for any decision, that votes were cast on certain dates · the timestamps are not sealed, because the product needs to display the "your partner has voted today" indicator · but the verdict value, the vote level, and the note text are unreadable to admin code paths before the verdict opens.</p>
+        <p>This is enforced two ways. First, the admin service runs under a role whose grants exclude the sealed columns entirely; a stray <code>SELECT *</code> from an admin handler returns columns minus the sealed ones, by table grant. Second, the read functions for sealed data accept an explicit "verdict-open guard" parameter; if the guard is false the function returns null, regardless of caller. We test this with a static analyser in CI that flags any admin-namespace function that touches a sealed column.</p>
+        <p>The application layer also enforces the invariant that there is one and only one read path for sealed data: <code>read_verdict(decision_id, user_id)</code>. Every UI surface that displays a verdict goes through this function. There is no second, "convenient" path used by, for example, the email-render service. The email-render service is a client of <code>read_verdict</code>, like everything else.</p>
+        <p class="method-pullquote">An admin who wanted to see a user's votes mid-period would have to write code that the static analyser would block before the pull request was reviewable. That is the threshold we hold ourselves to: not "we wouldn't do that" but "we couldn't do that without writing a commit a reviewer would notice."</p>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">THE ROUTING LAYER</div>
+        <h2 class="method-stage-title">Which endpoints can ever return sealed <span class="ital">data.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>The API surface is split into three sub-routers, each on a different mount point, each with a different authentication policy and a different list of grants on the database role it uses.</p>
+        <ul>
+          <li><strong>The vote router</strong> at <code>/api/vote</code> accepts INSERTs into the day's row only. Its database role has no SELECT on sealed columns. It cannot, by capability, ever return a sealed value.</li>
+          <li><strong>The verdict router</strong> at <code>/api/verdict</code> serves the open verdict, after the verdict-opened guard has fired. Its role can SELECT sealed columns through <code>read_verdict</code> only.</li>
+          <li><strong>The admin router</strong> at <code>/admin/api</code> serves operational metadata: decision counts, timestamps, billing, support tickets. Its role has no grant on sealed columns at all.</li>
+        </ul>
+        <p>A request that reaches the wrong router by misrouting returns a 404 from the application before the database is touched, because the handler does not exist on that mount point. A request that reaches the right router with the wrong scope returns a 403 from the verdict-open guard. A request that reaches the right router with the right scope returns the verdict.</p>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">THE AUDIT TRAIL</div>
+        <h2 class="method-stage-title">Who could observe what, and what we log to detect a <span class="ital">leak.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>Every call to <code>read_verdict</code> is logged with caller id, decision id, the verdict-opened-at timestamp the call saw, and the request id of the HTTP request that triggered it. Every change to a row-level security policy is logged at the database level and shipped to the audit store. Every grant change on every role is logged. Every admin login, every support-tool action, every export.</p>
+        <p>The audit trail is append-only and lives in a separate Postgres cluster under a separate role; the production database cannot delete from it, and the admin portal has no UI for editing audit rows. We run a nightly anomaly job: a verdict read that happened more than once for the same user-decision pair in a short window, a verdict read whose timestamp falls before the verdict-opened-at on the corresponding decision, a grant change outside business hours. Each anomaly raises an incident.</p>
+        <p>Audit logs are retained for two years and surfaced to the user on request, scoped to their own decisions, as part of the GDPR data-export workflow described in the data-architecture piece.</p>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">WHAT WE DELIBERATELY DID NOT BUILD</div>
+        <h2 class="method-stage-title">The absences are <span class="ital">the architecture.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>Several features that a different team would have built are missing from Counsel.day on purpose. Their absence is more important than any policy or grant, because anything we did not build cannot leak.</p>
+        <ul>
+          <li><strong>No encryption-key escrow.</strong> Per-decision keys are held in Infisical and never written to a recovery vault. If a user loses access to their account, we cannot recover their sealed data; we can only delete the decision on request.</li>
+          <li><strong>No operator decrypt path.</strong> There is no internal tool, no support runbook, no "break-glass" SQL function that decrypts a sealed value. Support cannot read a user's votes for any reason. If a user opens a support ticket about a specific verdict, they include the relevant detail themselves.</li>
+          <li><strong>No "preview the verdict" feature.</strong> The verdict cannot be unsealed early. We have been asked. The answer is no, because the moment a path exists to unseal early, the path exists to unseal early for the partner.</li>
+          <li><strong>No third-party analytics inside the app.</strong> The marketing surfaces carry GA4 (loaded via <code>ga4.js</code>, declared in the cookies and sub-processor pages). The in-app surfaces · vote, verdict, account · carry no third-party scripts at all, so no analytics provider can ever observe sealed form values.</li>
+        </ul>
+        <p>The privacy mechanism is the sum of these layers, plus these absences. We can describe it in public because it is publishable; the schema is enforced, not hidden. The companion piece on the data architecture walks the same system from the other direction: what tables exist, what is encrypted, what is exported, what is deleted, and on what schedule.</p>
+      </div>
+      <p class="method-stage-aside"><a href="the-data-architecture.html">Read next · The data architecture, end to end →</a></p>
+    </section>
+
+  </div>
+</main>
+
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Each evening, you cast one private vote on the same question, for a duration you set, with every vote sealed in the database until the final day. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The product</h5>
+        <a href="../method.html">The method</a>
+        <a href="../why-time.html">Why time</a>
+        <a href="../distinction.html">The distinction</a>
+          <a href="../verdict.html">A real verdict</a>
+        <a href="../family.html">For families</a>
+        <a href="../compare.html">Compare</a>
+        <a href="../signup.html">Start free</a>
+        <a href="../pricing.html">The editions</a>
+      </div>
+      <div class="colophon-col">
+        <h5>For practitioners</h5>
+        <a href="../therapists.html">For therapists</a>
+        <a href="../counsellors.html">For counsellors</a>
+        <a href="index.html">Engineering</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The company</h5>
+          <a href="../about/james-graham.html">James Graham · founder</a>
+        <a href="../help.html">Help</a>
+        <a href="../contact.html">Contact</a>
+        <a href="../security.html">Security</a>
+        <a href="../accessibility.html">Accessibility</a>
+        <a href="../press.html">Press</a>
+        <a href="../status.html">Status</a>
+        <a href="../changelog.html">Changelog</a>
+        <a href="../journal/">The Journal</a>
+        <a href="../faq.html">FAQ</a>
+        <a href="../account.html">Your account</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The fine print</h5>
+        <a href="../privacy.html">Privacy</a>
+        <a href="../terms.html">Terms</a>
+        <a href="../cookies.html">Cookies</a>
+        <a href="../sub-processors.html">Sub-processors</a>
+        <a href="../refunds.html">Refunds</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>© 2026 Counsel.day · USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+
+<a class="go-to-top" id="go-to-top" href="#top" aria-label="Go to top of page">
+  <svg viewBox="0 0 24 24" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+  <span class="label">Top</span>
+</a>
+<script>
+(function () {
+  var btn = document.getElementById('go-to-top');
+  if (!btn) return;
+  function update() { if (window.scrollY > 600) { btn.classList.add('visible'); } else { btn.classList.remove('visible'); } }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+  btn.addEventListener('click', function (e) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
+<script src="../ga4.js" defer></script>
+</body>
+</html>

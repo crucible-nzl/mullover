@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<!-- Order is load-bearing: Consent Mode v2 defaults MUST be set BEFORE -->
+<!-- GTM and gtag load, or the first pageview ships before user choice. -->
+<!-- This block is injected into every public HTML <head> by             -->
+<!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
+
+<!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':         'denied',
+    'ad_user_data':       'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage':  'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage':   'granted',
+    'wait_for_update':    500
+  });
+  // Honour Global Privacy Control + Do-Not-Track before any tag fires.
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':         'denied',
+      'ad_user_data':       'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage':  'denied'
+    });
+  }
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', {
+    'anonymize_ip': true,
+    'allow_google_signals': false,
+    'allow_ad_personalization_signals': false
+  });
+</script>
+<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
+
+<title>Tonight's vote · Counsel.day</title>
+<meta name="description" content="Cast tonight's vote for your running decision. One tap, an optional sentence, sealed instantly.">
+<meta name="robots" content="noindex, nofollow">
+<meta property="article:modified_time" content="2026-05-15T19:00:00+12:00">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles-i8.css">
+<style>
+  /* App surface · scoped to vote-today only */
+  .app-shell { max-width: 1200px; margin: 0 auto; padding: 30px 48px 30px; }
+  .app-bread { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 28px; }
+  .app-bread a { color: var(--wine); border-bottom: 1px solid var(--wine); padding-bottom: 1px; text-decoration: none; }
+
+  .vote-stamp-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0; border: 1px solid var(--ink); margin: 20px 0 24px; }
+  .vote-stamp { padding: 22px 22px 24px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); background: var(--paper); cursor: pointer; text-align: left; font: inherit; color: inherit; transition: background 120ms ease; position: relative; }
+  .vote-stamp:nth-child(2n) { border-right: none; }
+  .vote-stamp:nth-last-child(-n+2) { border-bottom: none; }
+  .vote-stamp:hover { background: var(--paper-deep); }
+  .vote-stamp.selected { background: var(--wine-soft); border-color: var(--wine); }
+  .vote-stamp.selected::after { content: "SELECTED"; position: absolute; top: 14px; right: 14px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; padding: 3px 8px; background: var(--wine); color: var(--paper); }
+  .vote-stamp .band { font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine); margin-bottom: 12px; }
+  .vote-stamp .word { font-family: var(--font-display); font-weight: 500; font-size: 28px; line-height: 1.05; letter-spacing: -0.01em; color: var(--ink); margin-bottom: 8px; }
+  .vote-stamp .word .ital { font-style: italic; font-weight: 400; color: var(--wine); }
+  .vote-stamp .help { font-family: var(--font-body); font-size: 14px; line-height: 1.5; color: var(--ink-soft); }
+
+  .note-field { margin: 0 0 28px; }
+  .note-field-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin-bottom: 10px; display: flex; justify-content: space-between; }
+  .note-field-label .right { color: var(--muted); letter-spacing: 0.12em; }
+  .note-field textarea { width: 100%; min-height: 132px; padding: 16px 18px; border: 1px solid var(--rule); background: var(--paper); font-family: var(--font-body); font-size: 16px; line-height: 1.55; color: var(--ink); resize: vertical; }
+  .note-field textarea:focus { outline: none; border-color: var(--wine); }
+  .note-field textarea::placeholder { font-style: italic; color: var(--subtle); }
+  .note-field .count { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--muted); margin-top: 8px; text-align: right; text-transform: uppercase; }
+
+  .seal-strip { padding: 18px 22px; border: 1px solid var(--ink); background: var(--paper-deep); display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: center; margin-bottom: 24px; }
+  .seal-strip .left { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); }
+  .seal-strip .left strong { color: var(--wine); font-weight: 500; }
+  .seal-strip .right { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+
+  .commit-row { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .commit-row .skip { font-family: var(--font-ui); font-size: 14px; color: var(--muted); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  .commit-row .skip:hover { color: var(--wine); }
+  .commit-row .meta { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-left: auto; }
+
+  .sealed-footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--rule); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); text-align: center; }
+  .sealed-footer strong { color: var(--wine); font-weight: 500; }
+
+  @media (max-width: 600px) {
+    .vote-stamp-grid { grid-template-columns: 1fr; }
+    .vote-stamp { border-right: none; }
+    .vote-stamp:nth-last-child(-n+2) { border-bottom: 1px solid var(--rule); }
+    .vote-stamp:last-child { border-bottom: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="decisions.html">Your decisions</a>
+      <a href="vote-today.html" class="active">Tonight's vote</a>
+      <a href="compose.html">Compose</a>
+      <a href="account.html">Account</a>
+      <a href="help.html">Help</a>
+    </div>
+    <div class="nav-cta">
+      <a href="account.html" class="btn-text">James G.</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content">
+  <div class="app-shell">
+
+    <div class="app-bread">
+      <a href="decisions.html">← Your decisions</a>
+      <span style="margin: 0 10px;">·</span>
+      <span>TONIGHT'S VOTE</span>
+    </div>
+
+    <div class="record-envelope" style="max-width: none;">
+
+      <div class="record-header">
+        <span class="file-ref" id="cd-vote-dayref">DAY · …</span>
+        <span class="status-pill pending" id="cd-vote-status">Tonight, pending</span>
+        <span class="date-stamp" id="cd-vote-datestamp">…</span>
+      </div>
+
+      <div class="envelope-body">
+
+        <div class="slip-meta">
+          <span class="stamp-a">YOUR EVENING VOTE</span>
+          <span class="stamp-b" id="cd-vote-reveal">…</span>
+        </div>
+
+        <div class="slip-question" id="cd-vote-question" style="font-size: clamp(28px, 4vw, 40px); font-weight: 400; line-height: 1.12; letter-spacing: -0.015em; margin-bottom: 6px;">Loading tonight's question…</div>
+        <p style="font-family: var(--font-body); font-size: 16px; line-height: 1.6; color: var(--ink-soft); margin: 0 0 10px;">Cast your vote for tonight. Whatever you commit will be sealed the moment you tap, and stays sealed until the verdict day. Your partner can see only that you voted; never which way.</p>
+
+        <div style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin: 24px 0 12px;">VOTE TONIGHT · CHOOSE ONE</div>
+
+        <div class="vote-stamp-grid" role="radiogroup" aria-label="Tonight's vote">
+          <button type="button" class="vote-stamp" data-vote="strong-yes" role="radio" aria-checked="false" onclick="selectVote(this)">
+            <div class="band">STRONG · A</div>
+            <div class="word">Strong <span class="ital">Yes</span></div>
+            <div class="help">An unambiguous yes, on the balance of today.</div>
+          </button>
+          <button type="button" class="vote-stamp" data-vote="lean-yes" role="radio" aria-checked="false" onclick="selectVote(this)">
+            <div class="band">LEAN · A</div>
+            <div class="word">Lean <span class="ital">Yes</span></div>
+            <div class="help">Leaning yes, but with reservations you still hold.</div>
+          </button>
+          <button type="button" class="vote-stamp" data-vote="lean-no" role="radio" aria-checked="false" onclick="selectVote(this)">
+            <div class="band">LEAN · B</div>
+            <div class="word">Lean <span class="ital">No</span></div>
+            <div class="help">Leaning no, but with the door not fully closed.</div>
+          </button>
+          <button type="button" class="vote-stamp" data-vote="strong-no" role="radio" aria-checked="false" onclick="selectVote(this)">
+            <div class="band">STRONG · B</div>
+            <div class="word">Strong <span class="ital">No</span></div>
+            <div class="help">An unambiguous no, on the balance of today.</div>
+          </button>
+        </div>
+
+        <div class="note-field">
+          <div class="note-field-label">
+            <span>§ A NOTE · OPTIONAL · SEALED WITH THE VOTE</span>
+            <span class="right"><span id="note-count">0</span> / 3000</span>
+          </div>
+          <textarea id="note-text" placeholder="A sentence, a paragraph, or nothing. Write what shifted tonight. The analysis on the final day reads every note across the period and clusters the themes that recurred."></textarea>
+          <div class="count">AUTOSAVED · SEALED · UP TO 3,000 CHARACTERS</div>
+        </div>
+
+        <div class="seal-strip">
+          <div class="left">Sealing is permanent. <strong>You cannot change tonight's vote</strong> once committed.</div>
+          <div class="right">Sealed by: ed25519 + AES-256-GCM</div>
+        </div>
+
+        <div class="commit-row">
+          <button type="button" class="btn btn-large" onclick="sealVote()">SEAL TONIGHT'S VOTE</button>
+          <a href="decisions.html" class="skip">Skip tonight</a>
+          <span class="meta">Partner B · ALEX · voted at 18:42</span>
+        </div>
+
+      </div>
+
+      <div class="envelope-caption">THIS VOTE WILL REMAIN SEALED UNTIL 28 MAY 2026 · 22:00 NZST</div>
+    </div>
+
+    <div class="sealed-footer">
+      <strong>THIS VOTE WILL REMAIN SEALED UNTIL 28 MAY 2026.</strong> No admin override. No support escape hatch.
+    </div>
+
+  </div>
+</main>
+
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Each evening, you cast one private vote on the same question, for a duration you set, with every vote sealed in the database until the final day. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The app</h5>
+        <a href="decisions.html">Your decisions</a>
+        <a href="vote-today.html">Tonight's vote</a>
+        <a href="compose.html">Compose</a>
+        <a href="account.html">Your account</a>
+        <a href="billing.html">Billing</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The product</h5>
+        <a href="method.html">The method</a>
+        <a href="why-time.html">Why time</a>
+          <a href="verdict.html">A real verdict</a>
+      </div>
+      <div class="colophon-col">
+        <h5>Support</h5>
+        <a href="help.html">Help</a>
+        <a href="contact.html">Contact</a>
+        <a href="faq.html">FAQ</a>
+        <a href="status.html">Status</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The fine print</h5>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="refunds.html">Refunds</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>© 2026 Counsel.day · USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+
+<a class="go-to-top" id="go-to-top" href="#top" aria-label="Go to top of page">
+  <svg viewBox="0 0 24 24" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+  <span class="label">Top</span>
+</a>
+
+<script>
+function selectVote(btn) {
+  document.querySelectorAll('.vote-stamp').forEach(function (b) {
+    b.classList.remove('selected');
+    b.setAttribute('aria-checked', 'false');
+  });
+  btn.classList.add('selected');
+  btn.setAttribute('aria-checked', 'true');
+}
+
+/* Tracks the current decision once /api/vote-today loads it. */
+var CD_VOTE_STATE = { decisionId: null, alreadyVoted: false };
+
+function sealVote() {
+  var selected = document.querySelector('.vote-stamp.selected');
+  if (!selected) {
+    alert('Choose Strong Yes, Lean Yes, Lean No, or Strong No before sealing tonight\'s vote.');
+    return;
+  }
+  if (CD_VOTE_STATE.alreadyVoted) {
+    alert('You have already voted today on this decision. Come back tomorrow.');
+    return;
+  }
+  if (!CD_VOTE_STATE.decisionId) {
+    alert('No active decision found. Compose one first.');
+    return;
+  }
+  /* The kebab-case data-vote values map 1:1 to the API direction enum after snake-casing. */
+  var direction = selected.getAttribute('data-vote').replace(/-/g, '_');
+  var note = (document.getElementById('note-text').value || '').trim();
+  var btn = document.querySelector('.commit-row .btn');
+  btn.disabled = true;
+  var orig = btn.textContent;
+  btn.textContent = 'SEALING' + String.fromCharCode(0x2026);
+  fetch('/api/vote', {
+    method: 'POST', credentials: 'include',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      decision_id: CD_VOTE_STATE.decisionId,
+      direction: direction,
+      note: note || undefined
+    })
+  })
+  .then(function (r) {
+    if (r.status === 401) { window.location.href = '/signin?next=/vote-today.html'; return null; }
+    return r.json().then(function (j) { return { status: r.status, body: j }; });
+  })
+  .then(function (res) {
+    if (!res) return;
+    if (res.status === 200) {
+      alert('Vote sealed. See you tomorrow evening.');
+      window.location.href = '/decisions.html';
+    } else {
+      btn.disabled = false;
+      btn.textContent = orig;
+      alert((res.body && res.body.message) || 'Could not seal vote. Please try again.');
+    }
+  })
+  .catch(function () {
+    btn.disabled = false;
+    btn.textContent = orig;
+    alert('Network error. Please try again.');
+  });
+}
+
+(function () {
+  /* Hydrate the page from /api/vote-today. The page is auth-gated by Caddy
+     forward_auth so we have a session. A specific decision can be requested
+     via ?decision=<uuid>; otherwise the most recent active one is shown. */
+  function set(id, value) { var el = document.getElementById(id); if (el) el.textContent = value; }
+  function fmtDate(s) {
+    if (!s) return '';
+    var d = new Date(s);
+    return d.toLocaleDateString(undefined, { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
+  }
+  function fmtRevealDate(s) {
+    if (!s) return '';
+    var d = new Date(s);
+    return d.toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
+  }
+  var qs = new URLSearchParams(window.location.search);
+  var decisionParam = qs.get('decision');
+  var url = decisionParam ? ('/api/vote-today?decision=' + encodeURIComponent(decisionParam)) : '/api/vote-today';
+  fetch(url, { credentials: 'include' })
+    .then(function (r) {
+      if (r.status === 401) { window.location.href = '/signin?next=/vote-today.html'; return null; }
+      if (r.status === 404) {
+        document.querySelector('.envelope-body').innerHTML =
+          '<div style="padding: 40px 0; text-align: center;">' +
+          '<p style="font-family: var(--font-body); font-size: 17px; color: var(--ink); margin: 0 0 22px;">You have no active decisions tonight.</p>' +
+          '<a href="/compose.html" class="btn">Compose a decision</a>' +
+          '</div>';
+        return null;
+      }
+      return r.json();
+    })
+    .then(function (d) {
+      if (!d || !d.ok) return;
+      CD_VOTE_STATE.decisionId = d.decision.id;
+      CD_VOTE_STATE.alreadyVoted = !!d.voted_today;
+      var revealLabel = (d.decision.duration_days - (d.decision.day_number || 1)) + ' EVENINGS REMAINING · REVEAL ' + fmtRevealDate(d.decision.unseals_at);
+      set('cd-vote-dayref', 'DAY ' + (d.decision.day_number || 1) + ' OF ' + d.decision.duration_days);
+      set('cd-vote-datestamp', fmtDate(new Date()));
+      set('cd-vote-reveal', revealLabel);
+      var q = document.getElementById('cd-vote-question');
+      if (q) q.textContent = d.decision.question;
+      if (d.voted_today) {
+        set('cd-vote-status', 'Voted tonight');
+        var ce = document.querySelector('.commit-row .btn');
+        if (ce) { ce.disabled = true; ce.textContent = 'ALREADY VOTED TONIGHT'; }
+        document.querySelectorAll('.vote-stamp').forEach(function (b) { b.disabled = true; });
+        var ta = document.getElementById('note-text');
+        if (ta) ta.disabled = true;
+      }
+    })
+    .catch(function () {
+      document.querySelector('.envelope-body').insertAdjacentHTML('afterbegin',
+        '<p style="color: #c0392b; font-family: var(--font-body); padding: 12px; margin: 0 0 18px; background: #fdecea; border-left: 3px solid #c0392b;">Could not load tonight\'s decision. Refresh the page.</p>');
+    });
+
+  var ta = document.getElementById('note-text');
+  var count = document.getElementById('note-count');
+  if (ta && count) {
+    ta.addEventListener('input', function () {
+      var n = ta.value.length;
+      if (n > 3000) { ta.value = ta.value.slice(0, 3000); }
+      count.textContent = Math.min(n, 3000);
+    });
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+    var map = { '1': 'strong-yes', '2': 'lean-yes', '3': 'lean-no', '4': 'strong-no' };
+    if (map[e.key]) {
+      var b = document.querySelector('[data-vote="' + map[e.key] + '"]');
+      if (b) selectVote(b);
+    }
+  });
+
+  var top = document.getElementById('go-to-top');
+  if (top) {
+    function update() { if (window.scrollY > 600) { top.classList.add('visible'); } else { top.classList.remove('visible'); } }
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+    top.addEventListener('click', function (e) { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  }
+})();
+</script>
+<script src="ga4.js" defer></script>
+</body>
+</html>

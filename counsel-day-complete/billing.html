@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<!-- Order is load-bearing: Consent Mode v2 defaults MUST be set BEFORE -->
+<!-- GTM and gtag load, or the first pageview ships before user choice. -->
+<!-- This block is injected into every public HTML <head> by             -->
+<!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
+
+<!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':         'denied',
+    'ad_user_data':       'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage':  'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage':   'granted',
+    'wait_for_update':    500
+  });
+  // Honour Global Privacy Control + Do-Not-Track before any tag fires.
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':         'denied',
+      'ad_user_data':       'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage':  'denied'
+    });
+  }
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', {
+    'anonymize_ip': true,
+    'allow_google_signals': false,
+    'allow_ad_personalization_signals': false
+  });
+</script>
+<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
+
+<title>Billing history · Counsel.day</title>
+<meta name="description" content="Every charge, refund, and Stripe-generated invoice on your Counsel.day account. Download invoice PDFs and receipts, export the full history as CSV, or open the Stripe Customer Portal.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="author" content="James Graham, founder of Counsel.day">
+<meta property="article:modified_time" content="2026-05-15T19:00:00+12:00">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="canonical" href="https://counsel.day/billing">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles-i8.css">
+<style>
+/* billing.html · app surface · ledger and Stripe portal access */
+
+.bill-head { display: grid; grid-template-columns: 1fr auto; gap: 28px; align-items: end; padding-bottom: 28px; border-bottom: 1px solid var(--ink); margin-bottom: 30px; }
+.bill-head .who .eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--wine); margin-bottom: 18px; }
+.bill-head .who h1 { font-family: var(--font-display); font-size: clamp(34px, 4.4vw, 50px); font-weight: 400; line-height: 1.06; letter-spacing: -0.018em; color: var(--ink); margin: 0; }
+.bill-head .who h1 .ital { font-style: italic; color: var(--wine); font-weight: 400; }
+.bill-head .who .lede { font-family: var(--font-body); font-size: 17px; line-height: 1.6; color: var(--ink-soft); margin: 14px 0 0; max-width: 760px; }
+.bill-head .who .lede strong { color: var(--ink); font-weight: 500; }
+.bill-head .actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+@media (max-width: 720px) { .bill-head { grid-template-columns: 1fr; } }
+
+/* Summary card */
+.bill-summary { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--ink); background: var(--paper); margin-bottom: 30px; }
+.bill-summary .cell { padding: 24px 26px; border-right: 1px solid var(--rule); }
+.bill-summary .cell:last-child { border-right: none; }
+.bill-summary .cell .lbl { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin-bottom: 12px; }
+.bill-summary .cell .val { font-family: var(--font-display); font-size: 28px; font-weight: 500; line-height: 1.1; color: var(--ink); letter-spacing: -0.012em; }
+.bill-summary .cell .val .ital { font-style: italic; color: var(--wine); font-weight: 400; }
+.bill-summary .cell .val .unit { font-family: var(--font-mono); font-size: 11px; font-weight: 500; color: var(--muted); margin-left: 6px; letter-spacing: 0.12em; text-transform: uppercase; }
+.bill-summary .cell .sub { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 10px; }
+@media (max-width: 900px) { .bill-summary { grid-template-columns: 1fr 1fr; } .bill-summary .cell:nth-child(2n) { border-right: none; } .bill-summary .cell:nth-child(-n+2) { border-bottom: 1px solid var(--rule); } }
+@media (max-width: 540px) { .bill-summary { grid-template-columns: 1fr; } .bill-summary .cell { border-right: none; border-bottom: 1px solid var(--rule); } .bill-summary .cell:last-child { border-bottom: none; } }
+
+/* Ledger table · duration-table style */
+.ledger { border: 1px solid var(--ink); margin-top: 12px; }
+.ledger-row { display: grid; grid-template-columns: 130px 2fr 110px 110px 120px; border-bottom: 1px solid var(--rule); align-items: center; }
+.ledger-row:last-child { border-bottom: none; }
+.ledger-row.head { background: var(--ink); color: var(--paper); }
+.ledger-row.head .ledger-cell { color: var(--paper); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; padding: 14px 18px; border-right: 1px solid rgba(255,255,255,0.15); }
+.ledger-row.head .ledger-cell:last-child { border-right: none; }
+.ledger-cell { padding: 18px 18px; border-right: 1px solid var(--rule); font-family: var(--font-body); font-size: 15px; color: var(--ink); }
+.ledger-cell:last-child { border-right: none; }
+.ledger-cell.date { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; color: var(--ink-soft); white-space: nowrap; }
+.ledger-cell.desc .desc-title { font-family: var(--font-body); font-weight: 500; color: var(--ink); display: block; margin-bottom: 4px; font-size: 16px; }
+.ledger-cell.desc .desc-sub { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--muted); }
+.ledger-cell.amount { font-family: var(--font-mono); font-size: 14px; font-weight: 500; color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ledger-cell.amount .currency { color: var(--muted); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; margin-left: 4px; }
+.ledger-cell.amount.refund { color: var(--wine); }
+.ledger-cell.status { text-align: center; }
+.ledger-cell.invoice { text-align: right; }
+.ledger-cell.invoice a { font-family: var(--font-ui); font-size: 12px; font-weight: 500; color: var(--wine); text-decoration: none; border-bottom: 1px solid var(--wine); padding-bottom: 1px; }
+.ledger-cell.invoice a:hover { color: var(--wine-deep); }
+.ledger-cell.invoice .none { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--subtle); text-transform: uppercase; }
+
+.status-tag { display: inline-block; padding: 4px 10px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; border: 1px solid; }
+.status-tag.paid { border-color: var(--ink); color: var(--ink); background: var(--paper); }
+.status-tag.refunded { border-color: var(--wine); color: var(--wine); background: var(--wine-soft); }
+
+@media (max-width: 900px) {
+  .ledger-row { grid-template-columns: 1fr; }
+  .ledger-row.head { display: none; }
+  .ledger-cell { border-right: none; border-bottom: 1px solid var(--rule); padding: 10px 18px; text-align: left !important; }
+  .ledger-cell.amount, .ledger-cell.status, .ledger-cell.invoice { text-align: left; }
+}
+
+.bill-actions-row { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 24px; align-items: center; }
+
+.stripe-note { padding: 24px 28px; background: var(--paper-deep); border: 1px solid var(--rule); margin-top: 30px; max-width: 920px; }
+.stripe-note .note-label { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin-bottom: 10px; }
+.stripe-note p { font-family: var(--font-body); font-size: 15px; line-height: 1.6; color: var(--ink-soft); margin: 0 0 10px; }
+.stripe-note p:last-child { margin-bottom: 0; }
+.stripe-note p strong { color: var(--ink); font-weight: 500; }
+.stripe-note a { color: var(--wine); }
+</style>
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="decisions.html">Your decisions</a>
+      <a href="help.html">Help</a>
+    </div>
+    <div class="nav-cta">
+      <a href="account.html" class="btn-text">Your account</a>
+      <a href="billing.html" class="btn-text" style="color: var(--wine);">Billing</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content">
+  <div class="method-page-inner">
+
+    <div class="method-page-breadcrumb">
+      <a href="account.html">← Your account</a>
+      <span>·</span>
+      <span>Billing history</span>
+    </div>
+
+    <div class="bill-head">
+      <div class="who">
+        <div class="eyebrow">File · Billing · The complete ledger</div>
+        <h1>Billing <span class="ital">history.</span></h1>
+        <p class="lede">Every charge, refund, and Stripe-generated invoice on your account. All amounts in <strong>USD</strong>. Invoices are also emailed to <strong>jamie@example.com</strong> at the moment of each charge.</p>
+      </div>
+      <div class="actions">
+        <a href="#export" class="btn btn-ghost">Export all as CSV</a>
+        <button type="button" id="cd-portal-btn-top" class="btn">Open Stripe Customer Portal</button>
+      </div>
+      <div id="cd-portal-err" role="alert" aria-live="polite" style="display: none; margin-top: 14px; padding: 12px 16px; background: #fdecea; border-left: 3px solid #c0392b; color: #6b1e16; font-family: var(--font-body); font-size: 14px; line-height: 1.5; max-width: 760px;"></div>
+    </div>
+
+    <!-- SUMMARY -->
+    <section style="margin-bottom: 30px;">
+      <div class="bill-summary">
+        <div class="cell">
+          <div class="lbl">Current plan</div>
+          <div class="val">Couple <span class="ital">Annual</span></div>
+          <div class="sub">Up to 100 Couple decisions / year</div>
+        </div>
+        <div class="cell">
+          <div class="lbl">Next renewal</div>
+          <div class="val">12 Mar 2027</div>
+          <div class="sub">In 301 days · auto-renews</div>
+        </div>
+        <div class="cell">
+          <div class="lbl">Renewal amount</div>
+          <div class="val">$99.00<span class="unit">USD</span></div>
+          <div class="sub">Charged to •••• 4242</div>
+        </div>
+        <div class="cell">
+          <div class="lbl">Total billed · lifetime</div>
+          <div class="val">$143.97<span class="unit">USD</span></div>
+          <div class="sub">Net of $25 USD in refunds</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LEDGER -->
+    <section class="method-stage" style="border-bottom: none; padding-bottom: 0;">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">§ 01 · Ledger</div>
+        <h2 class="method-stage-title">Every charge and <span class="ital">refund.</span></h2>
+      </div>
+
+      <div class="ledger" role="table" aria-label="Billing ledger">
+        <div class="ledger-row head" role="row">
+          <div class="ledger-cell" role="columnheader">Date</div>
+          <div class="ledger-cell" role="columnheader">Description</div>
+          <div class="ledger-cell" role="columnheader" style="text-align:right;">Amount</div>
+          <div class="ledger-cell" role="columnheader" style="text-align:center;">Status</div>
+          <div class="ledger-cell" role="columnheader" style="text-align:right;">Invoice</div>
+        </div>
+
+        <div class="ledger-row" role="row">
+          <div class="ledger-cell date">12 Mar 2026</div>
+          <div class="ledger-cell desc">
+            <span class="desc-title">Consumer Annual · subscription · year one</span>
+            <span class="desc-sub">CD-INV-2026-03-0001 · Stripe pi_3O...8a</span>
+          </div>
+          <div class="ledger-cell amount">$99.00<span class="currency">USD</span></div>
+          <div class="ledger-cell status"><span class="status-tag paid">Paid</span></div>
+          <div class="ledger-cell invoice"><a href="#">Download PDF</a></div>
+        </div>
+
+        <div class="ledger-row" role="row">
+          <div class="ledger-cell date">28 Feb 2026</div>
+          <div class="ledger-cell desc">
+            <span class="desc-title">Family · decision CD-2026-02-7741</span>
+            <span class="desc-sub">"Should we move to Australia for two years?" · 60-day decision</span>
+          </div>
+          <div class="ledger-cell amount">16.99<span class="currency">USD</span></div>
+          <div class="ledger-cell status"><span class="status-tag paid">Paid</span></div>
+          <div class="ledger-cell invoice"><a href="#">Download PDF</a></div>
+        </div>
+
+        <div class="ledger-row" role="row">
+          <div class="ledger-cell date">14 Feb 2026</div>
+          <div class="ledger-cell desc">
+            <span class="desc-title">Couple · decision CD-2026-02-5512</span>
+            <span class="desc-sub">"Should we put an offer on the Cashmere house?" · 14-day decision</span>
+          </div>
+          <div class="ledger-cell amount">12.99<span class="currency">USD</span></div>
+          <div class="ledger-cell status"><span class="status-tag paid">Paid</span></div>
+          <div class="ledger-cell invoice"><a href="#">Download PDF</a></div>
+        </div>
+
+        <div class="ledger-row" role="row">
+          <div class="ledger-cell date">02 Feb 2026</div>
+          <div class="ledger-cell desc">
+            <span class="desc-title">Couple · decision CD-2026-02-4108</span>
+            <span class="desc-sub">Refund processed within 24 hours of purchase · unused decision</span>
+          </div>
+          <div class="ledger-cell amount refund">−12.99<span class="currency">USD</span></div>
+          <div class="ledger-cell status"><span class="status-tag refunded">Refunded</span></div>
+          <div class="ledger-cell invoice"><a href="#">Credit note</a></div>
+        </div>
+
+        <div class="ledger-row" role="row">
+          <div class="ledger-cell date">02 Feb 2026</div>
+          <div class="ledger-cell desc">
+            <span class="desc-title">Couple · decision CD-2026-02-4108</span>
+            <span class="desc-sub">Original charge · later refunded</span>
+          </div>
+          <div class="ledger-cell amount">12.99<span class="currency">USD</span></div>
+          <div class="ledger-cell status"><span class="status-tag paid">Paid</span></div>
+          <div class="ledger-cell invoice"><a href="#">Download PDF</a></div>
+        </div>
+
+        <div class="ledger-row" role="row">
+          <div class="ledger-cell date">19 Jan 2026</div>
+          <div class="ledger-cell desc">
+            <span class="desc-title">Solo · decision CD-2026-01-3209</span>
+            <span class="desc-sub">"Should I take the offer at the second firm?" · 30-day decision</span>
+          </div>
+          <div class="ledger-cell amount">9.99<span class="currency">USD</span></div>
+          <div class="ledger-cell status"><span class="status-tag paid">Paid</span></div>
+          <div class="ledger-cell invoice"><a href="#">Download PDF</a></div>
+        </div>
+
+        <div class="ledger-row" role="row">
+          <div class="ledger-cell date">08 Jan 2026</div>
+          <div class="ledger-cell desc">
+            <span class="desc-title">Couple · decision CD-2026-01-2074</span>
+            <span class="desc-sub">"Should we have a second child this year?" · 90-day decision</span>
+          </div>
+          <div class="ledger-cell amount">12.99<span class="currency">USD</span></div>
+          <div class="ledger-cell status"><span class="status-tag paid">Paid</span></div>
+          <div class="ledger-cell invoice"><a href="#">Download PDF</a></div>
+        </div>
+
+        <div class="ledger-row" role="row">
+          <div class="ledger-cell date">22 Dec 2025</div>
+          <div class="ledger-cell desc">
+            <span class="desc-title">Family · decision CD-2025-12-9933</span>
+            <span class="desc-sub">"Where does the family spend Christmas next year?" · 14-day decision · refunded after dispute</span>
+          </div>
+          <div class="ledger-cell amount refund">−16.99<span class="currency">USD</span></div>
+          <div class="ledger-cell status"><span class="status-tag refunded">Refunded</span></div>
+          <div class="ledger-cell invoice"><a href="#">Credit note</a></div>
+        </div>
+
+        <div class="ledger-row" role="row">
+          <div class="ledger-cell date">22 Dec 2025</div>
+          <div class="ledger-cell desc">
+            <span class="desc-title">Family · decision CD-2025-12-9933</span>
+            <span class="desc-sub">Original charge · later refunded</span>
+          </div>
+          <div class="ledger-cell amount">16.99<span class="currency">USD</span></div>
+          <div class="ledger-cell status"><span class="status-tag paid">Paid</span></div>
+          <div class="ledger-cell invoice"><a href="#">Download PDF</a></div>
+        </div>
+
+        <div class="ledger-row" role="row">
+          <div class="ledger-cell date">04 Dec 2025</div>
+          <div class="ledger-cell desc">
+            <span class="desc-title">Solo · decision CD-2025-12-7702</span>
+            <span class="desc-sub">"Should I leave the partnership at the firm?" · 60-day decision</span>
+          </div>
+          <div class="ledger-cell amount">9.99<span class="currency">USD</span></div>
+          <div class="ledger-cell status"><span class="status-tag paid">Paid</span></div>
+          <div class="ledger-cell invoice"><a href="#">Download PDF</a></div>
+        </div>
+
+        <div class="ledger-row" role="row">
+          <div class="ledger-cell date">15 Nov 2025</div>
+          <div class="ledger-cell desc">
+            <span class="desc-title">Solo · first decision · free</span>
+            <span class="desc-sub">Free first lifetime Solo decision · no charge made</span>
+          </div>
+          <div class="ledger-cell amount">$0.00<span class="currency">USD</span></div>
+          <div class="ledger-cell status"><span class="status-tag paid">Paid</span></div>
+          <div class="ledger-cell invoice"><span class="none">No invoice</span></div>
+        </div>
+      </div>
+
+      <div class="bill-actions-row">
+        <a href="#export" class="btn btn-ghost">Export all as CSV</a>
+        <button type="button" id="cd-portal-btn-bottom" class="btn">Open Stripe Customer Portal</button>
+        <a href="refunds.html" class="btn-text" style="border-bottom: 1px solid var(--wine); padding-bottom: 2px;">Read the refund policy →</a>
+      </div>
+
+      <div class="stripe-note">
+        <div class="note-label">§ How billing works</div>
+        <p><strong>Counsel.day uses Stripe for payments.</strong> Every charge is made directly by Stripe and shows up under "Counsel.day" on your statement. Invoices are generated by Stripe at the moment of each charge and emailed to the address on the account; they can also be downloaded as PDFs from the ledger above.</p>
+        <p>The Stripe Customer Portal lets you update your card, change your billing address, and cancel or pause your subscription. Refunds follow the policy on <a href="refunds.html">refunds.html</a> · we refund only where our tool failed or where local consumer-protection law requires it. No change-of-mind, no partial-completion refunds.</p>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- ============================================================ -->
+<!-- COLOPHON                                                     -->
+<!-- ============================================================ -->
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Each evening, you cast one private vote on the same question, for a duration you set, with every vote sealed in the database until the final day. When the verdict opens, you see where you converged, where you diverged, the themes underneath your own words, and one specific next conversation. The deciding stays with you; the structure is ours. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The product</h5>
+        <a href="method.html">The method</a>
+        <a href="why-time.html">Why time</a>
+        <a href="distinction.html">The distinction</a>
+          <a href="verdict.html">A real verdict</a>
+        <a href="family.html">For families</a>
+        <a href="compare.html">Compare</a>
+        <a href="signup.html">Start free</a>
+        <a href="pricing.html">The editions</a>
+      </div>
+      <div class="colophon-col">
+        <h5>For practitioners</h5>
+        <a href="therapists.html">For therapists</a>
+        <a href="counsellors.html">For counsellors</a>
+        <a href="engineering/index.html">Engineering</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The company</h5>
+          <a href="about/james-graham.html">James Graham · founder</a>
+        <a href="help.html">Help</a>
+        <a href="contact.html">Contact</a>
+        <a href="security.html">Security</a>
+        <a href="accessibility.html">Accessibility</a>
+        <a href="press.html">Press</a>
+        <a href="status.html">Status</a>
+        <a href="changelog.html">Changelog</a>
+        <a href="journal/">The Journal</a>
+        <a href="faq.html">FAQ</a>
+        <a href="account.html">Your account</a>
+        <a href="mailto:press@counsel.day">Press</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The fine print</h5>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="cookies.html">Cookies</a>
+        <a href="sub-processors.html">Sub-processors</a>
+        <a href="refunds.html">Refunds</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>© 2026 Counsel.day · USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+
+<a class="go-to-top" id="go-to-top" href="#top" aria-label="Go to top of page">
+  <svg viewBox="0 0 24 24" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+  <span class="label">Top</span>
+</a>
+<script>
+(function () {
+  var top = document.getElementById('go-to-top');
+  if (!top) return;
+  function update() { if (window.scrollY > 600) { top.classList.add('visible'); } else { top.classList.remove('visible'); } }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+  top.addEventListener('click', function (e) { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+})();
+</script>
+<script>
+// Stripe Customer Portal handoff. Both "Open Stripe Customer Portal"
+// buttons POST to /api/billing/portal, which mints a one-time portal
+// session URL on the user's stripe_customer_id and returns it. We then
+// 302 the browser to Stripe's hosted page.
+(function () {
+  var btns = [document.getElementById('cd-portal-btn-top'), document.getElementById('cd-portal-btn-bottom')].filter(Boolean);
+  var errEl = document.getElementById('cd-portal-err');
+  if (btns.length === 0) return;
+
+  function showErr(msg) {
+    if (!errEl) { alert(msg); return; }
+    errEl.style.display = 'block';
+    errEl.textContent = msg;
+  }
+  function setBusy(busy) {
+    btns.forEach(function (b) {
+      b.disabled = busy;
+      if (busy) { b.dataset.origLabel = b.textContent; b.textContent = 'Opening' + String.fromCharCode(0x2026); }
+      else if (b.dataset.origLabel) { b.textContent = b.dataset.origLabel; }
+    });
+  }
+
+  function openPortal() {
+    if (errEl) errEl.style.display = 'none';
+    setBusy(true);
+    fetch('/api/billing/portal', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { accept: 'application/json' },
+    })
+      .then(function (r) {
+        if (r.status === 401) {
+          window.location.href = '/signin.html?next=' + encodeURIComponent(location.pathname);
+          throw new Error('redirect');
+        }
+        return r.json().then(function (j) { return { status: r.status, body: j }; });
+      })
+      .then(function (res) {
+        if (res.status === 200 && res.body && res.body.url) {
+          window.location.href = res.body.url;
+          return;
+        }
+        setBusy(false);
+        showErr((res.body && res.body.message) || 'Could not open the billing portal. Please try again or contact support.');
+      })
+      .catch(function (e) {
+        if (e && e.message === 'redirect') return;
+        setBusy(false);
+        showErr('Network error. Please try again.');
+      });
+  }
+
+  btns.forEach(function (b) { b.addEventListener('click', openPortal); });
+})();
+</script>
+<script src="ga4.js" defer></script>
+</body>
+</html>

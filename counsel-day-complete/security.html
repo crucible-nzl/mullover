@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<!-- Order is load-bearing: Consent Mode v2 defaults MUST be set BEFORE -->
+<!-- GTM and gtag load, or the first pageview ships before user choice. -->
+<!-- This block is injected into every public HTML <head> by             -->
+<!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
+
+<!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':         'denied',
+    'ad_user_data':       'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage':  'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage':   'granted',
+    'wait_for_update':    500
+  });
+  // Honour Global Privacy Control + Do-Not-Track before any tag fires.
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':         'denied',
+      'ad_user_data':       'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage':  'denied'
+    });
+  }
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', {
+    'anonymize_ip': true,
+    'allow_google_signals': false,
+    'allow_ad_personalization_signals': false
+  });
+</script>
+<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
+
+<title>Security · How Counsel.day protects your decision data · Counsel.day</title>
+<meta name="description" content="The public trust page for Counsel.day security. In plain language: who can read your notes, how the seal is enforced in the database, key rotation cadence, where backups live, what we disclose under subpoena, and how to report a vulnerability.">
+<meta name="author" content="James Graham, founder of Counsel.day">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://counsel.day/security">
+<link rel="alternate" hreflang="en" href="https://counsel.day/security">
+<link rel="alternate" hreflang="x-default" href="https://counsel.day/security">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Counsel.day">
+<meta property="og:title" content="Security · How Counsel.day protects your decision data">
+<meta property="og:description" content="In plain language: the threat model, the seal, key rotation, backups, subpoena posture, and responsible disclosure.">
+<meta property="og:url" content="https://counsel.day/security">
+<meta property="og:image" content="https://counsel.day/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Security · Counsel.day">
+<meta name="twitter:description" content="The plain-language security page: threat model, seal, backups, subpoena posture, responsible disclosure.">
+<meta name="twitter:image" content="https://counsel.day/og-image.png">
+<meta property="article:modified_time" content="2026-05-15T19:00:00+12:00">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "https://counsel.day/security#webpage",
+      "url": "https://counsel.day/security",
+      "name": "Security · Counsel.day",
+      "description": "The plain-language public trust page for Counsel.day security.",
+      "inLanguage": "en",
+      "isPartOf": { "@id": "https://counsel.day/#website" },
+      "datePublished": "2026-05-15",
+      "dateModified": "2026-05-15",
+      "author": { "@id": "https://counsel.day/about/james-graham#person" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Counsel.day", "item": "https://counsel.day/" },
+        { "@type": "ListItem", "position": 2, "name": "Security", "item": "https://counsel.day/security" }
+      ]
+    },
+    { "@type": "Person", "@id": "https://counsel.day/about/james-graham#person", "name": "James Graham", "url": "https://counsel.day/about/james-graham" },
+    { "@type": "Organization", "@id": "https://counsel.day/#organization", "name": "Counsel.day", "url": "https://counsel.day/", "founder": { "@id": "https://counsel.day/about/james-graham#person" } },
+    { "@type": "WebSite", "@id": "https://counsel.day/#website", "url": "https://counsel.day/", "name": "Counsel.day", "publisher": { "@id": "https://counsel.day/#organization" }, "inLanguage": "en" }
+  ]
+}
+</script>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles-i8.css">
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="method.html">The method</a>
+      <a href="why-time.html">Why time</a>
+      <a href="distinction.html">The distinction</a>
+      <a href="verdict.html">A real verdict</a>
+      <a href="family.html">For families</a>
+      <a href="compare.html">Compare</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="faq.html">FAQ</a>
+    </div>
+    <div class="nav-cta">
+      <a href="account.html" class="btn-text">Sign in</a>
+      <a href="signup.html" class="btn">Begin a decision</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content">
+  <div class="method-page-inner">
+
+    <div class="method-page-breadcrumb">
+      <a href="index.html">← Return to overview</a>
+      <span>·</span>
+      <span>Security</span>
+    </div>
+
+    <div class="method-page-head">
+      <div class="method-page-eyebrow">HOW WE PROTECT YOUR DATA</div>
+      <h1 class="method-page-title">How Counsel.day protects the data underneath a <span class="ital">private decision.</span></h1>
+      <p class="method-page-lede">Counsel.day exists because the private vote is the mechanism. If the seal is not real, the product is theatre. This page is the <strong>plain-language</strong> account of who can read your notes, how the seal is enforced in the database, where the encryption keys live, what we back up, what we disclose under subpoena, and how to report a vulnerability. For the deeper engineering walkthrough, see <a href="engineering/the-privacy-mechanism.html">the privacy mechanism</a>.</p>
+      <div class="method-page-meta">
+        <div class="item"><span>Last revised</span><span class="val">15 May 2026</span></div>
+        <div class="item"><span>Standards target</span><span class="val">SOC 2 Type II · GDPR · NZ Privacy Act</span></div>
+        <div class="item"><span>Report a vulnerability</span><span class="val wine">security@counsel.day</span></div>
+      </div>
+    </div>
+
+    <div class="founder-case">
+      <div class="label">The non-negotiable</div>
+      <p><strong>No Counsel.day operator, including the founder, can read your votes or notes mid-decision through the application or with the service-role key.</strong> The row-level-security policy in Postgres enforces this; the sealed read path is the only path; there is no admin override and no support escape hatch. Database superuser access is restricted to two named operators under a documented break-glass procedure (logged, dual-control); no break-glass event has occurred to date. If you are reading this page and looking for the line, that is the line.</p>
+    </div>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">WHO CAN READ YOUR NOTES</div>
+        <h2 class="method-stage-title">Nobody but <span class="ital">you.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>The answer is short. <strong>Nobody but you can read what you wrote, mid-decision or after.</strong> Not your partner, until the verdict day. Not the Counsel.day support team. Not the founder. Not an engineer doing a database migration. Not a subpoena, until the verdict has published. The architecture is built so that the seal is enforced by the database itself, not by policy.</p>
+        <p>The single exception is on the verdict day, at the verdict moment, when both partners' notes become readable to each other (and only to each other) inside the verdict view. On paid tiers, an anonymised copy of the notes is also sent to our verdict-synthesis sub-processor (Anthropic, zero-retention API) for the single purpose of writing the synthesis paragraph; identifiers are stripped before the call and the API call is not retained on Anthropic's side. No Counsel.day operator reads the notes during this round-trip. Free Solo decisions do not invoke the API at all.</p>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">HOW THE SEAL IS ENFORCED</div>
+        <h2 class="method-stage-title">The seal is enforced in the <span class="ital">database</span>, not in policy.</h2>
+      </div>
+      <div class="method-stage-body">
+        <p>Every vote and every note row is protected by Postgres row-level security keyed to the voter's identity and the decision's verdict timestamp. The only path the application can take to read a vote row is the sealed read path; that path checks the verdict timestamp on every query, and refuses any read that is not the voter's own row or that is for a decision whose verdict has not yet opened.</p>
+        <p>There is no support tool, no admin console, and no operator-facing API that bypasses this check. Database migrations run against the encrypted blob, not against decrypted content. The privacy mechanism is described in full, with the SQL, on <a href="engineering/the-privacy-mechanism.html">the engineering page</a>.</p>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">ENCRYPTION</div>
+        <h2 class="method-stage-title">Per-decision keys, rotated, managed by <span class="ital">Infisical.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>Each decision is encrypted with its own data-encryption key (DEK); the DEK is wrapped by a key-encryption key (KEK) held in Infisical, our secrets manager. KEK rotation runs quarterly; DEKs are rotated on every verdict close. Vote and note bodies are encrypted at rest with AES-256-GCM; transport is TLS 1.3 with HSTS preload and HTTP/2.</p>
+        <p>Passwords are stored as argon2id hashes with per-user salts; session tokens are short-lived and rotated on every privileged action. Multi-factor authentication is required for billing changes and account deletion, and is available for every account.</p>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">BACKUPS</div>
+        <h2 class="method-stage-title">What we back up, and where it <span class="ital">lives.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>Encrypted nightly backups are written to two geographically separate object stores in the EU. The backups contain the same encrypted blobs as production; the KEK to decrypt them is held only in Infisical, and never travels with the backup. Backups are retained for thirty days, then irrevocably destroyed.</p>
+        <p>If you delete your account, the live row is destroyed immediately; the backup row falls out of the retention window within thirty days and is destroyed with the rest of the snapshot it sits in. We do not maintain long-term archives of deleted user data.</p>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">SUBPOENAS AND LAWFUL DEMANDS</div>
+        <h2 class="method-stage-title">What we can, and cannot, disclose to a <span class="ital">court.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>We comply with valid lawful demands directed at the New Zealand entity, scoped to what the order requires. <strong>We can disclose</strong>: your account email, your billing record, the timestamps of votes (whether you voted on a given evening), the question and duration of a decision, and the verdict text once it has published.</p>
+        <p><strong>We cannot disclose, even under subpoena, the contents of a vote or note before the verdict has opened.</strong> The architecture prevents it: the data is encrypted, and the read path will refuse the query. A court order that compels us to defeat the seal would be litigated as a request to break our own security model, with the user notified to the extent the order permits.</p>
+        <p>We will notify you of any lawful demand for your data unless the order specifically forbids it; in that case, we will notify you as soon as the gag is lifted.</p>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">REPORT A VULNERABILITY</div>
+        <h2 class="method-stage-title">Responsible <span class="ital">disclosure.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>If you have found a security issue, write to <strong>security@counsel.day</strong>. We acknowledge reports within one business day; we triage within five business days; we fix critical issues within thirty days and others within ninety. Good-faith researchers will not be pursued under computer-misuse statutes; we credit you in the next release notes (unless you ask us not to).</p>
+        <p>For sensitive disclosures, our PGP key is available on request; please do not publish proof-of-concept code targeting customer data before we have had a reasonable window to fix the issue.</p>
+      </div>
+    </section>
+
+    <div class="method-cta">
+      <div class="method-cta-eyebrow">§ Read the architecture</div>
+      <h2 class="method-cta-title">Read how the seal is enforced, in <span class="ital">engineering detail.</span></h2>
+      <div class="method-cta-row">
+        <a href="engineering/index.html" class="btn btn-large">Read the engineering pages</a>
+        <a href="engineering/the-privacy-mechanism.html" class="btn btn-ghost">The privacy mechanism</a>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Each evening, you cast one private vote on the same question, for a duration you set, with every vote sealed in the database until the final day. When the verdict opens, you see where you converged, where you diverged, the themes underneath your own words, and one specific next conversation. The deciding stays with you; the structure is ours. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The product</h5>
+        <a href="method.html">The method</a>
+        <a href="why-time.html">Why time</a>
+        <a href="distinction.html">The distinction</a>
+          <a href="verdict.html">A real verdict</a>
+        <a href="family.html">For families</a>
+        <a href="compare.html">Compare</a>
+        <a href="signup.html">Start free</a>
+        <a href="pricing.html">The editions</a>
+      </div>
+      <div class="colophon-col">
+        <h5>For practitioners</h5>
+        <a href="therapists.html">For therapists</a>
+        <a href="counsellors.html">For counsellors</a>
+        <a href="engineering/index.html">Engineering</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The company</h5>
+          <a href="about/james-graham.html">James Graham · founder</a>
+        <a href="help.html">Help</a>
+        <a href="contact.html">Contact</a>
+        <a href="security.html">Security</a>
+        <a href="accessibility.html">Accessibility</a>
+        <a href="press.html">Press</a>
+        <a href="status.html">Status</a>
+        <a href="changelog.html">Changelog</a>
+        <a href="journal/">The Journal</a>
+        <a href="faq.html">FAQ</a>
+        <a href="account.html">Your account</a>
+        <a href="mailto:press@counsel.day">Press</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The fine print</h5>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="cookies.html">Cookies</a>
+        <a href="sub-processors.html">Sub-processors</a>
+        <a href="refunds.html">Refunds</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>© 2026 Counsel.day · USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+
+<a class="go-to-top" id="go-to-top" href="#top" aria-label="Go to top of page">
+  <svg viewBox="0 0 24 24" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+  <span class="label">Top</span>
+</a>
+<script>
+(function () {
+  var btn = document.getElementById('go-to-top');
+  if (!btn) return;
+  function update() { if (window.scrollY > 600) { btn.classList.add('visible'); } else { btn.classList.remove('visible'); } }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+  btn.addEventListener('click', function (e) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
+<script src="ga4.js" defer></script>
+</body>
+</html>

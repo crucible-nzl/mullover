@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>OG image generator · Counsel.day · internal</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Internal tool · renders the canonical /og-image.png content at exactly 1200x630 ready to screenshot or headless-export to PNG.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Newsreader:opsz,wght@6..72,400;6..72,500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper:       #f5f0e8;
+  --paper-deep:  #ede5d4;
+  --ink:         #1c1a17;
+  --ink-soft:    #3a3530;
+  --muted:       #6b635a;
+  --rule:        #d4ccbd;
+  --clay:        #a14a2c;
+  --clay-deep:   #7a3520;
+  --burgundy:    #6b2737;
+  --forest:      #2E4438;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #555; min-height: 100vh; font-family: 'Manrope', sans-serif; padding: 40px 32px 80px; }
+body { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+
+/* The actual export canvas · exactly 1200x630 */
+.og {
+  width: 1200px;
+  height: 630px;
+  background: var(--paper);
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+}
+
+/* Left side · brand + tagline */
+.og-left { padding: 64px 64px 64px 80px; display: flex; flex-direction: column; justify-content: space-between; }
+
+.og-brand { display: flex; align-items: center; gap: 18px; }
+.og-brand svg { width: 64px; height: auto; }
+.og-brand .wordmark { font-family: 'Newsreader', Georgia, serif; font-weight: 500; font-size: 44px; letter-spacing: -0.025em; color: var(--ink); }
+.og-brand .wordmark .tld { color: var(--burgundy); font-weight: 350; }
+
+.og-pitch { margin-top: 8px; }
+.og-pitch .eyebrow { font-family: 'Newsreader', Georgia, serif; font-style: italic; font-size: 22px; color: var(--clay-deep); margin-bottom: 22px; letter-spacing: 0.01em; }
+.og-pitch h1 { font-family: 'Newsreader', Georgia, serif; font-weight: 400; font-size: 64px; line-height: 1.04; letter-spacing: -0.028em; color: var(--ink); }
+.og-pitch h1 .ital { font-style: italic; color: var(--burgundy); font-weight: 400; }
+.og-pitch .dek { font-family: 'Newsreader', Georgia, serif; font-size: 22px; line-height: 1.45; color: var(--ink-soft); margin-top: 22px; max-width: 580px; }
+.og-pitch .dek strong { font-weight: 500; color: var(--ink); }
+
+.og-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 18px; border-top: 1px solid var(--rule); font-family: 'Manrope', sans-serif; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.og-footer strong { color: var(--ink); font-weight: 600; letter-spacing: 0.04em; }
+.og-footer .url { color: var(--clay-deep); }
+
+/* Right side · illustration (echoes the index hero) */
+.og-illus { background: var(--paper-deep); position: relative; overflow: hidden; }
+.og-illus svg { width: 100%; height: 100%; display: block; }
+
+/* Controls (visible only in the browser, not in the screenshot) */
+.controls { width: 1200px; padding: 22px 28px; background: #1c1a17; color: #f5f0e8; font-family: 'Manrope', sans-serif; font-size: 13.5px; line-height: 1.6; }
+.controls h2 { font-family: 'Newsreader', Georgia, serif; font-weight: 500; font-size: 24px; color: #f5f0e8; margin-bottom: 12px; letter-spacing: -0.01em; }
+.controls ol { padding-left: 22px; margin: 8px 0; }
+.controls li { margin-bottom: 6px; }
+.controls code { font-family: ui-monospace, 'JetBrains Mono', Menlo, monospace; background: #2a2724; padding: 2px 6px; font-size: 12.5px; color: #ede5d4; }
+.controls strong { color: #f5f0e8; font-weight: 600; }
+.controls a { color: #c4806b; border-bottom: 1px solid #c4806b; padding-bottom: 1px; text-decoration: none; }
+
+@media print {
+  body { background: white; padding: 0; }
+  .controls { display: none; }
+  .og { box-shadow: none; page-break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!--  THE EXPORT CANVAS · exactly 1200 x 630                        -->
+<!--  Everything inside this .og element is what becomes the PNG.  -->
+<!-- ============================================================ -->
+<div class="og" id="og-canvas" role="img" aria-label="Counsel.day Open Graph image">
+
+  <div class="og-left">
+    <div class="og-brand">
+      <svg viewBox="0 0 56 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="20" cy="16" r="11" fill="none" stroke="#2E4438" stroke-width="3"/>
+        <circle cx="36" cy="16" r="11" fill="none" stroke="#6B2737" stroke-width="3"/>
+        <path d="M 23.6 6.4 A 11 11 0 0 1 29.4 11" fill="none" stroke="#2E4438" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <span class="wordmark">Counsel<span class="tld">.day</span></span>
+    </div>
+
+    <div class="og-pitch">
+      <div class="eyebrow">§ A decision tool for couples and families</div>
+      <h1>For the questions a single conversation cannot <span class="ital">resolve.</span></h1>
+      <p class="dek"><strong>One private vote a day, for the duration you choose.</strong> Both verdicts unlock together with a written analysis.</p>
+    </div>
+
+    <div class="og-footer">
+      <span></span>
+      <span class="url">counsel.day</span>
+    </div>
+  </div>
+
+  <div class="og-illus">
+    <svg viewBox="0 0 400 630" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" role="img" aria-labelledby="og-illus-title">
+      <title id="og-illus-title">Two figures on a bench beneath a sun</title>
+      <defs>
+        <linearGradient id="og-bg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ede5d4"/>
+          <stop offset="100%" stop-color="#e0d4bb"/>
+        </linearGradient>
+      </defs>
+      <rect width="400" height="630" fill="url(#og-bg)"/>
+      <!-- horizon line -->
+      <line x1="0" y1="430" x2="400" y2="430" stroke="#1c1a17" stroke-width="0.5" opacity="0.3"/>
+      <!-- bench -->
+      <rect x="80" y="495" width="240" height="6" fill="#1c1a17" opacity="0.5"/>
+      <rect x="92" y="501" width="3" height="60" fill="#1c1a17" opacity="0.4"/>
+      <rect x="305" y="501" width="3" height="60" fill="#1c1a17" opacity="0.4"/>
+      <!-- left figure -->
+      <ellipse cx="150" cy="320" rx="40" ry="44" fill="#1c1a17" opacity="0.85"/>
+      <path d="M 110,375 Q 110,495 130,495 L 188,495 Q 200,495 200,400 Q 200,375 188,375 Z" fill="#a14a2c" opacity="0.85"/>
+      <ellipse cx="198" cy="495" rx="14" ry="6" fill="#1c1a17" opacity="0.6"/>
+      <!-- right figure -->
+      <ellipse cx="252" cy="320" rx="38" ry="42" fill="#1c1a17" opacity="0.85"/>
+      <path d="M 215,375 Q 215,495 232,495 L 290,495 Q 302,495 302,400 Q 302,375 290,375 Z" fill="#c4806b" opacity="0.85"/>
+      <ellipse cx="218" cy="495" rx="14" ry="6" fill="#1c1a17" opacity="0.6"/>
+      <!-- sun -->
+      <circle cx="320" cy="160" r="46" fill="#f5f0e8" opacity="0.6"/>
+      <!-- small cloud -->
+      <circle cx="80" cy="220" r="24" fill="#f5f0e8" opacity="0.3"/>
+      <!-- ground / forest line -->
+      <path d="M 0,560 Q 100,555 200,560 Q 300,565 400,560 L 400,630 L 0,630 Z" fill="#5a6147" opacity="0.7"/>
+      <path d="M 0,575 Q 50,580 100,572 Q 150,574 200,576 Q 250,572 300,578 Q 350,574 400,576 L 400,630 L 0,630 Z" fill="#4a513a"/>
+    </svg>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<!--  Controls and export instructions                             -->
+<!--  Hidden in print stylesheet so headless exports get a clean   -->
+<!--  PNG of just the canvas above.                                -->
+<!-- ============================================================ -->
+<div class="controls">
+  <h2>Export to /og-image.png</h2>
+  <p>This canvas is exactly <strong>1200 × 630</strong> at 1× device-pixel-ratio. Three ways to get the PNG out of it:</p>
+  <ol>
+    <li><strong>Headless (recommended)</strong> · run <code>npx playwright screenshot http://localhost:8000/og-image-generator.html --selector=&quot;#og-canvas&quot; --device-scale-factor=2 og-image.png</code> from the repo root with a local server. Produces a sharp 2400×1260 PNG; save as <code>og-image.png</code> at the site root.</li>
+    <li><strong>Browser DevTools</strong> · in Chrome / Edge, open this page, right-click <code>&lt;div id=&quot;og-canvas&quot;&gt;</code> in the inspector, choose <em>Capture node screenshot</em>. Saves at 1200×630 1×.</li>
+    <li><strong>macOS Preview</strong> · take a window screenshot with <code>Cmd+Shift+4</code>, drag-select the canvas, drop the resulting PNG into the repo at <code>counsel-day-complete/og-image.png</code>. Quickest; lower fidelity than 1.</li>
+  </ol>
+  <p>Once <code>og-image.png</code> exists at the canonical URL, every page's <code>og:image</code> meta tag (already referenced on all 41 HTML files) will resolve and social cards will render correctly across Facebook, LinkedIn, X, Slack, iMessage, Discord. Until then they fall back to plain-text previews.</p>
+  <p><strong>Editing the image</strong> · change copy in <code>.og-pitch</code> on this page (eyebrow / h1 / dek), or swap the illustration SVG inside <code>.og-illus</code>. Refresh; re-export. The wordmark and brand mark are baked in via the same logo SVG used in every page's masthead, so they match exactly.</p>
+  <p><strong>Twitter card variants</strong> · X uses 1200×675 for <code>summary_large_image</code> (very close to 1200×630, no separate render needed). Pinterest prefers 1200×1500 (vertical) · for that one, swap the grid to a stacked layout if it ever becomes a meaningful traffic source.</p>
+  <p>Internal page, marked <code>noindex, nofollow</code>. Not linked from the site footer or sitemap; bookmark this URL if you re-render the OG image often.</p>
+</div>
+
+</body>
+</html>

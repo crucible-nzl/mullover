@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<!-- Order is load-bearing: Consent Mode v2 defaults MUST be set BEFORE -->
+<!-- GTM and gtag load, or the first pageview ships before user choice. -->
+<!-- This block is injected into every public HTML <head> by             -->
+<!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
+
+<!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':         'denied',
+    'ad_user_data':       'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage':  'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage':   'granted',
+    'wait_for_update':    500
+  });
+  // Honour Global Privacy Control + Do-Not-Track before any tag fires.
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':         'denied',
+      'ad_user_data':       'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage':  'denied'
+    });
+  }
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', {
+    'anonymize_ip': true,
+    'allow_google_signals': false,
+    'allow_ad_personalization_signals': false
+  });
+</script>
+<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
+
+<title>Your decisions · Counsel.day</title>
+<meta name="description" content="Every decision you have run, are running, or have drafted on Counsel.day. Filter by status; open any to view the day count, vote tonight, or read the verdict.">
+<meta name="robots" content="noindex, nofollow">
+<meta property="article:modified_time" content="2026-05-15T19:00:00+12:00">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles-i8.css">
+<style>
+  /* Decisions registry · app surface · scoped */
+  .ds-shell { max-width: 1200px; margin: 0 auto; padding: 30px 32px 30px; }
+  .ds-bread { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 28px; }
+  .ds-bread a { color: var(--wine); border-bottom: 1px solid var(--wine); padding-bottom: 1px; text-decoration: none; }
+
+  .ds-head { padding-bottom: 30px; border-bottom: 1px solid var(--ink); margin-bottom: 30px; display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: end; }
+  @media (max-width: 720px) { .ds-head { grid-template-columns: 1fr; } }
+  .ds-head .who .eyebrow { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine); margin-bottom: 18px; }
+  .ds-head .who h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(34px, 4.2vw, 50px); line-height: 1.06; letter-spacing: -0.018em; color: var(--ink); margin: 0 0 14px; }
+  .ds-head .who h1 .ital { font-style: italic; color: var(--wine); font-weight: 400; }
+  .ds-head .who .sub { font-family: var(--font-body); font-size: 16px; line-height: 1.55; color: var(--ink-soft); margin: 0; max-width: 620px; }
+
+  .ds-summary { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--ink); background: var(--paper); margin-bottom: 30px; }
+  .ds-summary .cell { padding: 22px 24px; border-right: 1px solid var(--rule); }
+  .ds-summary .cell:last-child { border-right: none; }
+  .ds-summary .cell .lbl { font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .ds-summary .cell .val { font-family: var(--font-display); font-weight: 500; font-size: 30px; line-height: 1; letter-spacing: -0.015em; color: var(--ink); }
+  .ds-summary .cell .val .ital { font-style: italic; font-weight: 400; color: var(--wine); }
+  .ds-summary .cell .sub { font-family: var(--font-body); font-style: italic; font-size: 13px; color: var(--muted); margin-top: 8px; }
+  @media (max-width: 720px) { .ds-summary { grid-template-columns: 1fr 1fr; } .ds-summary .cell:nth-child(2n) { border-right: none; } .ds-summary .cell:nth-child(-n+2) { border-bottom: 1px solid var(--rule); } }
+
+  .ds-filters { display: flex; gap: 0; border: 1px solid var(--ink); background: var(--paper); margin-bottom: 20px; }
+  .ds-filters button { padding: 12px 22px; font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); border: none; border-right: 1px solid var(--rule); cursor: pointer; background: transparent; transition: background 120ms ease, color 120ms ease; }
+  .ds-filters button:last-child { border-right: none; }
+  .ds-filters button.active { background: var(--ink); color: var(--paper); }
+  .ds-filters button:hover:not(.active) { background: var(--paper-deep); color: var(--ink); }
+
+  .ds-actions-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; gap: 18px; flex-wrap: wrap; }
+  .ds-actions-row .count-line { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+
+  .ds-table-wrap { border: 1px solid var(--ink); background: var(--paper); overflow-x: auto; }
+  .ds-table { width: 100%; border-collapse: collapse; font-family: var(--font-body); }
+  .ds-table th { background: var(--paper-deep); font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); text-align: left; padding: 14px 18px; border-bottom: 1px solid var(--ink); white-space: nowrap; }
+  .ds-table td { font-family: var(--font-body); font-size: 15px; padding: 18px 18px; border-bottom: 1px solid var(--rule); color: var(--ink); vertical-align: middle; }
+  .ds-table tbody tr:last-child td { border-bottom: none; }
+  .ds-table tbody tr { cursor: pointer; transition: background 120ms ease; }
+  .ds-table tbody tr:hover td { background: var(--paper-deep); }
+  .ds-table td.file-ref { font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--wine); letter-spacing: 0.06em; white-space: nowrap; }
+  .ds-table td.q { font-family: var(--font-display); font-size: 17px; font-weight: 400; line-height: 1.35; color: var(--ink); min-width: 280px; }
+  .ds-table td.q .ital { font-style: italic; color: var(--wine); }
+  .ds-table td.dates { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); letter-spacing: 0.06em; white-space: nowrap; text-transform: uppercase; }
+  .ds-table td.dates strong { color: var(--ink); font-weight: 500; }
+  .ds-table td.duration { font-family: var(--font-mono); font-size: 12px; color: var(--ink); white-space: nowrap; letter-spacing: 0.04em; }
+  .ds-table td.remaining { font-family: var(--font-display); font-size: 18px; font-weight: 500; color: var(--wine); white-space: nowrap; }
+  .ds-table td.remaining .unit { font-family: var(--font-mono); font-size: 10px; font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-left: 4px; }
+  .ds-table td.partner { font-family: var(--font-body); font-style: italic; font-size: 14px; color: var(--ink-soft); white-space: nowrap; }
+  .ds-table td.status .status-pill { padding: 4px 9px; font-size: 10.5px; }
+
+  .ds-table tr.draft td.q { color: var(--muted); font-style: italic; }
+
+  .ds-note { margin-top: 30px; padding: 22px 26px; background: var(--paper-deep); border-left: 4px solid var(--wine); font-family: var(--font-body); font-size: 15px; line-height: 1.6; color: var(--ink); max-width: 820px; }
+  .ds-note strong { font-weight: 500; }
+</style>
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="decisions.html" class="active">Your decisions</a>
+      <a href="vote-today.html">Tonight's vote</a>
+      <a href="compose.html">Compose</a>
+      <a href="account.html">Account</a>
+      <a href="help.html">Help</a>
+    </div>
+    <div class="nav-cta">
+      <a href="account.html" class="btn-text">James G.</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content">
+  <div class="ds-shell">
+
+    <div class="ds-bread">
+      <a href="index.html">← Counsel.day</a>
+      <span style="margin: 0 10px;">·</span>
+      <span>YOUR DECISIONS · REGISTRY</span>
+    </div>
+
+    <div class="ds-head">
+      <div class="who">
+        <div class="eyebrow">DECISIONS LOGGED TO YOUR ACCOUNT</div>
+        <h1>Your <span class="ital">decisions.</span></h1>
+        <p class="sub">Every decision you have filed, are running, have concluded, or are still drafting. Your registry is yours alone; your partner sees their own copy with their own file references.</p>
+      </div>
+      <div class="actions">
+        <a href="compose.html" class="btn btn-large">Compose new</a>
+      </div>
+    </div>
+
+    <div class="ds-summary">
+      <div class="cell">
+        <div class="lbl">RUNNING</div>
+        <div class="val">3</div>
+        <div class="sub">Sealed, mid-period</div>
+      </div>
+      <div class="cell">
+        <div class="lbl">AWAITING REVEAL</div>
+        <div class="val">1</div>
+        <div class="sub">Closes within 7 days</div>
+      </div>
+      <div class="cell">
+        <div class="lbl">CONCLUDED</div>
+        <div class="val">3</div>
+        <div class="sub">Verdict opened, archived</div>
+      </div>
+      <div class="cell">
+        <div class="lbl">DRAFTS</div>
+        <div class="val">1</div>
+        <div class="sub">Not yet filed</div>
+      </div>
+    </div>
+
+    <div class="ds-filters" role="tablist" aria-label="Filter decisions">
+      <button type="button" class="active" data-filter="all" onclick="applyFilter(this)">All · 8</button>
+      <button type="button" data-filter="running" onclick="applyFilter(this)">Sealed · running</button>
+      <button type="button" data-filter="awaiting" onclick="applyFilter(this)">Awaiting reveal</button>
+      <button type="button" data-filter="unsealed" onclick="applyFilter(this)">Unsealed · concluded</button>
+      <button type="button" data-filter="draft" onclick="applyFilter(this)">Drafts</button>
+    </div>
+
+    <div class="ds-actions-row">
+      <span class="count-line">Showing 8 decisions · most recently filed first</span>
+      <span class="count-line">Click any row to open</span>
+    </div>
+
+    <div class="ds-table-wrap">
+      <table class="ds-table" aria-label="Your decisions">
+        <thead>
+          <tr>
+            <th>File ref</th>
+            <th>Question</th>
+            <th>Status</th>
+            <th>Filed</th>
+            <th>Duration</th>
+            <th>Remaining</th>
+            <th>Partner</th>
+          </tr>
+        </thead>
+        <tbody id="cd-decisions-tbody">
+          <tr><td colspan="6" style="padding: 30px; text-align: center; font-family: var(--font-body); font-style: italic; color: var(--muted);">Loading your decisions…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="ds-note">
+      <strong>Your registry is yours alone.</strong> Your partner sees their own copy with their own file references; nothing here is visible to anyone but you. Sealed decisions show the days remaining until reveal. Concluded decisions hold the verdict and the analysis, exportable as PDF. Drafts can be resumed or discarded at any time.
+    </p>
+
+  </div>
+</main>
+
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Each evening, you cast one private vote on the same question, for a duration you set, with every vote sealed in the database until the final day. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The app</h5>
+        <a href="decisions.html">Your decisions</a>
+        <a href="vote-today.html">Tonight's vote</a>
+        <a href="compose.html">Compose</a>
+        <a href="account.html">Your account</a>
+        <a href="billing.html">Billing</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The product</h5>
+        <a href="method.html">The method</a>
+        <a href="why-time.html">Why time</a>
+          <a href="verdict.html">A real verdict</a>
+      </div>
+      <div class="colophon-col">
+        <h5>Support</h5>
+        <a href="help.html">Help</a>
+        <a href="contact.html">Contact</a>
+        <a href="faq.html">FAQ</a>
+        <a href="status.html">Status</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The fine print</h5>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="refunds.html">Refunds</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>© 2026 Counsel.day · USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+
+<a class="go-to-top" id="go-to-top" href="#top" aria-label="Go to top of page">
+  <svg viewBox="0 0 24 24" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+  <span class="label">Top</span>
+</a>
+
+<script>
+function applyFilter(btn) {
+  document.querySelectorAll('.ds-filters button').forEach(function (b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  var kind = btn.dataset.filter;
+  var rows = document.querySelectorAll('.ds-table tbody tr');
+  var shown = 0;
+  rows.forEach(function (r) {
+    var match = kind === 'all' || r.dataset.status === kind;
+    r.style.display = match ? '' : 'none';
+    if (match) shown += 1;
+  });
+  document.querySelector('.ds-actions-row .count-line').textContent = 'Showing ' + shown + ' decision' + (shown === 1 ? '' : 's') + ' · most recently filed first';
+}
+
+(function () {
+  var top = document.getElementById('go-to-top');
+  if (top) {
+    function update() { if (window.scrollY > 600) { top.classList.add('visible'); } else { top.classList.remove('visible'); } }
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+    top.addEventListener('click', function (e) { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  }
+})();
+</script>
+<script>
+/* Hydrate the decisions table from /api/me. Each row is a clickable link to
+   /decision.html?id=<uuid> or /verdict-reveal.html?id=<uuid> depending on
+   whether the verdict has been generated. */
+(function () {
+  var tbody = document.getElementById('cd-decisions-tbody');
+  if (!tbody) return;
+
+  function esc(s) {
+    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function fmtDate(s) {
+    if (!s) return '·';
+    var d = new Date(s);
+    return d.toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
+  }
+  function statusPill(d) {
+    if (d.status === 'pending_invites') return '<span class="status-pill pending">Pending invites</span>';
+    if (d.status === 'active') return '<span class="status-pill sealed">Sealed</span>';
+    if (d.status === 'sealed') return '<span class="status-pill sealed">Sealed</span>';
+    if (d.status === 'verdict_generating') return '<span class="status-pill pending">Verdict generating</span>';
+    if (d.status === 'completed') return '<span class="status-pill unsealed">Concluded</span>';
+    if (d.status === 'refunded') return '<span class="status-pill pending">Refunded</span>';
+    if (d.status === 'cancelled') return '<span class="status-pill pending">Cancelled</span>';
+    return '<span class="status-pill">' + esc(d.status) + '</span>';
+  }
+  function tierLabel(t) {
+    if (t === 'solo_free' || t === 'solo_paid') return 'Solo';
+    if (t === 'couple') return 'Couple';
+    if (t === 'family') return 'Family';
+    return esc(t);
+  }
+  function rowHtml(d) {
+    var dest = d.has_verdict ? ('verdict-reveal.html?id=' + encodeURIComponent(d.id)) : ('decision.html?id=' + encodeURIComponent(d.id));
+    var ref = '№ ' + String(d.id).slice(0, 6).toUpperCase();
+    var dates = '<strong>' + fmtDate(d.starts_at) + '</strong> · ' + fmtDate(d.unseals_at);
+    var dur = d.duration_days ? (d.duration_days + ' days') : '·';
+    var remaining = '·';
+    if (d.has_verdict) remaining = '<span style="color: var(--muted);">Verdict ready</span>';
+    else if (d.days_remaining != null) remaining = d.days_remaining + '<span class="unit">days</span>';
+    var partner = tierLabel(d.tier);
+    return '<tr data-status="' + esc(d.status) + '" onclick="window.location=\'' + dest + '\'">' +
+      '<td class="file-ref">' + ref + '</td>' +
+      '<td class="q">' + esc(d.question) + '</td>' +
+      '<td class="status">' + statusPill(d) + '</td>' +
+      '<td class="dates">' + dates + '</td>' +
+      '<td class="duration">' + dur + '</td>' +
+      '<td class="remaining">' + remaining + '</td>' +
+      '<td class="partner">' + partner + '</td>' +
+    '</tr>';
+  }
+  fetch('/api/me', { credentials: 'include' })
+    .then(function (r) {
+      if (r.status === 401) { window.location.href = '/signin?next=/decisions.html'; return null; }
+      return r.json();
+    })
+    .then(function (d) {
+      if (!d || !d.ok) return;
+      var list = d.decisions || [];
+      if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="padding: 40px; text-align: center; font-family: var(--font-body); color: var(--ink-soft);"><p style="margin: 0 0 18px;">You have not filed any decisions yet.</p><a href="/compose.html" class="btn">Compose your first decision</a></td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map(rowHtml).join('');
+    })
+    .catch(function () {
+      tbody.innerHTML = '<tr><td colspan="7" style="padding: 30px; text-align: center; color: var(--muted);">Could not load your decisions. Please refresh.</td></tr>';
+    });
+})();
+</script>
+<script src="ga4.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<!-- Order is load-bearing: Consent Mode v2 defaults MUST be set BEFORE -->
+<!-- GTM and gtag load, or the first pageview ships before user choice. -->
+<!-- This block is injected into every public HTML <head> by             -->
+<!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
+
+<!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':         'denied',
+    'ad_user_data':       'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage':  'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage':   'granted',
+    'wait_for_update':    500
+  });
+  // Honour Global Privacy Control + Do-Not-Track before any tag fires.
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':         'denied',
+      'ad_user_data':       'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage':  'denied'
+    });
+  }
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', {
+    'anonymize_ip': true,
+    'allow_google_signals': false,
+    'allow_ad_personalization_signals': false
+  });
+</script>
+<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
+
+<title>Privacy Policy · Counsel.day</title>
+<meta name="description" content="How Counsel.day collects, uses, stores, and protects your data. Drafted to meet GDPR, UK GDPR, the NZ Privacy Act 2020, and the Australian Privacy Principles. Plain language wherever it is possible.">
+<meta name="author" content="James Graham, founder of Counsel.day">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://counsel.day/privacy">
+<link rel="alternate" hreflang="en" href="https://counsel.day/privacy">
+<link rel="alternate" hreflang="x-default" href="https://counsel.day/privacy">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Counsel.day">
+<meta property="og:title" content="Privacy Policy · Counsel.day">
+<meta property="og:description" content="How Counsel.day collects, uses, stores, and protects your data. Drafted for GDPR, UK GDPR, the NZ Privacy Act 2020, and the Australian Privacy Principles.">
+<meta property="og:url" content="https://counsel.day/privacy">
+<meta property="og:image" content="https://counsel.day/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Privacy Policy · Counsel.day">
+<meta name="twitter:description" content="How Counsel.day collects, uses, stores, and protects your data.">
+<meta name="twitter:image" content="https://counsel.day/og-image.png">
+<meta property="article:modified_time" content="2026-05-14T19:00:00+12:00">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Counsel.day Privacy Policy",
+  "description": "How Counsel.day collects, uses, stores, and protects user data, compliant with GDPR, UK GDPR, NZ Privacy Act, and APP.",
+  "publisher": { "@type": "Organization", "name": "Counsel.day", "url": "https://counsel.day/" },
+  "datePublished": "2026-05-14",
+  "dateModified": "2026-05-14",
+  "inLanguage": "en"
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles-i8.css">
+<style>
+  /* Privacy page · small typographic tweaks for long-form legal prose */
+  .legal-list { font-family: var(--font-body); font-size: 17px; line-height: 1.65; color: var(--ink-soft); padding-left: 22px; margin: 0 0 22px; max-width: 760px; }
+  .legal-list li { margin-bottom: 8px; }
+  .legal-list li strong { color: var(--ink); font-weight: 500; }
+  .legal-contact-card { padding: 26px 28px; background: var(--paper-deep); border-left: 4px solid var(--wine); margin: 30px 0 0; max-width: 760px; }
+  .legal-contact-card .label { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine); margin-bottom: 10px; }
+  .legal-contact-card p { font-family: var(--font-body); font-size: 16px; line-height: 1.6; color: var(--ink); margin: 0 0 6px; }
+  .legal-contact-card a { color: var(--wine); }
+</style>
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="method.html">The method</a>
+      <a href="why-time.html">Why time</a>
+      <a href="distinction.html">The distinction</a>
+      <a href="verdict.html">A real verdict</a>
+      <a href="family.html">For families</a>
+      <a href="compare.html">Compare</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="faq.html">FAQ</a>
+    </div>
+    <div class="nav-cta">
+      <a href="account.html" class="btn-text">Sign in</a>
+      <a href="signup.html" class="btn">Start a decision</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content">
+  <div class="method-page-inner">
+
+    <div class="method-page-breadcrumb">
+      <a href="index.html">← Return to overview</a>
+      <span>·</span>
+      <span>Privacy</span>
+    </div>
+
+    <header class="method-page-head">
+      <div class="method-page-eyebrow">WHAT WE COLLECT AND WHY</div>
+      <h1 class="method-page-title">Your data, our <span class="ital">small obligation.</span></h1>
+      <p class="method-page-lede"><strong>Counsel.day is a worldwide product priced in USD.</strong> This policy is drafted to meet the General Data Protection Regulation (GDPR), the UK GDPR, the New Zealand Privacy Act 2020, and the Australian Privacy Principles. It is written in plain language wherever the law permits, with the technical detail where the law requires it.</p>
+      <div class="method-page-meta">
+        <div class="item"><span>Effective</span><span class="val wine">14 MAY 2026</span></div>
+        <div class="item"><span>Last revised</span><span class="val">14 MAY 2026</span></div>
+        <div class="item"><span>Data controller</span><span class="val">COUNSEL.DAY LIMITED</span></div>
+      </div>
+    </header>
+
+    <section class="method-stage" id="data-we-collect">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">§ 01 · DATA WE COLLECT</div>
+        <h2 class="method-stage-title">What we collect, and not a <span class="ital">byte more.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>We collect only what the product needs to do the work you have asked of it. There is no advertising network, no behavioural tracking pixel from a third party we did not list on the sub-processors page, and no enrichment from data brokers. The categories below are the entire collection set.</p>
+        <ul class="legal-list">
+          <li><strong>Account data:</strong> your email address, a securely-hashed password (Argon2id), an optional display name, and your chosen prompt-time. We do not ask for a real name, a postal address, or a date of birth beyond the age-of-majority check on sign-up.</li>
+          <li><strong>Decision data:</strong> the questions you compose, the format and duration you choose, the partners or family members you invite, your daily votes, and any notes you seal alongside each vote. This is the most sensitive category we hold.</li>
+          <li><strong>Verdict data:</strong> the analyses produced at the end of each decision (the trajectory, the themes, the synthesis paragraph on paid tiers, and the suggested conversation prompt).</li>
+          <li><strong>Billing data:</strong> Stripe holds your card details on its own infrastructure; we receive a token, the billing country, and the last four digits of the card for receipts. We never see the full card number.</li>
+          <li><strong>Operational logs:</strong> IP addresses and user-agent strings for the most recent thirty days, retained for security and fraud prevention. After thirty days these logs are purged.</li>
+          <li><strong>Analytics:</strong> aggregate page-view counts via Google Analytics 4, set to IP anonymisation and a fourteen-month retention. No personally-identifying data is exported.</li>
+        </ul>
+        <p>We do not collect special-category data (health, religion, sexuality, political opinion, biometrics). If the questions you choose to seal happen to touch on those subjects, the data lives only inside your private decision, encrypted at rest, readable only by you under row-level-security policy.</p>
+      </div>
+    </section>
+
+    <section class="method-stage" id="lawful-bases">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">§ 02 · LAWFUL BASES</div>
+        <h2 class="method-stage-title">Why the law permits us to <span class="ital">process this.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>Under Article 6 of GDPR and the equivalent provisions in the UK GDPR, NZ Privacy Act, and Australian Privacy Principles, every processing activity has a stated lawful basis. Ours are:</p>
+        <ul class="legal-list">
+          <li><strong>Contract (Art. 6(1)(b)):</strong> running the decision, sending the daily-vote email, computing the verdict, and providing the account. Without this processing there is no product.</li>
+          <li><strong>Legitimate interest (Art. 6(1)(f)):</strong> security logging, fraud prevention, abuse detection, and product improvement based on aggregate (non-individual) usage signals. We have run a balancing test on each; the assessments are available on request.</li>
+          <li><strong>Consent (Art. 6(1)(a)):</strong> Google Analytics 4 fires on the marketing site by default; you can disable it from the cookie banner or by sending Do-Not-Track. Marketing email is opt-in only.</li>
+          <li><strong>Legal obligation (Art. 6(1)(c)):</strong> retaining the minimum financial records required by NZ Inland Revenue (seven years for invoices and tax receipts).</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="method-stage" id="who-can-read-what">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">§ 03 · THE PRIVACY MECHANISM</div>
+        <h2 class="method-stage-title">Who can read what, and <span class="ital">when.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>The product hinges on a privacy guarantee that is not a setting and not a promise: it is enforced at the database row-level-security policy. Until the unseal date of a decision, the database refuses to return your partner's vote rows on any query, including queries issued by the operations team with the service-role key. The guarantee is the product. If it could be bypassed, the verdict would not be honest.</p>
+        <div class="method-pullquote">Until the unseal day, the database itself refuses to read your partner's votes. Not the team, not the application; the database.</div>
+        <p>The technical reference for this mechanism lives at <a href="engineering/the-privacy-mechanism.html">engineering/the-privacy-mechanism</a>. The shortest possible summary: each <em>vote</em> row carries a <code>visible_after</code> timestamp; the row-level-security policy on the <code>votes</code> table allows <code>SELECT</code> only when the participant is the row's author <em>or</em> when <code>now() &gt;= visible_after</code>. There is no service-role bypass in the production schema.</p>
+        <p>Counsel.day staff cannot read decision content through the application or via the service-role key · the row-level-security policy refuses these queries. Database superuser access is restricted to two named operators under a documented break-glass procedure; no break-glass event has occurred to date. Aggregate, fully anonymised counts (how many decisions ran for how many days, what formats are most popular) are visible to the operations team for capacity planning; these counts are computed inside the database and the resulting tables hold no participant identifiers.</p>
+        <p><strong>On the verdict day, on paid tiers, an anonymised copy of both partners' notes and votes is sent to our verdict-synthesis sub-processor (Anthropic, zero-retention API) for the single purpose of writing the synthesis paragraph.</strong> Identifiers are stripped before the API call; the model output is captured back into your account and the API call is not retained on Anthropic's side. No Counsel.day operator reads the content during this round-trip. Free Solo decisions do not invoke the API at all and ship with a Python summary only.</p>
+      </div>
+    </section>
+
+    <section class="method-stage" id="retention">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">§ 04 · RETENTION</div>
+        <h2 class="method-stage-title">How long we keep <span class="ital">each thing.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <ul class="legal-list">
+          <li><strong>Account data:</strong> for as long as the account is open. On deletion, account data is removed from production within 30 days and from encrypted backups within 90 days.</li>
+          <li><strong>Decision data:</strong> retained while your account is open so you can re-read past verdicts. You can delete an individual decision at any time; deletion is permanent.</li>
+          <li><strong>Billing data:</strong> tax-relevant records (invoice, payment receipt, billing country, amount, date) retained seven years to satisfy NZ Inland Revenue. Card tokens are deleted with the account.</li>
+          <li><strong>Operational logs:</strong> thirty days, then purged.</li>
+          <li><strong>Analytics:</strong> Google Analytics 4 retention set to fourteen months; user-level data automatically expires after that.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="method-stage" id="your-rights">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">§ 05 · YOUR RIGHTS</div>
+        <h2 class="method-stage-title">What you can ask us to <span class="ital">do, on request.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>Wherever you live, you have the following rights over the personal data we hold about you. We respond to each within 30 calendar days; if a request is complex we will tell you so within the first ten days and extend by a further two months at most, as GDPR permits.</p>
+        <ul class="legal-list">
+          <li><strong>Access:</strong> a machine-readable copy of every record we hold about you, including past verdicts.</li>
+          <li><strong>Correction:</strong> any inaccurate field on your account, fixed promptly.</li>
+          <li><strong>Erasure (the "right to be forgotten"):</strong> permanent deletion of your account and all decision data, subject only to the seven-year tax-record retention for billing.</li>
+          <li><strong>Portability:</strong> export of your decision history as a JSON archive, suitable for re-import elsewhere.</li>
+          <li><strong>Restriction:</strong> a freeze on processing while a dispute is being resolved.</li>
+          <li><strong>Objection:</strong> to any processing we do under legitimate interest, including analytics.</li>
+          <li><strong>Withdraw consent:</strong> for analytics or marketing email, at any time, with no effect on processing already done.</li>
+          <li><strong>Complain to a regulator:</strong> the Office of the Privacy Commissioner (NZ) at <a href="https://privacy.org.nz">privacy.org.nz</a>; in the UK, the ICO at <a href="https://ico.org.uk">ico.org.uk</a>; in the EU, your national data-protection authority; in Australia, the OAIC at <a href="https://oaic.gov.au">oaic.gov.au</a>.</li>
+        </ul>
+        <p>To exercise any of the above, email <a href="mailto:privacy@counsel.day">privacy@counsel.day</a> from the address on your account. We may ask for one additional verification before acting on an erasure or portability request.</p>
+      </div>
+    </section>
+
+    <section class="method-stage" id="international-transfers">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">§ 06 · INTERNATIONAL TRANSFERS</div>
+        <h2 class="method-stage-title">Where data <span class="ital">travels.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>Counsel.day Limited is incorporated in New Zealand. Our primary production database runs in an EU region (Frankfurt). Several sub-processors (Stripe, Anthropic, Cloudflare) process data in the United States. Transfers out of the EU and UK are made under the European Commission's Standard Contractual Clauses (SCCs) and the UK Addendum where applicable; transfers from New Zealand rely on the comparable-protection assessment required under Part 4 of the NZ Privacy Act 2020.</p>
+        <p>The full list of sub-processors, their locations, and the transfer mechanism for each, is published at <a href="sub-processors.html">sub-processors</a>.</p>
+      </div>
+    </section>
+
+    <section class="method-stage" id="security">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">§ 07 · SECURITY</div>
+        <h2 class="method-stage-title">How we keep it <span class="ital">safe.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>The full security write-up lives at <a href="security.html">security</a>. In summary:</p>
+        <ul class="legal-list">
+          <li><strong>In transit:</strong> TLS 1.3 only; HSTS preload; certificate transparency monitoring.</li>
+          <li><strong>At rest:</strong> AES-256 disk encryption on the database volumes; column-level encryption for note content with keys held in Infisical.</li>
+          <li><strong>Authentication:</strong> Argon2id password hashing; mandatory MFA for staff; magic-link sign-in for users on request.</li>
+          <li><strong>Access control:</strong> Postgres row-level-security on every decision-content table; no service-role bypass in production.</li>
+          <li><strong>Application:</strong> Content-Security-Policy, Subresource Integrity, CSRF tokens on every state-changing request, rate-limiting at Cloudflare and at the edge.</li>
+          <li><strong>Process:</strong> quarterly penetration tests by an independent firm; every commit ships pen-test-ready with no security debt deferred to a later phase.</li>
+        </ul>
+        <p>In the unlikely event of a breach involving your personal data, we will notify you and the relevant regulator within 72 hours of becoming aware, as required by GDPR Article 33 and the equivalent NZ Privacy Act notification thresholds.</p>
+      </div>
+    </section>
+
+    <section class="method-stage" id="dpo">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">§ 08 · DPO &amp; CONTACT</div>
+        <h2 class="method-stage-title">Who answers, and <span class="ital">how.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>Counsel.day is a small company; we do not maintain a full-time Data Protection Officer at present, as GDPR Article 37 does not require one for our size and risk profile. The privacy lead and accountable person is the founder, James Graham; correspondence routes to <a href="mailto:privacy@counsel.day">privacy@counsel.day</a>. If the company grows to require a designated DPO under Article 37, we will appoint one and update this page within the same calendar quarter.</p>
+        <p>For users in the European Union, our Article 27 representative is appointed and listed in our internal records of processing; the representative's contact details are published in the footer of every transactional email and provided on request.</p>
+        <div class="legal-contact-card">
+          <div class="label">PRIVACY CORRESPONDENCE</div>
+          <p><strong>Email:</strong> <a href="mailto:privacy@counsel.day">privacy@counsel.day</a></p>
+          <p><strong>Postal:</strong> Counsel.day Limited, c/o Privacy Lead, Auckland, New Zealand</p>
+          <p><strong>Response time:</strong> within 30 days of receipt; complex requests acknowledged within 10 days.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="method-stage" id="changes">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">§ 09 · CHANGES</div>
+        <h2 class="method-stage-title">When this policy <span class="ital">changes.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>Material changes (anything that affects the categories of data we collect, the purposes we use them for, or your rights as set out above) are announced by email to every account holder at least thirty days before the change takes effect. Non-material clarifications (typography, broken links, re-phrasings that do not alter meaning) are made silently with the revised date updated at the top of this page. A full revision history is kept and available on request.</p>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The product</h5>
+        <a href="method.html">The method</a>
+        <a href="why-time.html">Why time</a>
+        <a href="distinction.html">The distinction</a>
+        <a href="verdict.html">A real verdict</a>
+        <a href="family.html">For families</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The company</h5>
+          <a href="help.html">Help</a>
+        <a href="contact.html">Contact</a>
+        <a href="security.html">Security</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The fine print</h5>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="cookies.html">Cookies</a>
+        <a href="sub-processors.html">Sub-processors</a>
+        <a href="refunds.html">Refunds</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>© 2026 Counsel.day · USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+
+<a class="go-to-top" id="go-to-top" href="#top" aria-label="Go to top of page">
+  <svg viewBox="0 0 24 24" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+  <span class="label">Top</span>
+</a>
+<script>
+(function () {
+  var btn = document.getElementById('go-to-top');
+  if (!btn) return;
+  function update() { if (window.scrollY > 600) { btn.classList.add('visible'); } else { btn.classList.remove('visible'); } }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+  btn.addEventListener('click', function (e) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
+<script src="ga4.js" defer></script>
+</body>
+</html>

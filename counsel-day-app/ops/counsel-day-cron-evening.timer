@@ -1,0 +1,13 @@
+[Unit]
+Description=Counsel.day · evening vote prompt · daily at 18:00 NZST
+Requires=counsel-day-cron-evening.service
+
+[Timer]
+# Daily at 6pm Pacific/Auckland (server is UTC; 06:00 UTC = 18:00 NZST when DST off)
+# TODO: when we have per-user timezone preferences, replace with per-user scheduling
+OnCalendar=*-*-* 06:00:00
+Persistent=true
+AccuracySec=1m
+
+[Install]
+WantedBy=timers.target

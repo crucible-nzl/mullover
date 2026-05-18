@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<!-- Order is load-bearing: Consent Mode v2 defaults MUST be set BEFORE -->
+<!-- GTM and gtag load, or the first pageview ships before user choice. -->
+<!-- This block is injected into every public HTML <head> by             -->
+<!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
+
+<!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':         'denied',
+    'ad_user_data':       'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage':  'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage':   'granted',
+    'wait_for_update':    500
+  });
+  // Honour Global Privacy Control + Do-Not-Track before any tag fires.
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':         'denied',
+      'ad_user_data':       'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage':  'denied'
+    });
+  }
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', {
+    'anonymize_ip': true,
+    'allow_google_signals': false,
+    'allow_ad_personalization_signals': false
+  });
+</script>
+<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
+
+<title>Components · sealed-record reference · Counsel.day</title>
+<meta name="description" content="Internal reference page demonstrating every sealed-record component in the Counsel.day design system. Copy the HTML snippets directly into any new page.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" as="style">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"></noscript>
+<link rel="stylesheet" href="styles-i8.css">
+<style>
+  .comp-wrap { max-width: 1100px; margin: 0 auto; padding: 30px 32px 30px; }
+  .comp-bread { font-family: var(--font-chrome); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--stone); margin-bottom: 24px; }
+  .comp-bread a { color: var(--seal); border-bottom: 1px solid var(--seal); padding-bottom: 1px; text-decoration: none; }
+  .comp-head { padding-bottom: 28px; border-bottom: 1px solid var(--ink); margin-bottom: 30px; }
+  .comp-head .file { font-family: var(--font-chrome); font-size: 11px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--seal); margin-bottom: 12px; }
+  .comp-head h1 { font-family: var(--font-body); font-weight: 600; font-size: clamp(28px, 3.4vw, 40px); line-height: 1.1; color: var(--ink); margin-bottom: 14px; letter-spacing: -0.018em; }
+  .comp-head .lede { font-family: var(--font-body); font-size: 17px; line-height: 1.6; color: var(--ink-soft); max-width: 760px; }
+  .comp-section { padding: 30px 0 30px; border-bottom: 1px solid var(--paper-line); }
+  .comp-section:last-of-type { border-bottom: none; }
+  .comp-section h2 { font-family: var(--font-chrome); font-size: 12px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--seal); margin-bottom: 8px; }
+  .comp-section h3 { font-family: var(--font-body); font-weight: 600; font-size: 22px; line-height: 1.2; color: var(--ink); margin-bottom: 6px; letter-spacing: -0.01em; }
+  .comp-section .role { font-family: var(--font-body); font-size: 15px; line-height: 1.6; color: var(--ink-soft); margin-bottom: 22px; max-width: 760px; }
+  .comp-demo { padding: 28px; background: var(--paper); border: 1px solid var(--paper-line); margin-bottom: 18px; }
+  .comp-demo.dark { background: var(--paper-line); }
+  .comp-snippet { font-family: var(--font-chrome); font-size: 12.5px; line-height: 1.55; color: var(--ink); background: var(--paper-line); border: 1px solid var(--ink); padding: 18px 20px; overflow-x: auto; white-space: pre; }
+  .comp-toc { padding: 22px 26px; background: var(--paper-line); border-left: 4px solid var(--seal); margin-bottom: 30px; }
+  .comp-toc h2 { font-family: var(--font-chrome); font-size: 11px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--seal); margin-bottom: 14px; }
+  .comp-toc ol { columns: 2; column-gap: 36px; padding-left: 22px; font-family: var(--font-body); font-size: 15px; line-height: 1.85; color: var(--ink); margin: 0; }
+  .comp-toc li a { color: var(--ink); border-bottom: 1px solid transparent; text-decoration: none; }
+  .comp-toc li a:hover { border-bottom-color: var(--seal); color: var(--seal); }
+  @media (max-width: 640px) { .comp-toc ol { columns: 1; } }
+</style>
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="method.html">The method</a>
+      <a href="why-time.html">Why time</a>
+      <a href="distinction.html">The distinction</a>
+      <a href="verdict.html">A real verdict</a>
+      <a href="family.html">For families</a>
+      <a href="compare.html">Compare</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="faq.html">FAQ</a>
+    </div>
+    <div class="nav-cta">
+      <a href="account.html" class="btn-text">Sign in</a>
+      <a href="signup.html" class="btn">Begin a decision</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content">
+<div class="comp-wrap">
+
+  <div class="comp-bread">
+    <a href="index.html">← Return to overview</a> · COMPONENTS · INTERNAL REFERENCE · NOINDEX
+  </div>
+
+  <header class="comp-head">
+    <div class="file">COMPONENTS · LAST REVISED 15 MAY 2026</div>
+    <h1>Sealed-record component reference.</h1>
+    <p class="lede">Every component in the Counsel.day design system, rendered live, with the copy-pasteable HTML snippet directly below it. Build new pages by copying from here. Run <span class="comp-snippet" style="display:inline; padding: 2px 8px; font-size: 12px;">pwsh ./scripts/brand-verify.ps1 -Path your-new-page.html</span> before commit. The canonical reference is <a href="../docs/BRAND.md" style="color: var(--seal); border-bottom: 1px solid var(--seal); padding-bottom: 1px;">docs/BRAND.md</a>.</p>
+  </header>
+
+  <nav class="comp-toc" aria-label="Components">
+    <h2>The twelve components</h2>
+    <ol>
+      <li><a href="#c1">Records-strip</a></li>
+      <li><a href="#c2">Date-stamp</a></li>
+      <li><a href="#c3">Registration number / file reference</a></li>
+      <li><a href="#c4">Status pill</a></li>
+      <li><a href="#c5">Record header</a></li>
+      <li><a href="#c6">Postmark</a></li>
+      <li><a href="#c7">Record envelope (sealed + unsealed)</a></li>
+      <li><a href="#c8">Record slip</a></li>
+      <li><a href="#c9">Filing table</a></li>
+      <li><a href="#c10">Specimen wrapper</a></li>
+      <li><a href="#c11">Date-stamp opener</a></li>
+      <li><a href="#c12">Records action button</a></li>
+    </ol>
+  </nav>
+
+  <!-- ============================================================ -->
+  <section class="comp-section" id="c1">
+    <h2>component</h2>
+    <h3>Records-strip</h3>
+    <p class="role">The top horizontal bar that appears on every page. Plex Mono uppercase, paper background, 1px ink rule beneath. <strong>Required on every page</strong>; the verifier fails any page without it.</p>
+    <div class="comp-demo">
+    </div>
+    <pre class="comp-snippet">&lt;div class="records-strip"&gt;COUNSEL.DAY &lt;span class="sep"&gt;·&lt;/span&gt; A SEALED-RECORD DECISION TOOL &lt;span class="sep"&gt;·&lt;/span&gt; WORLDWIDE USD&lt;/div&gt;</pre>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="comp-section" id="c2">
+    <h2>component</h2>
+    <h3>Date-stamp</h3>
+    <p class="role">Inline Plex Mono in seal-clay with a two-sided rubber-stamp border. Three variants: default (clay), muted (stone), b (burgundy, Partner B context). Use anywhere a date or status label is shown.</p>
+    <div class="comp-demo">
+      <span class="date-stamp">28 APR 2026</span> &nbsp;
+      <span class="date-stamp muted">PENDING</span> &nbsp;
+      <span class="date-stamp b">PARTNER B · 14 MAY 2026</span>
+    </div>
+    <pre class="comp-snippet">&lt;span class="date-stamp"&gt;28 APR 2026&lt;/span&gt;
+&lt;span class="date-stamp muted"&gt;PENDING&lt;/span&gt;
+&lt;span class="date-stamp b"&gt;PARTNER B · 14 MAY 2026&lt;/span&gt;</pre>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="comp-section" id="c3">
+    <h2>component</h2>
+    <h3>Registration number / file reference</h3>
+    <p class="role">Inline file or decision reference in Plex Mono. Two style variants: <code>seal</code> for emphasis, <code>muted</code> for secondary context. Always use the <code>№</code> numero sign before numeric references.</p>
+    <div class="comp-demo">
+      <span class="file-ref">№ EXAMPLE</span> &nbsp;
+      <span class="file-ref seal"></span> &nbsp;
+      <span class="file-ref muted">REVISION 7 OF 12</span>
+    </div>
+    <pre class="comp-snippet">&lt;span class="file-ref"&gt;№ EXAMPLE&lt;/span&gt;
+&lt;span class="file-ref seal"&gt;&lt;/span&gt;
+&lt;span class="file-ref muted"&gt;REVISION 7 OF 12&lt;/span&gt;</pre>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="comp-section" id="c4">
+    <h2>component</h2>
+    <h3>Status pill</h3>
+    <p class="role">Plex Mono uppercase pill with four state variants: <code>sealed</code> (seal background, default for closed records), <code>unsealed</code> (paper-line background, for opened records), <code>pending</code> (transparent, for awaiting state), and <code>live</code> (deep-seal accent, for currently-running decisions).</p>
+    <div class="comp-demo">
+      <span class="status-pill sealed">Sealed</span> &nbsp;
+      <span class="status-pill unsealed">Unsealed</span> &nbsp;
+      <span class="status-pill pending">Pending</span> &nbsp;
+      <span class="status-pill live">Live</span>
+    </div>
+    <pre class="comp-snippet">&lt;span class="status-pill sealed"&gt;Sealed&lt;/span&gt;
+&lt;span class="status-pill unsealed"&gt;Unsealed&lt;/span&gt;
+&lt;span class="status-pill pending"&gt;Pending&lt;/span&gt;
+&lt;span class="status-pill live"&gt;Live&lt;/span&gt;</pre>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="comp-section" id="c5">
+    <h2>component</h2>
+    <h3>Record header</h3>
+    <p class="role">Three-cell horizontal strip used at the top of any record artefact: file reference on the left, status pill centred, date stamp on the right. 1px ink rule beneath. Used inside record-envelope, on vote-today, on verdict pages, and at the top of long-form record documents.</p>
+    <div class="comp-demo" style="padding: 0;">
+      <div class="record-header">
+        <span class="file-ref seal">№ EXAMPLE</span>
+        <span class="status-pill sealed">Sealed</span>
+        <span class="date-stamp">28 MAY 2026</span>
+      </div>
+    </div>
+    <pre class="comp-snippet">&lt;div class="record-header"&gt;
+  &lt;span class="file-ref seal"&gt;№ EXAMPLE&lt;/span&gt;
+  &lt;span class="status-pill sealed"&gt;Sealed&lt;/span&gt;
+  &lt;span class="date-stamp"&gt;28 MAY 2026&lt;/span&gt;
+&lt;/div&gt;</pre>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="comp-section" id="c6">
+    <h2>component</h2>
+    <h3>Postmark</h3>
+    <p class="role">Circular SVG-based stamp. 80px default, colour <code>var(--seal)</code>. Used sparingly; no more than one postmark per section. Optional decoration for marketing pages; never required.</p>
+    <div class="comp-demo">
+      <span class="postmark" aria-hidden="true">
+        <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="40" cy="40" r="36" stroke-width="1.5"/>
+          <circle cx="40" cy="40" r="30" stroke-width="0.75"/>
+          <path id="upper" d="M 12,40 A 28,28 0 0 1 68,40" fill="none"/>
+          <path id="lower" d="M 12,40 A 28,28 0 0 0 68,40" fill="none"/>
+          <text font-family="Geist Mono, ui-monospace, monospace" font-size="7" font-weight="500" letter-spacing="1.5" fill="currentColor" stroke="none">
+            <textPath href="#upper" startOffset="50%" text-anchor="middle">COUNSEL.DAY</textPath>
+          </text>
+          <text font-family="Geist Mono, ui-monospace, monospace" font-size="6.5" font-weight="500" letter-spacing="1.2" fill="currentColor" stroke="none">
+            <textPath href="#lower" startOffset="50%" text-anchor="middle">14 MAY 2026</textPath>
+          </text>
+          <circle cx="40" cy="40" r="3" fill="currentColor" stroke="none"/>
+        </svg>
+      </span>
+    </div>
+    <pre class="comp-snippet">&lt;span class="postmark" aria-hidden="true"&gt;
+  &lt;svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"&gt;
+    &lt;circle cx="40" cy="40" r="36" stroke-width="1.5"/&gt;
+    &lt;circle cx="40" cy="40" r="30" stroke-width="0.75"/&gt;
+    &lt;path id="upper" d="M 12,40 A 28,28 0 0 1 68,40" fill="none"/&gt;
+    &lt;path id="lower" d="M 12,40 A 28,28 0 0 0 68,40" fill="none"/&gt;
+    &lt;text font-family="Geist Mono, ui-monospace, monospace" font-size="7" fill="currentColor" stroke="none"&gt;
+      &lt;textPath href="#upper" startOffset="50%" text-anchor="middle"&gt;COUNSEL.DAY&lt;/textPath&gt;
+    &lt;/text&gt;
+    &lt;text font-family="Geist Mono, ui-monospace, monospace" font-size="6.5" fill="currentColor" stroke="none"&gt;
+      &lt;textPath href="#lower" startOffset="50%" text-anchor="middle"&gt;14 MAY 2026&lt;/textPath&gt;
+    &lt;/text&gt;
+    &lt;circle cx="40" cy="40" r="3" fill="currentColor" stroke="none"/&gt;
+  &lt;/svg&gt;
+&lt;/span&gt;</pre>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="comp-section" id="c7">
+    <h2>component · the hero artefact</h2>
+    <h3>Record envelope (sealed + unsealed states)</h3>
+    <p class="role">The central artefact. Bordered card with a record-header at the top, envelope body in the middle, caption at the bottom. Sealed state shows a clay wax-seal; unsealed state shows a broken seal with record-slips revealed inside. Demonstrated below in both states; click the affordance to toggle.</p>
+    <div class="comp-demo dark">
+      <div class="record-envelope" id="demo-env" data-state="sealed">
+        <div class="record-header">
+          <span class="file-ref seal">№ EXAMPLE</span>
+          <span class="status-pill sealed">Sealed</span>
+          <span class="date-stamp">28 MAY 2026</span>
+        </div>
+        <div class="envelope-body" id="demo-body" style="min-height: 200px;">
+          <div class="wax-seal" aria-label="Wax seal">Sealed</div>
+        </div>
+        <div class="envelope-caption">
+          Opened 28 APR 2026 <span style="color: var(--seal);">·</span> Concludes 28 MAY 2026 <span style="color: var(--seal);">·</span> 27 of 30 entries sealed
+        </div>
+      </div>
+      <p style="text-align: center; margin-top: 16px;">
+        <button type="button" onclick="toggleDemo()" id="demo-toggle" style="font-family: var(--font-chrome); font-size: 11px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--seal); background: none; border: none; border-bottom: 1px solid var(--seal); padding: 2px 0; cursor: pointer;">View specimen verdict →</button>
+      </p>
+    </div>
+    <pre class="comp-snippet">&lt;div class="record-envelope" data-state="sealed"&gt;
+  &lt;div class="record-header"&gt;
+    &lt;span class="file-ref seal"&gt;№ EXAMPLE&lt;/span&gt;
+    &lt;span class="status-pill sealed"&gt;Sealed&lt;/span&gt;
+    &lt;span class="date-stamp"&gt;28 MAY 2026&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="envelope-body"&gt;
+    &lt;div class="wax-seal"&gt;Sealed&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="envelope-caption"&gt;
+    Opened 28 APR 2026 · Concludes 28 MAY 2026 · 27 of 30 entries sealed
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- For the unsealed state, add the unsealed class and replace the body --&gt;
+&lt;div class="record-envelope unsealed"&gt;
+  &lt;!-- record-header with status-pill unsealed --&gt;
+  &lt;div class="envelope-body"&gt;
+    &lt;div class="wax-seal"&gt;Broken&lt;/div&gt;
+    &lt;!-- one or more record-slip elements --&gt;
+  &lt;/div&gt;
+  &lt;!-- caption --&gt;
+&lt;/div&gt;</pre>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="comp-section" id="c8">
+    <h2>component</h2>
+    <h3>Record slip · interior partner record</h3>
+    <p class="role">A single partner's record card. Used inside an unsealed envelope, on the verdict-reveal page, and on the real-verdict specimen. Partner A renders in seal-clay; Partner B in stamp-burgundy.</p>
+    <div class="comp-demo">
+      <div class="record-slip">
+        <div class="slip-meta">
+          <span class="stamp-a">PARTNER A · JAMES</span>
+          <span>SEALED 28 APR · 28 MAY</span>
+        </div>
+        <div class="slip-question">Should we move into the city for our son's schooling?</div>
+        <div class="slip-verdict a yes">Go</div>
+        <div class="slip-trajectory">TRAJECTORY · LEAN YES → STRONG YES · CONVICTION +12.0</div>
+      </div>
+      <div class="record-slip" style="margin-top: 16px;">
+        <div class="slip-meta">
+          <span class="stamp-b">PARTNER B · ALEXANDRA</span>
+          <span>SEALED 28 APR · 28 MAY</span>
+        </div>
+        <div class="slip-question">Should we move into the city for our son's schooling?</div>
+        <div class="slip-verdict b lean-no">Lean No</div>
+        <div class="slip-trajectory">TRAJECTORY · NEUTRAL → LEAN NO · CONVICTION -4.5</div>
+      </div>
+    </div>
+    <pre class="comp-snippet">&lt;div class="record-slip"&gt;
+  &lt;div class="slip-meta"&gt;
+    &lt;span class="stamp-a"&gt;PARTNER A · JAMES&lt;/span&gt;
+    &lt;span&gt;SEALED 28 APR · 28 MAY&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="slip-question"&gt;Should we move into the city for our son's schooling?&lt;/div&gt;
+  &lt;div class="slip-verdict a"&gt;Go&lt;/div&gt;
+  &lt;div class="slip-trajectory"&gt;TRAJECTORY · LEAN YES → STRONG YES · CONVICTION +12.0&lt;/div&gt;
+&lt;/div&gt;</pre>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="comp-section" id="c9">
+    <h2>component</h2>
+    <h3>Filing table · the FAQ / Help / Compare replacement</h3>
+    <p class="role">Registry-style table built on native <code>&lt;details&gt;</code> + <code>&lt;summary&gt;</code>. Three-column header: file reference (left), question (centre), revision date and chevron (right). Click any row to expand the answer.</p>
+    <div class="comp-demo" style="padding: 0;">
+      <div class="filing-table">
+        <details>
+          <summary>
+            <span class="file-ref">№ 04.07</span>
+            <span class="question">How is the verdict analysis generated?</span>
+            <span class="meta">REV 15 MAY 2026</span>
+          </summary>
+          <div class="answer">
+            <p>On a paid decision, the Python analysis layer computes trajectory, trend, stability, sentiment, top themes, and decision-readiness on our own server, then submits the structured result to our AI synthesis tool for a 600-to-1200-word synthesis paragraph.</p>
+          </div>
+        </details>
+        <details>
+          <summary>
+            <span class="file-ref">№ 04.08</span>
+            <span class="question">Are the votes really sealed until the final day?</span>
+            <span class="meta">REV 15 MAY 2026</span>
+          </summary>
+          <div class="answer">
+            <p>Yes. The database is designed so neither participant's votes or notes are visible to the other in any form until the verdict is generated. There is no settings panel and no support workflow to override this.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+    <pre class="comp-snippet">&lt;div class="filing-table"&gt;
+  &lt;details&gt;
+    &lt;summary&gt;
+      &lt;span class="file-ref"&gt;№ 04.07&lt;/span&gt;
+      &lt;span class="question"&gt;How is the verdict analysis generated?&lt;/span&gt;
+      &lt;span class="meta"&gt;REV 15 MAY 2026&lt;/span&gt;
+    &lt;/summary&gt;
+    &lt;div class="answer"&gt;
+      &lt;p&gt;...&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/details&gt;
+&lt;/div&gt;</pre>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="comp-section" id="c10">
+    <h2>component</h2>
+    <h3>Specimen wrapper</h3>
+    <p class="role">Wraps any in-page artefact reproduction with a Plex Mono caption above and below. Use to mark an artefact as illustrative or as a worked example.</p>
+    <div class="comp-demo">
+      <div class="specimen">
+        <div class="specimen-label">SPECIMEN · DECISION № 0047 · ILLUSTRATIVE</div>
+        <div class="record-envelope unsealed" style="max-width: 480px;">
+          <div class="record-header">
+            <span class="file-ref seal">№ 0047</span>
+            <span class="status-pill unsealed">Unsealed</span>
+            <span class="date-stamp">14 APR 2026</span>
+          </div>
+          <div class="envelope-body" style="padding: 20px;">
+            <div class="wax-seal" style="position: static; transform: none; margin: 0 auto 14px; width: 56px; height: 56px;">Broken</div>
+            <div class="record-slip">
+              <div class="slip-meta">
+                <span class="stamp-a">PARTNER A</span>
+                <span class="stamp-b">PARTNER B</span>
+              </div>
+              <div class="slip-trajectory">CONCLUDED · 30 OF 30 SEALED ENTRIES</div>
+            </div>
+          </div>
+          <div class="envelope-caption">A worked example, not a real verdict.</div>
+        </div>
+        <div class="specimen-caption">A specimen is always labelled · so a reader never mistakes it for live data.</div>
+      </div>
+    </div>
+    <pre class="comp-snippet">&lt;div class="specimen"&gt;
+  &lt;div class="specimen-label"&gt;SPECIMEN · DECISION № 0047 · ILLUSTRATIVE&lt;/div&gt;
+  &lt;!-- the artefact (record-envelope, record-slip, filing-table, etc.) --&gt;
+  &lt;div class="specimen-caption"&gt;What the specimen demonstrates.&lt;/div&gt;
+&lt;/div&gt;</pre>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="comp-section" id="c11">
+    <h2>component</h2>
+    <h3>Date-stamp opener · replaces the drop cap</h3>
+    <p class="role">Replaces the legacy drop-cap pattern on long-form prose openings. Plex Mono date in seal-clay above the first paragraph, separated by a hairline rule. Set the date via the <code>data-stamp</code> attribute.</p>
+    <div class="comp-demo">
+      <p class="opener" data-stamp="14 MAY 2026" style="font-family: var(--font-body); font-size: 17px; line-height: 1.65; color: var(--ink); max-width: 660px;">
+        On big questions you have pro days and con days, and the difference between Tuesday and Thursday is rarely new information. Counsel.day captures the whole stream, not just tonight's mood.
+      </p>
+    </div>
+    <pre class="comp-snippet">&lt;p class="opener" data-stamp="14 MAY 2026"&gt;
+  Body text on a long-form essay; the date stamp positions above
+  via a CSS ::before pseudo-element. The opener replaces the
+  legacy drop-cap pattern entirely.
+&lt;/p&gt;</pre>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="comp-section" id="c12">
+    <h2>component</h2>
+    <h3>Records action button</h3>
+    <p class="role">The institutional CTA. Plex Mono uppercase label, ink background, no border-radius (the brand rule). Hover state switches to seal-clay. Use for primary actions: <code>FILE A DECISION</code>, <code>SEAL TONIGHT'S VOTE</code>, <code>OPEN THIS RECORD</code>.</p>
+    <div class="comp-demo">
+      <button type="button" class="btn-records-action">File a decision</button> &nbsp;
+      <button type="button" class="btn-records-action">Seal tonight's vote</button> &nbsp;
+      <button type="button" class="btn-records-action">Open this record</button>
+    </div>
+    <pre class="comp-snippet">&lt;button type="button" class="btn-records-action"&gt;File a decision&lt;/button&gt;
+&lt;button type="button" class="btn-records-action"&gt;Seal tonight's vote&lt;/button&gt;
+&lt;button type="button" class="btn-records-action"&gt;Open this record&lt;/button&gt;</pre>
+  </section>
+
+  <!-- ============================================================ -->
+  <section class="comp-section" id="verify">
+    <h2>verifier</h2>
+    <h3>Pre-commit check</h3>
+    <p class="role">Run the verifier on a single new file before you commit. It returns exit code 0 on success, 1 on any failure. The full ruleset is documented at <a href="../docs/BRAND.md" style="color: var(--seal); border-bottom: 1px solid var(--seal); padding-bottom: 1px;">docs/BRAND.md § 12</a>.</p>
+    <pre class="comp-snippet"># Whole-repo lint (run before push)
+pwsh ./scripts/brand-verify.ps1
+
+# Single-file lint (run before commit)
+pwsh ./scripts/brand-verify.ps1 -Path ./your-new-page.html
+
+# Verbose mode (show every passed check)
+pwsh ./scripts/brand-verify.ps1 -Verbose</pre>
+  </section>
+
+</div>
+</main>
+
+<script>
+function toggleDemo() {
+  var env = document.getElementById('demo-env');
+  var body = document.getElementById('demo-body');
+  var btn = document.getElementById('demo-toggle');
+  if (env.dataset.state === 'sealed') {
+    env.dataset.state = 'unsealed';
+    env.classList.add('unsealed');
+    env.querySelector('.status-pill').className = 'status-pill unsealed';
+    env.querySelector('.status-pill').textContent = 'Unsealed';
+    body.innerHTML =
+      '<div class="wax-seal">Broken</div>' +
+      '<div style="padding-top: 30px;">' +
+        '<div class="record-slip">' +
+          '<div class="slip-meta"><span class="stamp-a">PARTNER A · JAMES</span><span>SEALED 28 APR · 28 MAY</span></div>' +
+          '<div class="slip-question">Should we move into the city for our son\'s schooling?</div>' +
+          '<div class="slip-verdict a yes">Go</div>' +
+          '<div class="slip-trajectory">TRAJECTORY · LEAN YES → STRONG YES · CONVICTION +12.0</div>' +
+        '</div>' +
+        '<div class="record-slip" style="margin-top: 12px;">' +
+          '<div class="slip-meta"><span class="stamp-b">PARTNER B · ALEXANDRA</span><span>SEALED 28 APR · 28 MAY</span></div>' +
+          '<div class="slip-question">Should we move into the city for our son\'s schooling?</div>' +
+          '<div class="slip-verdict b lean-no">Lean No</div>' +
+          '<div class="slip-trajectory">TRAJECTORY · NEUTRAL → LEAN NO · CONVICTION -4.5</div>' +
+        '</div>' +
+      '</div>';
+    btn.textContent = 'Reseal the specimen ←';
+  } else {
+    env.dataset.state = 'sealed';
+    env.classList.remove('unsealed');
+    env.querySelector('.status-pill').className = 'status-pill sealed';
+    env.querySelector('.status-pill').textContent = 'Sealed';
+    body.innerHTML = '<div class="wax-seal">Sealed</div>';
+    btn.textContent = 'View specimen verdict →';
+  }
+}
+</script>
+
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for couples and families, for the questions a single conversation cannot resolve. Each evening, you and your partner cast one private vote on the same question, for a duration you both set, with every vote sealed in the database until the final day. When the verdict opens, you see where you converged, where you diverged, the themes underneath your own words, and one specific next conversation. The deciding stays with you; the structure is ours. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>Internal</h5>
+        <a href="components.html">Components</a>
+        <a href="../docs/BRAND.md">BRAND.md</a>
+        <a href="changelog.html">Changelog</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>© 2026 Counsel.day · USD pricing worldwide · INTERNAL REFERENCE PAGE</div>
+    </div>
+  </div>
+</footer>
+
+<script src="ga4.js" defer></script>
+</body>
+</html>

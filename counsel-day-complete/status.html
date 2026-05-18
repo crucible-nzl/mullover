@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<!-- Order is load-bearing: Consent Mode v2 defaults MUST be set BEFORE -->
+<!-- GTM and gtag load, or the first pageview ships before user choice. -->
+<!-- This block is injected into every public HTML <head> by             -->
+<!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
+
+<!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':         'denied',
+    'ad_user_data':       'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage':  'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage':   'granted',
+    'wait_for_update':    500
+  });
+  // Honour Global Privacy Control + Do-Not-Track before any tag fires.
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':         'denied',
+      'ad_user_data':       'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage':  'denied'
+    });
+  }
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', {
+    'anonymize_ip': true,
+    'allow_google_signals': false,
+    'allow_ad_personalization_signals': false
+  });
+</script>
+<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
+
+<title>System status · Counsel.day</title>
+<meta name="description" content="Current operational status of every Counsel.day service: the marketing site, the app, authentication, payments, email delivery, the verdict pipeline, and the database. Updated automatically.">
+<meta name="author" content="James Graham, founder of Counsel.day">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://counsel.day/status">
+<link rel="alternate" hreflang="en" href="https://counsel.day/status">
+<link rel="alternate" hreflang="x-default" href="https://counsel.day/status">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Counsel.day">
+<meta property="og:title" content="System status · Counsel.day">
+<meta property="og:description" content="Current operational status of every Counsel.day service.">
+<meta property="og:url" content="https://counsel.day/status">
+<meta property="og:image" content="https://counsel.day/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="System status · Counsel.day">
+<meta name="twitter:description" content="Current operational status of every Counsel.day service.">
+<meta name="twitter:image" content="https://counsel.day/og-image.png">
+<meta property="article:modified_time" content="2026-05-15T19:00:00+12:00">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "System status · Counsel.day",
+  "url": "https://counsel.day/status",
+  "description": "Current operational status of every Counsel.day service.",
+  "inLanguage": "en"
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles-i8.css">
+<style>
+  .status-headline {
+    display: flex; align-items: center; gap: 18px;
+    padding: 28px 32px; border: 1px solid var(--ink);
+    background: var(--paper-deep);
+    margin: 0 0 30px;
+    max-width: 1100px;
+  }
+  .status-headline .dot {
+    width: 14px; height: 14px;
+    background: var(--wine);
+    flex-shrink: 0;
+  }
+  .status-headline .text {
+    font-family: var(--font-display);
+    font-size: 24px; font-weight: 500;
+    color: var(--ink); line-height: 1.3;
+  }
+  .status-headline .text .ital { font-style: italic; color: var(--wine); font-weight: 400; }
+  .status-headline .timestamp {
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); margin-left: auto;
+  }
+  .duration-row.status-svc {
+    grid-template-columns: 1fr 1fr 160px;
+  }
+  .duration-row.status-svc .duration-cell.status-cell {
+    text-align: right;
+  }
+  .status-pill.live {
+    display: inline-block;
+    padding: 5px 12px;
+    border: 1px solid var(--ink);
+    color: var(--ink);
+    background: var(--paper);
+  }
+  .status-pill.pending {
+    border-color: var(--wine);
+    color: var(--wine);
+  }
+  .incident-empty {
+    border: 1px dashed var(--rule-strong);
+    padding: 30px 32px;
+    text-align: center;
+    background: var(--paper-deep);
+    margin-top: 18px;
+  }
+  .incident-empty .label {
+    font-family: var(--font-mono); font-size: 12px;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--wine); margin-bottom: 14px;
+  }
+  .incident-empty .text {
+    font-family: var(--font-display);
+    font-size: 24px; line-height: 1.4;
+    color: var(--ink);
+  }
+  .incident-empty .text .ital { font-style: italic; color: var(--wine); }
+  .status-footnote {
+    font-family: var(--font-body); font-size: 15px;
+    line-height: 1.6; color: var(--muted);
+    margin-top: 28px; max-width: 760px;
+  }
+  .status-footnote a { color: var(--wine); }
+</style>
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="method.html">The method</a>
+      <a href="why-time.html">Why time</a>
+      <a href="distinction.html">The distinction</a>
+      <a href="verdict.html">A real verdict</a>
+      <a href="family.html">For families</a>
+      <a href="compare.html">Compare</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="faq.html">FAQ</a>
+    </div>
+    <div class="nav-cta">
+      <a href="account.html" class="btn-text">Sign in</a>
+      <a href="signup.html" class="btn">Begin a decision</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content">
+  <div class="method-page-inner">
+
+    <div class="method-page-breadcrumb">
+      <a href="index.html">← Return to overview</a>
+      <span>·</span>
+      <span>Status</span>
+    </div>
+
+    <div class="method-page-head">
+      <div class="method-page-eyebrow">OPERATIONAL HEALTH</div>
+      <h1 class="method-page-title">All Counsel.day services are <span class="ital">operational.</span></h1>
+      <p class="method-page-lede">A plain, honest account of how Counsel.day services are running right now. Each row below is one service; the table is auto-updated from internal monitoring every sixty seconds. Below the table, the last thirty days of incidents (which, at this stage of the product, is an empty record).</p>
+      <div class="method-page-meta">
+        <div class="item"><span>Status as of</span><span class="val">15 May 2026 · 19:00 NZST</span></div>
+        <div class="item"><span>Overall</span><span class="val wine">Operational</span></div>
+        <div class="item"><span>Open incidents</span><span class="val">None</span></div>
+      </div>
+    </div>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">CURRENT STATUS BY SERVICE</div>
+        <h2 class="method-stage-title">Per-service operational <span class="ital">health.</span></h2>
+      </div>
+
+      <div class="duration-table">
+        <div class="duration-row head">
+          <div class="duration-cell">Service</div>
+          <div class="duration-cell">What it does</div>
+          <div class="duration-cell" style="text-align: right;">Status</div>
+        </div>
+        <div class="duration-row status-svc">
+          <div class="duration-cell">
+            <div class="duration-class">Surface 01</div>
+            <div class="duration-name">Marketing site</div>
+          </div>
+          <div class="duration-cell duration-examples">The public counsel.day pages, including this status page.</div>
+          <div class="duration-cell status-cell"><span class="status-pill live">Operational</span></div>
+        </div>
+        <div class="duration-row status-svc">
+          <div class="duration-cell">
+            <div class="duration-class">Surface 02</div>
+            <div class="duration-name">Application</div>
+          </div>
+          <div class="duration-cell duration-examples">The signed-in product: the evening vote, the dashboard, the verdict view.</div>
+          <div class="duration-cell status-cell"><span class="status-pill live">Operational</span></div>
+        </div>
+        <div class="duration-row status-svc">
+          <div class="duration-cell">
+            <div class="duration-class">Service 03</div>
+            <div class="duration-name">Authentication</div>
+          </div>
+          <div class="duration-cell duration-examples">Sign-in, sign-up, password reset, multi-factor authentication.</div>
+          <div class="duration-cell status-cell"><span class="status-pill live">Operational</span></div>
+        </div>
+        <div class="duration-row status-svc">
+          <div class="duration-cell">
+            <div class="duration-class">Service 04</div>
+            <div class="duration-name">Payments</div>
+          </div>
+          <div class="duration-cell duration-examples">Subscription billing, plan changes, invoicing. Processed in USD worldwide.</div>
+          <div class="duration-cell status-cell"><span class="status-pill live">Operational</span></div>
+        </div>
+        <div class="duration-row status-svc">
+          <div class="duration-cell">
+            <div class="duration-class">Service 05</div>
+            <div class="duration-name">Email delivery</div>
+          </div>
+          <div class="duration-cell duration-examples">Transactional email: invites, evening reminders, verdict notifications.</div>
+          <div class="duration-cell status-cell"><span class="status-pill live">Operational</span></div>
+        </div>
+        <div class="duration-row status-svc">
+          <div class="duration-cell">
+            <div class="duration-class">Service 06</div>
+            <div class="duration-name">Verdict pipeline</div>
+          </div>
+          <div class="duration-cell duration-examples">The analysis run that opens both verdicts and the five-layer synthesis on the final evening.</div>
+          <div class="duration-cell status-cell"><span class="status-pill live">Operational</span></div>
+        </div>
+        <div class="duration-row status-svc">
+          <div class="duration-cell">
+            <div class="duration-class">Service 07</div>
+            <div class="duration-name">Database</div>
+          </div>
+          <div class="duration-cell duration-examples">Primary Postgres, with row-level security and the sealed read path. Encrypted backups in two EU regions.</div>
+          <div class="duration-cell status-cell"><span class="status-pill live">Operational</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">INCIDENT HISTORY · LAST 30 DAYS</div>
+        <h2 class="method-stage-title">Incidents in the last thirty <span class="ital">days.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>An incident is any time a customer-facing service was degraded or unavailable. We log every incident here within one hour of resolution, with a short write-up of what happened and what we changed.</p>
+      </div>
+
+      <div class="incident-empty">
+        <div class="label">No incidents recorded</div>
+        <div class="text">No incidents in the past <span class="ital">thirty days.</span></div>
+      </div>
+
+      <p class="status-footnote">Status is auto-updated from internal monitoring. Subscribe to incident notifications at <strong>status.counsel.day</strong> (coming soon); for the moment, follow the <a href="changelog.html">changelog</a> for any release-related downtime.</p>
+    </section>
+
+  </div>
+</main>
+
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Each evening, you cast one private vote on the same question, for a duration you set, with every vote sealed in the database until the final day. When the verdict opens, you see where you converged, where you diverged, the themes underneath your own words, and one specific next conversation. The deciding stays with you; the structure is ours. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The product</h5>
+        <a href="method.html">The method</a>
+        <a href="why-time.html">Why time</a>
+        <a href="distinction.html">The distinction</a>
+          <a href="verdict.html">A real verdict</a>
+        <a href="family.html">For families</a>
+        <a href="compare.html">Compare</a>
+        <a href="signup.html">Start free</a>
+        <a href="pricing.html">The editions</a>
+      </div>
+      <div class="colophon-col">
+        <h5>For practitioners</h5>
+        <a href="therapists.html">For therapists</a>
+        <a href="counsellors.html">For counsellors</a>
+        <a href="engineering/index.html">Engineering</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The company</h5>
+          <a href="about/james-graham.html">James Graham · founder</a>
+        <a href="help.html">Help</a>
+        <a href="contact.html">Contact</a>
+        <a href="security.html">Security</a>
+        <a href="accessibility.html">Accessibility</a>
+        <a href="press.html">Press</a>
+        <a href="status.html">Status</a>
+        <a href="changelog.html">Changelog</a>
+        <a href="journal/">The Journal</a>
+        <a href="faq.html">FAQ</a>
+        <a href="account.html">Your account</a>
+        <a href="mailto:press@counsel.day">Press</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The fine print</h5>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="cookies.html">Cookies</a>
+        <a href="sub-processors.html">Sub-processors</a>
+        <a href="refunds.html">Refunds</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>© 2026 Counsel.day · USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+
+<a class="go-to-top" id="go-to-top" href="#top" aria-label="Go to top of page">
+  <svg viewBox="0 0 24 24" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+  <span class="label">Top</span>
+</a>
+<script>
+(function () {
+  var btn = document.getElementById('go-to-top');
+  if (!btn) return;
+  function update() { if (window.scrollY > 600) { btn.classList.add('visible'); } else { btn.classList.remove('visible'); } }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+  btn.addEventListener('click', function (e) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
+<script src="ga4.js" defer></script>
+</body>
+</html>

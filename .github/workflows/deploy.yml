@@ -1,0 +1,186 @@
+name: Deploy to production
+
+# Triggered by:
+#   · push to main (excluding doc-only changes)
+#   · manual workflow_dispatch (lets you redeploy without a commit)
+#
+# Concurrency cancels stale runs so a fast follow-up push wins.
+#
+# Required repository secrets (Settings → Secrets and variables → Actions):
+#   SSH_PRIVATE_KEY   · the ed25519 private key for deploy@46.225.133.203
+#                       (paste the full contents of ~/.ssh/id_ed25519_counsel_day,
+#                       including BEGIN/END markers)
+#   SSH_HOST          · 46.225.133.203
+#   SSH_USER          · deploy
+#   SSH_KNOWN_HOSTS   · output of: ssh-keyscan -t ed25519 46.225.133.203
+#
+# Optional:
+#   SLACK_WEBHOOK_URL · post deploy results to Slack (omit to skip)
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - '.gitignore'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false  # Never cancel a mid-flight production deploy
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-app:
+    name: Deploy counsel-day-app (Next.js)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Optional: gate behind a GitHub Environment with manual approval
+    # for the first month. Uncomment once the environment is configured:
+    # environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Detect changes in counsel-day-app
+        id: detect
+        run: |
+          set -e
+          if [ -z "${{ github.event.before }}" ] || [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            if git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | grep -qE '^counsel-day-app/'; then
+              echo "changed=true" >> $GITHUB_OUTPUT
+            else
+              echo "changed=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Set up Node
+        if: steps.detect.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.20.2'
+
+      - name: Pre-flight typecheck
+        if: steps.detect.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        working-directory: counsel-day-app
+        run: |
+          npm install --no-audit --no-fund
+          npx tsc --noEmit
+
+      - name: Configure SSH
+        if: steps.detect.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Deploy app
+        if: steps.detect.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          # Mirror what scripts/deploy.sh does, but with CI-provided SSH.
+          cd counsel-day-app
+          ssh -i ~/.ssh/id_ed25519 "$SSH_USER@$SSH_HOST" "sudo mkdir -p /opt/counsel-day-app && sudo chown -R deploy:deploy /opt/counsel-day-app"
+          tar -czf - \
+            --exclude='node_modules' --exclude='.next' --exclude='.env' --exclude='.env.local' --exclude='.git' \
+            . | ssh -i ~/.ssh/id_ed25519 "$SSH_USER@$SSH_HOST" "tar -xzf - -C /opt/counsel-day-app"
+          ssh -i ~/.ssh/id_ed25519 "$SSH_USER@$SSH_HOST" "
+            set -e
+            cd /opt/counsel-day-app
+            if [ ! -f package-lock.json ] || [ package.json -nt package-lock.json ]; then
+              rm -f package-lock.json
+              npm install
+            else
+              npm ci
+            fi
+            set -a; source /etc/counsel-day-app/env.local; set +a
+            npm run build
+            npm run db:migrate
+            sudo systemctl daemon-reload
+            sudo systemctl restart counsel-day-app
+            sleep 2
+            sudo systemctl is-active counsel-day-app
+          "
+
+      - name: Health check
+        if: steps.detect.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        run: |
+          sleep 3
+          curl -sSf https://counsel.day/api/health | grep -q '"ok":true'
+
+  deploy-static:
+    name: Deploy counsel-day-complete (static site)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Detect changes in counsel-day-complete
+        id: detect
+        run: |
+          set -e
+          if [ -z "${{ github.event.before }}" ] || [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            if git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | grep -qE '^counsel-day-complete/'; then
+              echo "changed=true" >> $GITHUB_OUTPUT
+            else
+              echo "changed=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Brand verify
+        if: steps.detect.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        shell: pwsh
+        run: |
+          pwsh ./counsel-day-complete/scripts/brand-verify.ps1
+
+      - name: Configure SSH
+        if: steps.detect.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Push static
+        if: steps.detect.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          tar -czf - -C counsel-day-complete \
+            --exclude='scripts' --exclude='engineering' --exclude='ops' . \
+            | ssh -i ~/.ssh/id_ed25519 "$SSH_USER@$SSH_HOST" \
+              'sudo tar -xzf - -C /var/www/counsel.day && sudo chown deploy:deploy /var/www/counsel.day/sitemap.xml || true'
+
+      - name: Regenerate sitemap
+        if: steps.detect.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          ssh -i ~/.ssh/id_ed25519 "$SSH_USER@$SSH_HOST" 'sudo systemctl start counsel-day-sitemap.service'

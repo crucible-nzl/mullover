@@ -1,0 +1,50 @@
+# counsel-day-server/docker-compose.caddy.yml
+#
+# Stands up the Caddy reverse proxy on the host network for ports 80 + 443.
+# Auto-renews TLS via Cloudflare DNS-01 challenge. The CLOUDFLARE_DNS_API_TOKEN
+# is fetched from Infisical via the infisical CLI at start time:
+#
+#   infisical run --env=production -- docker compose -f docker-compose.caddy.yml up -d
+#
+# This indirection means the token never lands on disk in plaintext.
+
+services:
+  caddy:
+    image: caddy-cloudflare:latest
+    container_name: caddy
+    restart: unless-stopped
+    network_mode: bridge
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"  # HTTP/3
+    environment:
+      - CLOUDFLARE_DNS_API_TOKEN=${CLOUDFLARE_DNS_API_TOKEN:?CLOUDFLARE_DNS_API_TOKEN must be set (use infisical run)}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - counsel-edge
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:2019/config/"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+volumes:
+  caddy_data:
+    name: caddy_data
+  caddy_config:
+    name: caddy_config
+
+networks:
+  counsel-edge:
+    name: counsel-edge
+    external: true

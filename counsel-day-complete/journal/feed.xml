@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+  <title>Counsel.day · The Journal</title>
+  <subtitle>Long-form essays on the questions a single conversation cannot resolve. Written by James Graham, founder of Counsel.day.</subtitle>
+  <link href="https://counsel.day/journal/feed.xml" rel="self" type="application/atom+xml"/>
+  <link href="https://counsel.day/journal/" rel="alternate" type="text/html"/>
+  <id>https://counsel.day/journal/</id>
+  <updated>2026-05-15T19:00:00+12:00</updated>
+  <rights>© 2026 Counsel.day. All rights reserved.</rights>
+  <generator uri="https://counsel.day/" version="1.0">Counsel.day editorial pipeline</generator>
+  <icon>https://counsel.day/icon-192.png</icon>
+  <logo>https://counsel.day/og-image.png</logo>
+  <author>
+    <name>James Graham</name>
+    <uri>https://counsel.day/about/james-graham</uri>
+    <email>james@counsel.day</email>
+  </author>
+
+  <entry>
+    <title>The Tuesday/Thursday problem</title>
+    <link href="https://counsel.day/journal/the-tuesday-thursday-problem" rel="alternate" type="text/html"/>
+    <id>https://counsel.day/journal/the-tuesday-thursday-problem</id>
+    <published>2026-05-14T19:00:00+12:00</published>
+    <updated>2026-05-14T19:00:00+12:00</updated>
+    <author>
+      <name>James Graham</name>
+      <uri>https://counsel.day/about/james-graham</uri>
+    </author>
+    <category term="decision-science"/>
+    <category term="founder-story"/>
+    <summary type="text">On big questions you have pro days and con days, and the difference between Tuesday and Thursday is rarely new information. It is mood, weather, fatigue, the last conversation. A single conversation can land on the wrong evening. The 2,100-word essay that opens the Journal.</summary>
+  </entry>
+
+  <entry>
+    <title>Why the seal has to be in the database, not in the settings (forthcoming)</title>
+    <link href="https://counsel.day/journal/" rel="alternate" type="text/html"/>
+    <id>https://counsel.day/journal/forthcoming-june-2026</id>
+    <published>2026-06-01T19:00:00+12:00</published>
+    <updated>2026-05-15T19:00:00+12:00</updated>
+    <author>
+      <name>James Graham</name>
+      <uri>https://counsel.day/about/james-graham</uri>
+    </author>
+    <category term="security"/>
+    <category term="product-design"/>
+    <summary type="text">A scheduled essay for June 2026. Why a privacy mechanism enforced by a settings toggle is not actually a privacy mechanism, and what changes when you move the check into the database row policy instead. Subscribed readers will receive the full text when it publishes.</summary>
+  </entry>
+
+</feed>

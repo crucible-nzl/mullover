@@ -1,0 +1,2073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<!-- Order is load-bearing: Consent Mode v2 defaults MUST be set BEFORE -->
+<!-- GTM and gtag load, or the first pageview ships before user choice. -->
+<!-- This block is injected into every public HTML <head> by             -->
+<!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
+
+<!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':         'denied',
+    'ad_user_data':       'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage':  'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage':   'granted',
+    'wait_for_update':    500
+  });
+  // Honour Global Privacy Control + Do-Not-Track before any tag fires.
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':         'denied',
+      'ad_user_data':       'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage':  'denied'
+    });
+  }
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', {
+    'anonymize_ip': true,
+    'allow_google_signals': false,
+    'allow_ad_personalization_signals': false
+  });
+</script>
+<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
+
+<title>Counsel.day · Decide slowly. Sealed votes, one verdict.</title>
+<meta name="description" content="Sealed-vote decision tool for couples, families, and solo deciders. Vote privately each evening for a duration you choose; the verdict opens on the final day.">
+<meta name="author" content="James Graham, founder of Counsel.day">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://counsel.day/">
+<link rel="alternate" hreflang="en" href="https://counsel.day/">
+<link rel="alternate" hreflang="x-default" href="https://counsel.day/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Counsel.day">
+<meta property="og:title" content="Counsel.day · Decide slowly. Sealed votes, one verdict.">
+<meta property="og:description" content="Sealed-vote decision tool for couples, families, and solo deciders. Vote privately each evening for a duration you choose; the verdict opens on the final day.">
+<meta property="og:url" content="https://counsel.day/">
+<meta property="og:image" content="https://counsel.day/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Counsel.day · Decide slowly. Sealed votes, one verdict.">
+<meta name="twitter:description" content="Sealed-vote decision tool for couples, families, and solo deciders. Vote privately each evening for a duration you choose; the verdict opens on the final day.">
+<meta name="twitter:image" content="https://counsel.day/og-image.png">
+<meta property="article:modified_time" content="2026-05-15T19:00:00+12:00">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://counsel.day/#organization",
+      "name": "Counsel.day",
+      "url": "https://counsel.day/",
+      "logo": "https://counsel.day/og-image.png",
+      "founder": { "@type": "Person", "name": "James Graham" },
+      "sameAs": []
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://counsel.day/#website",
+      "url": "https://counsel.day/",
+      "name": "Counsel.day",
+      "publisher": { "@id": "https://counsel.day/#organization" },
+      "inLanguage": "en",
+      "description": "Sealed-vote decision tool for couples, families, and solo deciders."
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://counsel.day/#software",
+      "name": "Counsel.day",
+      "url": "https://counsel.day/",
+      "applicationCategory": "LifestyleApplication",
+      "operatingSystem": "Web, iOS, Android",
+      "description": "A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Each evening you vote privately for a duration of your choosing; on the final day the verdict opens with a five-layer analysis of where the agreement and disagreement sit.",
+      "offers": [
+        { "@type": "Offer", "name": "Solo · first decision", "price": "0", "priceCurrency": "USD", "category": "Free · first lifetime Solo decision" },
+        { "@type": "Offer", "name": "Solo · additional decision", "price": "9.99", "priceCurrency": "USD", "category": "Per paid decision · one participant" },
+        { "@type": "Offer", "name": "Couple", "price": "25", "priceCurrency": "USD", "category": "Per paid decision · two participants" },
+        { "@type": "Offer", "name": "Family", "price": "40", "priceCurrency": "USD", "category": "Per paid decision · three to six participants" },
+        { "@type": "Offer", "name": "Consumer Annual", "price": "99", "priceCurrency": "USD", "category": "Annual all-access · unlimited Solo, Couple, and Family decisions on one account for twelve months" }
+      ],
+      "publisher": { "@id": "https://counsel.day/#organization" },
+      "audience": { "@type": "PeopleAudience", "audienceType": "Solo decision-makers, couples, and families facing a meaningful joint decision" },
+      "inLanguage": "en"
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://counsel.day/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How does Counsel.day decide for me?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "It does not. Counsel.day does not tell you what to do. It records how you voted on the same question each evening for a duration you chose, then synthesises the pattern of your own votes and notes into a verdict that names what you were really deciding about underneath the surface question."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why vote every day instead of just thinking it through?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The answer you give on a hard day and the answer you give on a good day are both true. A single conversation captures only one of them. Voting across a season captures the pattern · the verdict on the final day reads the trajectory, not any one vote."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is my partner allowed to see how I voted before the reveal day?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Each vote is sealed at the moment you cast it. The only thing your partner sees before the reveal is whether you voted that evening, never which way. Both verdicts open at the same instant on the final day · neither of you can anchor the other beforehand."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How long does a decision take?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "You choose the duration when you compose the question. Common choices are a fortnight (14 days), a month (30 days), or a season (90 days). The minimum is 7 days; the maximum is 365. The verdict opens on the final evening of your chosen duration."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What does it cost?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Your first Solo decision is free. After that: Solo $9.99 USD per decision, Couple $25 USD per decision, Family $40 USD per decision. Consumer Annual is $99 USD/year for unlimited decisions across all three tiers. Prices are USD worldwide."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Render-blocking on purpose. Async loading via media=print+onload trick
+     causes a Flash Of Unstyled Text and tanks Cumulative Layout Shift
+     (CLS hit ~0.38, target ≤0.10). With preconnect already established,
+     the CSS arrives in one round-trip and the layout settles before paint. -->
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   COUNSEL.DAY · ITERATION 8 · WHITE + WINE
+   Self-contained styles for index.html
+   ============================================================ */
+
+:root {
+  --paper: #ffffff;
+  --paper-deep: #fafaf8;
+  --surface: #ffffff;
+  --ink: #0a0a0a;
+  --ink-soft: #3a3530;
+  --muted: #6b635a;
+  --subtle: #9b9286;
+  --rule: #e8e6e1;
+  --rule-strong: #0a0a0a;
+  --wine: #722F37;
+  --wine-deep: #561F26;
+  --wine-soft: #f4e6e8;
+  --rose: #c4806b;
+
+  --font-display: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-ui: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.65;
+  font-feature-settings: "kern", "liga";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a { color: var(--wine); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { color: var(--wine-deep); }
+
+.skip-link {
+  position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden;
+}
+.skip-link:focus {
+  left: 16px; top: 16px; width: auto; height: auto; padding: 8px 14px;
+  background: var(--ink); color: var(--paper); z-index: 100;
+  font-family: var(--font-ui); font-size: 13px; text-decoration: none;
+}
+
+/* ---------- NAV BAR ---------- */
+.nav-bar {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: saturate(140%) blur(8px);
+  -webkit-backdrop-filter: saturate(140%) blur(8px);
+  border-bottom: 1px solid var(--rule);
+}
+.nav-inner {
+  max-width: 1280px; margin: 0 auto;
+  padding: 18px 32px;
+  display: flex; align-items: center; justify-content: space-between; gap: 32px;
+}
+.nav-brand {
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 500;
+  color: var(--ink);
+  text-decoration: none;
+  letter-spacing: -0.012em;
+  line-height: 1;
+}
+.nav-brand .tld {
+  font-weight: 400;
+  font-style: italic;
+  color: var(--wine);
+}
+.nav-links {
+  display: flex; flex-wrap: wrap; gap: 24px;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 400;
+}
+.nav-links a {
+  color: var(--ink-soft);
+  text-decoration: none;
+  padding: 4px 0;
+  border-bottom: 1px solid transparent;
+  transition: border-color 120ms ease, color 120ms ease;
+}
+.nav-links a:hover { color: var(--wine); border-bottom-color: var(--wine); }
+.nav-cta {
+  display: flex; align-items: center; gap: 18px;
+  font-family: var(--font-ui); font-size: 15px;
+}
+.nav-cta .btn-text {
+  color: var(--ink-soft); text-decoration: none;
+}
+.nav-cta .btn-text:hover { color: var(--wine); }
+
+/* Mobile nav toggle (hamburger). Hidden by default; shown below 900px. */
+.nav-toggle {
+  display: none;
+  background: transparent; border: 1px solid var(--rule);
+  width: 40px; height: 36px; padding: 0;
+  align-items: center; justify-content: center; gap: 4px;
+  flex-direction: column;
+  cursor: pointer;
+  border-radius: 0;
+}
+.nav-toggle:hover { border-color: var(--wine); }
+.nav-toggle:focus-visible { outline: 2px solid var(--wine); outline-offset: 2px; }
+.nav-toggle-bar {
+  display: block; width: 18px; height: 1.5px;
+  background: var(--ink);
+  transition: transform 160ms ease, opacity 160ms ease;
+}
+.nav-bar.menu-open .nav-toggle-bar:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
+.nav-bar.menu-open .nav-toggle-bar:nth-child(2) { opacity: 0; }
+.nav-bar.menu-open .nav-toggle-bar:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
+
+@media (max-width: 1199px) and (min-width: 1024px) {
+  .nav-links { gap: 16px; font-size: 14px; }
+  .nav-inner { gap: 22px; padding: 16px 24px; }
+  .nav-cta { gap: 12px; font-size: 14px; }
+  .nav-cta .btn { padding: 12px 20px; font-size: 14px; }
+}
+@media (max-width: 1023px) {
+  .nav-inner { padding: 14px 20px; flex-wrap: wrap; }
+  .nav-toggle { display: inline-flex; order: 3; }
+  .nav-links,
+  .nav-cta {
+    display: none;
+    order: 4;
+    width: 100%;
+    flex-basis: 100%;
+    margin-top: 12px;
+    padding-top: 14px;
+    border-top: 1px solid var(--rule);
+  }
+  .nav-bar.menu-open .nav-links,
+  .nav-bar.menu-open .nav-cta { display: flex; }
+  .nav-bar.menu-open .nav-links {
+    flex-direction: column; gap: 14px; align-items: flex-start;
+  }
+  .nav-bar.menu-open .nav-cta {
+    flex-direction: column; align-items: stretch; gap: 12px;
+    border-top: none; padding-top: 0; margin-top: 14px;
+  }
+  .nav-bar.menu-open .nav-cta .btn { text-align: center; }
+}
+
+/* ---------- BUTTONS ---------- */
+.btn {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.005em;
+  padding: 15px 30px;
+  background: var(--wine);
+  color: var(--paper);
+  border: 1px solid var(--wine);
+  border-radius: 0;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease, transform 120ms ease;
+}
+.btn:hover { background: var(--wine-deep); border-color: var(--wine-deep); color: var(--paper); }
+.btn:active { transform: translateY(1px); }
+
+.btn-large {
+  font-size: 17px;
+  font-weight: 500;
+  padding: 19px 38px;
+  letter-spacing: 0.01em;
+}
+
+.btn-ghost {
+  background: transparent; color: var(--ink); border-color: var(--ink);
+}
+.btn-ghost:hover { background: var(--wine); color: var(--paper); border-color: var(--wine); }
+
+.btn-text {
+  display: inline-flex; align-items: center;
+  font-family: var(--font-ui); font-size: 15px; font-weight: 500;
+  color: var(--ink); text-decoration: none;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--wine);
+}
+.btn-text:hover { color: var(--wine); }
+
+/* ---------- HERO ---------- */
+.hero {
+  padding: 28px 32px 30px;
+  text-align: center;
+  border-bottom: 1px solid var(--rule);
+}
+@media (max-width: 720px) {
+  .hero { padding: 18px 20px 30px; }
+}
+.hero-inner { max-width: 1500px; margin: 0 auto; }
+.hero-kicker {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--wine);
+  margin-bottom: 14px;
+}
+.hero-headline {
+  font-family: var(--font-display);
+  font-size: clamp(34px, 4.4vw, 60px);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -0.018em;
+  color: var(--ink);
+  margin: 0 0 18px;
+  text-align: center;
+  text-wrap: balance;
+}
+.hero-headline .ital {
+  font-style: italic;
+  color: var(--wine);
+  font-weight: 400;
+}
+/* One catchphrase per page-load. JS picks at random from the data list;
+   the first .slide is shown as the no-JS fallback. */
+.hero-headline .slide,
+.hero-subhead .slide { display: none; }
+.hero-headline .slide.is-shown,
+.hero-subhead .slide.is-shown { display: inline; }
+.hero-headline-long .slide.is-shown { font-size: 0.84em; line-height: 1.12; }
+.hero-subhead {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(20px, 2.2vw, 26px);
+  line-height: 1.35;
+  color: var(--ink-soft);
+  max-width: 780px;
+  margin: 0 auto 28px;
+}
+.hero-figure {
+  max-width: 1500px;
+  margin: 0 auto 28px;
+  padding: 0;
+}
+.hero-figure svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.hero-body {
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  max-width: 920px;
+  margin: 0 auto 22px;
+  text-align: left;
+}
+@media (min-width: 920px) {
+  .hero-body { text-align: justify; text-justify: inter-word; hyphens: auto; }
+}
+.hero-cta {
+  display: flex; align-items: center; justify-content: center; gap: 28px; flex-wrap: wrap;
+  margin-top: 8px;
+}
+.hero-reassure {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 28px;
+}
+.hero-reassure strong { color: var(--wine); font-weight: 500; }
+
+/* ---------- HOOK BAND (Tuesday / Thursday) ---------- */
+.hook-band {
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+  padding: 30px 32px;
+}
+.hook-inner {
+  max-width: 980px; margin: 0 auto;
+  display: grid; grid-template-columns: 160px 1fr;
+  gap: 56px; align-items: start;
+}
+.hook-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--wine);
+  line-height: 1.5;
+}
+.hook-body p {
+  font-family: var(--font-body);
+  font-size: 21px;
+  line-height: 1.55;
+  color: var(--ink);
+  margin: 0 0 20px;
+}
+.hook-body p:last-child { margin-bottom: 0; color: var(--ink-soft); font-size: 19px; }
+.hook-body strong { font-weight: 500; color: var(--ink); }
+.hook-body em { font-style: italic; color: var(--wine); }
+@media (max-width: 760px) {
+  .hook-inner { grid-template-columns: 1fr; gap: 18px; }
+}
+
+/* ---------- USP DIFFERENTIATOR (four points) ---------- */
+.usp-section { background: var(--paper-deep); }
+.usp-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin-top: 8px;
+}
+.usp-cell {
+  padding: 30px 26px;
+  background: var(--paper);
+}
+.usp-num {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--wine);
+  margin-bottom: 16px;
+}
+.usp-title {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1.22;
+  color: var(--ink);
+  margin: 0 0 14px;
+}
+.usp-title .ital { font-style: italic; color: var(--wine); font-weight: 400; }
+.usp-body {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  margin: 0;
+}
+@media (max-width: 1000px) { .usp-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .usp-grid { grid-template-columns: 1fr; } }
+
+/* ---------- DURATION TABLE ---------- */
+.duration-table {
+  border: 1px solid var(--ink);
+  margin-top: 8px;
+}
+.duration-row {
+  display: grid; grid-template-columns: 90px 1.3fr 2.4fr 130px;
+  border-bottom: 1px solid var(--rule);
+  align-items: center;
+}
+.duration-row:last-child { border-bottom: none; }
+.duration-row.head {
+  background: var(--ink);
+  color: var(--paper);
+}
+.duration-row.head .duration-cell {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 16px 22px;
+  color: var(--paper);
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
+}
+.duration-row.head .duration-cell:last-child { border-right: none; }
+.duration-cell {
+  padding: 22px 20px;
+  border-right: 1px solid var(--rule);
+}
+.duration-cell:last-child { border-right: none; }
+.duration-class {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--wine);
+}
+.duration-name {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.duration-examples {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+.duration-examples .ital { font-style: italic; color: var(--wine); }
+.duration-length {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 500;
+  color: var(--wine);
+  text-align: right;
+}
+.duration-length small {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 400;
+  margin-top: 5px;
+}
+@media (max-width: 760px) {
+  .duration-row { grid-template-columns: 1fr; }
+  .duration-cell { border-right: none; border-bottom: 1px solid var(--rule); padding: 14px 20px; }
+  .duration-cell:last-child { border-bottom: none; }
+  .duration-length { text-align: left; }
+  .duration-row.head { display: none; }
+}
+
+/* ---------- THREE-STEP STRIP ---------- */
+.three-step {
+  padding: 30px 32px;
+  border-bottom: 1px solid var(--rule);
+  background: var(--paper-deep);
+}
+.three-step-inner {
+  max-width: 1080px; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 48px;
+}
+@media (max-width: 800px) { .three-step-inner { grid-template-columns: 1fr; gap: 36px; } }
+
+.step-num {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--wine);
+  margin-bottom: 16px;
+}
+.step-title {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0 0 12px;
+  line-height: 1.25;
+}
+.step-body {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+/* ---------- SECTION HEADS ---------- */
+section { padding: 30px 32px; border-bottom: 1px solid var(--rule); }
+.section-inner { max-width: 1320px; margin: 0 auto; }
+.section-inner.narrow { max-width: 900px; }
+.section-inner.wide { max-width: 1500px; }
+
+.section-head {
+  margin-bottom: 30px;
+}
+.section-kicker {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--wine);
+  margin-bottom: 16px;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 3.8vw, 46px);
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: -0.012em;
+  color: var(--ink);
+  margin: 0 0 22px;
+  max-width: 1200px;
+}
+.section-title .ital { font-style: italic; color: var(--wine); font-weight: 400; }
+.section-dek {
+  font-family: var(--font-body);
+  font-size: 19px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  max-width: 1100px;
+  margin: 0 0 30px;
+}
+
+/* ---------- MECHANISM ---------- */
+.mechanism-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--ink);
+}
+.mech-panel {
+  padding: 28px 26px 30px;
+  border-right: 1px solid var(--rule);
+  background: var(--paper);
+}
+.mech-panel:last-child { border-right: none; }
+.mech-panel.reveal { background: var(--ink); color: var(--paper); }
+.mech-panel.reveal .mech-day { color: var(--rose); }
+.mech-panel.reveal .mech-head { color: var(--paper); }
+.mech-panel.reveal .mech-body { color: rgba(255, 255, 255, 0.78); }
+.mech-day {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--wine);
+  margin-bottom: 16px;
+}
+.mech-head {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--ink);
+  margin: 0 0 16px;
+}
+.mech-head .ital { font-style: italic; color: var(--wine); font-weight: 400; }
+.mech-panel.reveal .mech-head .ital { color: var(--rose); }
+.mech-body {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  margin: 0 0 22px;
+}
+.mech-votes {
+  display: grid; grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--rule);
+  padding-top: 18px;
+  font-family: var(--font-mono); font-size: 12px;
+}
+.mech-panel.reveal .mech-votes { border-top-color: rgba(255, 255, 255, 0.2); }
+.mech-vote .label { color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; font-size: 10px; margin-bottom: 6px; }
+.mech-panel.reveal .mech-vote .label { color: rgba(255, 255, 255, 0.55); }
+.mech-vote .value { font-family: var(--font-display); font-size: 20px; font-weight: 500; color: var(--ink); }
+.mech-vote.a .value { color: var(--wine); }
+.mech-vote.b .value { color: var(--rose); font-style: italic; }
+.mech-panel.reveal .mech-vote.a .value { color: var(--wine-soft); }
+
+@media (max-width: 820px) {
+  .mechanism-grid { grid-template-columns: 1fr; }
+  .mech-panel { border-right: none; border-bottom: 1px solid var(--rule); }
+  .mech-panel:last-child { border-bottom: none; }
+}
+
+.mech-cta { font-family: var(--font-ui); font-size: 14px; color: var(--muted); margin-top: 28px; }
+.mech-cta a { color: var(--wine); }
+
+/* ---------- QUESTIONS GRID ---------- */
+.q-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--ink);
+}
+.q-cell {
+  padding: 22px 20px 18px;
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  background: var(--paper);
+}
+.q-cell:nth-child(3n) { border-right: none; }
+.q-cell:nth-last-child(-n+3) { border-bottom: none; }
+.q-num {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--wine);
+  margin-bottom: 14px;
+}
+.q-text {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--ink);
+  margin: 0 0 22px;
+}
+.q-text .ital { font-style: italic; color: var(--wine); }
+.q-meta {
+  display: flex; justify-content: space-between;
+  padding-top: 14px; border-top: 1px solid var(--rule);
+  font-family: var(--font-mono); font-size: 12px;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+}
+.q-meta .duration { color: var(--wine); }
+
+@media (max-width: 800px) {
+  .q-grid { grid-template-columns: 1fr; }
+  .q-cell { border-right: none; border-bottom: 1px solid var(--rule); }
+  .q-cell:last-child { border-bottom: none; }
+}
+
+.q-footer { font-family: var(--font-body); font-size: 17px; color: var(--ink-soft); margin-top: 30px; max-width: 1000px; line-height: 1.6; }
+
+/* ---------- METHOD ESSAY ---------- */
+.method-section { background: var(--paper); }
+.method-inner { max-width: 1100px; margin: 0 auto; text-align: center; }
+.method-kicker {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--wine);
+  margin-bottom: 16px;
+}
+.method-title {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 3.4vw, 38px);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0 0 30px;
+  max-width: 1000px;
+  margin-left: auto; margin-right: auto;
+}
+.method-title .ital { font-style: italic; color: var(--wine); }
+.method-body {
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
+  font-family: var(--font-body);
+  font-size: 20px;
+  line-height: 1.7;
+  color: var(--ink-soft);
+}
+.method-body p { margin: 0 0 20px; }
+.method-body p.lede:first-letter {
+  float: left;
+  font-family: var(--font-display);
+  font-size: 64px;
+  line-height: 0.85;
+  font-weight: 500;
+  color: var(--wine);
+  padding: 4px 12px 0 0;
+  margin-top: 4px;
+}
+.method-body .pullquote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 24px;
+  line-height: 1.45;
+  color: var(--ink);
+  border-left: 3px solid var(--wine);
+  padding: 4px 0 4px 22px;
+  margin: 30px 0 30px 0;
+  text-align: left;
+}
+.method-body em { font-style: italic; color: var(--wine); }
+.method-cta { text-align: left; margin-top: 28px; font-family: var(--font-ui); font-size: 14px; }
+.method-cta a { color: var(--wine); border-bottom: 1px solid var(--wine); text-decoration: none; }
+
+/* ---------- SPECIMEN VERDICT ---------- */
+.specimen { border: 1px solid var(--ink); background: var(--paper); }
+.specimen-head {
+  padding: 16px 24px;
+  display: flex; justify-content: space-between;
+  border-bottom: 1px solid var(--ink);
+  font-family: var(--font-mono); font-size: 12px;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+}
+.specimen-head .id { color: var(--wine); font-weight: 500; }
+.specimen-body { padding: 30px 32px 30px; }
+.specimen-q {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 3.6vw, 42px);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0 0 30px;
+}
+.specimen-q .ital { font-style: italic; color: var(--wine); }
+.specimen-verdicts {
+  display: grid; grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink);
+}
+.specimen-v {
+  padding: 28px 26px;
+  border-right: 1px solid var(--rule);
+}
+.specimen-v:last-child { border-right: none; }
+.specimen-v-name {
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+.specimen-v.a .specimen-v-name { color: var(--wine); }
+.specimen-v.b .specimen-v-name { color: var(--rose); }
+.specimen-v-verdict {
+  font-family: var(--font-display);
+  font-size: 56px;
+  line-height: 1;
+  font-weight: 400;
+  margin-bottom: 12px;
+}
+.specimen-v.a .specimen-v-verdict { color: var(--wine); }
+.specimen-v.b .specimen-v-verdict { color: var(--rose); font-style: italic; }
+.specimen-v-meta {
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted);
+}
+.specimen-v-meta strong { color: var(--ink); font-weight: 500; }
+
+@media (max-width: 720px) {
+  .specimen-verdicts { grid-template-columns: 1fr; }
+  .specimen-v { border-right: none; border-bottom: 1px solid var(--rule); }
+  .specimen-v:last-child { border-bottom: none; }
+}
+
+.specimen-analysis-label {
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--wine);
+  margin: 30px 0 14px;
+}
+.specimen-analysis {
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.65;
+  color: var(--ink-soft);
+  margin: 0 0 28px;
+}
+.specimen-prompt {
+  border-top: 1px solid var(--rule);
+  padding-top: 24px;
+}
+.specimen-prompt-label {
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--wine);
+  margin-bottom: 12px;
+}
+.specimen-prompt-text {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 24px;
+  line-height: 1.45;
+  color: var(--ink);
+  margin: 0;
+}
+
+/* ---------- QUOTE BAND ---------- */
+.quote-band { background: var(--paper-deep); }
+.quote-band-inner { max-width: 880px; margin: 0 auto; text-align: center; }
+.quote-band-kicker {
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--wine); margin-bottom: 20px;
+}
+.quote-band-text {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(22px, 2.6vw, 28px);
+  line-height: 1.45;
+  color: var(--ink);
+  margin: 0 0 18px;
+}
+.quote-band-attr { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+
+/* ---------- EDITIONS ---------- */
+.editions-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--ink);
+}
+.edition {
+  padding: 30px 28px;
+  border-right: 1px solid var(--rule);
+  background: var(--paper);
+  display: flex; flex-direction: column;
+}
+.edition:last-child { border-right: none; }
+.edition.featured { background: var(--paper-deep); }
+
+.edition-label {
+  font-family: var(--font-mono); font-size: 12px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--wine);
+  margin-bottom: 16px;
+}
+.edition-name {
+  font-family: var(--font-display); font-size: 32px;
+  font-weight: 500; color: var(--ink); margin: 0 0 16px;
+}
+.edition-price {
+  display: flex; align-items: baseline; gap: 12px; margin-bottom: 10px;
+}
+.edition-amount {
+  font-family: var(--font-display); font-size: 44px; font-weight: 500;
+  color: var(--ink); line-height: 1;
+}
+.edition-currency {
+  font-family: var(--font-mono); font-size: 12px;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+}
+.edition-period {
+  font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+  color: var(--ink-soft); margin: 0 0 20px;
+}
+.edition-cta { margin-bottom: 22px; }
+.edition-features {
+  list-style: none; padding: 20px 0 0; margin: 0;
+  border-top: 1px solid var(--rule);
+  font-family: var(--font-body); font-size: 15px;
+  line-height: 1.55; color: var(--ink-soft);
+}
+.edition-features li {
+  padding: 8px 0;
+  position: relative;
+  padding-left: 16px;
+}
+.edition-features li::before {
+  content: "·";
+  position: absolute; left: 0;
+  color: var(--wine);
+  font-weight: 700;
+}
+
+@media (max-width: 920px) {
+  .editions-grid { grid-template-columns: 1fr; }
+  .edition { border-right: none; border-bottom: 1px solid var(--rule); }
+  .edition:last-child { border-bottom: none; }
+}
+
+.tier-note {
+  max-width: 960px; margin: 0 auto 30px;
+  padding: 24px 28px;
+  border: 1px solid var(--rule);
+  background: var(--paper-deep);
+}
+.tier-note .section-kicker { margin-bottom: 12px; }
+.tier-note p { margin: 0 0 10px; font-family: var(--font-body); font-size: 15px; line-height: 1.6; color: var(--ink-soft); }
+.tier-note p:last-child { margin-bottom: 0; }
+.tier-note strong { color: var(--ink); font-weight: 500; }
+
+/* ---------- FAQ ---------- */
+.faq-list {
+  border-top: 1px solid var(--rule);
+}
+.faq-item {
+  display: grid; grid-template-columns: 72px 1fr;
+  gap: 20px;
+  padding: 26px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.faq-num {
+  font-family: var(--font-mono); font-size: 12px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--wine);
+}
+.faq-q {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--ink);
+  margin: 0 0 12px;
+}
+.faq-a {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 600px) {
+  .faq-item { grid-template-columns: 1fr; gap: 8px; }
+}
+
+/* ---------- CLOSING ---------- */
+.closing {
+  text-align: center;
+  padding: 30px 24px 30px;
+  border-bottom: 1px solid var(--rule);
+}
+.closing-kicker {
+  font-family: var(--font-mono); font-size: 12px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--wine); margin-bottom: 20px;
+}
+.closing-title {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 4.2vw, 48px);
+  font-weight: 400;
+  line-height: 1.1; letter-spacing: -0.015em;
+  color: var(--ink);
+  margin: 0 auto 20px;
+  max-width: 1100px;
+}
+.closing-title .ital { font-style: italic; color: var(--wine); }
+.closing-sub {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(17px, 1.7vw, 19px);
+  line-height: 1.5;
+  color: var(--ink-soft);
+  max-width: 640px;
+  margin: 0 auto 30px;
+}
+.closing-cta { display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; align-items: center; }
+
+/* ---------- SHARE BLOCK ---------- */
+.share-block {
+  padding: 30px 32px;
+  background: var(--paper-deep);
+  border-bottom: 1px solid var(--rule);
+}
+.share-block-inner {
+  max-width: 1080px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 48px; align-items: center;
+}
+@media (max-width: 800px) { .share-block-inner { grid-template-columns: 1fr; } }
+
+.share-block-content .eyebrow {
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--wine); margin-bottom: 12px;
+}
+.share-block-content h3 {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 2.6vw, 28px);
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--ink);
+  margin: 0 0 12px;
+}
+.share-block-content h3 .ital { font-style: italic; color: var(--wine); font-weight: 400; }
+.share-block-content .dek {
+  font-family: var(--font-body);
+  font-size: 15px; line-height: 1.6;
+  color: var(--ink-soft);
+  margin: 0 0 18px;
+}
+.share-copy-link {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font-ui); font-size: 13px; font-weight: 500;
+  background: transparent;
+  border: 1px solid var(--ink); color: var(--ink);
+  padding: 9px 14px; cursor: pointer;
+  border-radius: 0;
+}
+.share-copy-link svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+.share-copy-link:hover { background: var(--ink); color: var(--paper); }
+.share-copy-link.copied { background: var(--wine); color: var(--paper); border-color: var(--wine); }
+
+.share-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+}
+.share-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  padding: 16px 8px;
+  background: var(--paper);
+  font-family: var(--font-ui); font-size: 11px; color: var(--ink-soft);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: background 120ms ease, color 120ms ease;
+}
+.share-btn svg { width: 18px; height: 18px; fill: currentColor; }
+.share-btn:hover { background: var(--ink); color: var(--paper); }
+
+@media (max-width: 600px) { .share-grid { grid-template-columns: repeat(3, 1fr); } }
+
+/* ---------- COLOPHON ---------- */
+.colophon {
+  background: var(--paper);
+  border-top: 1px solid var(--rule);
+  padding: 30px 32px 30px;
+  color: var(--ink-soft);
+}
+.colophon-inner { max-width: 1280px; margin: 0 auto; }
+.colophon-top {
+  display: grid;
+  grid-template-columns: 2.2fr 1fr 1fr 1fr 1fr;
+  gap: 40px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid var(--rule);
+}
+.colophon-brand {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1;
+  margin-bottom: 14px;
+}
+.colophon-brand .tld { font-weight: 400; font-style: italic; color: var(--wine); }
+.colophon-tagline {
+  font-family: var(--font-body);
+  font-size: 15px; line-height: 1.65;
+  color: var(--ink-soft);
+  margin: 0;
+  max-width: 480px;
+}
+.colophon-col h5 {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--wine);
+  margin: 0 0 16px;
+}
+.colophon-col a {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--ink-soft);
+  text-decoration: none;
+  padding: 5px 0;
+  border-bottom: none;
+}
+.colophon-col a:hover { color: var(--wine); }
+.colophon-bottom {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 28px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+@media (max-width: 1000px) {
+  .colophon-top { grid-template-columns: 1fr 1fr; gap: 30px; }
+}
+@media (max-width: 600px) {
+  .colophon-top { grid-template-columns: 1fr; }
+}
+
+/* ---------- GO TO TOP ---------- */
+.go-to-top {
+  position: fixed; right: 24px; bottom: 24px;
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--ink); color: var(--paper);
+  text-decoration: none;
+  font-family: var(--font-ui); font-size: 12px; font-weight: 500;
+  padding: 10px 14px;
+  border: 1px solid var(--ink);
+  opacity: 0; pointer-events: none;
+  transition: opacity 160ms ease;
+  z-index: 30;
+}
+.go-to-top svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+.go-to-top.visible { opacity: 1; pointer-events: auto; }
+.go-to-top:hover { background: var(--wine-deep); border-color: var(--wine-deep); }
+
+/* ---------- CONSENT BANNER ----------
+   ga4.js injects #cd-consent-banner on first visit when no prior choice
+   is stored and no GPC/DNT signal is present. Visible state is toggled
+   by adding/removing .cd-consent-banner-visible. */
+.cd-consent-banner {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  z-index: 80;
+  background: var(--paper);
+  border-top: 1px solid var(--ink);
+  box-shadow: 0 -8px 24px rgba(28, 26, 23, 0.06);
+  transform: translateY(100%);
+  opacity: 0;
+  transition: transform 280ms ease, opacity 240ms ease;
+}
+.cd-consent-banner.cd-consent-banner-visible {
+  transform: translateY(0); opacity: 1;
+}
+.cd-consent-inner {
+  max-width: 1280px; margin: 0 auto;
+  padding: 20px 32px;
+  display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center;
+}
+.cd-consent-copy { color: var(--ink); }
+.cd-consent-title {
+  font-family: var(--font-ui); font-size: 15px; font-weight: 500;
+  color: var(--ink); margin-bottom: 4px;
+}
+.cd-consent-body {
+  font-family: var(--font-ui); font-size: 14px; line-height: 1.55;
+  color: var(--ink); margin: 0;
+}
+.cd-consent-body a {
+  color: var(--wine); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px;
+}
+.cd-consent-actions {
+  display: flex; gap: 10px; align-items: center; flex-shrink: 0;
+}
+.cd-consent-btn {
+  font-family: var(--font-ui); font-size: 14px; font-weight: 500;
+  padding: 10px 18px; border-radius: 0; cursor: pointer;
+  background: transparent; color: var(--ink); border: 1px solid var(--ink);
+  text-decoration: none; display: inline-flex; align-items: center;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+.cd-consent-btn:hover { border-color: var(--wine); color: var(--wine); }
+.cd-consent-accept {
+  background: var(--wine); color: var(--paper); border-color: var(--wine);
+}
+.cd-consent-accept:hover {
+  background: var(--wine-deep); border-color: var(--wine-deep); color: var(--paper);
+}
+@media (max-width: 720px) {
+  .cd-consent-inner { grid-template-columns: 1fr; padding: 18px 20px; gap: 14px; }
+  .cd-consent-actions { width: 100%; }
+  .cd-consent-btn { flex: 1 1 0; justify-content: center; }
+}
+
+/* ---------- ACCESSIBILITY ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0ms !important;
+  }
+  .cd-consent-banner { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<!-- NAV BAR -->
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="method.html">The method</a>
+      <a href="why-time.html">Why time</a>
+      <a href="distinction.html">The distinction</a>
+      <a href="verdict.html">A real verdict</a>
+      <a href="family.html">For families</a>
+      <a href="compare.html">Compare</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="faq.html">FAQ</a>
+    </div>
+    <div class="nav-cta">
+      <a href="account.html" class="btn-text" style="border: none;">Sign in</a>
+      <a href="signup.html" class="btn">Start a decision</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-kicker">A decision tool for solo, couples, and families</div>
+    <h1 class="hero-headline" id="hero-headline">Decide slowly, <span class="ital">well.</span></h1>
+    <p class="hero-subhead" id="hero-subhead-rotator">
+      <span class="slide is-shown" data-slide="0">A duration you choose. One verdict, prepared and revealed at the end.</span>
+      <span class="slide" data-slide="1">We give the decision time to breathe and unfold naturally.</span>
+      <span class="slide" data-slide="2">Counsel.day separates the voting from the conversation.</span>
+      <span class="slide" data-slide="3">The same question, asked every evening, until the answer stops changing.</span>
+      <span class="slide" data-slide="4">It does not tell you what to decide. It tells you what you were deciding about.</span>
+      <span class="slide" data-slide="5">For the question you have been carrying for months, not the one you can settle over dinner.</span>
+      <span class="slide" data-slide="6">Give the decision a season. Get back more than an answer.</span>
+      <span class="slide" data-slide="7">The answer you give on a hard day and the answer you give on a good day are both true.</span>
+      <span class="slide" data-slide="8">Stop deciding the same question over and over. Decide it once.</span>
+      <span class="slide" data-slide="9">Two people, one question, no one swaying the other until the end.</span>
+      <span class="slide" data-slide="10">The decision does not need another conversation. It needs room.</span>
+      <span class="slide" data-slide="11">What you would have known in ninety days, gathered honestly.</span>
+    </p>
+
+    <figure class="hero-figure" role="figure" aria-labelledby="mech-title mech-desc">
+      <svg viewBox="0 0 1080 232" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="mech-title mech-desc">
+        <title id="mech-title">How the mechanism works</title>
+        <desc id="mech-desc">Two horizontal lanes, one per partner. Each lane carries twenty-nine sealed daily-vote ticks coloured by which way the partner leaned that evening · forest green for yes-days, wine for no-days · so each lane shows a believable mix that sways day to day. The final day thirty tick is the partner's verdict tick, followed by a YES or NO badge and the verdict word in Newsreader. Partner A reaches YES with the word Go in forest green; Partner B reaches NO with the words Lean No in wine italic. Top labels read DAY 01 QUESTION POSED on the left and DAY 30 VERDICT REVEALS on the right.</desc>
+
+        <!-- Top day labels -->
+        <text x="60" y="22" font-family="Geist Mono, ui-monospace, monospace" font-size="10" letter-spacing="1.6" fill="#6b635a">DAY 01 · QUESTION POSED</text>
+        <text x="1020" y="22" text-anchor="end" font-family="Geist Mono, ui-monospace, monospace" font-size="10" letter-spacing="1.6" font-weight="500" fill="#722F37">DAY 30 · VERDICT REVEALS</text>
+
+        <!-- Top horizontal rule -->
+        <line x1="60" y1="34" x2="1020" y2="34" stroke="#0a0a0a" stroke-width="1"/>
+
+        <!-- PARTNER A label -->
+        <text x="60" y="84" font-family="Geist Mono, ui-monospace, monospace" font-size="11" letter-spacing="1.6" font-weight="500" fill="#0a0a0a">PARTNER A</text>
+
+        <!-- Partner A: 29 sealed ticks · trending toward YES, with some early no-days -->
+        <g stroke="#0E9F4C" stroke-width="2.4" stroke-linecap="butt">
+          <line x1="170" y1="66" x2="170" y2="94"/>
+          <line x1="189" y1="66" x2="189" y2="94" stroke="#C0392B"/>
+          <line x1="208" y1="66" x2="208" y2="94"/>
+          <line x1="227" y1="66" x2="227" y2="94"/>
+          <line x1="246" y1="66" x2="246" y2="94" stroke="#C0392B"/>
+          <line x1="265" y1="66" x2="265" y2="94"/>
+          <line x1="284" y1="66" x2="284" y2="94"/>
+          <line x1="303" y1="66" x2="303" y2="94" stroke="#C0392B"/>
+          <line x1="322" y1="66" x2="322" y2="94"/>
+          <line x1="341" y1="66" x2="341" y2="94"/>
+          <line x1="360" y1="66" x2="360" y2="94"/>
+          <line x1="379" y1="66" x2="379" y2="94" stroke="#C0392B"/>
+          <line x1="398" y1="66" x2="398" y2="94"/>
+          <line x1="417" y1="66" x2="417" y2="94"/>
+          <line x1="436" y1="66" x2="436" y2="94"/>
+          <line x1="455" y1="66" x2="455" y2="94" stroke="#C0392B"/>
+          <line x1="474" y1="66" x2="474" y2="94"/>
+          <line x1="493" y1="66" x2="493" y2="94"/>
+          <line x1="512" y1="66" x2="512" y2="94"/>
+          <line x1="531" y1="66" x2="531" y2="94"/>
+          <line x1="550" y1="66" x2="550" y2="94" stroke="#C0392B"/>
+          <line x1="569" y1="66" x2="569" y2="94"/>
+          <line x1="588" y1="66" x2="588" y2="94"/>
+          <line x1="607" y1="66" x2="607" y2="94"/>
+          <line x1="626" y1="66" x2="626" y2="94"/>
+          <line x1="645" y1="66" x2="645" y2="94"/>
+          <line x1="664" y1="66" x2="664" y2="94"/>
+          <line x1="683" y1="66" x2="683" y2="94"/>
+          <line x1="702" y1="66" x2="702" y2="94"/>
+        </g>
+        <!-- Partner A: 30th tick (verdict day), forest green -->
+        <line x1="722" y1="62" x2="722" y2="98" stroke="#0E9F4C" stroke-width="3.5"/>
+
+        <!-- Partner A YES badge -->
+        <rect x="754" y="66" width="56" height="28" fill="#0E9F4C"/>
+        <text x="782" y="85" text-anchor="middle" font-family="Geist Mono, ui-monospace, monospace" font-size="12" letter-spacing="1.6" font-weight="600" fill="#ffffff">YES</text>
+
+        <!-- Partner A verdict word -->
+        <text x="826" y="92" font-family="Newsreader, Georgia, serif" font-size="34" font-weight="500" fill="#0E9F4C">Go</text>
+
+        <!-- Hairline separator between lanes -->
+        <line x1="60" y1="120" x2="1020" y2="120" stroke="#e8e6e1" stroke-width="1" stroke-dasharray="2 4"/>
+
+        <!-- PARTNER B label -->
+        <text x="60" y="164" font-family="Geist Mono, ui-monospace, monospace" font-size="11" letter-spacing="1.6" font-weight="500" fill="#0a0a0a">PARTNER B</text>
+
+        <!-- Partner B: 29 sealed ticks · trending toward NO, with some early yes-days -->
+        <g stroke="#C0392B" stroke-width="2.4" stroke-linecap="butt">
+          <line x1="170" y1="146" x2="170" y2="174" stroke="#0E9F4C"/>
+          <line x1="189" y1="146" x2="189" y2="174"/>
+          <line x1="208" y1="146" x2="208" y2="174"/>
+          <line x1="227" y1="146" x2="227" y2="174" stroke="#0E9F4C"/>
+          <line x1="246" y1="146" x2="246" y2="174"/>
+          <line x1="265" y1="146" x2="265" y2="174"/>
+          <line x1="284" y1="146" x2="284" y2="174" stroke="#0E9F4C"/>
+          <line x1="303" y1="146" x2="303" y2="174"/>
+          <line x1="322" y1="146" x2="322" y2="174"/>
+          <line x1="341" y1="146" x2="341" y2="174"/>
+          <line x1="360" y1="146" x2="360" y2="174" stroke="#0E9F4C"/>
+          <line x1="379" y1="146" x2="379" y2="174"/>
+          <line x1="398" y1="146" x2="398" y2="174"/>
+          <line x1="417" y1="146" x2="417" y2="174" stroke="#0E9F4C"/>
+          <line x1="436" y1="146" x2="436" y2="174"/>
+          <line x1="455" y1="146" x2="455" y2="174"/>
+          <line x1="474" y1="146" x2="474" y2="174"/>
+          <line x1="493" y1="146" x2="493" y2="174" stroke="#0E9F4C"/>
+          <line x1="512" y1="146" x2="512" y2="174"/>
+          <line x1="531" y1="146" x2="531" y2="174"/>
+          <line x1="550" y1="146" x2="550" y2="174"/>
+          <line x1="569" y1="146" x2="569" y2="174"/>
+          <line x1="588" y1="146" x2="588" y2="174"/>
+          <line x1="607" y1="146" x2="607" y2="174"/>
+          <line x1="626" y1="146" x2="626" y2="174"/>
+          <line x1="645" y1="146" x2="645" y2="174"/>
+          <line x1="664" y1="146" x2="664" y2="174"/>
+          <line x1="683" y1="146" x2="683" y2="174"/>
+          <line x1="702" y1="146" x2="702" y2="174"/>
+        </g>
+        <!-- Partner B: 30th tick (verdict day), red wine -->
+        <line x1="722" y1="142" x2="722" y2="178" stroke="#C0392B" stroke-width="3.5"/>
+
+        <!-- Partner B NO badge -->
+        <rect x="754" y="146" width="56" height="28" fill="#C0392B"/>
+        <text x="782" y="165" text-anchor="middle" font-family="Geist Mono, ui-monospace, monospace" font-size="12" letter-spacing="1.6" font-weight="600" fill="#ffffff">NO</text>
+
+        <!-- Partner B verdict word (italic, red for NO direction) -->
+        <text x="826" y="172" font-family="Newsreader, Georgia, serif" font-size="28" font-style="italic" font-weight="400" fill="#C0392B">Lean No</text>
+
+        <!-- Bottom horizontal rule -->
+        <line x1="60" y1="196" x2="1020" y2="196" stroke="#0a0a0a" stroke-width="1"/>
+
+        <!-- Bottom caption -->
+        <text x="540" y="220" text-anchor="middle" font-family="Geist Mono, ui-monospace, monospace" font-size="10" fill="#9b9286" letter-spacing="1.8">THIRTY SEALED EVENINGS  ·  NEITHER PARTNER SEES THE OTHER'S VOTE  ·  BOTH VERDICTS OPEN AT THE SAME INSTANT ON THE FINAL DAY</text>
+      </svg>
+    </figure>
+
+    <p class="hero-body">Each evening, you cast one private vote on the question you have set, for the duration you have chosen. Your partner sees only that you voted; never which way. On the final day both verdicts open at the same instant, with a five-layer analysis of where you converged, where you diverged, and the single conversation that follows.</p>
+    <div class="hero-cta">
+      <a href="signup.html" class="btn btn-large">Start your first decision · free</a>
+      <a href="#mechanism" class="btn-text">See how it works</a>
+    </div>
+    <p class="hero-reassure"><strong>No card required</strong> · you set the duration · we hold you to it</p>
+  </div>
+</section>
+
+<!-- HOOK BAND · THE TUESDAY / THURSDAY OBSERVATION -->
+<section class="hook-band">
+  <div class="hook-inner">
+    <div class="hook-label">The observation that started the product</div>
+    <div class="hook-body">
+      <p><strong>On the schooling question James and Alex could not settle at the dinner table, the answer was obviously yes on Tuesday and obviously no on Thursday.</strong> The difference between Tuesday and Thursday was not new information; it was them. Tuesday was the evening after the open evening at the city school. Thursday was the evening after watching their son spend three hours sliding down a hill in the countryside on the back of the dog.</p>
+      <p>Both signals were real. Neither was the answer. A decision worth losing sleep over deserves the whole arc, every Tuesday <em>and</em> every Thursday, for as long as the question needs.</p>
+    </div>
+  </div>
+</section>
+
+<!-- THREE-STEP STRIP -->
+<section class="three-step">
+  <div class="three-step-inner">
+    <div>
+      <div class="step-num">Step 01</div>
+      <h2 class="step-title">Compose the question</h2>
+      <p class="step-body">One of you opens a decision, chooses a duration anywhere from a week to ninety days, and pairs your partner with a single magic link. Setup takes under two minutes.</p>
+    </div>
+    <div>
+      <div class="step-num">Step 02</div>
+      <h2 class="step-title">Vote each evening</h2>
+      <p class="step-body">Each evening you tap one of four buttons, alone, with the option of a sentence. You see whether your partner has voted; never which way they leaned.</p>
+    </div>
+    <div>
+      <div class="step-num">Step 03</div>
+      <h2 class="step-title">Read the verdict</h2>
+      <p class="step-body">Both verdicts publish at the same instant on the final day. Beneath them, an analysis of every note you both wrote, naming the actual axis of your disagreement.</p>
+    </div>
+  </div>
+</section>
+
+<!-- MECHANISM -->
+<section id="mechanism">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-kicker">§ 1 · The mechanism</div>
+      <h2 class="section-title">Three stages. A duration you choose. One <span class="ital">verdict,</span> prepared and revealed at the end.</h2>
+      <p class="section-dek">A single dinner-table conversation captures a single mood. Counsel.day captures the actual shape of how each of you feels across the period that suits the decision, then names what you were arguing about.</p>
+    </div>
+
+    <div class="mechanism-grid">
+      <div class="mech-panel">
+        <div class="mech-day">Day 01 · Composition</div>
+        <h3 class="mech-head">You pose the <span class="ital">question.</span></h3>
+        <p class="mech-body">One of you opens a decision, picks a duration from a week to ninety days, and pairs your partner with a magic link. The question lives only between you.</p>
+        <div class="mech-votes">
+          <div class="mech-vote"><div class="label">Partner A</div><div class="value">· ·</div></div>
+          <div class="mech-vote"><div class="label">Partner B</div><div class="value">· ·</div></div>
+        </div>
+      </div>
+
+      <div class="mech-panel">
+        <div class="mech-day">Through the period · The vote</div>
+        <h3 class="mech-head">You both vote in <span class="ital">private.</span></h3>
+        <p class="mech-body">Each evening you each tap one of four buttons, alone, with the option of a sentence. You see whether your partner has voted; never which way they leaned.</p>
+        <div class="mech-votes">
+          <div class="mech-vote"><div class="label">Partner A</div><div class="value">sealed</div></div>
+          <div class="mech-vote"><div class="label">Partner B</div><div class="value">sealed</div></div>
+        </div>
+      </div>
+
+      <div class="mech-panel reveal">
+        <div class="mech-day">Final day · The verdict</div>
+        <h3 class="mech-head">The verdicts <span class="ital">open.</span></h3>
+        <p class="mech-body">Both verdicts publish at the same instant. Beneath them, an analysis of every note you wrote, naming the actual axis of your disagreement and one question for the conversation that follows.</p>
+        <div class="mech-votes">
+          <div class="mech-vote a"><div class="label">Partner A</div><div class="value">Go</div></div>
+          <div class="mech-vote b"><div class="label">Partner B</div><div class="value">Lean No</div></div>
+        </div>
+      </div>
+    </div>
+
+    <p class="mech-cta">Curious what the evening vote looks like? <a href="vote.html">View the daily prompt →</a></p>
+  </div>
+</section>
+
+<!-- WHAT YOU'LL SEE · THE FOUR-POINT USP -->
+<section class="usp-section">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-kicker">§ 2 · What you'll see across the period</div>
+      <h2 class="section-title">Four things a single conversation <span class="ital">cannot</span> show you.</h2>
+      <p class="section-dek">Counsel.day is the only product that splits the private vote from the shared conversation, captures the vote daily across a duration you choose, and produces an analysis of the underlying disagreement when the period closes. These are the four things that fall out of that mechanism, and that nothing else in the category can produce.</p>
+    </div>
+
+    <div class="usp-grid">
+      <div class="usp-cell">
+        <div class="usp-num">№ 01 · Trajectory</div>
+        <h3 class="usp-title">The <span class="ital">shape</span> of each partner's conviction.</h3>
+        <p class="usp-body">Whether your position is firming toward yes, drifting toward no, or holding steady. A rising trajectory across thirty evenings is qualitatively different information from a single yes spoken over a meal. Durability is most of what you actually want to know.</p>
+      </div>
+      <div class="usp-cell">
+        <div class="usp-num">№ 02 · Themes</div>
+        <h3 class="usp-title">The themes that <span class="ital">actually</span> surfaced.</h3>
+        <p class="usp-body">Not what you predicted you would write about on day one. The themes that actually appeared, in the words you used after work on a Wednesday, in the half-sentence you tapped out before bed on a Saturday. The daylight version of you would not have brought these to the dinner table.</p>
+      </div>
+      <div class="usp-cell">
+        <div class="usp-num">№ 03 · Axis</div>
+        <h3 class="usp-title">The axis of <span class="ital">disagreement</span> underneath.</h3>
+        <p class="usp-body">Most couples come to a decision believing they are arguing about whether to do the thing. After a season of private voting, the analysis often reveals they were arguing about something else entirely: who would lose more, who would carry the cost, what each would have to give up.</p>
+      </div>
+      <div class="usp-cell">
+        <div class="usp-num">№ 04 · Prompt</div>
+        <h3 class="usp-title">One real question for <span class="ital">the conversation.</span></h3>
+        <p class="usp-body">Not "communicate more openly." A concrete, actionable question shaped by what the two of you wrote across the period. The conversation still has to happen; the product comes before it, with the data laid out plainly.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUESTIONS -->
+<section id="questions">
+  <div class="section-inner wide">
+    <div class="section-head">
+      <div class="section-kicker">§ 3 · The questions this is built for</div>
+      <h2 class="section-title">The kind of question this product is <span class="ital">made for.</span></h2>
+      <p class="section-dek">Twelve real questions our early users have opened, with the durations they chose. Set yours to a week, a fortnight, a month, a season. Whatever the decision deserves.</p>
+    </div>
+
+    <div class="q-grid">
+      <div class="q-cell"><div class="q-num">№ 01</div><div class="q-text">Should we have a <span class="ital">baby?</span></div><div class="q-meta"><span>Family</span><span class="duration">90 days</span></div></div>
+      <div class="q-cell"><div class="q-num">№ 02</div><div class="q-text">Should we get <span class="ital">married?</span></div><div class="q-meta"><span>Partnership</span><span class="duration">60 days</span></div></div>
+      <div class="q-cell"><div class="q-num">№ 03</div><div class="q-text">Should we move into the <span class="ital">city?</span></div><div class="q-meta"><span>Home</span><span class="duration">30 days</span></div></div>
+      <div class="q-cell"><div class="q-num">№ 04</div><div class="q-text">Should I leave the <span class="ital">job</span> that's wearing me down?</div><div class="q-meta"><span>Career</span><span class="duration">30 days</span></div></div>
+      <div class="q-cell"><div class="q-num">№ 05</div><div class="q-text">Should we try for a <span class="ital">second</span> child?</div><div class="q-meta"><span>Family</span><span class="duration">90 days</span></div></div>
+      <div class="q-cell"><div class="q-num">№ 06</div><div class="q-text">Should we go through <span class="ital">IVF?</span></div><div class="q-meta"><span>Family</span><span class="duration">60 days</span></div></div>
+      <div class="q-cell"><div class="q-num">№ 07</div><div class="q-text">Should we move <span class="ital">closer</span> to my parents?</div><div class="q-meta"><span>Home</span><span class="duration">45 days</span></div></div>
+      <div class="q-cell"><div class="q-num">№ 08</div><div class="q-text">Should I take the new <span class="ital">role</span> at the agency?</div><div class="q-meta"><span>Career</span><span class="duration">21 days</span></div></div>
+      <div class="q-cell"><div class="q-num">№ 09</div><div class="q-text">Should we send Olive to the <span class="ital">school</span> across town?</div><div class="q-meta"><span>Family</span><span class="duration">21 days</span></div></div>
+      <div class="q-cell"><div class="q-num">№ 10</div><div class="q-text">Should we <span class="ital">buy</span> the house we saw on Sunday?</div><div class="q-meta"><span>Home</span><span class="duration">14 days</span></div></div>
+      <div class="q-cell"><div class="q-num">№ 11</div><div class="q-text">Should we move <span class="ital">countries</span> for her career?</div><div class="q-meta"><span>Home</span><span class="duration">60 days</span></div></div>
+      <div class="q-cell"><div class="q-num">№ 12</div><div class="q-text">Should we <span class="ital">end</span> the relationship?</div><div class="q-meta"><span>Partnership</span><span class="duration">60 days</span></div></div>
+    </div>
+
+    <p class="q-footer">Your question won't appear on this page. <strong>Every decision is private to the people running it.</strong> The examples above are reproduced with the explicit permission of the couples who ran them.</p>
+  </div>
+</section>
+
+<!-- MATCH THE DURATION -->
+<section id="duration">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-kicker">§ 4 · Match the duration to the question</div>
+      <h2 class="section-title">A fortnight, a month, a season. <span class="ital">You</span> choose.</h2>
+      <p class="section-dek">The duration is the second decision the product asks of you, after the question itself. You set it once, on the day you compose, by the weight of the question. We hold you to it. You may extend; you may not shorten.</p>
+    </div>
+
+    <div class="duration-table" role="table" aria-label="Duration guide by class of decision">
+      <div class="duration-row head" role="row">
+        <div class="duration-cell" role="columnheader">Class</div>
+        <div class="duration-cell" role="columnheader">Category</div>
+        <div class="duration-cell" role="columnheader">Examples</div>
+        <div class="duration-cell" role="columnheader">Typical</div>
+      </div>
+      <div class="duration-row" role="row">
+        <div class="duration-cell" role="cell"><div class="duration-class">Class 01</div></div>
+        <div class="duration-cell" role="cell"><div class="duration-name">Family &amp; reproduction</div></div>
+        <div class="duration-cell" role="cell"><div class="duration-examples">Should we have a <span class="ital">baby?</span> Try for a <span class="ital">second?</span> Go through <span class="ital">IVF?</span> Which <span class="ital">school</span> for the child we have?</div></div>
+        <div class="duration-cell" role="cell"><div class="duration-length">90 days<small>A full season of moods</small></div></div>
+      </div>
+      <div class="duration-row" role="row">
+        <div class="duration-cell" role="cell"><div class="duration-class">Class 02</div></div>
+        <div class="duration-cell" role="cell"><div class="duration-name">The partnership itself</div></div>
+        <div class="duration-cell" role="cell"><div class="duration-examples">Should we get <span class="ital">married?</span> <span class="ital">Separate?</span> Move <span class="ital">countries</span> for one of us? Stay through this <span class="ital">season?</span></div></div>
+        <div class="duration-cell" role="cell"><div class="duration-length">60 days<small>Shape-of-life decisions</small></div></div>
+      </div>
+      <div class="duration-row" role="row">
+        <div class="duration-cell" role="cell"><div class="duration-class">Class 03</div></div>
+        <div class="duration-cell" role="cell"><div class="duration-name">Home &amp; place</div></div>
+        <div class="duration-cell" role="cell"><div class="duration-examples">Should we <span class="ital">move</span> into the city? Move <span class="ital">closer</span> to family? Should we <span class="ital">buy</span> the house we saw?</div></div>
+        <div class="duration-cell" role="cell"><div class="duration-length">30 days<small>One month of evenings</small></div></div>
+      </div>
+      <div class="duration-row" role="row">
+        <div class="duration-cell" role="cell"><div class="duration-class">Class 04</div></div>
+        <div class="duration-cell" role="cell"><div class="duration-name">Career</div></div>
+        <div class="duration-cell" role="cell"><div class="duration-examples">Should I <span class="ital">leave</span> the job that's wearing me down? Take the <span class="ital">offer?</span> Start the <span class="ital">business</span> we keep talking about?</div></div>
+        <div class="duration-cell" role="cell"><div class="duration-length">21 days<small>A short, deliberate window</small></div></div>
+      </div>
+      <div class="duration-row" role="row">
+        <div class="duration-cell" role="cell"><div class="duration-class">Class 05</div></div>
+        <div class="duration-cell" role="cell"><div class="duration-name">Pressing decisions</div></div>
+        <div class="duration-cell" role="cell"><div class="duration-examples">A house with a Sunday <span class="ital">deadline.</span> A job offer with a one-week response window. A shortlist that closes <span class="ital">soon.</span></div></div>
+        <div class="duration-cell" role="cell"><div class="duration-length">14 days<small>The minimum honest span</small></div></div>
+      </div>
+    </div>
+
+    <p class="q-footer" style="margin-top: 28px;">Durations from 7 days (Solo) to 365 days (Couple and Family). The longer windows are not for procrastinators; they are for the class of decision that cannot honestly be resolved in less time.</p>
+  </div>
+</section>
+
+<!-- METHOD ESSAY -->
+<section id="method" class="method-section">
+  <div class="method-inner">
+    <div class="method-kicker">§ 5 · An essay on the design</div>
+    <h2 class="method-title">Why a season of voting, and not a <span class="ital">single conversation.</span></h2>
+
+    <div class="method-body">
+      <p class="lede">Most decisions a couple makes can be made over dinner. A few cannot. The few that cannot tend to share three properties: the stakes are high, the timeline is long, and the feelings of each partner shift across days and weeks in ways neither of them fully sees.</p>
+
+      <p>When such a question is brought to the dinner table, the conversation fails in predictable ways. Whoever speaks first sets the anchor; whoever speaks loudest pulls the mood; both partners, sensing the friction, drift toward each other to avoid argument. The result is a synthesis of two people performing reasonableness, not a synthesis of what either of them actually thinks. The decision either gets made on a single misleading data point, or it gets postponed and the question returns, more tired, the next month.</p>
+
+      <p class="pullquote">The product separates the voting from the conversation, so that neither of you anchors the other before you've each been honest with yourself.</p>
+
+      <p>Counsel.day rests on a simple inversion. Instead of one conversation containing the whole decision, the decision is spread across a period you choose. Each evening you each tap one button. You may add a sentence. The vote is sealed; your partner sees only that you voted. After the period closes, the system has captured a dataset across two people, together with their unguarded written notes, captured over a long enough span to include the Saturday-morning optimism and the Sunday-evening doubt and the Tuesday-after-a-hard-day resignation that any honest couple knows are part of the same answer.</p>
+
+      <p>Set the duration to match the weight of the question. A fortnight for a house you have already half-decided to buy. A month for the move into the city. Sixty days for the marriage, the relationship-ending, the country change. Ninety days for the baby, the second child, the IVF. The product makes no claim about which duration is right; it asks you to choose one before the first vote, and it holds you to that choice.</p>
+
+      <p>On the final day, both verdicts publish at the same instant. The product then does the work no dinner conversation can do for itself: it reads every note both of you wrote, clusters the themes with frequencies, and writes a paragraph that names <em>the axis of your disagreement</em>. Not <em>whether</em> you disagreed, which you already knew. <em>What</em> you were disagreeing about underneath. Beneath the analysis, a single question for the conversation that follows. Not "communicate more openly." A real, actionable question shaped by what you actually wrote.</p>
+
+      <p>The conversation still has to happen. It happens when the verdict unlocks, with better information underneath it than it would have had at the start. The product comes before the conversation; it does not replace it.</p>
+    </div>
+    <p class="method-cta"><a href="why-time.html">Read the full argument →</a></p>
+  </div>
+</section>
+
+<!-- SPECIMEN VERDICT -->
+<section id="specimen">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-kicker">§ 6 · A specimen</div>
+      <h2 class="section-title">A verdict from a real <span class="ital">couple,</span> reproduced in full.</h2>
+      <p class="section-dek">What appears below is the actual verdict shown to one couple on the day their voting period closed. Names are illustrative; the decision, the duration, and the analysis are unchanged.</p>
+    </div>
+
+    <div class="specimen">
+      <div class="specimen-head">
+        <span><span class="id">Decision №0047</span> · 30 days · 56 votes recorded</span>
+        <span>Concluded 14 April 2026</span>
+      </div>
+      <div class="specimen-body">
+        <h3 class="specimen-q">Should we move into the <span class="ital">city?</span></h3>
+
+        <div class="specimen-verdicts">
+          <div class="specimen-v a">
+            <div class="specimen-v-name">Partner A · James</div>
+            <div class="specimen-v-verdict">Go</div>
+            <div class="specimen-v-meta"><strong>+12.0</strong> weighted score · trajectory rising · 14 / 30 notes</div>
+          </div>
+          <div class="specimen-v b">
+            <div class="specimen-v-name">Partner B · Alexandra</div>
+            <div class="specimen-v-verdict">Lean No</div>
+            <div class="specimen-v-meta"><strong>−3.0</strong> weighted score · trajectory flat · 23 / 30 notes</div>
+          </div>
+        </div>
+
+        <div class="specimen-analysis-label">§ The analysis</div>
+        <p class="specimen-analysis">You are not actually split on whether to move. You are split on what you would give up. James was consistently drawn to convenience, social life, and walkability; his notes mention these themes twelve times over the period, with conviction rising gently in each of the four weeks. Alexandra wrote far more, twenty-three notes in total, and they cluster around the garden, the quiet, and the space you have built together. Her conviction was flat, with three weekend spikes toward Lean Yes that all followed open homes you attended together.</p>
+
+        <div class="specimen-prompt">
+          <div class="specimen-prompt-label">§ A question for the conversation</div>
+          <p class="specimen-prompt-text">"Can you find a place in town that protects what you would both miss most: real outdoor space, and quiet enough to breathe?"</p>
+        </div>
+      </div>
+    </div>
+    <p class="method-cta" style="margin-top: 30px;"><a href="verdict.html">Walk through this verdict in full, layer by layer →</a></p>
+  </div>
+</section>
+
+<!-- QUOTE BAND -->
+<section class="quote-band">
+  <div class="quote-band-inner">
+    <div class="quote-band-kicker">From a couple who used the product</div>
+    <p class="quote-band-text">"We had been arguing about this for eight months. When the verdict opened, we read it, had the right conversation for the first time, and bought a place we hadn't even considered."</p>
+    <div class="quote-band-attr">Decision №0047</div>
+  </div>
+</section>
+
+<!-- EDITIONS -->
+<section id="editions">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-kicker">§ 7 · The plans</div>
+      <h2 class="section-title">Three audiences. <span class="ital">Per decision, or one annual.</span></h2>
+      <p class="section-dek">Pick by how many of you are running the decision: Solo (one), Couple (two), or Family (three to six). Each is priced one decision at a time · your first Solo decision is free. A single <strong>Consumer Annual</strong> all-access plan exists below for the rare household that runs many decisions in a year. All prices are in US dollars, charged worldwide.</p>
+    </div>
+
+    <aside class="tier-note">
+      <div class="section-kicker">§ Free Solo · what the summary analysis covers</div>
+      <p>Your first Solo decision is free and ships with a <strong>Python summary analysis</strong> generated on our own server, with no third-party AI call: smoothed conviction trajectory, trend direction (strengthening, weakening, or flat) with statistical confidence, day-to-day stability, sentiment-over-time pulled from your notes by a local NLP model, the top themes from your notes (TF-IDF clustering), and a decision-readiness indicator drawn from the variance of your last three days.</p>
+      <p>The 600-to-1200-word <strong>written verdict paragraph</strong> · the synthesis that names the axis of your question in plain English · is generated by our AI synthesis tool and is reserved for paid decisions: Solo at $14 USD, Couple at $25 USD, Family at $49 USD, or Consumer Annual at $99 USD/year. That single AI call is the part of the verdict that costs us real money to produce.</p>
+    </aside>
+
+    <div class="editions-grid">
+      <div class="edition">
+        <div class="edition-label">Solo · one participant</div>
+        <h3 class="edition-name">Solo</h3>
+        <div class="edition-price"><span class="edition-amount">$0 / $14</span><span class="edition-currency">USD per decision</span></div>
+        <p class="edition-period">First decision free · then $14 USD each · also covered by Consumer Annual</p>
+        <div class="edition-cta"><a href="signup.html" class="btn btn-ghost">Start free</a></div>
+        <ul class="edition-features">
+          <li>One participant</li>
+          <li>First lifetime decision free, no card required</li>
+          <li>Additional decisions $14 USD each, charged upfront</li>
+          <li>All eight question formats, durations 7 to 365 days</li>
+          <li>Free decision: own conviction chart + your own notes (no AI-written analysis)</li>
+          <li>Paid decision: full five-layer analysis with the AI-written verdict paragraph</li>
+          <li>Sealed notes alongside votes</li>
+        </ul>
+      </div>
+
+      <div class="edition featured">
+        <div class="edition-label">Couple · two partners</div>
+        <h3 class="edition-name">Couple</h3>
+        <div class="edition-price"><span class="edition-amount">$25</span><span class="edition-currency">USD per decision</span></div>
+        <p class="edition-period">Charged upfront when you compose · also covered by Consumer Annual</p>
+        <div class="edition-cta"><a href="signup.html" class="btn">Start a decision</a></div>
+        <ul class="edition-features">
+          <li>Two participants, one invitation</li>
+          <li>Per decision $25 USD, charged upfront</li>
+          <li>Durations 7 to 365 days, set at composition</li>
+          <li>Sealed notes per partner, encrypted at rest</li>
+          <li>Five-layer verdict + axis-of-disagreement synthesis + next-conversation prompt</li>
+          <li>HTML verdict in-app + designed PDF</li>
+        </ul>
+      </div>
+
+      <div class="edition">
+        <div class="edition-label">Family · three to six</div>
+        <h3 class="edition-name">Family</h3>
+        <div class="edition-price"><span class="edition-amount">$49</span><span class="edition-currency">USD per decision</span></div>
+        <p class="edition-period">For households of three to six · also covered by Consumer Annual</p>
+        <div class="edition-cta"><a href="family.html" class="btn btn-ghost">Family mode</a></div>
+        <ul class="edition-features">
+          <li>Three to six participants</li>
+          <li>Per decision $49 USD, charged upfront</li>
+          <li>Durations 14 to 365 days, set at composition</li>
+          <li>Seven-layer family-aware verdict with coalition naming</li>
+          <li>Trajectory chart with up to six lines</li>
+          <li>Each participant holds their own private account</li>
+        </ul>
+      </div>
+    </div>
+
+    <aside style="max-width: 720px; margin: 30px 0 0; padding: 22px 26px; border: 1px solid var(--rule); background: var(--paper-deep);">
+      <div class="section-kicker" style="margin-bottom: 8px;">§ Consumer Annual · the anchor below the per-decision plans</div>
+      <p style="font-family: var(--font-body); font-size: 17px; line-height: 1.6; color: var(--ink); margin: 0;"><strong>Consumer Annual · $99 USD per year.</strong> A single all-access plan. While active, run any consumer decision · Solo, Couple, or Family · as many times as the year calls for, with no per-decision charge. Designed for the rare household that genuinely calls for several decisions in a year; we will never default it on at checkout. Full detail on the <a href="pricing.html" style="color: var(--wine); border-bottom: 1px solid var(--wine);">pricing page</a>.</p>
+    </aside>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-kicker">§ 8 · Correspondence</div>
+      <h2 class="section-title">Questions <span class="ital">people ask.</span></h2>
+    </div>
+
+    <div class="faq-list">
+      <div class="faq-item"><div class="faq-num">№ 01</div><div><div class="faq-q">Are the votes really sealed until the final day?</div><div class="faq-a">Yes. The database is designed so that neither participant's votes are visible to the other, in any form, until the verdict is generated. The only thing visible to either of you before then is whether your partner has voted today. There is no settings panel to override this. The privacy is the entire mechanism, and we will not let you turn it off.</div></div></div>
+      <div class="faq-item"><div class="faq-num">№ 02</div><div><div class="faq-q">How long should I set the duration?</div><div class="faq-a">Match the duration to the weight of the question and the urgency of the answer. A fortnight is enough for a house with an offer deadline. A month suits most home and career decisions. Sixty days suits questions about the shape of the partnership itself: marriage, ending it, moving countries. Ninety days is the right setting for decisions whose answer needs to survive a season: having a baby, having another child, going through IVF. You set it once, at the start, and we hold you to it.</div></div></div>
+      <div class="faq-item"><div class="faq-num">№ 03</div><div><div class="faq-q">Is Counsel.day a substitute for couples therapy?</div><div class="faq-a">No. Therapy is the conversation, guided by a trained third party. Counsel.day comes before the conversation, with data the couple can carry into the room. We have no clinical training and the product is not a therapeutic intervention; the two are different categories and many couples will benefit from both.</div></div></div>
+      <div class="faq-item"><div class="faq-num">№ 04</div><div><div class="faq-q">What does a partner decision cost?</div><div class="faq-a">$25 USD for Couple (two participants) or $49 USD for Family (three to six), charged upfront on the day you compose. Your partner is invited via a single-use magic link and does not pay separately. A single Consumer Annual at $99 USD per year covers unlimited Solo, Couple, and Family decisions on one account for twelve months · the right shape for the rare household that runs several decisions in a year.</div></div></div>
+      <div class="faq-item"><div class="faq-num">№ 05</div><div><div class="faq-q">Can the product be used alone, without a partner?</div><div class="faq-a">Yes. Your first Solo decision is free, no card required. After that, additional Solo decisions are $14 USD each. If you run several decisions in a year (Solo or otherwise) the Consumer Annual at $99 USD per year covers unlimited consumer decisions of every type. Many users begin Solo with a question they have not yet brought to their partner, then upgrade to Couple when they invite them in.</div></div></div>
+      <div class="faq-item"><div class="faq-num">№ 06</div><div><div class="faq-q">What if my partner stops voting partway through?</div><div class="faq-a">You may pause the decision, extend its duration, or convert it to a solo decision without losing your data. Your partner receives a single gentle reminder if they miss three days in a row; beyond that we leave them alone, and you. We will not nudge a person into voting on a question they have decided not to engage with.</div></div></div>
+    </div>
+    <p class="method-cta" style="margin-top: 28px;"><a href="faq.html">Read the full FAQ (29 questions across 7 categories) →</a></p>
+  </div>
+</section>
+
+<!-- CLOSING -->
+<section class="closing">
+  <div class="closing-kicker">An invitation</div>
+  <h2 class="closing-title">Give your hardest decision the <span class="ital">season it deserves.</span></h2>
+  <p class="closing-sub">Your first decision is free. Set the duration to the weight of the question. We hold you to it.</p>
+  <div class="closing-cta">
+    <a href="signup.html" class="btn">Start a decision</a>
+    <a href="#mechanism" class="btn-text">Read the documentation</a>
+  </div>
+</section>
+
+</main>
+
+<!-- SHARE BLOCK -->
+<section class="share-block">
+  <div class="share-block-inner">
+    <div class="share-block-content">
+      <div class="eyebrow">Found this useful?</div>
+      <h3>Pass it on to someone <span class="ital">facing the same question.</span></h3>
+      <p class="dek">Counsel.day is private by design. We do not see your share; your decision is never tracked, sold, or advertised against.</p>
+      <button class="share-copy-link" data-share="copy" aria-label="Copy link to clipboard">
+        <svg viewBox="0 0 24 24" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        <span class="share-copy-text">Copy link to clipboard</span>
+      </button>
+    </div>
+    <div class="share-grid">
+      <a class="share-btn" data-share="x" aria-label="Share on X (Twitter)" title="Share on X" href="#">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z"/></svg>
+        <span class="label">X</span>
+      </a>
+      <a class="share-btn" data-share="facebook" aria-label="Share on Facebook" title="Share on Facebook" href="#">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.62 8.62 0 0 0-.653-.036c-.247-.005-.492-.009-.733-.009-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z"/></svg>
+        <span class="label">Facebook</span>
+      </a>
+      <a class="share-btn" data-share="linkedin" aria-label="Share on LinkedIn" title="Share on LinkedIn" href="#">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286ZM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.063 2.063 0 1 1 2.063 2.065Zm1.782 13.019H3.555V9h3.564v11.452ZM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003Z"/></svg>
+        <span class="label">LinkedIn</span>
+      </a>
+      <a class="share-btn" data-share="whatsapp" aria-label="Share on WhatsApp" title="Share on WhatsApp" href="#">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.498 14.382c-.301-.15-1.767-.867-2.04-.966-.273-.101-.473-.15-.673.15-.197.295-.771.964-.944 1.162-.175.195-.349.21-.646.075-.3-.15-1.263-.465-2.403-1.485-.888-.795-1.484-1.77-1.66-2.07-.174-.3-.019-.465.13-.615.136-.135.301-.345.451-.523.146-.181.194-.301.297-.496.1-.21.049-.375-.025-.524-.075-.15-.672-1.62-.922-2.206-.24-.584-.487-.51-.672-.51-.172-.015-.371-.015-.571-.015-.2 0-.523.074-.797.359-.273.3-1.045 1.02-1.045 2.475s1.07 2.865 1.219 3.075c.149.18 2.095 3.195 5.076 4.485.713.3 1.27.48 1.704.629.714.227 1.365.195 1.88.121.574-.091 1.767-.721 2.016-1.426.255-.705.255-1.29.18-1.425-.074-.135-.27-.21-.57-.345m-5.446 7.443h-.016c-1.77 0-3.524-.48-5.055-1.38l-.36-.214-3.75.975 1.005-3.645-.239-.375c-.99-1.576-1.516-3.391-1.516-5.26 0-5.445 4.455-9.885 9.942-9.885 2.654 0 5.145 1.035 7.021 2.91 1.875 1.859 2.909 4.35 2.909 6.99-.004 5.444-4.46 9.885-9.935 9.885M20.52 3.449C18.24 1.245 15.24 0 12.045 0 5.463 0 .104 5.334.101 11.893c0 2.096.549 4.14 1.595 5.945L0 24l6.335-1.652a12.062 12.062 0 0 0 5.71 1.447h.006c6.585 0 11.946-5.336 11.949-11.896 0-3.176-1.24-6.165-3.495-8.411"/></svg>
+        <span class="label">WhatsApp</span>
+      </a>
+      <a class="share-btn" data-share="email" aria-label="Share via Email" title="Share via Email" href="#">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Zm0 2v.4l9 5.4 9-5.4V7H3Zm18 2.6-8.65 5.19a1 1 0 0 1-1.04 0L3 9.6V17h18V9.6Z"/></svg>
+        <span class="label">Email</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-share]');
+    if (!btn) return;
+    e.preventDefault();
+    var pageUrl = window.location.href;
+    var url = encodeURIComponent(pageUrl);
+    var title = encodeURIComponent(document.title);
+    var text = encodeURIComponent(document.title + ' · counsel.day');
+    var platform = btn.dataset.share;
+    var targets = {
+      x:         'https://twitter.com/intent/tweet?url=' + url + '&text=' + text,
+      facebook:  'https://www.facebook.com/sharer/sharer.php?u=' + url,
+      linkedin:  'https://www.linkedin.com/sharing/share-offsite/?url=' + url,
+      whatsapp:  'https://api.whatsapp.com/send?text=' + text + '%20' + url,
+      email:     'mailto:?subject=' + title + '&body=' + text + '%0A%0A' + url
+    };
+    if (platform === 'copy') {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(pageUrl).then(function () {
+          btn.classList.add('copied');
+          var lbl = btn.querySelector('.share-copy-text');
+          if (lbl) { var prev = lbl.textContent; lbl.textContent = 'Link copied'; setTimeout(function () { lbl.textContent = prev; btn.classList.remove('copied'); }, 1800); }
+        });
+      } else {
+        var t = document.createElement('textarea');
+        t.value = pageUrl; document.body.appendChild(t); t.select();
+        try { document.execCommand('copy'); } catch (err) {}
+        document.body.removeChild(t);
+        btn.classList.add('copied');
+        setTimeout(function () { btn.classList.remove('copied'); }, 1800);
+      }
+      return;
+    }
+    var target = targets[platform];
+    if (!target) return;
+    if (platform === 'email') { window.location.href = target; return; }
+
+    /* Centered popup, large enough for modern Facebook/LinkedIn login + share
+       flows (the small 600x500 default cuts off the FB login form). */
+    var W = 720, H = 720;
+    var dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX;
+    var dualScreenTop  = window.screenTop  !== undefined ? window.screenTop  : window.screenY;
+    var width  = window.innerWidth  || document.documentElement.clientWidth  || screen.width;
+    var height = window.innerHeight || document.documentElement.clientHeight || screen.height;
+    var left = Math.max(0, dualScreenLeft + (width  - W) / 2);
+    var top  = Math.max(0, dualScreenTop  + (height - H) / 2);
+    var features = [
+      'popup=yes',
+      'scrollbars=yes',
+      'resizable=yes',
+      'toolbar=no',
+      'menubar=no',
+      'location=no',
+      'status=no',
+      'noopener',
+      'noreferrer',
+      'width=' + W,
+      'height=' + H,
+      'left=' + left,
+      'top=' + top
+    ].join(',');
+    var w = window.open(target, '_blank', features);
+    if (w && typeof w.focus === 'function') { try { w.focus(); } catch (_) {} }
+  });
+})();
+</script>
+
+<!-- COLOPHON -->
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Each evening, you cast one private vote on the same question, for a duration you set, with every vote sealed in the database until the final day. When the verdict opens, you see where you converged, where you diverged, the themes underneath your own words, and one specific next conversation. The deciding stays with you; the structure is ours. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The product</h5>
+        <a href="method.html">The method</a>
+        <a href="why-time.html">Why time</a>
+        <a href="distinction.html">The distinction</a>
+          <a href="verdict.html">A real verdict</a>
+        <a href="family.html">For families</a>
+        <a href="compare.html">Compare</a>
+        <a href="signup.html">Start free</a>
+        <a href="pricing.html">The editions</a>
+      </div>
+      <div class="colophon-col">
+        <h5>For practitioners</h5>
+        <a href="therapists.html">For therapists</a>
+        <a href="counsellors.html">For counsellors</a>
+        <a href="engineering/index.html">Engineering</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The company</h5>
+          <a href="about/james-graham.html">James Graham · founder</a>
+        <a href="help.html">Help</a>
+        <a href="contact.html">Contact</a>
+        <a href="security.html">Security</a>
+        <a href="accessibility.html">Accessibility</a>
+        <a href="press.html">Press</a>
+        <a href="status.html">Status</a>
+        <a href="changelog.html">Changelog</a>
+        <a href="journal/">The Journal</a>
+        <a href="faq.html">FAQ</a>
+        <a href="account.html">Your account</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The fine print</h5>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="cookies.html">Cookies</a>
+        <a href="sub-processors.html">Sub-processors</a>
+        <a href="refunds.html">Refunds</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>© 2026 Counsel.day · USD pricing worldwide</div>
+      <div>Last revised 15 May 2026</div>
+    </div>
+  </div>
+</footer>
+
+<a class="go-to-top" id="go-to-top" href="#top" aria-label="Go to top of page">
+  <svg viewBox="0 0 24 24" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+  <span class="label">Top</span>
+</a>
+<script>
+(function () {
+  var btn = document.getElementById('go-to-top');
+  if (!btn) return;
+  function update() { if (window.scrollY > 600) { btn.classList.add('visible'); } else { btn.classList.remove('visible'); } }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+  btn.addEventListener('click', function (e) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
+<script>
+/* Hero subhead catchphrase picker · shows ONE of N catchphrases at random
+   per page-load in the subhead element. The H1 is locked to a single
+   sentence for SEO clarity (one document, one H1, one primary message).
+   The first .slide is the no-JS fallback. */
+(function () {
+  var rotator = document.getElementById('hero-subhead-rotator');
+  if (!rotator) return;
+  var slides = rotator.querySelectorAll('.slide');
+  if (slides.length < 2) return;
+  var pick = Math.floor(Math.random() * slides.length);
+  slides.forEach(function (s, i) {
+    s.classList.toggle('is-shown', i === pick);
+  });
+})();
+</script>
+<script src="ga4.js" defer></script>
+</body>
+</html>

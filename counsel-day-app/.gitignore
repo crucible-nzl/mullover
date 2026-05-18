@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Next.js build output
+.next/
+out/
+
+# Production
+build/
+dist/
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Local env files · these contain real secrets and must NEVER be committed.
+# The production env file lives at /etc/counsel-day-app/env.local on the
+# Hetzner box (mode 600, owned by deploy). See docs/RUNBOOK.md.
+.env
+.env.local
+.env.development.local
+.env.production.local
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# IDE
+.vscode/
+.idea/
+
+# Test
+coverage/

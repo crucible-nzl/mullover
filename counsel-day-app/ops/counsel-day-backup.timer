@@ -1,0 +1,14 @@
+[Unit]
+Description=Counsel.day · Postgres backup · daily at 03:15 UTC
+Requires=counsel-day-backup.service
+
+[Timer]
+# 03:15 UTC = good global off-peak slot (covers all timezones overnight or
+# pre-dawn). 15 min past the hour avoids the systemd "everyone runs at :00"
+# stampede that hits the disk and CPU all at once.
+OnCalendar=*-*-* 03:15:00
+Persistent=true
+AccuracySec=5m
+
+[Install]
+WantedBy=timers.target

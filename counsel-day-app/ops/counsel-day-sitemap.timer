@@ -1,0 +1,11 @@
+[Unit]
+Description=Counsel.day · sitemap regeneration · weekly on Sundays at 04:00 UTC
+Requires=counsel-day-sitemap.service
+
+[Timer]
+OnCalendar=Sun *-*-* 04:00:00
+Persistent=true
+AccuracySec=5m
+
+[Install]
+WantedBy=timers.target

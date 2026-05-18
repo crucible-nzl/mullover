@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<!-- Order is load-bearing: Consent Mode v2 defaults MUST be set BEFORE -->
+<!-- GTM and gtag load, or the first pageview ships before user choice. -->
+<!-- This block is injected into every public HTML <head> by             -->
+<!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
+
+<!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':         'denied',
+    'ad_user_data':       'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage':  'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage':   'granted',
+    'wait_for_update':    500
+  });
+  // Honour Global Privacy Control + Do-Not-Track before any tag fires.
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':         'denied',
+      'ad_user_data':       'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage':  'denied'
+    });
+  }
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', {
+    'anonymize_ip': true,
+    'allow_google_signals': false,
+    'allow_ad_personalization_signals': false
+  });
+</script>
+<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
+
+<title>Sign in · Counsel.day</title>
+<meta name="description" content="Sign in to your Counsel.day account. Magic link by default; password if you have set one.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://counsel.day/signin">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Sign in · Counsel.day">
+<meta property="og:url" content="https://counsel.day/signin">
+<meta property="og:image" content="https://counsel.day/og-image.png">
+<meta property="og:locale" content="en_US">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles-i8.css">
+<style>
+.signin-grid { max-width: 460px; margin: 24px auto; padding: 0 24px; }
+.signin-card { border: 1px solid var(--ink); background: var(--paper); padding: 28px 30px; }
+.signin-card .form-eyebrow { font-family: var(--font-mono); font-size: 13px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin-bottom: 10px; }
+.signin-card .form-title { font-family: var(--font-display); font-weight: 400; font-size: clamp(26px, 3vw, 32px); line-height: 1.1; letter-spacing: -0.018em; color: var(--ink); margin: 0 0 14px; }
+.signin-card .form-title .ital { font-style: italic; color: var(--wine); }
+.signin-card .form-lede { font-family: var(--font-body); font-size: 15px; line-height: 1.55; color: var(--ink-soft); margin: 0 0 22px; }
+
+.signin-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.signin-field label { font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink); }
+.signin-field .hint { font-family: var(--font-body); font-size: 13px; line-height: 1.45; color: var(--muted); margin-bottom: 4px; font-style: italic; }
+.signin-field input { font-family: var(--font-body); font-size: 16px; line-height: 1.4; padding: 11px 12px; border: 1px solid var(--ink); background: var(--paper); color: var(--ink); border-radius: 0; width: 100%; }
+.signin-field input:focus { outline: none; border-color: var(--wine); box-shadow: 0 0 0 2px var(--wine-soft); }
+.signin-field .toggle-pw { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--wine); background: none; border: none; cursor: pointer; padding: 0; align-self: flex-start; margin-top: 4px; }
+
+.signin-submit-row { display: flex; align-items: center; gap: 16px; margin-top: 18px; flex-wrap: wrap; }
+.signin-submit-row .btn { padding: 14px 28px; }
+.signin-submit-row .alt { font-family: var(--font-body); font-size: 14px; color: var(--muted); }
+.signin-submit-row .alt a { color: var(--wine); }
+
+.signin-msg { padding: 14px 16px; margin-bottom: 16px; display: none; font-family: var(--font-body); font-size: 14px; line-height: 1.5; }
+.signin-msg.is-shown { display: block; }
+.signin-msg.is-success { background: var(--wine-soft); border-left: 3px solid var(--wine); color: var(--ink); }
+.signin-msg.is-error { background: #fdecea; border-left: 3px solid #c0392b; color: #6b1e16; }
+</style>
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="method.html">The method</a>
+      <a href="why-time.html">Why time</a>
+      <a href="distinction.html">The distinction</a>
+      <a href="verdict.html">A real verdict</a>
+      <a href="family.html">For families</a>
+      <a href="compare.html">Compare</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="faq.html">FAQ</a>
+    </div>
+    <div class="nav-cta">
+      <a href="signup.html" class="btn-text">Sign up</a>
+      <a href="signin.html" class="btn" aria-current="page">Sign in</a>
+    </div>
+    <button type="button" class="nav-toggle" aria-label="Open menu" aria-expanded="false">
+      <span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span>
+    </button>
+  </div>
+</nav>
+
+<main id="main-content">
+  <div class="signin-grid">
+
+    <div id="signin-msg" class="signin-msg" role="alert" aria-live="polite"></div>
+
+    <section class="signin-card" aria-labelledby="signin-form-title">
+      <div class="form-eyebrow">§ Sign in</div>
+      <h1 id="signin-form-title" class="form-title">Welcome <span class="ital">back.</span></h1>
+      <p class="form-lede">Enter your email. If you have a password set, add it below; otherwise leave blank and we'll email you a one-time sign-in link.</p>
+
+      <form id="signin-form" method="post" action="/api/signin" novalidate>
+        <div class="signin-field">
+          <label for="si-email">Email</label>
+          <input type="email" id="si-email" name="email" required autocomplete="email" inputmode="email">
+        </div>
+
+        <div class="signin-field">
+          <label for="si-password">Password <span style="color:var(--muted); font-weight:400; letter-spacing:0;">(optional)</span></label>
+          <span class="hint">Leave blank for a one-time email link.</span>
+          <input type="password" id="si-password" name="password" autocomplete="current-password">
+          <button type="button" class="toggle-pw" data-toggle="si-password">Show password</button>
+        </div>
+
+        <div class="signin-submit-row">
+          <button type="submit" class="btn btn-large">Sign in</button>
+          <span class="alt">New here? <a href="signup.html">Create an account</a></span>
+        </div>
+      </form>
+    </section>
+
+  </div>
+</main>
+
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The fine print</h5>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="cookies.html">Cookies</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>© 2026 Counsel.day · USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  /* show/hide password toggle */
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-toggle]');
+    if (!btn) return;
+    var input = document.getElementById(btn.dataset.toggle);
+    if (!input) return;
+    if (input.type === 'password') { input.type = 'text'; btn.textContent = 'Hide password'; }
+    else { input.type = 'password'; btn.textContent = 'Show password'; }
+  });
+
+  /* form submit */
+  var form = document.getElementById('signin-form');
+  var msg = document.getElementById('signin-msg');
+  function show(kind, text) {
+    msg.className = 'signin-msg is-shown is-' + kind;
+    msg.textContent = text;
+    msg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var btn = form.querySelector('button[type="submit"]');
+    btn.disabled = true; btn.textContent = 'Signing in…';
+    fetch(form.action, { method: 'POST', body: new FormData(form), credentials: 'include' })
+      .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+      .then(function (res) {
+        if (res.status === 200 && res.body.redirect) {
+          window.location.href = res.body.redirect;
+        } else if (res.status === 200) {
+          show('success', res.body.message || 'Check your inbox for a sign-in link.');
+        } else {
+          show('error', res.body.message || 'Something went wrong. Please try again.');
+        }
+      })
+      .catch(function () { show('error', 'Network error. Please try again.'); })
+      .finally(function () { btn.disabled = false; btn.textContent = 'Sign in'; });
+  });
+})();
+</script>
+<script src="ga4.js" defer></script>
+</body>
+</html>

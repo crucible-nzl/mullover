@@ -1,0 +1,123 @@
+# counsel-day-server/docker-compose.infisical.yml
+#
+# Self-hosted Infisical, the secrets manager for Counsel.day.
+#
+# Includes its own Postgres database and Redis instance, both
+# separate from the application's. Bind-mounted under
+# /var/lib/infisical (NOT on the LUKS-encrypted volume, because
+# Infisical itself holds the LUKS passphrase).
+#
+# First-run:
+#   1. Generate secrets:
+#        export AUTH_SECRET=$(openssl rand -base64 32)
+#        export ENCRYPTION_KEY=$(openssl rand -hex 16)
+#        export DB_PASS=$(openssl rand -base64 32)
+#        export REDIS_PASS=$(openssl rand -base64 32)
+#   2. Write them into a local .env.infisical file (NOT in git):
+#        AUTH_SECRET=...
+#        ENCRYPTION_KEY=...
+#        DB_PASS=...
+#        REDIS_PASS=...
+#        SITE_URL=https://vault.counsel.day
+#        SMTP_HOST=smtp-relay.brevo.com
+#        SMTP_PORT=587
+#        SMTP_USERNAME=<from Brevo>
+#        SMTP_PASSWORD=<from Brevo>
+#        SMTP_FROM_ADDRESS=vault@counsel.day
+#        SMTP_FROM_NAME=Counsel.day Vault
+#   3. Start: docker compose -f docker-compose.infisical.yml --env-file .env.infisical up -d
+#
+# After the first start, AUTH_SECRET and ENCRYPTION_KEY are baked into the
+# database. Rotating them later requires a planned migration.
+
+services:
+  infisical-db:
+    image: postgres:16-alpine
+    container_name: infisical-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: infisical
+      POSTGRES_PASSWORD: ${DB_PASS:?DB_PASS must be set}
+      POSTGRES_DB: infisical
+    volumes:
+      - /var/lib/infisical/db:/var/lib/postgresql/data
+    networks:
+      - infisical-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U infisical -d infisical"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  infisical-redis:
+    image: redis:7-alpine
+    container_name: infisical-redis
+    restart: unless-stopped
+    command: ["redis-server", "--requirepass", "${REDIS_PASS:?REDIS_PASS must be set}"]
+    volumes:
+      - /var/lib/infisical/redis:/data
+    networks:
+      - infisical-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASS}", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  infisical-backend:
+    image: infisical/infisical:latest-postgres
+    container_name: infisical-backend
+    restart: unless-stopped
+    depends_on:
+      infisical-db:
+        condition: service_healthy
+      infisical-redis:
+        condition: service_healthy
+    environment:
+      # Required core
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?ENCRYPTION_KEY must be a 32-char hex string}
+      AUTH_SECRET: ${AUTH_SECRET:?AUTH_SECRET must be set}
+      DB_CONNECTION_URI: postgres://infisical:${DB_PASS}@infisical-db:5432/infisical
+      REDIS_URL: redis://default:${REDIS_PASS}@infisical-redis:6379
+      SITE_URL: ${SITE_URL:-https://vault.counsel.day}
+      # SMTP for password resets and MFA email
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USERNAME: ${SMTP_USERNAME}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_FROM_ADDRESS: ${SMTP_FROM_ADDRESS:-vault@counsel.day}
+      SMTP_FROM_NAME: ${SMTP_FROM_NAME:-Counsel.day Vault}
+      # Telemetry off · we run in EU and do not phone home
+      TELEMETRY_ENABLED: "false"
+    networks:
+      - infisical-net
+      - counsel-edge
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/api/status"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  infisical-net:
+    name: infisical-net
+    internal: true
+  counsel-edge:
+    name: counsel-edge
+    driver: bridge

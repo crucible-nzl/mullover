@@ -1,0 +1,261 @@
+/**
+ * Single Node entrypoint for every periodic background job. Started by a
+ * systemd timer (or a `* * * * * node …` style cron). Each job is a pure
+ * function that takes the DB and returns a summary. The script picks which
+ * to run based on argv[2]:
+ *
+ *   node dist/cron.js evening-prompt    · send 6pm reminder to participants who have not voted today
+ *   node dist/cron.js verdict-generate  · for every decision past unseals_at, generate verdict + email
+ *   node dist/cron.js session-purge     · delete expired session rows
+ *
+ * For now: dev runs via `tsx src/jobs/cron.ts <job>`.
+ */
+
+import 'dotenv/config';
+import { db, schema } from '../lib/db';
+import { sql, and, eq, lt, isNull, isNotNull, inArray } from 'drizzle-orm';
+import { sendTransactional } from '../lib/email';
+import { getAnthropic, VERDICT_MODEL, VERDICT_SYSTEM_PROMPT } from '../lib/anthropic';
+
+const APP_BASE_URL = process.env.APP_BASE_URL ?? 'https://counsel.day';
+
+async function eveningPrompt() {
+  // Find every participant in an active decision who has not voted today.
+  // Send them one prompt. Idempotent · re-running the same evening is fine.
+  const rows = await db.execute(sql`
+    SELECT DISTINCT u.email, u.first_name, d.id AS decision_id, d.question
+    FROM participants p
+    JOIN decisions d ON d.id = p.decision_id
+    JOIN users u ON u.id = p.user_id
+    WHERE d.status = 'active'
+      AND p.user_id IS NOT NULL
+      AND NOT EXISTS (
+        SELECT 1 FROM votes v
+        WHERE v.participant_id = p.id
+          AND v.vote_date = CURRENT_DATE
+      )
+  `);
+
+  let sent = 0;
+  for (const r of rows as unknown as Array<{ email: string; first_name: string | null; decision_id: string; question: string }>) {
+    const verdictUrl = `${APP_BASE_URL}/vote-today?decision=${r.decision_id}`;
+    const greeting = r.first_name ? `Hi ${r.first_name},` : 'Hi,';
+    const text = [
+      greeting,
+      '',
+      'Time for tonight\'s vote.',
+      '',
+      `> ${r.question}`,
+      '',
+      'One tap, optional sentence, sealed instantly:',
+      verdictUrl,
+      '',
+      '· Counsel.day',
+    ].join('\n');
+    const html = `
+      <p>${greeting}</p>
+      <p>Time for tonight's vote.</p>
+      <blockquote style="border-left: 3px solid #722F37; padding-left: 14px; margin: 16px 0; font-style: italic;">${r.question}</blockquote>
+      <p>One tap, optional sentence, sealed instantly: <a href="${verdictUrl}" style="color: #722F37;">${verdictUrl}</a></p>
+      <p>· Counsel.day</p>
+    `.trim();
+    const res = await sendTransactional({
+      to: { email: r.email, name: r.first_name ?? undefined },
+      subject: 'Tonight\'s vote',
+      textContent: text,
+      htmlContent: html,
+    });
+    if (res.ok) sent++;
+  }
+  console.log(`[cron · evening-prompt] sent ${sent} prompts`);
+}
+
+async function verdictGenerate() {
+  const anthropic = getAnthropic();
+  if (!anthropic) {
+    console.warn('[cron · verdict-generate] ANTHROPIC_API_KEY not set; skipping');
+    return;
+  }
+
+  // Decisions ready for verdict: status='active', unseals_at <= NOW(), no verdict yet
+  const dueRows = await db
+    .select({
+      id: schema.decisions.id,
+      question: schema.decisions.question,
+      format: schema.decisions.format,
+      durationDays: schema.decisions.durationDays,
+      ownerUserId: schema.decisions.ownerUserId,
+    })
+    .from(schema.decisions)
+    .leftJoin(schema.verdicts, eq(schema.verdicts.decisionId, schema.decisions.id))
+    .where(
+      and(
+        eq(schema.decisions.status, 'active'),
+        lt(schema.decisions.unsealsAt, sql`NOW()`),
+        isNull(schema.verdicts.id)
+      )
+    )
+    .limit(20); // batch cap per run
+
+  console.log(`[cron · verdict-generate] ${dueRows.length} decisions due`);
+
+  for (const d of dueRows) {
+    try {
+      // Flip status so we don't double-process if the cron overlaps
+      await db
+        .update(schema.decisions)
+        .set({ status: 'verdict_generating', updatedAt: new Date() })
+        .where(eq(schema.decisions.id, d.id));
+
+      // Gather all votes + notes for this decision, grouped by participant
+      const voteRows = await db.execute(sql`
+        SELECT p.display_name, v.vote_date, v.direction, v.conviction, v.note
+        FROM votes v
+        JOIN participants p ON p.id = v.participant_id
+        WHERE v.decision_id = ${d.id}
+        ORDER BY p.position, v.vote_date
+      `);
+
+      const userPrompt = JSON.stringify({
+        question: d.question,
+        format: d.format,
+        duration_days: d.durationDays,
+        votes: voteRows,
+      }, null, 2);
+
+      const msg = await anthropic.messages.create({
+        model: VERDICT_MODEL,
+        max_tokens: 2000,
+        system: [
+          { type: 'text', text: VERDICT_SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } },
+        ],
+        messages: [{ role: 'user', content: userPrompt }],
+      });
+
+      const synthesis = msg.content
+        .filter((b) => b.type === 'text')
+        .map((b) => (b as { text: string }).text)
+        .join('\n');
+
+      await db.insert(schema.verdicts).values({
+        decisionId: d.id,
+        aiModel: VERDICT_MODEL,
+        synthesisText: synthesis,
+        promptUsed: VERDICT_SYSTEM_PROMPT,
+        tokensInput: msg.usage.input_tokens,
+        tokensOutput: msg.usage.output_tokens,
+        // Opus 4.7 pricing as of May 2026 (cents): $15/M input, $75/M output → use exact pennies
+        costCents: Math.ceil((msg.usage.input_tokens * 1500 + msg.usage.output_tokens * 7500) / 1_000_000),
+      });
+
+      await db
+        .update(schema.decisions)
+        .set({ status: 'completed', updatedAt: new Date() })
+        .where(eq(schema.decisions.id, d.id));
+
+      // Email each participant that their verdict is ready
+      const participantEmails = await db.execute(sql`
+        SELECT u.email, u.first_name FROM participants p
+        JOIN users u ON u.id = p.user_id
+        WHERE p.decision_id = ${d.id} AND p.user_id IS NOT NULL
+      `);
+      for (const p of participantEmails as unknown as Array<{ email: string; first_name: string | null }>) {
+        const greeting = p.first_name ? `Hi ${p.first_name},` : 'Hi,';
+        const url = `${APP_BASE_URL}/verdict-reveal?decision=${d.id}`;
+        await sendTransactional({
+          to: { email: p.email, name: p.first_name ?? undefined },
+          subject: 'Your verdict is ready',
+          textContent: `${greeting}\n\nYour decision has reached day ${d.durationDays}. Both verdicts are now open:\n\n${url}\n\n· Counsel.day`,
+          htmlContent: `<p>${greeting}</p><p>Your decision has reached day ${d.durationDays}. Both verdicts are now open:</p><p><a href="${url}" style="color: #722F37;">${url}</a></p><p>· Counsel.day</p>`,
+        });
+      }
+      console.log(`[cron · verdict-generate] decision ${d.id}: verdict written, participants emailed`);
+    } catch (err) {
+      console.error(`[cron · verdict-generate] decision ${d.id} failed:`, err);
+      // Flip back to 'active' so the next cron run retries it
+      await db.update(schema.decisions).set({ status: 'active', updatedAt: new Date() }).where(eq(schema.decisions.id, d.id));
+    }
+  }
+}
+
+async function sessionPurge() {
+  const r = await db.execute(sql`DELETE FROM sessions WHERE expires_at < NOW() RETURNING id`);
+  console.log(`[cron · session-purge] deleted ${(r as unknown as Array<unknown>).length} expired sessions`);
+}
+
+/**
+ * Expire stale partner invite tokens.
+ *
+ * Tokens minted by /api/compose for couple/family decisions sit forever
+ * if the invitee never accepts. Two reasons to expire them:
+ *   (a) shrink attack surface · a leaked invite URL is forever-valid
+ *       until expired (the URL gates account creation for the invitee)
+ *   (b) prevent the participants table from growing unbounded with
+ *       abandoned invites
+ *
+ * After EXPIRY_DAYS days, we NULL the invite_token (the URL becomes
+ * unusable) and cancel the parent decision if it's still in
+ * pending_invites. The owner can re-compose with fresh tokens; any
+ * Stripe charge already settled stays put (admin handles refund if
+ * the owner asks).
+ */
+async function inviteExpiry() {
+  const EXPIRY_DAYS = 30;
+  const cutoff = new Date(Date.now() - EXPIRY_DAYS * 24 * 60 * 60 * 1000);
+
+  const expired = await db
+    .select({ id: schema.participants.id, decisionId: schema.participants.decisionId })
+    .from(schema.participants)
+    .where(
+      and(
+        isNotNull(schema.participants.inviteToken),
+        isNull(schema.participants.inviteAcceptedAt),
+        lt(schema.participants.createdAt, cutoff)
+      )
+    );
+
+  if (expired.length === 0) {
+    console.log('[cron · invite-expiry] 0 expired invites');
+    return;
+  }
+
+  const expiredIds = expired.map((r) => r.id);
+  const affectedDecisions = Array.from(new Set(expired.map((r) => r.decisionId)));
+
+  await db
+    .update(schema.participants)
+    .set({ inviteToken: null })
+    .where(inArray(schema.participants.id, expiredIds));
+
+  await db
+    .update(schema.decisions)
+    .set({ status: 'cancelled', updatedAt: new Date() })
+    .where(
+      and(
+        inArray(schema.decisions.id, affectedDecisions),
+        eq(schema.decisions.status, 'pending_invites')
+      )
+    );
+
+  console.log(
+    `[cron · invite-expiry] expired ${expired.length} invite tokens across ${affectedDecisions.length} decision(s)`
+  );
+}
+
+async function main() {
+  const job = process.argv[2];
+  switch (job) {
+    case 'evening-prompt':   return eveningPrompt();
+    case 'verdict-generate': return verdictGenerate();
+    case 'session-purge':    return sessionPurge();
+    case 'invite-expiry':    return inviteExpiry();
+    default:
+      console.error(`Unknown job: ${job}. Valid: evening-prompt, verdict-generate, session-purge, invite-expiry`);
+      process.exit(2);
+  }
+}
+
+main().then(() => process.exit(0)).catch((err) => {
+  console.error('cron crashed:', err);
+  process.exit(1);
+});

@@ -1,0 +1,15 @@
+# Counsel.day · security disclosure policy
+# https://counsel.day/.well-known/security.txt
+# RFC 9116 · https://www.rfc-editor.org/rfc/rfc9116
+
+Contact: mailto:security@counsel.day
+Contact: mailto:admin@counsel.day
+Expires: 2027-05-18T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://counsel.day/.well-known/security.txt
+
+# We welcome responsible disclosure. Please email security@counsel.day
+# with technical details. We aim to acknowledge within 2 business days
+# and resolve high/critical issues within 14 days. No bug-bounty
+# program is currently active; we credit reporters on the changelog
+# page where appropriate.

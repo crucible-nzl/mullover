@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<!-- Order is load-bearing: Consent Mode v2 defaults MUST be set BEFORE -->
+<!-- GTM and gtag load, or the first pageview ships before user choice. -->
+<!-- This block is injected into every public HTML <head> by             -->
+<!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
+
+<!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':         'denied',
+    'ad_user_data':       'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage':  'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage':   'granted',
+    'wait_for_update':    500
+  });
+  // Honour Global Privacy Control + Do-Not-Track before any tag fires.
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':         'denied',
+      'ad_user_data':       'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage':  'denied'
+    });
+  }
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', {
+    'anonymize_ip': true,
+    'allow_google_signals': false,
+    'allow_ad_personalization_signals': false
+  });
+</script>
+<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
+
+<title>Compose a decision · Counsel.day</title>
+<meta name="description" content="Open a new Counsel.day decision. Pose the question, choose a format and duration, invite your partner if you have one, and begin the evening vote.">
+<meta name="robots" content="noindex, nofollow">
+<meta property="article:modified_time" content="2026-05-15T19:00:00+12:00">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles-i8.css">
+<style>
+  /* Compose · app surface · scoped */
+  .compose-shell { max-width: 880px; margin: 0 auto; padding: 30px 32px 30px; }
+  .compose-bread { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 28px; }
+  .compose-bread a { color: var(--wine); border-bottom: 1px solid var(--wine); padding-bottom: 1px; text-decoration: none; }
+
+  .compose-head { padding-bottom: 30px; border-bottom: 1px solid var(--ink); margin-bottom: 30px; }
+  .compose-head .eyebrow { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine); margin-bottom: 18px; }
+  .compose-head h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(34px, 4.4vw, 52px); line-height: 1.06; letter-spacing: -0.018em; color: var(--ink); margin: 0 0 18px; }
+  .compose-head h1 .ital { font-style: italic; color: var(--wine); font-weight: 400; }
+  .compose-head .lede { font-family: var(--font-body); font-size: 18px; line-height: 1.6; color: var(--ink-soft); margin: 0; max-width: 720px; }
+  .compose-head .lede strong { font-weight: 500; color: var(--ink); }
+
+  .compose-field { padding: 28px 0 30px; border-bottom: 1px solid var(--rule); }
+  .compose-field:last-of-type { border-bottom: none; }
+  .compose-field .field-label { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin-bottom: 8px; }
+  .compose-field .field-label .req { color: var(--ink); margin-left: 4px; }
+  .compose-field .field-title { font-family: var(--font-display); font-size: 24px; font-weight: 500; color: var(--ink); margin: 0 0 8px; line-height: 1.25; }
+  .compose-field .field-title .ital { font-style: italic; color: var(--wine); font-weight: 400; }
+  .compose-field .field-help { font-family: var(--font-body); font-size: 15px; line-height: 1.55; color: var(--ink-soft); margin: 0 0 18px; max-width: 640px; }
+
+  .compose-field textarea.q-input { width: 100%; padding: 18px 20px; border: 1px solid var(--rule); background: var(--paper); font-family: var(--font-display); font-size: 22px; line-height: 1.35; color: var(--ink); resize: vertical; min-height: 96px; }
+  .compose-field textarea.q-input:focus { outline: none; border-color: var(--wine); }
+  .compose-field textarea.q-input::placeholder { font-style: italic; color: var(--subtle); }
+
+  .compose-field select.fmt-select { width: 100%; max-width: 480px; padding: 14px 16px; border: 1px solid var(--rule); background: var(--paper); font-family: var(--font-body); font-size: 16px; color: var(--ink); appearance: none; -webkit-appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--ink) 50%), linear-gradient(135deg, var(--ink) 50%, transparent 50%); background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; }
+  .compose-field select.fmt-select:focus { outline: none; border-color: var(--wine); }
+
+  .dur-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; border: 1px solid var(--ink); background: var(--paper); }
+  .dur-radio { padding: 18px 12px; border-right: 1px solid var(--rule); cursor: pointer; text-align: center; position: relative; transition: background 120ms ease; }
+  .dur-radio:last-child { border-right: none; }
+  .dur-radio:hover { background: var(--paper-deep); }
+  .dur-radio input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
+  .dur-radio.selected { background: var(--wine-soft); }
+  .dur-radio .span { font-family: var(--font-display); font-weight: 500; font-size: 28px; line-height: 1; letter-spacing: -0.015em; color: var(--ink); }
+  .dur-radio.selected .span { color: var(--wine); }
+  .dur-radio .unit { font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
+  .dur-radio .class { font-family: var(--font-body); font-style: italic; font-size: 13px; color: var(--muted); margin-top: 8px; line-height: 1.4; }
+  @media (max-width: 760px) { .dur-grid { grid-template-columns: 1fr 1fr; } .dur-radio { border-right: none; border-bottom: 1px solid var(--rule); } .dur-radio:nth-child(2n) { border-right: none; } .dur-radio:last-child { border-bottom: none; } }
+
+  .partner-input { width: 100%; max-width: 480px; padding: 14px 16px; border: 1px solid var(--rule); background: var(--paper); font-family: var(--font-body); font-size: 16px; color: var(--ink); }
+  .partner-input:focus { outline: none; border-color: var(--wine); }
+  .partner-input::placeholder { font-style: italic; color: var(--subtle); }
+
+  .tier-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; border: 1px solid var(--ink); background: var(--paper); }
+  .tier-radio { padding: 18px 14px; border-right: 1px solid var(--rule); cursor: pointer; position: relative; transition: background 120ms ease; }
+  .tier-radio:last-child { border-right: none; }
+  .tier-radio:hover { background: var(--paper-deep); }
+  .tier-radio input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
+  .tier-radio.selected { background: var(--wine-soft); }
+  .tier-radio .tier-name { font-family: var(--font-display); font-size: 17px; font-weight: 500; color: var(--ink); margin-bottom: 6px; }
+  .tier-radio.selected .tier-name { color: var(--wine); }
+  .tier-radio .tier-price { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; }
+  .tier-radio .tier-help { font-family: var(--font-body); font-style: italic; font-size: 13px; color: var(--ink-soft); line-height: 1.45; }
+  @media (max-width: 760px) { .tier-grid { grid-template-columns: 1fr; } .tier-radio { border-right: none; border-bottom: 1px solid var(--rule); } .tier-radio:last-child { border-bottom: none; } }
+
+  .preview-envelope { margin: 30px 0 8px; }
+  .preview-envelope .file-ref { color: var(--muted); }
+
+  .compose-confirm { margin-top: 30px; padding: 24px 28px; border: 1px solid var(--ink); background: var(--paper-deep); }
+  .compose-confirm .label { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin-bottom: 10px; }
+  .compose-confirm p { font-family: var(--font-body); font-size: 16px; line-height: 1.6; color: var(--ink); margin: 0; }
+  .compose-confirm p strong { font-weight: 500; }
+  .compose-confirm .ref { font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--wine); letter-spacing: 0.06em; }
+
+  .compose-submit-row { margin-top: 30px; padding-top: 30px; border-top: 1px solid var(--ink); display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+  .compose-submit-row .save-draft { font-family: var(--font-ui); font-size: 14px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; background: none; border: none; }
+  .compose-submit-row .save-draft:hover { color: var(--wine); }
+  .compose-submit-row .right { margin-left: auto; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="decisions.html">Your decisions</a>
+      <a href="vote-today.html">Tonight's vote</a>
+      <a href="compose.html" class="active">Compose</a>
+      <a href="account.html">Account</a>
+      <a href="help.html">Help</a>
+    </div>
+    <div class="nav-cta">
+      <a href="account.html" class="btn-text">James G.</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content">
+  <form class="compose-shell" id="compose-form" onsubmit="return fileDecision(event)">
+
+    <div class="compose-bread">
+      <a href="decisions.html">← Your decisions</a>
+      <span style="margin: 0 10px;">·</span>
+      <span>COMPOSE · NEW DECISION</span>
+    </div>
+
+    <div class="compose-head">
+      <div class="eyebrow">OPEN A NEW DECISION</div>
+      <h1>Compose a <span class="ital">decision.</span></h1>
+      <p class="lede">Pose your question, choose a format and a duration, invite a partner if you have one, and we will file the decision. <strong>You will not be able to change the question, the format, or shorten the duration after filing.</strong> The integrity of the data depends on those staying fixed across the period.</p>
+    </div>
+
+    <div class="record-envelope preview-envelope">
+      <div class="record-header">
+        <span class="file-ref">FILE · № PENDING</span>
+        <span class="status-pill pending">Drafting</span>
+        <span class="date-stamp muted">15 MAY 2026 · NOT YET FILED</span>
+      </div>
+      <div class="envelope-body">
+        <div class="slip-question" id="preview-question" style="color: var(--muted); font-style: italic;">Your question will appear here as you write it.</div>
+      </div>
+    </div>
+
+    <div class="compose-field">
+      <div class="field-label">FIELD 01 · THE QUESTION <span class="req">·</span> REQUIRED</div>
+      <h2 class="field-title">What are you <span class="ital">deciding?</span></h2>
+      <p class="field-help">Phrase it as a single question that can be answered Yes or No. "Should we have a baby?" is better than "Family planning." The question is what you will see every evening of the period.</p>
+      <textarea class="q-input" id="q-input" name="question" placeholder="Should we …" maxlength="240" required oninput="updatePreview()"></textarea>
+    </div>
+
+    <div class="compose-field">
+      <div class="field-label">FIELD 02 · FORMAT <span class="req">·</span> REQUIRED</div>
+      <h2 class="field-title">How do you want to <span class="ital">answer</span> each evening?</h2>
+      <p class="field-help">The four-band Strong/Lean format is the default and what the synthesis on the final day is tuned for. The simpler binary Yes/No is available for questions where the strength of the answer is not the interesting axis.</p>
+      <select class="fmt-select" name="format" required>
+        <option value="strong_lean" selected>Strong Yes · Lean Yes · Lean No · Strong No (recommended)</option>
+        <option value="yes_no">Yes · No (binary)</option>
+        <option value="a_b">Option A · Option B (two named choices)</option>
+      </select>
+    </div>
+
+    <div class="compose-field">
+      <div class="field-label">FIELD 03 · DURATION <span class="req">·</span> REQUIRED</div>
+      <h2 class="field-title">How long should the period <span class="ital">run?</span></h2>
+      <p class="field-help">Match the duration to the weight of the question. A week suits a house with an offer deadline. A month suits most career and home decisions. Sixty days suits partnership questions. Ninety days suits reproductive and life-shape questions. Annual is reserved for the largest decisions only.</p>
+      <div class="dur-grid" role="radiogroup" aria-label="Duration of the decision">
+        <label class="dur-radio" onclick="selectDur(this)"><input type="radio" name="duration" value="7"><div class="span">7</div><div class="unit">Days</div><div class="class">Short · offer deadline class</div></label>
+        <label class="dur-radio selected" onclick="selectDur(this)"><input type="radio" name="duration" value="30" checked><div class="span">30</div><div class="unit">Days</div><div class="class">Most career & home decisions</div></label>
+        <label class="dur-radio" onclick="selectDur(this)"><input type="radio" name="duration" value="60"><div class="span">60</div><div class="unit">Days</div><div class="class">Partnership · marriage class</div></label>
+        <label class="dur-radio" onclick="selectDur(this)"><input type="radio" name="duration" value="90"><div class="span">90</div><div class="unit">Days</div><div class="class">Reproduction · life-shape class</div></label>
+        <label class="dur-radio" onclick="selectDur(this)"><input type="radio" name="duration" value="365"><div class="span">365</div><div class="unit">Days</div><div class="class">Annual · largest decisions only</div></label>
+      </div>
+    </div>
+
+    <div class="compose-field">
+      <div class="field-label">FIELD 04 · INVITED PARTNER <span class="req">·</span> OPTIONAL</div>
+      <h2 class="field-title">Running this <span class="ital">with someone?</span></h2>
+      <p class="field-help">Add a partner by email to run the decision jointly. Either of you may invite, and the invitation is single-use. Leave blank to run a Solo decision; you may add a partner later, but only before any votes have been cast.</p>
+      <input type="email" class="partner-input" name="partner_email" placeholder="partner@example.com">
+    </div>
+
+    <div class="compose-field">
+      <div class="field-label">FIELD 05 · TIER <span class="req">·</span> REQUIRED</div>
+      <h2 class="field-title">Which tier covers this <span class="ital">decision?</span></h2>
+      <p class="field-help">Solo Free files a single decision with your conviction chart and your own notes back. Solo Paid adds the AI-written verdict paragraph and the conversation prompt. Couple and Family run the decision with one or more partners. Consumer Annual is the single all-access plan; while active, any consumer decision is included with no per-decision charge.</p>
+      <div class="tier-grid" role="radiogroup" aria-label="Tier">
+        <label class="tier-radio selected" onclick="selectTier(this)"><input type="radio" name="tier" value="solo_free" checked><div class="tier-name">Solo Free</div><div class="tier-price">$0.00 USD</div><div class="tier-help">One decision · chart + your own notes only</div></label>
+        <label class="tier-radio" onclick="selectTier(this)"><input type="radio" name="tier" value="solo_paid"><div class="tier-name">Solo Paid</div><div class="tier-price">$14 USD</div><div class="tier-help">One decision · written verdict + prompt</div></label>
+        <label class="tier-radio" onclick="selectTier(this)"><input type="radio" name="tier" value="couple"><div class="tier-name">Couple</div><div class="tier-price">$25 USD</div><div class="tier-help">Two partners · full analysis · per decision</div></label>
+        <label class="tier-radio" onclick="selectTier(this)"><input type="radio" name="tier" value="family"><div class="tier-name">Family</div><div class="tier-price">$49 USD</div><div class="tier-help">Three to six participants · per decision</div></label>
+      </div>
+      <p class="field-help" style="margin-top: 12px;">On Consumer Annual ($99 USD / year)? Decisions are free for you while active. Manage on the <a href="pricing.html#annual">pricing page</a>.</p>
+    </div>
+
+    <div class="compose-confirm">
+      <div class="label">ON FILING, THIS DECISION WILL BE ASSIGNED</div>
+      <p><strong>File reference</strong> <span class="ref" id="next-ref">№ 0049-A</span> · concluding <strong id="end-date">14 June 2026</strong> at 22:00 NZST · sealed-read from day one until the reveal day. The reference and the dates are permanent once you file.</p>
+    </div>
+
+    <div class="compose-submit-row">
+      <button type="button" class="save-draft" onclick="saveDraft()">Save as draft</button>
+      <button type="submit" class="btn btn-large">FILE THIS DECISION</button>
+      <span class="right">By filing you agree to the <a href="terms.html" style="color: var(--wine);">terms</a></span>
+    </div>
+
+  </form>
+</main>
+
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Each evening, you cast one private vote on the same question, for a duration you set, with every vote sealed in the database until the final day. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The app</h5>
+        <a href="decisions.html">Your decisions</a>
+        <a href="vote-today.html">Tonight's vote</a>
+        <a href="compose.html">Compose</a>
+        <a href="account.html">Your account</a>
+        <a href="billing.html">Billing</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The product</h5>
+        <a href="method.html">The method</a>
+        <a href="why-time.html">Why time</a>
+          <a href="verdict.html">A real verdict</a>
+      </div>
+      <div class="colophon-col">
+        <h5>Support</h5>
+        <a href="help.html">Help</a>
+        <a href="contact.html">Contact</a>
+        <a href="faq.html">FAQ</a>
+        <a href="status.html">Status</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The fine print</h5>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="refunds.html">Refunds</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>© 2026 Counsel.day · USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+
+<a class="go-to-top" id="go-to-top" href="#top" aria-label="Go to top of page">
+  <svg viewBox="0 0 24 24" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+  <span class="label">Top</span>
+</a>
+
+<script>
+function selectDur(el) {
+  document.querySelectorAll('.dur-radio').forEach(function (r) { r.classList.remove('selected'); });
+  el.classList.add('selected');
+  var radio = el.querySelector('input[type="radio"]');
+  if (radio) radio.checked = true;
+  updateEndDate();
+}
+
+function selectTier(el) {
+  document.querySelectorAll('.tier-radio').forEach(function (r) { r.classList.remove('selected'); });
+  el.classList.add('selected');
+  var radio = el.querySelector('input[type="radio"]');
+  if (radio) radio.checked = true;
+}
+
+function updatePreview() {
+  var q = document.getElementById('q-input').value.trim();
+  var p = document.getElementById('preview-question');
+  if (!q) {
+    p.textContent = 'Your question will appear here as you write it.';
+    p.style.color = 'var(--muted)';
+    p.style.fontStyle = 'italic';
+  } else {
+    p.textContent = q;
+    p.style.color = 'var(--ink)';
+    p.style.fontStyle = 'normal';
+  }
+}
+
+function updateEndDate() {
+  var checked = document.querySelector('input[name="duration"]:checked');
+  if (!checked) return;
+  var days = parseInt(checked.value, 10);
+  var d = new Date(2026, 4, 15);
+  d.setDate(d.getDate() + days);
+  var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  var label = d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+  document.getElementById('end-date').textContent = label;
+}
+
+/* Real submit: POST /api/compose, then (for paid tiers) POST /api/checkout/create
+   and redirect to Stripe. Auth is enforced upstream by Caddy forward_auth, so
+   reaching this page already implies a session. A 401 here only happens if the
+   session expired mid-flow. */
+function fileDecision(e) {
+  e.preventDefault();
+  var form = document.getElementById('compose-form');
+  var submitBtn = form.querySelector('button[type="submit"]');
+  var originalLabel = submitBtn.textContent;
+  var q = (document.getElementById('q-input').value || '').trim();
+  if (q.length < 10) {
+    alert('Please write at least a complete-sentence question (10 characters or more) before filing.');
+    return false;
+  }
+  var tier   = (form.querySelector('input[name="tier"]:checked')   || {}).value;
+  var format = (form.querySelector('select[name="format"]')        || {}).value;
+  var dur    = parseInt(((form.querySelector('input[name="duration"]:checked') || {}).value || '30'), 10);
+  var partnerEmail = ((form.querySelector('input[name="partner_email"]') || {}).value || '').trim();
+
+  var body = {
+    question: q,
+    format: format,
+    duration_days: dur,
+    tier: tier,
+  };
+  if ((tier === 'couple' || tier === 'family') && partnerEmail) {
+    body.participants = [{ display_name: partnerEmail.split('@')[0], invite_email: partnerEmail }];
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Filing' + String.fromCharCode(0x2026);
+
+  fetch('/api/compose', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body)
+  })
+  .then(function (r) {
+    if (r.status === 401) { window.location.href = '/signin?next=' + encodeURIComponent('/compose.html'); return null; }
+    return r.json().then(function (j) { return { status: r.status, body: j }; });
+  })
+  .then(function (res) {
+    if (!res) return;
+    if (res.status !== 200 || !res.body.ok) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalLabel;
+      var msg = (res.body && (res.body.message || JSON.stringify(res.body.field_errors || {}))) || 'Could not file the decision. Please try again.';
+      alert(msg);
+      return;
+    }
+    if (res.body.checkout_required) {
+      submitBtn.textContent = 'Opening checkout' + String.fromCharCode(0x2026);
+      return fetch('/api/checkout/create', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ sku: tier, decision_id: res.body.decision_id })
+      })
+      .then(function (r2) { return r2.json().then(function (j) { return { status: r2.status, body: j }; }); })
+      .then(function (chk) {
+        if (chk.status === 200 && chk.body && chk.body.url) {
+          window.location.href = chk.body.url;
+        } else {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalLabel;
+          alert((chk.body && chk.body.message) || 'Decision filed but checkout failed. Find it on Your decisions.');
+          window.location.href = '/decisions.html';
+        }
+      });
+    } else {
+      window.location.href = '/decisions.html?just_filed=' + encodeURIComponent(res.body.decision_id);
+    }
+  })
+  .catch(function () {
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalLabel;
+    alert('Network error. Please try again.');
+  });
+  return false;
+}
+
+function saveDraft() {
+  /* TODO: POST /api/decisions/draft when the endpoint exists.
+     For now, just bounce to /decisions and let the user re-open the form. */
+  window.location.href = '/decisions.html';
+}
+
+(function () {
+  updateEndDate();
+  /* Pre-select tier from ?tier=<sku> when arriving from /pricing. */
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var t = params.get('tier');
+    if (t) {
+      var radio = document.querySelector('input[name="tier"][value="' + t.replace(/[^a-z_]/g, '') + '"]');
+      if (radio) {
+        var label = radio.closest('.tier-radio');
+        if (label) {
+          document.querySelectorAll('.tier-radio').forEach(function (r) { r.classList.remove('selected'); });
+          label.classList.add('selected');
+          radio.checked = true;
+        }
+      }
+    }
+  } catch (_) {}
+  var top = document.getElementById('go-to-top');
+  if (top) {
+    function update() { if (window.scrollY > 600) { top.classList.add('visible'); } else { top.classList.remove('visible'); } }
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+    top.addEventListener('click', function (e) { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  }
+})();
+</script>
+<script src="ga4.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<!-- Order is load-bearing: Consent Mode v2 defaults MUST be set BEFORE -->
+<!-- GTM and gtag load, or the first pageview ships before user choice. -->
+<!-- This block is injected into every public HTML <head> by             -->
+<!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
+
+<!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':         'denied',
+    'ad_user_data':       'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage':  'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage':   'granted',
+    'wait_for_update':    500
+  });
+  // Honour Global Privacy Control + Do-Not-Track before any tag fires.
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':         'denied',
+      'ad_user_data':       'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage':  'denied'
+    });
+  }
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', {
+    'anonymize_ip': true,
+    'allow_google_signals': false,
+    'allow_ad_personalization_signals': false
+  });
+</script>
+<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
+
+<title>The data architecture, end to end · Counsel.day Engineering</title>
+<meta name="description" content="The full data architecture of Counsel.day. The Postgres schema, the encryption boundary, what reads what, the backup strategy, the retention policy, and what your data export looks like. The schema is publishable because the privacy is enforced underneath it.">
+<meta name="author" content="James Graham, founder of Counsel.day">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://counsel.day/engineering/the-data-architecture">
+<link rel="alternate" hreflang="en" href="https://counsel.day/engineering/the-data-architecture">
+<link rel="alternate" hreflang="x-default" href="https://counsel.day/engineering/the-data-architecture">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Counsel.day">
+<meta property="og:title" content="The data architecture, end to end · Counsel.day Engineering">
+<meta property="og:description" content="The full Postgres schema, encryption boundary, retention, and data-export shape.">
+<meta property="og:url" content="https://counsel.day/engineering/the-data-architecture">
+<meta property="og:image" content="https://counsel.day/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The data architecture, end to end">
+<meta name="twitter:description" content="The full Postgres schema, encryption boundary, retention, and data-export shape.">
+<meta name="twitter:image" content="https://counsel.day/og-image.png">
+<meta property="article:modified_time" content="2026-05-15T19:00:00+12:00">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "The data architecture, end to end",
+  "datePublished": "2026-05-15",
+  "author": { "@type": "Person", "name": "James Graham" },
+  "publisher": { "@type": "Organization", "name": "Counsel.day" }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" as="style">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"></noscript>
+<link rel="stylesheet" href="../styles-i8.css">
+<style>
+.method-stage-body pre {
+  background: var(--ink); color: var(--paper-deep);
+  padding: 22px 26px;
+  font-family: var(--font-mono); font-size: 13.5px; line-height: 1.65;
+  overflow-x: auto; margin: 22px 0;
+  border-left: 3px solid var(--wine);
+}
+.method-stage-body pre code { background: transparent; padding: 0; color: var(--paper-deep); border: none; font-family: var(--font-mono); font-size: 13.5px; }
+.method-stage-body code {
+  font-family: var(--font-mono); font-size: 14px;
+  background: var(--paper-deep);
+  padding: 2px 7px; color: var(--wine-deep);
+  border: 1px solid var(--rule);
+}
+.method-stage-body ul { font-family: var(--font-body); font-size: 18px; line-height: 1.7; color: var(--ink-soft); padding-left: 22px; margin: 0 0 22px; }
+.method-stage-body li { margin-bottom: 8px; }
+.method-stage-body li strong { font-weight: 500; color: var(--ink); }
+.duration-row.tables { grid-template-columns: 220px 1.4fr 2fr 140px; }
+.duration-cell .tname {
+  font-family: var(--font-mono); font-size: 13px; color: var(--wine-deep);
+  letter-spacing: 0.04em;
+}
+.duration-cell .ttype {
+  font-family: var(--font-display); font-size: 17px; font-weight: 500; color: var(--ink); line-height: 1.3;
+}
+.duration-cell .tnote {
+  font-family: var(--font-body); font-size: 15px; line-height: 1.55; color: var(--ink-soft);
+}
+.duration-cell .tseal {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--wine); font-weight: 500;
+}
+.duration-cell .tseal.no { color: var(--muted); }
+@media (max-width: 760px) {
+  .duration-row.tables { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="../index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="../method.html">The method</a>
+      <a href="../why-time.html">Why time</a>
+      <a href="../distinction.html">The distinction</a>
+      <a href="../verdict.html">A real verdict</a>
+      <a href="../family.html">For families</a>
+      <a href="../compare.html">Compare</a>
+      <a href="../pricing.html">Pricing</a>
+      <a href="../faq.html">FAQ</a>
+    </div>
+    <div class="nav-cta">
+      <a href="../account.html" class="btn-text">Sign in</a>
+      <a href="../signup.html" class="btn">Begin a decision</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content">
+  <div class="method-page-inner">
+
+    <div class="method-page-breadcrumb">
+      <a href="index.html">← Engineering</a>
+      <span>·</span>
+      <span>The data architecture</span>
+    </div>
+
+    <div class="method-page-head">
+      <div class="method-page-eyebrow">DATA, END TO END</div>
+      <h1 class="method-page-title">The schema is publishable because the privacy is enforced <span class="ital">underneath it.</span></h1>
+      <p class="method-page-lede">From the moment a user composes a decision to the moment the verdict is in their inbox: what tables exist, what tables can read each other, what the encryption boundary looks like, where the backups go, what the retention policy is, and what a data-export looks like. <strong>The schema is publishable</strong> because the privacy is enforced underneath it, not by hiding the schema.</p>
+      <div class="method-page-meta">
+        <div class="item"><span>Reading time</span><span class="val">14 minutes</span></div>
+        <div class="item"><span>Database</span><span class="val">PostgreSQL 16, single-tenant cluster</span></div>
+        <div class="item"><span>Secrets</span><span class="val wine">Infisical (EU region)</span></div>
+      </div>
+    </div>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">THE SCHEMA OVERVIEW</div>
+        <h2 class="method-stage-title">Eight tables, one read <span class="ital">path.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>The production schema is small. Eight tables hold everything the product needs: accounts, decisions, participants, the day-by-day votes and notes, the per-decision encryption keys, the computed verdicts, and the audit log. The table below names each, says whether it carries sealed data, and notes the role allowed to read it before verdict day.</p>
+      </div>
+
+      <div class="duration-table">
+        <div class="duration-row head">
+          <div class="duration-cell">Table</div>
+          <div class="duration-cell">Holds</div>
+          <div class="duration-cell">Notes</div>
+          <div class="duration-cell">Sealed</div>
+        </div>
+        <div class="duration-row tables">
+          <div class="duration-cell"><div class="tname">accounts</div><div class="ttype">User accounts</div></div>
+          <div class="duration-cell"><div class="ttype">Email, display name, plan tier</div></div>
+          <div class="duration-cell"><div class="tnote">No password column · sign-in is magic-link only, via Brevo.</div></div>
+          <div class="duration-cell"><div class="tseal no">No</div></div>
+        </div>
+        <div class="duration-row tables">
+          <div class="duration-cell"><div class="tname">decisions</div><div class="ttype">Decisions</div></div>
+          <div class="duration-cell"><div class="ttype">Question, duration, mode, status</div></div>
+          <div class="duration-cell"><div class="tnote">Question text is encrypted with the per-decision key; metadata (duration, mode) is plaintext.</div></div>
+          <div class="duration-cell"><div class="tseal">Partly</div></div>
+        </div>
+        <div class="duration-row tables">
+          <div class="duration-cell"><div class="tname">participants</div><div class="ttype">Decision membership</div></div>
+          <div class="duration-cell"><div class="ttype">Account id, decision id, role</div></div>
+          <div class="duration-cell"><div class="tnote">Roles: opener, partner, family-member. No sealed payload.</div></div>
+          <div class="duration-cell"><div class="tseal no">No</div></div>
+        </div>
+        <div class="duration-row tables">
+          <div class="duration-cell"><div class="tname">votes</div><div class="ttype">Daily votes</div></div>
+          <div class="duration-cell"><div class="ttype">Lean / Yes / No level, day index</div></div>
+          <div class="duration-cell"><div class="tnote">Level encrypted with the decision key. Day index plaintext, used for the partner indicator.</div></div>
+          <div class="duration-cell"><div class="tseal">Yes</div></div>
+        </div>
+        <div class="duration-row tables">
+          <div class="duration-cell"><div class="tname">vote_notes</div><div class="ttype">Why the vote was that level</div></div>
+          <div class="duration-cell"><div class="ttype">Free-text note per vote</div></div>
+          <div class="duration-cell"><div class="tnote">Encrypted with the decision key. Maximum 1,200 characters per note.</div></div>
+          <div class="duration-cell"><div class="tseal">Yes</div></div>
+        </div>
+        <div class="duration-row tables">
+          <div class="duration-cell"><div class="tname">verdicts</div><div class="ttype">Computed verdicts</div></div>
+          <div class="duration-cell"><div class="ttype">Trajectory, themes, synthesis</div></div>
+          <div class="duration-cell"><div class="tnote">Written by the verdict worker after the verdict day; readable to participants only.</div></div>
+          <div class="duration-cell"><div class="tseal">Yes, until verdict day</div></div>
+        </div>
+        <div class="duration-row tables">
+          <div class="duration-cell"><div class="tname">decision_keys</div><div class="ttype">Pointer to Infisical key id</div></div>
+          <div class="duration-cell"><div class="ttype">Per-decision key reference</div></div>
+          <div class="duration-cell"><div class="tnote">No key material in Postgres; only the Infisical key id and rotation history.</div></div>
+          <div class="duration-cell"><div class="tseal no">No</div></div>
+        </div>
+        <div class="duration-row tables">
+          <div class="duration-cell"><div class="tname">audit_log</div><div class="ttype">Operator and read events</div></div>
+          <div class="duration-cell"><div class="ttype">Append-only, separate cluster</div></div>
+          <div class="duration-cell"><div class="tnote">Two-year retention. Surfaced to users for their own decisions on data-export request.</div></div>
+          <div class="duration-cell"><div class="tseal no">No</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">THE ENCRYPTION BOUNDARY</div>
+        <h2 class="method-stage-title">Per-decision keys, held in <span class="ital">Infisical.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>Each decision is encrypted with its own symmetric key, generated when the decision is opened and stored in Infisical (EU region) under a namespace keyed by the decision id. Postgres holds only the Infisical reference, never the key material itself. The verdict worker fetches the key at job time, decrypts the rows it needs to compute the verdict, and discards the key from memory at the end of the job.</p>
+        <p>Keys are rotated annually on a rolling basis. The rotation re-encrypts the rows in place under a new key; the old key is retained in Infisical for 30 days against the possibility of an in-flight backup restore, then destroyed. The rotation history is auditable; the keys themselves are not exportable from Infisical except through a break-glass procedure that requires two named operators and writes a record to the audit log of a different organisation account.</p>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">WHAT READS WHAT</div>
+        <h2 class="method-stage-title">Three roles, three <span class="ital">grant sets.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>The application connects to Postgres under three distinct roles. The grants are kept narrow enough that the wrong role on the wrong path returns an error before the row-level policy is consulted.</p>
+        <ul>
+          <li><strong>app_vote</strong> · INSERT on <code>votes</code> and <code>vote_notes</code>, scoped to today's date by a trigger that rejects historical rows. No SELECT on sealed columns. This is what the evening-vote endpoint uses.</li>
+          <li><strong>app_read</strong> · SELECT on <code>verdicts</code> through <code>read_verdict</code> only, with the verdict-open guard. SELECT on <code>decisions</code>, <code>participants</code>, <code>accounts</code> for the participant's own rows. This is what the verdict-page handler uses.</li>
+          <li><strong>app_verdict_worker</strong> · SELECT on the sealed tables, scoped at job time to a single decision id passed by the orchestrator. Runs once per decision, at verdict opening, then the connection is torn down.</li>
+        </ul>
+        <p>The admin portal runs under a fourth role with no grants on sealed columns at all, as described in the privacy piece.</p>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">BACKUPS</div>
+        <h2 class="method-stage-title">Encrypted at rest, 30 days, then <span class="ital">gone.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>The production database is backed up every six hours, with point-in-time recovery (PITR) WAL shipping in between. Backups are encrypted at rest with a separate Infisical-held key, kept on object storage in the same EU region as the live cluster, and retained for 30 days. After 30 days the backup is destroyed; the destruction is logged.</p>
+        <p>Because each decision's row-level data is encrypted with its per-decision key, a stolen backup file is not by itself a leak: an attacker would also need the corresponding Infisical keys, which are stored on a separate provider with separate access control. The two systems are designed so that compromising one does not produce a readable dataset.</p>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">RETENTION AND DELETION</div>
+        <h2 class="method-stage-title">Delete-on-request honoured within 24 hours, backups within <span class="ital">30 days.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>A user can request deletion from the account page or by email to <a href="mailto:privacy@counsel.day">privacy@counsel.day</a>. Deletion is honoured within 24 hours of the request. The deletion runs in two phases.</p>
+        <p><strong>Phase one, immediate</strong>: the user's rows in <code>accounts</code>, <code>participants</code>, <code>votes</code>, <code>vote_notes</code>, <code>verdicts</code>, and <code>decisions</code> (where they are the sole participant) are removed from the live database. The corresponding Infisical key is destroyed. From this point the data is unrecoverable from the live system, even by Counsel.day staff.</p>
+        <p><strong>Phase two, within 30 days</strong>: the rolling backup retention window expires, and the encrypted-backup copies of those rows pass out of existence as the backups age out. We do not selectively scrub backups · re-encrypting a backup would defeat the encryption-at-rest guarantee · so we wait the 30 days and let retention finish the job. The audit log retains a record that the deletion took place, but contains none of the deleted content.</p>
+        <p>If a couple decides together, the deletion is initiated by either participant. If only one participant requests deletion, their personal data is removed but the decision metadata and the other participant's rows are retained at the other participant's discretion. This is documented in the terms and the privacy page.</p>
+      </div>
+    </section>
+
+    <section class="method-stage">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">DATA EXPORT</div>
+        <h2 class="method-stage-title">What the JSON looks <span class="ital">like.</span></h2>
+      </div>
+      <div class="method-stage-body">
+        <p>A user can request a full data export from the account page. The export is delivered as a single JSON file, signed and timestamped, containing every row scoped to that user across the schema. The shape is stable enough that we can publish a sketch of it without committing to a particular customer's contents.</p>
+<pre><code>{
+  "exported_at": "2026-05-15T19:00:00+12:00",
+  "account": {
+    "id": "acc_01H...",
+    "email": "you@example.com",
+    "display_name": "...",
+    "plan": "couple",
+    "created_at": "2026-02-10T..."
+  },
+  "decisions": [
+    {
+      "id": "dec_01H...",
+      "question": "Should we move to Christchurch?",
+      "duration_days": 30,
+      "mode": "couple",
+      "opened_at": "2026-04-12T...",
+      "verdict_opened_at": "2026-05-12T...",
+      "votes": [
+        { "day": 1, "level": "Lean Yes", "note": "...", "ts": "..." },
+        { "day": 2, "level": "Strong Yes", "note": "...", "ts": "..." }
+      ],
+      "verdict": {
+        "trajectory": [ ... ],
+        "agreement_rate": 0.72,
+        "divergence_index": 0.18,
+        "themes": [ ... ],
+        "synthesis": "..."
+      }
+    }
+  ],
+  "audit_events": [
+    { "ts": "...", "kind": "verdict_read", "decision_id": "dec_01H..." }
+  ]
+}</code></pre>
+        <p>The export contains only the requesting user's data. A partner's votes are never included in the requesting user's export, even after the verdict day; each participant must export their own.</p>
+      </div>
+      <p class="method-stage-aside"><a href="the-math-behind-the-verdict.html">Read next · The math behind the verdict →</a></p>
+    </section>
+
+  </div>
+</main>
+
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The product</h5>
+        <a href="../method.html">The method</a>
+        <a href="../why-time.html">Why time</a>
+        <a href="../distinction.html">The distinction</a>
+          <a href="../verdict.html">A real verdict</a>
+        <a href="../family.html">For families</a>
+        <a href="../compare.html">Compare</a>
+        <a href="../signup.html">Start free</a>
+        <a href="../pricing.html">The editions</a>
+      </div>
+      <div class="colophon-col">
+        <h5>For practitioners</h5>
+        <a href="../therapists.html">For therapists</a>
+        <a href="../counsellors.html">For counsellors</a>
+        <a href="index.html">Engineering</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The company</h5>
+          <a href="../about/james-graham.html">James Graham · founder</a>
+        <a href="../help.html">Help</a>
+        <a href="../contact.html">Contact</a>
+        <a href="../security.html">Security</a>
+        <a href="../accessibility.html">Accessibility</a>
+        <a href="../press.html">Press</a>
+        <a href="../status.html">Status</a>
+        <a href="../changelog.html">Changelog</a>
+        <a href="../journal/">The Journal</a>
+        <a href="../faq.html">FAQ</a>
+        <a href="../account.html">Your account</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The fine print</h5>
+        <a href="../privacy.html">Privacy</a>
+        <a href="../terms.html">Terms</a>
+        <a href="../cookies.html">Cookies</a>
+        <a href="../sub-processors.html">Sub-processors</a>
+        <a href="../refunds.html">Refunds</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>© 2026 Counsel.day · USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+
+<a class="go-to-top" id="go-to-top" href="#top" aria-label="Go to top of page">
+  <svg viewBox="0 0 24 24" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+  <span class="label">Top</span>
+</a>
+<script>
+(function () {
+  var btn = document.getElementById('go-to-top');
+  if (!btn) return;
+  function update() { if (window.scrollY > 600) { btn.classList.add('visible'); } else { btn.classList.remove('visible'); } }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+  btn.addEventListener('click', function (e) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
+<script src="../ga4.js" defer></script>
+</body>
+</html>

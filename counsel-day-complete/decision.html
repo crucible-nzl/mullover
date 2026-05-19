@@ -325,6 +325,34 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <a href="help.html" style="font-family: var(--font-ui); font-size: 14px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; align-self: center; margin-left: auto;">Help with this decision</a>
     </div>
 
+    <!-- Owner controls · Edit · Restart · Reinvite. Visible only when /api/me + /api/decision show the user is the owner. -->
+    <section class="method-stage" id="cd-owner-controls" style="display: none; margin-top: 36px;">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">Owner controls</div>
+        <h2 class="method-stage-title">Edit, restart, or <span class="ital">reinvite.</span></h2>
+      </div>
+      <div class="method-stage-body" style="margin-bottom: 8px;">
+        <p>You opened this decision, so you can adjust it. Editing the wording is allowed until the verdict day. Restart cancels this decision and clones it into a fresh one at no charge. Reinvite resends the email to any partner who hasn't yet accepted.</p>
+      </div>
+      <div id="cd-owner-msg" role="alert" aria-live="polite" style="display: none; padding: 12px 16px; margin-bottom: 14px; font-family: var(--font-body); font-size: 14px; line-height: 1.5; max-width: 760px;"></div>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <button type="button" id="cd-owner-edit" class="btn btn-ghost" style="padding: 11px 22px; font-size: 14px;">Edit wording</button>
+        <button type="button" id="cd-owner-reinvite" class="btn btn-ghost" style="padding: 11px 22px; font-size: 14px;">Resend invites</button>
+        <button type="button" id="cd-owner-restart" class="btn-danger" style="padding: 11px 22px; font-size: 14px;">Restart this decision</button>
+      </div>
+
+      <!-- Edit form (revealed by Edit wording button) -->
+      <div id="cd-edit-panel" style="display: none; margin-top: 22px; padding: 18px 22px; background: var(--paper-deep, #fafafa); border-left: 3px solid var(--wine); max-width: 760px;">
+        <div style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine); margin-bottom: 10px;">EDIT WORDING</div>
+        <p style="font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: var(--ink-soft); margin: 0 0 12px;">Rewording is audit-logged · we keep both the old and the new text for restoration on request.</p>
+        <textarea id="cd-edit-input" rows="3" maxlength="280" minlength="8" style="font-family: var(--font-body); font-size: 16px; line-height: 1.45; padding: 11px 12px; border: 1px solid var(--ink); background: var(--paper); color: var(--ink); border-radius: 0; width: 100%; resize: vertical;"></textarea>
+        <div style="display: flex; gap: 10px; margin-top: 12px;">
+          <button type="button" id="cd-edit-save" class="btn" style="padding: 10px 20px; font-size: 14px;">Save wording</button>
+          <button type="button" id="cd-edit-cancel" class="btn btn-ghost" style="padding: 10px 20px; font-size: 14px;">Cancel</button>
+        </div>
+      </div>
+    </section>
+
   </div>
 </main>
 
@@ -638,12 +666,113 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         '<span class="' + statusCls + '">' + escapeHtml(status) + '</span>';
         partPanel.insertBefore(row, staticTail[0]);
       });
+
+      // Owner-controls panel listens for this event (T7)
+      document.dispatchEvent(new CustomEvent('cd:decision-loaded', { detail: { decision: d } }));
     })
     .catch(function (e) {
       if (e && e.message === 'redirect') return;
       showErr('Network error. Refresh to try again.');
       envEl.style.display = 'none';
     });
+})();
+</script>
+<script>
+// Owner controls (T7) · edit, restart, reinvite. Listens for the
+// decision-loaded event we dispatch on the document after hydration.
+(function () {
+  var decisionId = new URLSearchParams(location.search).get('id');
+  var ownerSection = document.getElementById('cd-owner-controls');
+  if (!ownerSection || !decisionId) return;
+
+  document.addEventListener('cd:decision-loaded', function (e) {
+    var d = (e && e.detail && e.detail.decision) || null;
+    if (!d) return;
+    var me = (d.participants || []).filter(function (p) { return p.is_you; })[0];
+    if (!me || !me.is_owner) return;
+    // No editing once the verdict is generating / completed / cancelled / refunded
+    if (['verdict_generating', 'completed', 'cancelled', 'refunded'].indexOf(d.status) !== -1) return;
+    ownerSection.style.display = '';
+  });
+
+  var msgEl = document.getElementById('cd-owner-msg');
+  function showMsg(kind, text) {
+    msgEl.style.display = 'block';
+    msgEl.textContent = text;
+    if (kind === 'success') {
+      msgEl.style.background = 'var(--wine-soft)';
+      msgEl.style.borderLeft = '3px solid var(--wine)';
+      msgEl.style.color = 'var(--ink)';
+    } else {
+      msgEl.style.background = '#fdecea';
+      msgEl.style.borderLeft = '3px solid #c0392b';
+      msgEl.style.color = '#6b1e16';
+    }
+  }
+
+  // Edit wording
+  var editBtn = document.getElementById('cd-owner-edit');
+  var editPanel = document.getElementById('cd-edit-panel');
+  var editInput = document.getElementById('cd-edit-input');
+  var editSave = document.getElementById('cd-edit-save');
+  var editCancel = document.getElementById('cd-edit-cancel');
+
+  editBtn.addEventListener('click', function () {
+    var current = document.getElementById('cd-env-question');
+    editInput.value = current ? current.textContent.trim() : '';
+    editPanel.style.display = 'block';
+    editInput.focus();
+  });
+  editCancel.addEventListener('click', function () { editPanel.style.display = 'none'; });
+  editSave.addEventListener('click', function () {
+    var q = editInput.value.trim();
+    if (q.length < 8 || q.length > 280) { showMsg('error', 'Please write between 8 and 280 characters.'); return; }
+    editSave.disabled = true; editSave.textContent = 'Saving…';
+    fetch('/api/decision/edit', { method: 'PATCH', credentials: 'include', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ decision_id: decisionId, question: q }) })
+      .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+      .then(function (res) {
+        if (res.status === 200) {
+          showMsg('success', res.body.message || 'Question updated.');
+          editPanel.style.display = 'none';
+          setTimeout(function () { window.location.reload(); }, 1200);
+        } else {
+          showMsg('error', (res.body && res.body.message) || 'Could not save.');
+        }
+      })
+      .catch(function () { showMsg('error', 'Network error.'); })
+      .finally(function () { editSave.disabled = false; editSave.textContent = 'Save wording'; });
+  });
+
+  // Restart
+  document.getElementById('cd-owner-restart').addEventListener('click', function () {
+    var ok = window.confirm('Restart this decision?\n\nThe current decision will be cancelled and a fresh copy with the same question, tier, and duration will start tonight. No charge.\n\nAny votes already cast on the current decision will be discarded.');
+    if (!ok) return;
+    fetch('/api/decision/restart', { method: 'POST', credentials: 'include', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ decision_id: decisionId }) })
+      .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+      .then(function (res) {
+        if (res.status === 200 && res.body.new_decision_id) {
+          showMsg('success', 'Restarted · taking you to the new decision.');
+          setTimeout(function () { window.location.href = '/decision.html?id=' + encodeURIComponent(res.body.new_decision_id); }, 1200);
+        } else {
+          showMsg('error', (res.body && res.body.message) || 'Could not restart.');
+        }
+      })
+      .catch(function () { showMsg('error', 'Network error.'); });
+  });
+
+  // Reinvite
+  document.getElementById('cd-owner-reinvite').addEventListener('click', function () {
+    fetch('/api/decision/reinvite', { method: 'POST', credentials: 'include', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ decision_id: decisionId }) })
+      .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+      .then(function (res) {
+        if (res.status === 200) {
+          showMsg('success', res.body.message || 'Invites resent.');
+        } else {
+          showMsg('error', (res.body && res.body.message) || 'No pending invites to resend.');
+        }
+      })
+      .catch(function () { showMsg('error', 'Network error.'); });
+  });
 })();
 </script>
 <script src="pwa.js" defer></script>

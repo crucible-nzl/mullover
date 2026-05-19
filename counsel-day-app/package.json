@@ -25,13 +25,15 @@
     "dotenv": "16.4.7",
     "stripe": "17.5.0",
     "@anthropic-ai/sdk": "0.96.0",
-    "@sentry/nextjs": "9.45.0"
+    "@sentry/nextjs": "9.45.0",
+    "web-push": "3.6.7"
   },
   "devDependencies": {
     "typescript": "5.7.2",
     "@types/node": "22.10.1",
     "@types/react": "19.0.1",
     "@types/react-dom": "19.0.2",
+    "@types/web-push": "3.6.4",
     "drizzle-kit": "0.31.10",
     "tsx": "4.20.6"
   },

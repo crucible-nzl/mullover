@@ -301,6 +301,31 @@ export const savedContacts = pgTable(
 );
 
 // ---------------------------------------------------------------------------
+// PUSH SUBSCRIPTIONS · Web Push endpoint per (user, browser/device). The
+// p256dh + auth keys are the asymmetric pieces the push library needs to
+// encrypt payloads to that specific subscription.
+// ---------------------------------------------------------------------------
+export const pushSubscriptions = pgTable(
+  'push_subscriptions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    endpoint: text('endpoint').notNull(),
+    p256dh: text('p256dh').notNull(),
+    auth: text('auth').notNull(),
+    userAgent: text('user_agent'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    lastSeenAt: timestamp('last_seen_at', { withTimezone: true }).notNull().defaultNow(),
+    lastErrorAt: timestamp('last_error_at', { withTimezone: true }),
+    lastError: text('last_error'),
+  },
+  (t) => ({
+    userIdx: index('push_subscriptions_user_idx').on(t.userId),
+    userEndpointUnique: uniqueIndex('push_subscriptions_user_endpoint_unique').on(t.userId, t.endpoint),
+  })
+);
+
+// ---------------------------------------------------------------------------
 // STRIPE WEBHOOK EVENTS · idempotency cache. event_id is the Stripe-assigned
 // `evt_…` value; PK conflict on re-delivery short-circuits the handler.
 // ---------------------------------------------------------------------------

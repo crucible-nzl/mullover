@@ -357,6 +357,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="method-stage-eyebrow">Notifications</div>
         <h2 class="method-stage-title">What we tell you, and <span class="ital">when.</span></h2>
       </div>
+
+      <div class="acct-form-row">
+        <div class="label">Install Counsel.day on this device
+          <span class="hint">Adds it to your home screen so it opens like an app. iOS users: tap Share → Add to Home Screen.</span>
+        </div>
+        <div class="value">
+          <button type="button" data-cd-install hidden class="btn btn-ghost" style="padding: 11px 22px; font-size: 14px;">Install app</button>
+          <span id="cd-install-fallback" class="mono" style="font-size: 12px; color: var(--muted);">Available when your browser supports it · iOS uses Share → Add to Home Screen.</span>
+        </div>
+      </div>
+
+      <div class="acct-form-row">
+        <div class="label">Push notifications
+          <span class="hint">Get the evening prompt and verdict reveal as a phone push instead of (or in addition to) email. Requires installing the app first on iOS.</span>
+        </div>
+        <div class="value">
+          <div id="cd-push-status" class="mono" style="font-size: 12px; color: var(--muted); margin-bottom: 8px;">Checking…</div>
+          <button type="button" id="cd-push-enable" class="btn" style="padding: 11px 22px; font-size: 14px; display: none;">Enable push</button>
+          <button type="button" id="cd-push-disable" class="btn btn-ghost" style="padding: 11px 22px; font-size: 14px; display: none;">Disable push</button>
+          <div id="cd-push-msg" role="alert" aria-live="polite" style="display: none; margin-top: 10px; padding: 10px 14px; font-family: var(--font-body); font-size: 13px; line-height: 1.5;"></div>
+        </div>
+      </div>
       <div class="acct-form-row">
         <div class="label">Vote reminder</div>
         <div class="value">
@@ -775,6 +797,84 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     });
   }
   load();
+})();
+</script>
+<script src="pwa.js" defer></script>
+<script>
+// Push notification UI · talks to window.CounselDayPush (provided by pwa.js).
+(function () {
+  var statusEl = document.getElementById('cd-push-status');
+  var enableBtn = document.getElementById('cd-push-enable');
+  var disableBtn = document.getElementById('cd-push-disable');
+  var msgEl = document.getElementById('cd-push-msg');
+  if (!statusEl || !enableBtn || !disableBtn) return;
+
+  function showMsg(kind, text) {
+    msgEl.style.display = 'block';
+    msgEl.textContent = text;
+    if (kind === 'success') {
+      msgEl.style.background = 'var(--wine-soft)';
+      msgEl.style.borderLeft = '3px solid var(--wine)';
+      msgEl.style.color = 'var(--ink)';
+    } else {
+      msgEl.style.background = '#fdecea';
+      msgEl.style.borderLeft = '3px solid #c0392b';
+      msgEl.style.color = '#6b1e16';
+    }
+  }
+
+  function refresh() {
+    if (!window.CounselDayPush) {
+      statusEl.textContent = 'Push not supported on this browser.';
+      return;
+    }
+    window.CounselDayPush.status().then(function (s) {
+      if (!s.supported) {
+        statusEl.textContent = 'Push not supported on this browser.';
+        return;
+      }
+      if (s.permission === 'denied') {
+        statusEl.textContent = 'Permission denied · enable notifications in browser settings, then revisit.';
+        return;
+      }
+      if (s.subscribed) {
+        statusEl.textContent = 'Push enabled · this device';
+        disableBtn.style.display = '';
+        enableBtn.style.display = 'none';
+      } else {
+        statusEl.textContent = 'Push is off';
+        enableBtn.style.display = '';
+        disableBtn.style.display = 'none';
+      }
+    });
+  }
+
+  enableBtn.addEventListener('click', function () {
+    enableBtn.disabled = true; enableBtn.textContent = 'Enabling' + String.fromCharCode(0x2026);
+    window.CounselDayPush.enable().then(function () {
+      showMsg('success', 'Push enabled on this device.');
+      refresh();
+    }).catch(function (err) {
+      showMsg('error', err && err.message ? err.message : 'Could not enable push.');
+    }).finally(function () {
+      enableBtn.disabled = false; enableBtn.textContent = 'Enable push';
+    });
+  });
+
+  disableBtn.addEventListener('click', function () {
+    disableBtn.disabled = true; disableBtn.textContent = 'Disabling' + String.fromCharCode(0x2026);
+    window.CounselDayPush.disable().then(function () {
+      showMsg('success', 'Push disabled on this device.');
+      refresh();
+    }).catch(function (err) {
+      showMsg('error', err && err.message ? err.message : 'Could not disable push.');
+    }).finally(function () {
+      disableBtn.disabled = false; disableBtn.textContent = 'Disable push';
+    });
+  });
+
+  // Wait for pwa.js to register
+  setTimeout(refresh, 500);
 })();
 </script>
 <script src="ga4.js" defer></script>

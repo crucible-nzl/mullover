@@ -15,6 +15,7 @@ import 'dotenv/config';
 import { db, schema } from '../lib/db';
 import { sql, and, eq, lt, isNull, isNotNull, inArray } from 'drizzle-orm';
 import { sendTransactional } from '../lib/email';
+import { sendPushToUser } from '../lib/push';
 import { getAnthropic, VERDICT_MODEL, VERDICT_SYSTEM_PROMPT } from '../lib/anthropic';
 
 const APP_BASE_URL = process.env.APP_BASE_URL ?? 'https://counsel.day';
@@ -22,8 +23,11 @@ const APP_BASE_URL = process.env.APP_BASE_URL ?? 'https://counsel.day';
 async function eveningPrompt() {
   // Find every participant in an active decision who has not voted today.
   // Send them one prompt. Idempotent · re-running the same evening is fine.
+  // We also pull user_id so the push helper can target their subscriptions
+  // alongside the email · the user sees whichever channel they have opted
+  // into (typically both: email always, push if they enabled it on the app).
   const rows = await db.execute(sql`
-    SELECT DISTINCT u.email, u.first_name, d.id AS decision_id, d.question
+    SELECT DISTINCT u.id AS user_id, u.email, u.first_name, d.id AS decision_id, d.question
     FROM participants p
     JOIN decisions d ON d.id = p.decision_id
     JOIN users u ON u.id = p.user_id
@@ -37,7 +41,8 @@ async function eveningPrompt() {
   `);
 
   let sent = 0;
-  for (const r of rows as unknown as Array<{ email: string; first_name: string | null; decision_id: string; question: string }>) {
+  let pushed = 0;
+  for (const r of rows as unknown as Array<{ user_id: string; email: string; first_name: string | null; decision_id: string; question: string }>) {
     const verdictUrl = `${APP_BASE_URL}/vote-today?decision=${r.decision_id}`;
     const greeting = r.first_name ? `Hi ${r.first_name},` : 'Hi,';
     const text = [
@@ -66,8 +71,19 @@ async function eveningPrompt() {
       htmlContent: html,
     });
     if (res.ok) sent++;
+
+    // Push notification · best-effort, never blocks the email send.
+    // Truncated to the brand voice · "Decide slowly" reinforces the product.
+    const pushRes = await sendPushToUser(r.user_id, {
+      title: 'Tonight\'s vote is ready',
+      body: r.question.length > 140 ? r.question.slice(0, 137) + '...' : r.question,
+      url: `/vote-today.html?decision=${r.decision_id}`,
+      tag: `vote-today-${r.decision_id}`,
+      renotify: false,
+    }).catch(() => ({ sent: 0 } as { sent: number }));
+    pushed += pushRes.sent ?? 0;
   }
-  console.log(`[cron · evening-prompt] sent ${sent} prompts`);
+  console.log(`[cron · evening-prompt] sent ${sent} emails, ${pushed} push notifications`);
 }
 
 async function verdictGenerate() {

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin · Users · Counsel.day</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f7f9fc">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin-shell.css">
+<style>
+  .toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+  .toolbar input { padding: 9px 12px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); font-family: var(--font-ui); font-size: 14px; min-width: 280px; }
+  .toolbar select { padding: 9px 12px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); font-family: var(--font-ui); font-size: 14px; }
+  .toolbar .count { margin-left: auto; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+  .users-tbl td { vertical-align: middle; }
+  .users-tbl .pill { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 7px; border-radius: 2px; background: var(--surface-2); color: var(--ink-soft); }
+  .users-tbl .pill.admin { background: var(--accent-soft); color: var(--accent); }
+  .users-tbl .pill.deleted { background: #fee2e2; color: var(--red); }
+  .users-tbl .pill.unverified { background: #fef3c7; color: var(--yellow); }
+  .users-tbl .actions { display: flex; gap: 6px; }
+  .users-tbl .actions button { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; padding: 5px 9px; border: 1px solid var(--border); background: var(--surface); color: var(--ink-soft); cursor: pointer; }
+  .users-tbl .actions button:hover { color: var(--accent); border-color: var(--accent); }
+  .users-tbl .actions .danger:hover { color: var(--red); border-color: var(--red); }
+  .pager { margin-top: 14px; display: flex; gap: 10px; align-items: center; }
+  .pager button { font-family: var(--font-mono); font-size: 12px; padding: 7px 14px; border: 1px solid var(--border); background: var(--surface); color: var(--ink-soft); cursor: pointer; }
+  .pager button:disabled { opacity: 0.4; cursor: not-allowed; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">counsel<span class="tld">.day</span> · admin</div>
+  <div class="meta">
+    <a href="/account.html">← User-facing site</a>
+    <span id="adm-identity">…</span>
+    <a href="#" id="adm-logout">Log out</a>
+  </div>
+</div>
+<nav class="adm-subnav" aria-label="Admin sections">
+  <a href="/admin.html">Overview</a>
+  <a href="/admin-users.html" class="active">Users</a>
+  <a href="/admin-growth.html">Growth</a>
+  <a href="/admin-engagement.html">Engagement</a>
+  <a href="/admin-traffic.html">Traffic</a>
+  <a href="/admin-finance.html">Finance</a>
+  <a href="/admin-verdict-logs.html">Verdict logs</a>
+  <a href="/admin-database.html">Database</a>
+</nav>
+
+<div class="shell">
+  <h1>Users</h1>
+  <p class="lede">Every account on Counsel.day. Search, sort, promote/demote admins, soft-delete or restore. All actions audit-logged.</p>
+  <div id="adm-error" class="status-banner is-error" style="display:none;"></div>
+  <div id="adm-msg" class="status-banner is-ok" style="display:none;"></div>
+
+  <div class="toolbar">
+    <input type="search" id="u-q" placeholder="Search by email or first name" autocomplete="off">
+    <select id="u-sort">
+      <option value="created_at">Newest first</option>
+      <option value="email">Email A-Z</option>
+      <option value="last_session_at">Last sign-in</option>
+      <option value="decisions">Decision count</option>
+    </select>
+    <span class="count" id="u-count">…</span>
+  </div>
+
+  <table class="tbl users-tbl">
+    <thead><tr>
+      <th>Email</th>
+      <th>Name</th>
+      <th>Plan</th>
+      <th>Decisions</th>
+      <th>Last sign-in</th>
+      <th>Signed up</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr></thead>
+    <tbody id="u-rows"><tr><td colspan="8" style="padding: 18px; color: var(--muted);">Loading…</td></tr></tbody>
+  </table>
+
+  <div class="pager">
+    <button type="button" id="u-prev">← Previous</button>
+    <span id="u-range" style="font-family: var(--font-mono); font-size: 12px; color: var(--muted);"></span>
+    <button type="button" id="u-next">Next →</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) { if (d && d.ok && d.user) { document.getElementById('adm-identity').textContent = d.user.email + ' · admin'; window.__cdMe = d.user; } });
+  document.getElementById('adm-logout').addEventListener('click', function (e) { e.preventDefault(); fetch('/api/signout', { method: 'POST', credentials: 'include' }).finally(function () { window.location.href = '/'; }); });
+
+  function $(id) { return document.getElementById(id); }
+  function showErr(m) { var el = $('adm-error'); el.style.display = 'block'; el.textContent = m; setTimeout(function () { el.style.display = 'none'; }, 6000); }
+  function showOk(m) { var el = $('adm-msg'); el.style.display = 'block'; el.textContent = m; setTimeout(function () { el.style.display = 'none'; }, 4000); }
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]; }); }
+  function fmtTs(s) { if (!s) return '·'; try { var d = new Date(s); return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); } catch (e) { return s; } }
+
+  var state = { q: '', sort: 'created_at', limit: 50, offset: 0, total: 0 };
+
+  function load() {
+    var params = new URLSearchParams();
+    if (state.q) params.set('q', state.q);
+    params.set('sort', state.sort);
+    params.set('limit', String(state.limit));
+    params.set('offset', String(state.offset));
+    fetch('/api/admin/users?' + params.toString(), { credentials: 'include' })
+      .then(function (r) { if (r.status === 401 || r.status === 403) { window.location.href = '/signin?next=/admin-users.html'; throw new Error('auth'); } return r.json(); })
+      .then(function (d) {
+        if (!d || !d.ok) throw new Error((d && d.message) || 'Failed');
+        state.total = d.total;
+        $('u-count').textContent = d.total.toLocaleString() + ' users';
+        var rows = d.users.map(function (u) {
+          var pills = [];
+          if (u.is_admin) pills.push('<span class="pill admin">Admin</span>');
+          if (!u.email_verified) pills.push('<span class="pill unverified">Unverified</span>');
+          if (u.deleted_at) pills.push('<span class="pill deleted">Deleted</span>');
+          if (pills.length === 0) pills.push('<span class="pill">Active</span>');
+
+          var actions = [];
+          if (!u.is_admin) {
+            actions.push('<button data-act="promote" data-id="' + u.id + '" data-email="' + escapeHtml(u.email) + '">Promote</button>');
+          } else {
+            actions.push('<button data-act="demote" data-id="' + u.id + '" data-email="' + escapeHtml(u.email) + '">Demote</button>');
+          }
+          if (!u.deleted_at) {
+            actions.push('<button class="danger" data-act="soft_delete" data-id="' + u.id + '" data-email="' + escapeHtml(u.email) + '">Soft-delete</button>');
+          } else {
+            actions.push('<button data-act="restore" data-id="' + u.id + '" data-email="' + escapeHtml(u.email) + '">Restore</button>');
+          }
+
+          return '<tr>' +
+            '<td class="mono">' + escapeHtml(u.email) + '</td>' +
+            '<td>' + escapeHtml(u.first_name || '·') + '</td>' +
+            '<td><span class="pill">' + escapeHtml(u.current_plan || 'free') + '</span></td>' +
+            '<td class="num">' + u.decision_count + '</td>' +
+            '<td>' + fmtTs(u.last_session_at) + '</td>' +
+            '<td>' + fmtTs(u.created_at) + '</td>' +
+            '<td>' + pills.join(' ') + '</td>' +
+            '<td><div class="actions">' + actions.join('') + '</div></td>' +
+          '</tr>';
+        }).join('');
+        $('u-rows').innerHTML = rows || '<tr><td colspan="8" style="padding: 18px; color: var(--muted);">No users match.</td></tr>';
+
+        var from = d.total === 0 ? 0 : state.offset + 1;
+        var to = Math.min(state.offset + state.limit, d.total);
+        $('u-range').textContent = from + '–' + to + ' of ' + d.total;
+        $('u-prev').disabled = state.offset <= 0;
+        $('u-next').disabled = state.offset + state.limit >= d.total;
+      })
+      .catch(function (e) { if (e && e.message !== 'auth') showErr('Failed to load users · ' + e.message); });
+  }
+
+  // Debounced search
+  var debounce;
+  $('u-q').addEventListener('input', function (e) {
+    clearTimeout(debounce);
+    debounce = setTimeout(function () {
+      state.q = e.target.value.trim();
+      state.offset = 0;
+      load();
+    }, 250);
+  });
+  $('u-sort').addEventListener('change', function (e) { state.sort = e.target.value; state.offset = 0; load(); });
+  $('u-prev').addEventListener('click', function () { state.offset = Math.max(0, state.offset - state.limit); load(); });
+  $('u-next').addEventListener('click', function () { state.offset += state.limit; load(); });
+
+  // Action delegation
+  $('u-rows').addEventListener('click', function (e) {
+    var btn = e.target.closest('button[data-act]');
+    if (!btn) return;
+    var act = btn.getAttribute('data-act');
+    var id = btn.getAttribute('data-id');
+    var email = btn.getAttribute('data-email');
+    var labels = { promote: 'Promote ' + email + ' to admin?', demote: 'Demote ' + email + ' from admin?', soft_delete: 'Soft-delete ' + email + '?\n\nThis revokes every session and hides the user from sign-in. Reversible within 14 days.', restore: 'Restore ' + email + '? They will be able to sign in again.' };
+    if (!window.confirm(labels[act])) return;
+    btn.disabled = true;
+    fetch('/api/admin/users', { method: 'PATCH', credentials: 'include', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ user_id: id, action: act }) })
+      .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+      .then(function (res) {
+        if (res.status === 200) { showOk((res.body.message || 'Done') + ' · ' + email); load(); }
+        else { showErr((res.body && res.body.message) || 'Action failed.'); btn.disabled = false; }
+      })
+      .catch(function () { showErr('Network error.'); btn.disabled = false; });
+  });
+
+  load();
+})();
+</script>
+</body>
+</html>

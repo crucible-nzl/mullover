@@ -21,6 +21,7 @@
 </div>
 <nav class="adm-subnav" aria-label="Admin sections">
   <a href="/admin.html">Overview</a>
+  <a href="/admin-users.html">Users</a>
   <a href="/admin-growth.html" class="active">Growth</a>
   <a href="/admin-engagement.html">Engagement</a>
   <a href="/admin-traffic.html">Traffic</a>
@@ -52,7 +53,7 @@
   <div class="chart-card"><div class="title">Conversion funnel</div><div class="canvas-wrap"><canvas id="chart-funnel"></canvas></div></div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="/chart.umd.min.js"></script>
 <script>
 (function () {
   fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) { if (d && d.ok && d.user) { document.getElementById('adm-identity').textContent = d.user.email + ' · admin'; } });

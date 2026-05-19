@@ -213,7 +213,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         if (res.status === 200 && res.body.redirect) {
           window.location.href = res.body.redirect;
         } else if (res.status === 200) {
-          show('success', res.body.message || 'Check your inbox for a sign-in link.');
+          show('success', res.body.message || 'Your sign-in link has been sent to your inbox.');
         } else {
           show('error', res.body.message || 'Something went wrong. Please try again.');
         }

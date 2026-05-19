@@ -171,5 +171,5 @@ export async function POST(req: Request) {
     console.warn('[signup] consent log insert failed (non-fatal)', err);
   }
 
-  return NextResponse.json({ ok: true, message: 'Check your inbox.' }, { status: 200 });
+  return NextResponse.json({ ok: true, message: 'Your verification link has been sent to your inbox.' }, { status: 200 });
 }

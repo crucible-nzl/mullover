@@ -109,5 +109,5 @@ export async function POST(req: Request) {
       htmlContent: html,
     });
   }
-  return NextResponse.json({ ok: true, message: 'Check your inbox.' }, { status: 200 });
+  return NextResponse.json({ ok: true, message: 'Your sign-in link has been sent to your inbox.' }, { status: 200 });
 }

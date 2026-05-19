@@ -329,6 +329,19 @@
     cta.appendChild(logout);
   }
 
+  function ensureAdminLink(cta) {
+    if (cta.querySelector('[data-cd-admin]')) return; // idempotent
+    var link = document.createElement('a');
+    link.setAttribute('href', '/admin');
+    link.setAttribute('data-cd-admin', '1');
+    link.className = 'btn-text';
+    link.style.cssText = 'margin-left: 12px; color: var(--wine); border-bottom: 1px solid var(--wine); padding-bottom: 1px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;';
+    link.textContent = 'Admin';
+    // Insert BEFORE the logout link so order is: Decisions · Account · Admin · Log out
+    var logout = cta.querySelector('[data-cd-logout]');
+    if (logout) cta.insertBefore(link, logout); else cta.appendChild(link);
+  }
+
   function refreshNav() {
     fetch('/api/auth-check', {
       method: 'GET',
@@ -337,11 +350,18 @@
       cache: 'no-store',
     })
       .then(function (r) {
-        if (r.status !== 200) return;
+        if (r.status !== 200) return null;
+        // Body may be empty (older deploys) or { ok, is_admin } — both fine
+        return r.json().catch(function () { return { is_admin: r.headers.get('x-is-admin') === '1' }; });
+      })
+      .then(function (info) {
+        if (!info) return;
+        var isAdmin = !!info.is_admin;
         document.querySelectorAll('nav.nav-bar .nav-cta').forEach(function (cta) {
-          var anchors = cta.querySelectorAll('a:not([data-cd-logout])');
+          var anchors = cta.querySelectorAll('a:not([data-cd-logout]):not([data-cd-admin])');
           if (anchors.length === 0) {
             ensureLogOutLink(cta);
+            if (isAdmin) ensureAdminLink(cta);
             return;
           }
           // Pattern A · two CTAs ("Sign in" text + "Begin a decision" btn)
@@ -353,6 +373,7 @@
             second.textContent = 'Account';
             second.setAttribute('href', 'account.html');
             ensureLogOutLink(cta);
+            if (isAdmin) ensureAdminLink(cta);
             return;
           }
           // Pattern B · single CTA (already pointing at account.html on
@@ -364,6 +385,7 @@
             a.setAttribute('href', 'account.html');
           }
           ensureLogOutLink(cta);
+          if (isAdmin) ensureAdminLink(cta);
         });
       })
       .catch(function () { /* swallow · keep public nav as-is */ });

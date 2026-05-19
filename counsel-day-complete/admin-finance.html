@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin · Finance · Counsel.day</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f7f9fc">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin-shell.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">counsel<span class="tld">.day</span> · admin</div>
+  <div class="meta">
+    <a href="/account.html">← User-facing site</a>
+    <span id="adm-identity">…</span>
+    <a href="#" id="adm-logout">Log out</a>
+  </div>
+</div>
+<nav class="adm-subnav" aria-label="Admin sections">
+  <a href="/admin.html">Overview</a>
+  <a href="/admin-growth.html">Growth</a>
+  <a href="/admin-engagement.html">Engagement</a>
+  <a href="/admin-traffic.html">Traffic</a>
+  <a href="/admin-finance.html" class="active">Finance</a>
+  <a href="/admin-verdict-logs.html">Verdict logs</a>
+  <a href="/admin-database.html">Database</a>
+</nav>
+
+<div class="shell">
+  <h1>Finance</h1>
+  <p class="lede">Revenue by day, by tier, AI costs, refund ratio, margin. All figures in USD. <span class="ts" id="adm-last-loaded"></span></p>
+  <div id="adm-error" class="status-banner is-error" style="display:none;"></div>
+
+  <h2>KPIs · cumulative</h2>
+  <div class="grid-4">
+    <div class="card"><div class="label">Gross revenue</div><div class="value" id="m-rev">…</div><div class="sub">Sum of decisions.amount_paid_cents</div></div>
+    <div class="card"><div class="label">AI cost (Anthropic)</div><div class="value" id="m-ai">…</div><div class="sub">Sum of verdicts.cost_cents</div></div>
+    <div class="card"><div class="label">Net</div><div class="value" id="m-net">…</div><div class="sub">Revenue minus AI cost</div></div>
+    <div class="card"><div class="label">Gross margin</div><div class="value" id="m-margin">…</div><div class="sub">Net / revenue</div></div>
+  </div>
+
+  <h2>Refunds, last 30 days</h2>
+  <div class="grid-3">
+    <div class="card"><div class="label">Requests</div><div class="value" id="m-rr">…</div></div>
+    <div class="card"><div class="label">Processed</div><div class="value" id="m-rp">…</div></div>
+    <div class="card"><div class="label">Processed / requested</div><div class="value" id="m-rr-ratio">…</div></div>
+  </div>
+
+  <h2>Daily revenue · last 90 days</h2>
+  <div class="chart-card"><div class="title">Revenue per day (USD)</div><div class="canvas-wrap"><canvas id="chart-rev"></canvas></div></div>
+
+  <h2>AI cost per day · last 90 days</h2>
+  <div class="chart-card"><div class="title">Anthropic spend (USD)</div><div class="canvas-wrap"><canvas id="chart-ai"></canvas></div></div>
+
+  <h2>Revenue by tier · cumulative</h2>
+  <div class="chart-card"><div class="title">Revenue split</div><div class="canvas-wrap"><canvas id="chart-tier"></canvas></div></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+  fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) { if (d && d.ok && d.user) { document.getElementById('adm-identity').textContent = d.user.email + ' · admin'; } });
+  document.getElementById('adm-logout').addEventListener('click', function (e) { e.preventDefault(); fetch('/api/signout', { method: 'POST', credentials: 'include' }).finally(function () { window.location.href = '/'; }); });
+  function $(id) { return document.getElementById(id); }
+  function showErr(m) { var el = $('adm-error'); el.style.display = 'block'; el.textContent = m; }
+  function usd(c) { return '$' + (c / 100).toFixed(2); }
+
+  fetch('/api/admin/finance', { credentials: 'include' })
+    .then(function (r) { if (r.status === 401 || r.status === 403) { window.location.href = '/signin?next=/admin-finance.html'; throw new Error('auth'); } return r.json(); })
+    .then(function (d) {
+      $('adm-last-loaded').textContent = 'Loaded at ' + new Date(d.generated_at).toLocaleString();
+      $('m-rev').textContent = usd(d.margin.revenue_cents);
+      $('m-ai').textContent = usd(d.margin.ai_cost_cents);
+      $('m-net').textContent = usd(d.margin.net_cents);
+      $('m-margin').textContent = d.margin.margin_pct + ' %';
+      $('m-rr').textContent = d.refunds.requested_30d;
+      $('m-rp').textContent = d.refunds.processed_30d;
+      $('m-rr-ratio').textContent = d.refunds.ratio_pct + ' %';
+
+      Chart.defaults.color = '#6b7a90';
+      Chart.defaults.borderColor = '#e4e8f0';
+
+      new Chart($('chart-rev'), {
+        type: 'bar',
+        data: { labels: d.revenue_daily.map(function (r) { return r.date; }), datasets: [{ label: 'USD', data: d.revenue_daily.map(function (r) { return r.gross_cents / 100; }), backgroundColor: '#2563eb', barThickness: 'flex', maxBarThickness: 14 }] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: function (v) { return '$' + v; } } } } },
+      });
+
+      new Chart($('chart-ai'), {
+        type: 'bar',
+        data: { labels: d.ai_cost_daily.map(function (r) { return r.date; }), datasets: [{ label: 'USD', data: d.ai_cost_daily.map(function (r) { return r.cost_cents / 100; }), backgroundColor: '#b91c1c', barThickness: 'flex', maxBarThickness: 14 }] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: function (v) { return '$' + v; } } } } },
+      });
+
+      var tiers = Object.keys(d.revenue_by_tier);
+      new Chart($('chart-tier'), {
+        type: 'doughnut',
+        data: { labels: tiers, datasets: [{ data: tiers.map(function (t) { return (d.revenue_by_tier[t].gross_cents / 100).toFixed(2); }), backgroundColor: ['#2563eb', '#3b82f6', '#1d4ed8', '#047857', '#b45309'] }] },
+        options: { responsive: true, maintainAspectRatio: false },
+      });
+    })
+    .catch(function (e) { if (e && e.message !== 'auth') showErr('Failed to load finance data · ' + e.message); });
+})();
+</script>
+</body>
+</html>

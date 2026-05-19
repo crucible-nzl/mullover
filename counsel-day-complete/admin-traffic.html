@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin · Traffic (GA4) · Counsel.day</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f7f9fc">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin-shell.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">counsel<span class="tld">.day</span> · admin</div>
+  <div class="meta">
+    <a href="/account.html">← User-facing site</a>
+    <span id="adm-identity">…</span>
+    <a href="#" id="adm-logout">Log out</a>
+  </div>
+</div>
+<nav class="adm-subnav" aria-label="Admin sections">
+  <a href="/admin.html">Overview</a>
+  <a href="/admin-growth.html">Growth</a>
+  <a href="/admin-engagement.html">Engagement</a>
+  <a href="/admin-traffic.html" class="active">Traffic</a>
+  <a href="/admin-finance.html">Finance</a>
+  <a href="/admin-verdict-logs.html">Verdict logs</a>
+  <a href="/admin-database.html">Database</a>
+</nav>
+
+<div class="shell">
+  <h1>Traffic · GA4</h1>
+  <p class="lede">Live data from Google Analytics 4 via the Data API. <span class="ts" id="adm-last-loaded"></span></p>
+  <div id="adm-error" class="status-banner is-error" style="display:none;"></div>
+
+  <div id="ga-not-configured" class="status-banner is-warn" style="display:none;">
+    <strong>GA4 not connected.</strong> Set <code>GA4_SERVICE_ACCOUNT_JSON</code> and <code>GA4_PROPERTY_ID</code>
+    in <code>/etc/counsel-day-app/env.local</code> on the server, then restart counsel-day-app. Steps:
+    <ol style="margin: 8px 0 0 18px;">
+      <li>Create a Google Cloud service account; grant it <em>Viewer</em> on this GA4 property.</li>
+      <li>Download the JSON key; paste the whole file as the value of <code>GA4_SERVICE_ACCOUNT_JSON</code>.</li>
+      <li>Set <code>GA4_PROPERTY_ID</code> to the numeric property id (NOT the measurement id G-XXX).</li>
+      <li>Run <code>npm install @google-analytics/data</code> on the server (already declared in package.json).</li>
+      <li>Restart: <code>sudo systemctl restart counsel-day-app</code>.</li>
+    </ol>
+  </div>
+
+  <div id="ga-content" style="display:none;">
+    <h2>30-day totals</h2>
+    <div class="grid-3">
+      <div class="card"><div class="label">Sessions</div><div class="value" id="m-sessions">…</div></div>
+      <div class="card"><div class="label">Active users</div><div class="value" id="m-users">…</div></div>
+      <div class="card"><div class="label">Pageviews</div><div class="value" id="m-pageviews">…</div></div>
+    </div>
+
+    <h2>Sessions and users, last 30 days</h2>
+    <div class="chart-card"><div class="title">Daily traffic</div><div class="canvas-wrap"><canvas id="chart-daily"></canvas></div></div>
+
+    <div class="grid-2">
+      <div>
+        <h2>Top pages</h2>
+        <table class="tbl"><thead><tr><th>Path</th><th class="num">Views</th></tr></thead><tbody id="tbl-pages"></tbody></table>
+      </div>
+      <div>
+        <h2>Top sources</h2>
+        <table class="tbl"><thead><tr><th>Channel</th><th class="num">Sessions</th></tr></thead><tbody id="tbl-sources"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+  fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) { if (d && d.ok && d.user) { document.getElementById('adm-identity').textContent = d.user.email + ' · admin'; } });
+  document.getElementById('adm-logout').addEventListener('click', function (e) { e.preventDefault(); fetch('/api/signout', { method: 'POST', credentials: 'include' }).finally(function () { window.location.href = '/'; }); });
+  function $(id) { return document.getElementById(id); }
+  function showErr(m) { var el = $('adm-error'); el.style.display = 'block'; el.textContent = m; }
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]; }); }
+
+  fetch('/api/admin/traffic', { credentials: 'include' })
+    .then(function (r) { if (r.status === 401 || r.status === 403) { window.location.href = '/signin?next=/admin-traffic.html'; throw new Error('auth'); } return r.json(); })
+    .then(function (d) {
+      $('adm-last-loaded').textContent = 'Loaded at ' + new Date(d.generated_at).toLocaleString();
+      if (!d.ga4 || !d.ga4.ok) {
+        $('ga-not-configured').style.display = 'block';
+        return;
+      }
+      $('ga-content').style.display = 'block';
+      $('m-sessions').textContent = d.ga4.totals.sessions;
+      $('m-users').textContent = d.ga4.totals.users;
+      $('m-pageviews').textContent = d.ga4.totals.pageviews;
+
+      Chart.defaults.color = '#6b7a90';
+      Chart.defaults.borderColor = '#e4e8f0';
+      new Chart($('chart-daily'), {
+        type: 'line',
+        data: { labels: d.ga4.daily.map(function (r) { return r.date; }), datasets: [
+          { label: 'Sessions', data: d.ga4.daily.map(function (r) { return r.sessions; }), borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.08)', tension: 0.3, fill: true, pointRadius: 2 },
+          { label: 'Active users', data: d.ga4.daily.map(function (r) { return r.users; }), borderColor: '#047857', backgroundColor: 'rgba(4,120,87,0.08)', tension: 0.3, fill: true, pointRadius: 2 },
+        ] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } },
+      });
+
+      var tp = $('tbl-pages');
+      tp.innerHTML = (d.ga4.top_pages || []).map(function (r) {
+        return '<tr><td class="mono">' + escapeHtml(r.path) + '</td><td class="num">' + r.views + '</td></tr>';
+      }).join('') || '<tr><td colspan="2" style="color: var(--muted); padding: 18px;">No data</td></tr>';
+
+      var ts = $('tbl-sources');
+      ts.innerHTML = (d.ga4.top_sources || []).map(function (r) {
+        return '<tr><td>' + escapeHtml(r.source) + '</td><td class="num">' + r.sessions + '</td></tr>';
+      }).join('') || '<tr><td colspan="2" style="color: var(--muted); padding: 18px;">No data</td></tr>';
+    })
+    .catch(function (e) { if (e && e.message !== 'auth') showErr('Failed to load traffic data · ' + e.message); });
+})();
+</script>
+</body>
+</html>

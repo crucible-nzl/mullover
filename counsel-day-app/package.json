@@ -26,7 +26,8 @@
     "stripe": "17.5.0",
     "@anthropic-ai/sdk": "0.96.0",
     "@sentry/nextjs": "9.45.0",
-    "web-push": "3.6.7"
+    "web-push": "3.6.7",
+    "@google-analytics/data": "4.13.0"
   },
   "devDependencies": {
     "typescript": "5.7.2",

@@ -1,0 +1,83 @@
+/* counsel-day-complete/admin-shell.css
+ *
+ * Shared chrome for every /admin-*.html sub-page (Growth, Engagement,
+ * Traffic, Finance, Verdict logs, Database). admin.html itself
+ * keeps its own inline copy because it predates this file · don't
+ * delete the inline block without also auditing every selector
+ * here matches.
+ *
+ * Light theme · matches admin.html post-T3.
+ */
+
+:root {
+  --bg:        #f7f9fc;
+  --surface:   #ffffff;
+  --surface-2: #eef2f8;
+  --border:    #d6dde8;
+  --rule:      #e4e8f0;
+  --ink:       #0b1a2b;
+  --ink-soft:  #364556;
+  --muted:     #6b7a90;
+  --accent:    #2563eb;
+  --accent-soft: #e7efff;
+  --green:     #047857;
+  --yellow:    #b45309;
+  --red:       #b91c1c;
+  --grey:      #9ca3af;
+  --font-ui:   -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-ui); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 28px; display: flex; align-items: center; justify-content: space-between; }
+.topbar .brand { font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.12em; color: var(--accent); }
+.topbar .brand .tld { color: var(--ink); }
+.topbar .meta { font-family: var(--font-mono); font-size: 11px; color: var(--muted); display: flex; gap: 18px; }
+.topbar .meta a { color: var(--muted); }
+.topbar .meta a:hover { color: var(--ink); }
+
+.adm-subnav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 8px 28px; display: flex; gap: 24px; flex-wrap: wrap; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+.adm-subnav a { color: var(--ink-soft); border-bottom: 2px solid transparent; padding: 4px 0; }
+.adm-subnav a:hover { color: var(--accent); }
+.adm-subnav a.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.shell { max-width: 1480px; margin: 0 auto; padding: 24px 28px 60px; }
+h1 { font-size: 22px; font-weight: 600; margin: 0 0 4px; color: var(--ink); letter-spacing: -0.005em; }
+h2 { font-size: 14px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); margin: 28px 0 12px; }
+h3 { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+.lede { color: var(--ink-soft); font-size: 13px; margin: 0 0 24px; }
+.lede .ts { font-family: var(--font-mono); color: var(--muted); }
+
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px; }
+@media (max-width: 1024px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } .grid-3, .grid-2 { grid-template-columns: 1fr; } }
+@media (max-width: 640px)  { .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; } }
+
+.card { background: var(--surface); border: 1px solid var(--border); padding: 16px 18px; }
+.card .label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.card .value { font-size: 26px; font-weight: 600; color: var(--ink); line-height: 1; font-variant-numeric: tabular-nums; }
+.card .sub { font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-top: 8px; }
+.card .sub .pos { color: var(--green); }
+.card .sub .neg { color: var(--red); }
+
+.chart-card { background: var(--surface); border: 1px solid var(--border); padding: 18px 20px 20px; margin-bottom: 24px; }
+.chart-card .title { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); margin-bottom: 14px; font-weight: 600; }
+.chart-card .canvas-wrap { position: relative; height: 280px; }
+.chart-card .footnote { font-family: var(--font-mono); font-size: 10px; color: var(--muted); margin-top: 10px; }
+
+.tbl { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); }
+.tbl th, .tbl td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--rule); font-size: 13px; }
+.tbl th { background: var(--surface-2); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.tbl tr:last-child td { border-bottom: none; }
+.tbl td.mono { font-family: var(--font-mono); font-size: 12px; color: var(--ink-soft); }
+.tbl td.num { font-variant-numeric: tabular-nums; text-align: right; }
+
+.status-banner { padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); margin-bottom: 18px; }
+.status-banner.is-error { border-left-color: var(--red); }
+.status-banner.is-warn  { border-left-color: var(--yellow); }
+.status-banner.is-ok    { border-left-color: var(--green); }

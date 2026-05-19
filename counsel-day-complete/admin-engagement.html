@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin · Engagement · Counsel.day</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f7f9fc">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin-shell.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">counsel<span class="tld">.day</span> · admin</div>
+  <div class="meta">
+    <a href="/account.html">← User-facing site</a>
+    <span id="adm-identity">…</span>
+    <a href="#" id="adm-logout">Log out</a>
+  </div>
+</div>
+<nav class="adm-subnav" aria-label="Admin sections">
+  <a href="/admin.html">Overview</a>
+  <a href="/admin-growth.html">Growth</a>
+  <a href="/admin-engagement.html" class="active">Engagement</a>
+  <a href="/admin-traffic.html">Traffic</a>
+  <a href="/admin-finance.html">Finance</a>
+  <a href="/admin-verdict-logs.html">Verdict logs</a>
+  <a href="/admin-database.html">Database</a>
+</nav>
+
+<div class="shell">
+  <h1>Engagement</h1>
+  <p class="lede">Vote fill rate, verdict completion rate, decision-status funnel, time-to-first-vote. <span class="ts" id="adm-last-loaded"></span></p>
+  <div id="adm-error" class="status-banner is-error" style="display:none;"></div>
+
+  <h2>KPIs</h2>
+  <div class="grid-3">
+    <div class="card"><div class="label">Vote fill rate · 30d</div><div class="value" id="m-vfill">…</div><div class="sub" id="m-vfill-sub">Cast / expected</div></div>
+    <div class="card"><div class="label">Verdict completion</div><div class="value" id="m-vcomp">…</div><div class="sub" id="m-vcomp-sub">Reached verdict / started</div></div>
+    <div class="card"><div class="label">Time to first vote (median)</div><div class="value" id="m-ttfv">…</div><div class="sub">Seconds from start to first vote</div></div>
+  </div>
+
+  <h2>Status funnel</h2>
+  <div class="chart-card"><div class="title">Decisions by status</div><div class="canvas-wrap"><canvas id="chart-status"></canvas></div></div>
+
+  <h2>Participants per decision</h2>
+  <div class="chart-card"><div class="title">Histogram</div><div class="canvas-wrap"><canvas id="chart-participants"></canvas></div></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+  fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) { if (d && d.ok && d.user) { document.getElementById('adm-identity').textContent = d.user.email + ' · admin'; } });
+  document.getElementById('adm-logout').addEventListener('click', function (e) { e.preventDefault(); fetch('/api/signout', { method: 'POST', credentials: 'include' }).finally(function () { window.location.href = '/'; }); });
+  function $(id) { return document.getElementById(id); }
+  function showErr(m) { var el = $('adm-error'); el.style.display = 'block'; el.textContent = m; }
+  function fmtSec(s) { if (s == null) return '·'; if (s < 60) return s + 's'; if (s < 3600) return Math.round(s / 60) + 'm'; return Math.round(s / 3600) + 'h'; }
+
+  fetch('/api/admin/engagement', { credentials: 'include' })
+    .then(function (r) { if (r.status === 401 || r.status === 403) { window.location.href = '/signin?next=/admin-engagement.html'; throw new Error('auth'); } return r.json(); })
+    .then(function (d) {
+      $('adm-last-loaded').textContent = 'Loaded at ' + new Date(d.generated_at).toLocaleString();
+      $('m-vfill').textContent = d.vote_fill_rate.percent + ' %';
+      $('m-vfill-sub').textContent = d.vote_fill_rate.cast + ' / ' + d.vote_fill_rate.expected;
+      $('m-vcomp').textContent = d.verdict_completion.percent + ' %';
+      $('m-vcomp-sub').textContent = d.verdict_completion.completed + ' / ' + d.verdict_completion.started;
+      $('m-ttfv').textContent = fmtSec(d.time_to_first_vote.median_seconds);
+
+      Chart.defaults.color = '#6b7a90';
+      Chart.defaults.borderColor = '#e4e8f0';
+      var s = d.status_funnel;
+
+      new Chart($('chart-status'), {
+        type: 'bar',
+        data: { labels: ['Pending invites', 'Active', 'Verdict generating', 'Completed', 'Cancelled', 'Refunded'], datasets: [{ label: 'Decisions', data: [s.pending_invites, s.active, s.verdict_generating, s.completed, s.cancelled, s.refunded], backgroundColor: ['#b45309', '#2563eb', '#1d4ed8', '#047857', '#9ca3af', '#b91c1c'] }] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }, plugins: { legend: { display: false } } },
+      });
+
+      new Chart($('chart-participants'), {
+        type: 'bar',
+        data: { labels: d.participants_hist.map(function (r) { return r.participants + ' participant' + (r.participants === 1 ? '' : 's'); }), datasets: [{ label: 'Decisions', data: d.participants_hist.map(function (r) { return r.decisions; }), backgroundColor: '#2563eb' }] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }, plugins: { legend: { display: false } } },
+      });
+    })
+    .catch(function (e) { if (e && e.message !== 'auth') showErr('Failed to load engagement data · ' + e.message); });
+})();
+</script>
+</body>
+</html>

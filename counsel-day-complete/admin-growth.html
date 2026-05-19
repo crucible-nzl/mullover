@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin · Growth · Counsel.day</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f7f9fc">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin-shell.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">counsel<span class="tld">.day</span> · admin</div>
+  <div class="meta">
+    <a href="/account.html">← User-facing site</a>
+    <span id="adm-identity">…</span>
+    <a href="#" id="adm-logout">Log out</a>
+  </div>
+</div>
+<nav class="adm-subnav" aria-label="Admin sections">
+  <a href="/admin.html">Overview</a>
+  <a href="/admin-growth.html" class="active">Growth</a>
+  <a href="/admin-engagement.html">Engagement</a>
+  <a href="/admin-traffic.html">Traffic</a>
+  <a href="/admin-finance.html">Finance</a>
+  <a href="/admin-verdict-logs.html">Verdict logs</a>
+  <a href="/admin-database.html">Database</a>
+</nav>
+
+<div class="shell">
+  <h1>Growth</h1>
+  <p class="lede">Signups, activations, MRR/ARR, churn, the conversion funnel. <span class="ts" id="adm-last-loaded"></span></p>
+  <div id="adm-error" class="status-banner is-error" style="display:none;"></div>
+
+  <h2>KPIs</h2>
+  <div class="grid-4">
+    <div class="card"><div class="label">Active annual subscribers</div><div class="value" id="m-subs">…</div><div class="sub">Consumer Annual · $99 USD/year</div></div>
+    <div class="card"><div class="label">MRR (cents)</div><div class="value" id="m-mrr">…</div><div class="sub">Annual / 12</div></div>
+    <div class="card"><div class="label">ARR (cents)</div><div class="value" id="m-arr">…</div><div class="sub">12 × MRR</div></div>
+    <div class="card"><div class="label">30-day churn</div><div class="value" id="m-churn">…</div><div class="sub" id="m-churn-sub">As a percent of 30d-ago active</div></div>
+  </div>
+
+  <h2>Signups, last 90 days</h2>
+  <div class="chart-card"><div class="title">Free vs Paid signups per day</div><div class="canvas-wrap"><canvas id="chart-signups"></canvas></div></div>
+
+  <h2>Activations, last 90 days</h2>
+  <div class="chart-card"><div class="title">Email-verified per day</div><div class="canvas-wrap"><canvas id="chart-activations"></canvas></div></div>
+
+  <h2>Funnel · signed up → completed decision</h2>
+  <div class="chart-card"><div class="title">Conversion funnel</div><div class="canvas-wrap"><canvas id="chart-funnel"></canvas></div></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+  fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) { if (d && d.ok && d.user) { document.getElementById('adm-identity').textContent = d.user.email + ' · admin'; } });
+  document.getElementById('adm-logout').addEventListener('click', function (e) { e.preventDefault(); fetch('/api/signout', { method: 'POST', credentials: 'include' }).finally(function () { window.location.href = '/'; }); });
+
+  function $(id) { return document.getElementById(id); }
+  function fmtCents(c) { return (c / 100).toFixed(2); }
+  function showErr(m) { var el = $('adm-error'); el.style.display = 'block'; el.textContent = m; }
+
+  fetch('/api/admin/growth', { credentials: 'include' })
+    .then(function (r) { if (r.status === 401 || r.status === 403) { window.location.href = '/signin?next=/admin-growth.html'; throw new Error('auth'); } return r.json(); })
+    .then(function (d) {
+      $('adm-last-loaded').textContent = 'Loaded at ' + new Date(d.generated_at).toLocaleString();
+      $('m-subs').textContent = d.mrr.active_subscribers;
+      $('m-mrr').textContent = '$' + fmtCents(d.mrr.mrr_cents) + ' USD';
+      $('m-arr').textContent = '$' + fmtCents(d.mrr.arr_cents) + ' USD';
+      $('m-churn').textContent = d.churn_30d.percent + ' %';
+      $('m-churn-sub').textContent = d.churn_30d.deleted_30d + ' deleted of ' + d.churn_30d.baseline + ' baseline';
+
+      Chart.defaults.color = '#6b7a90';
+      Chart.defaults.borderColor = '#e4e8f0';
+
+      new Chart($('chart-signups'), {
+        type: 'line',
+        data: {
+          labels: d.signups_daily.map(function (r) { return r.date; }),
+          datasets: [
+            { label: 'Free', data: d.signups_daily.map(function (r) { return r.free; }), borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.08)', tension: 0.35, fill: true, pointRadius: 2, borderWidth: 2 },
+            { label: 'Paid', data: d.signups_daily.map(function (r) { return r.paid; }), borderColor: '#047857', backgroundColor: 'rgba(4,120,87,0.08)', tension: 0.35, fill: true, pointRadius: 2, borderWidth: 2 },
+          ],
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } },
+      });
+
+      new Chart($('chart-activations'), {
+        type: 'bar',
+        data: { labels: d.activations_daily.map(function (r) { return r.date; }), datasets: [{ label: 'Verified', data: d.activations_daily.map(function (r) { return r.verified; }), backgroundColor: '#2563eb', barThickness: 'flex', maxBarThickness: 14 }] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } },
+      });
+
+      new Chart($('chart-funnel'), {
+        type: 'bar',
+        data: {
+          labels: ['Signed up', 'Email verified', 'Started decision', 'Completed decision'],
+          datasets: [{ label: 'Users', data: [d.funnel.signed_up, d.funnel.verified, d.funnel.started_decision, d.funnel.completed_decision], backgroundColor: ['#2563eb', '#3b82f6', '#1d4ed8', '#047857'] }],
+        },
+        options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }, plugins: { legend: { display: false } } },
+      });
+    })
+    .catch(function (e) { if (e && e.message !== 'auth') showErr('Failed to load growth data · ' + e.message); });
+})();
+</script>
+</body>
+</html>

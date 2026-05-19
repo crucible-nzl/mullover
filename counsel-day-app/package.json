@@ -27,7 +27,7 @@
     "@anthropic-ai/sdk": "0.96.0",
     "@sentry/nextjs": "9.45.0",
     "web-push": "3.6.7",
-    "@google-analytics/data": "4.13.0"
+    "@google-analytics/data": "^4.0.0"
   },
   "devDependencies": {
     "typescript": "5.7.2",

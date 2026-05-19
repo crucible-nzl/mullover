@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin · Verdict logs · Counsel.day</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f7f9fc">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin-shell.css">
+<style>
+  .vd-card { background: var(--surface); border: 1px solid var(--border); margin-bottom: 14px; }
+  .vd-head { padding: 14px 18px; display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center; border-bottom: 1px solid var(--rule); }
+  .vd-head .q { font-family: var(--font-ui); font-size: 14px; color: var(--ink); }
+  .vd-head .meta { font-family: var(--font-mono); font-size: 11px; color: var(--muted); display: flex; gap: 18px; align-items: center; }
+  .vd-head .meta .pill { background: var(--accent-soft); color: var(--accent); padding: 2px 8px; border-radius: 2px; }
+  .vd-head .toggle { background: none; border: 1px solid var(--border); color: var(--accent); cursor: pointer; padding: 5px 11px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .vd-body { display: none; padding: 14px 18px 18px; }
+  .vd-card.open .vd-body { display: block; }
+  .vd-section { margin-top: 14px; }
+  .vd-section h4 { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; font-weight: 600; }
+  .vd-text { background: var(--surface-2); padding: 10px 12px; font-family: var(--font-mono); font-size: 12px; line-height: 1.55; white-space: pre-wrap; color: var(--ink); border: 1px solid var(--rule); max-height: 320px; overflow-y: auto; }
+  .vd-json { background: #0b1a2b; color: #e8eef7; padding: 10px 12px; font-family: var(--font-mono); font-size: 11px; line-height: 1.45; white-space: pre-wrap; word-break: break-all; max-height: 280px; overflow-y: auto; }
+  .vd-stats { display: flex; gap: 22px; flex-wrap: wrap; font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); margin: 6px 0 0; }
+  .vd-stats span strong { color: var(--ink); font-weight: 600; }
+  .err-row { background: var(--surface); padding: 10px 14px; border: 1px solid var(--border); border-left: 3px solid var(--red); margin-bottom: 10px; font-family: var(--font-mono); font-size: 12px; }
+  .err-row .when { color: var(--muted); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">counsel<span class="tld">.day</span> · admin</div>
+  <div class="meta">
+    <a href="/account.html">← User-facing site</a>
+    <span id="adm-identity">…</span>
+    <a href="#" id="adm-logout">Log out</a>
+  </div>
+</div>
+<nav class="adm-subnav" aria-label="Admin sections">
+  <a href="/admin.html">Overview</a>
+  <a href="/admin-growth.html">Growth</a>
+  <a href="/admin-engagement.html">Engagement</a>
+  <a href="/admin-traffic.html">Traffic</a>
+  <a href="/admin-finance.html">Finance</a>
+  <a href="/admin-verdict-logs.html" class="active">Verdict logs</a>
+  <a href="/admin-database.html">Database</a>
+</nav>
+
+<div class="shell">
+  <h1>Verdict logs</h1>
+  <p class="lede">Every verdict, with full content, the prompt used, tokens, cost, and any errors during generation or database writes. <span class="ts" id="adm-last-loaded"></span></p>
+  <div id="adm-error" class="status-banner is-error" style="display:none;"></div>
+
+  <h2>Summary</h2>
+  <div class="grid-4">
+    <div class="card"><div class="label">Total verdicts</div><div class="value" id="m-total">…</div></div>
+    <div class="card"><div class="label">Last 30 days</div><div class="value" id="m-30">…</div></div>
+    <div class="card"><div class="label">Total tokens (in + out)</div><div class="value" id="m-tokens">…</div><div class="sub" id="m-tokens-sub"></div></div>
+    <div class="card"><div class="label">Total AI cost</div><div class="value" id="m-cost">…</div></div>
+  </div>
+
+  <h2>Recent verdicts · last 50</h2>
+  <div id="vd-list">Loading…</div>
+
+  <h2>Verdict generation errors · last 30d</h2>
+  <div id="vd-errors">Loading…</div>
+
+  <h2>Database errors logged by the app · last 30d</h2>
+  <div id="db-errors">Loading…</div>
+</div>
+
+<script>
+(function () {
+  fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) { if (d && d.ok && d.user) { document.getElementById('adm-identity').textContent = d.user.email + ' · admin'; } });
+  document.getElementById('adm-logout').addEventListener('click', function (e) { e.preventDefault(); fetch('/api/signout', { method: 'POST', credentials: 'include' }).finally(function () { window.location.href = '/'; }); });
+  function $(id) { return document.getElementById(id); }
+  function showErr(m) { var el = $('adm-error'); el.style.display = 'block'; el.textContent = m; }
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]; }); }
+  function fmtTs(s) { try { return new Date(s).toLocaleString(); } catch (e) { return s; } }
+  function usd(c) { return '$' + ((c || 0) / 100).toFixed(2); }
+  function num(n) { return Number(n || 0).toLocaleString(); }
+
+  fetch('/api/admin/verdict-logs', { credentials: 'include' })
+    .then(function (r) { if (r.status === 401 || r.status === 403) { window.location.href = '/signin?next=/admin-verdict-logs.html'; throw new Error('auth'); } return r.json(); })
+    .then(function (d) {
+      $('adm-last-loaded').textContent = 'Loaded at ' + new Date(d.generated_at).toLocaleString();
+      $('m-total').textContent = num(d.summary.total);
+      $('m-30').textContent = num(d.summary.last_30d);
+      var totalTokens = (d.summary.total_tokens_input || 0) + (d.summary.total_tokens_output || 0);
+      $('m-tokens').textContent = num(totalTokens);
+      $('m-tokens-sub').textContent = num(d.summary.total_tokens_input) + ' in · ' + num(d.summary.total_tokens_output) + ' out';
+      $('m-cost').textContent = usd(d.summary.total_cost_cents);
+
+      var list = $('vd-list');
+      if (!d.recent.length) {
+        list.innerHTML = '<div class="status-banner">No verdicts generated yet.</div>';
+      } else {
+        list.innerHTML = d.recent.map(function (v) {
+          var stats = '<span><strong>' + num((v.tokens_input || 0) + (v.tokens_output || 0)) + '</strong> tokens</span><span><strong>' + usd(v.cost_cents) + '</strong> cost</span><span><strong>' + (v.ai_model || '·') + '</strong></span>';
+          var summary = v.synthesis_text ? escapeHtml(v.synthesis_text) : '<em style="color: var(--muted);">No synthesis text.</em>';
+          var prompt = v.prompt_used ? escapeHtml(v.prompt_used) : '<em style="color: var(--muted);">No prompt recorded.</em>';
+          var participantsJson = v.per_participant_summary ? JSON.stringify(v.per_participant_summary, null, 2) : 'null';
+          var themesJson = v.themes ? JSON.stringify(v.themes, null, 2) : 'null';
+          var followup = v.next_conversation_prompt ? escapeHtml(v.next_conversation_prompt) : '<em style="color: var(--muted);">None.</em>';
+          return '<div class="vd-card" data-id="' + escapeHtml(v.id) + '">' +
+            '<div class="vd-head">' +
+              '<div class="q">' + escapeHtml(v.decision_question || '(no question)') + '<div class="vd-stats">' + stats + '</div></div>' +
+              '<div class="meta">' +
+                '<span class="pill">' + escapeHtml(v.decision_tier || '?') + '</span>' +
+                '<span>' + fmtTs(v.generated_at) + '</span>' +
+                '<button type="button" class="toggle" data-cd-toggle>Expand</button>' +
+              '</div>' +
+            '</div>' +
+            '<div class="vd-body">' +
+              '<div class="vd-section"><h4>Synthesis text</h4><div class="vd-text">' + summary + '</div></div>' +
+              '<div class="vd-section"><h4>Per-participant summary (JSON)</h4><div class="vd-json">' + escapeHtml(participantsJson) + '</div></div>' +
+              '<div class="vd-section"><h4>Themes (JSON)</h4><div class="vd-json">' + escapeHtml(themesJson) + '</div></div>' +
+              '<div class="vd-section"><h4>Follow-up prompt</h4><div class="vd-text">' + followup + '</div></div>' +
+              '<div class="vd-section"><h4>Prompt sent to model</h4><div class="vd-text">' + prompt + '</div></div>' +
+              '<div class="vd-section"><h4>Decision id</h4><div class="vd-text" style="max-height: none;">' + escapeHtml(v.decision_id) + '</div></div>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+        list.addEventListener('click', function (e) {
+          var t = e.target;
+          if (t && t.getAttribute && t.getAttribute('data-cd-toggle') !== null) {
+            var card = t.closest('.vd-card');
+            if (card) { card.classList.toggle('open'); t.textContent = card.classList.contains('open') ? 'Collapse' : 'Expand'; }
+          }
+        });
+      }
+
+      function renderErrors(target, rows, emptyMsg) {
+        var el = $(target);
+        if (!rows.length) { el.innerHTML = '<div class="status-banner is-ok">' + emptyMsg + '</div>'; return; }
+        el.innerHTML = rows.map(function (r) {
+          return '<div class="err-row"><div class="when">' + fmtTs(r.created_at) + ' · ' + escapeHtml(r.action) + '</div>' +
+                 '<div>target: <strong>' + escapeHtml(r.target_id || '·') + '</strong></div>' +
+                 '<div class="vd-json" style="margin-top: 6px;">' + escapeHtml(JSON.stringify(r.metadata || {}, null, 2)) + '</div></div>';
+        }).join('');
+      }
+      renderErrors('vd-errors', d.errors, 'No verdict generation errors in the last 30 days.');
+      renderErrors('db-errors', d.db_errors, 'No database errors logged by the app in the last 30 days.');
+    })
+    .catch(function (e) { if (e && e.message !== 'auth') showErr('Failed to load verdict logs · ' + e.message); });
+})();
+</script>
+</body>
+</html>

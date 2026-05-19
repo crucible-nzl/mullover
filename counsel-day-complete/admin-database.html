@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin · Database · Counsel.day</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f7f9fc">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin-shell.css">
+<style>
+  .schema-table { background: var(--surface); border: 1px solid var(--border); margin-bottom: 14px; }
+  .schema-table .name { padding: 10px 14px; background: var(--surface-2); border-bottom: 1px solid var(--rule); font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; color: var(--accent); font-weight: 600; }
+  .schema-table .cols { padding: 8px 14px 12px; }
+  .schema-table .col { display: flex; gap: 12px; padding: 4px 0; font-family: var(--font-mono); font-size: 11px; border-bottom: 1px dotted var(--rule); }
+  .schema-table .col:last-child { border-bottom: none; }
+  .schema-table .col .cname { color: var(--ink); min-width: 200px; }
+  .schema-table .col .ctype { color: var(--muted); }
+  .schema-table .col .cnull { color: var(--green); margin-left: auto; }
+  .schema-table .col .cnull.no { color: var(--red); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">counsel<span class="tld">.day</span> · admin</div>
+  <div class="meta">
+    <a href="/account.html">← User-facing site</a>
+    <span id="adm-identity">…</span>
+    <a href="#" id="adm-logout">Log out</a>
+  </div>
+</div>
+<nav class="adm-subnav" aria-label="Admin sections">
+  <a href="/admin.html">Overview</a>
+  <a href="/admin-growth.html">Growth</a>
+  <a href="/admin-engagement.html">Engagement</a>
+  <a href="/admin-traffic.html">Traffic</a>
+  <a href="/admin-finance.html">Finance</a>
+  <a href="/admin-verdict-logs.html">Verdict logs</a>
+  <a href="/admin-database.html" class="active">Database</a>
+</nav>
+
+<div class="shell">
+  <h1>Database</h1>
+  <p class="lede">Postgres health, table sizes, indexes, slow queries, schema. <span class="ts" id="adm-last-loaded"></span></p>
+  <div id="adm-error" class="status-banner is-error" style="display:none;"></div>
+
+  <h2>Health</h2>
+  <div class="grid-3">
+    <div class="card"><div class="label">Version</div><div class="value" id="m-version" style="font-size: 13px; line-height: 1.4;">…</div></div>
+    <div class="card"><div class="label">Database size</div><div class="value" id="m-size">…</div></div>
+    <div class="card"><div class="label">Connections</div><div class="value" id="m-conns">…</div><div class="sub" id="m-conns-sub"></div></div>
+  </div>
+
+  <h2>Tables · by size</h2>
+  <table class="tbl">
+    <thead><tr><th>Table</th><th class="num">Rows</th><th class="num">Total size</th></tr></thead>
+    <tbody id="tbl-tables"></tbody>
+  </table>
+
+  <h2 style="margin-top: 28px;">Top indexes · by size</h2>
+  <table class="tbl">
+    <thead><tr><th>Table</th><th>Index</th><th class="num">Size</th></tr></thead>
+    <tbody id="tbl-indexes"></tbody>
+  </table>
+
+  <h2 style="margin-top: 28px;">Slow queries · pg_stat_statements</h2>
+  <p style="font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin: 0 0 10px;">If empty, enable the extension: <code>CREATE EXTENSION pg_stat_statements;</code> in postgres and add <code>shared_preload_libraries = 'pg_stat_statements'</code> to postgresql.conf.</p>
+  <table class="tbl">
+    <thead><tr><th>Query (truncated)</th><th class="num">Calls</th><th class="num">Mean ms</th><th class="num">Total ms</th></tr></thead>
+    <tbody id="tbl-slow"></tbody>
+  </table>
+
+  <h2 style="margin-top: 28px;">Schema · all tables in public</h2>
+  <div id="schema"></div>
+</div>
+
+<script>
+(function () {
+  fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) { if (d && d.ok && d.user) { document.getElementById('adm-identity').textContent = d.user.email + ' · admin'; } });
+  document.getElementById('adm-logout').addEventListener('click', function (e) { e.preventDefault(); fetch('/api/signout', { method: 'POST', credentials: 'include' }).finally(function () { window.location.href = '/'; }); });
+  function $(id) { return document.getElementById(id); }
+  function showErr(m) { var el = $('adm-error'); el.style.display = 'block'; el.textContent = m; }
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]; }); }
+  function num(n) { return Number(n || 0).toLocaleString(); }
+  function bytes(b) {
+    var n = Number(b || 0);
+    if (n < 1024) return n + ' B';
+    if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB';
+    if (n < 1024 * 1024 * 1024) return (n / (1024 * 1024)).toFixed(1) + ' MB';
+    return (n / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+  }
+
+  fetch('/api/admin/database', { credentials: 'include' })
+    .then(function (r) { if (r.status === 401 || r.status === 403) { window.location.href = '/signin?next=/admin-database.html'; throw new Error('auth'); } return r.json(); })
+    .then(function (d) {
+      $('adm-last-loaded').textContent = 'Loaded at ' + new Date(d.generated_at).toLocaleString();
+      // Show only the first chunk of version string (it includes compile info)
+      $('m-version').textContent = (d.version || 'unknown').split(' ').slice(0, 2).join(' ');
+      $('m-size').textContent = bytes(d.database_size_bytes);
+      $('m-conns').textContent = d.connections.current + ' / ' + d.connections.max;
+      $('m-conns-sub').textContent = 'Current vs max_connections';
+
+      $('tbl-tables').innerHTML = d.tables.map(function (t) {
+        return '<tr><td class="mono">' + escapeHtml(t.name) + '</td><td class="num">' + num(t.rowcount) + '</td><td class="num">' + bytes(t.size_bytes) + '</td></tr>';
+      }).join('') || '<tr><td colspan="3" style="padding: 18px; color: var(--muted);">No tables</td></tr>';
+
+      $('tbl-indexes').innerHTML = d.indexes.map(function (i) {
+        return '<tr><td class="mono">' + escapeHtml(i.table) + '</td><td class="mono">' + escapeHtml(i.name) + '</td><td class="num">' + bytes(i.size_bytes) + '</td></tr>';
+      }).join('') || '<tr><td colspan="3" style="padding: 18px; color: var(--muted);">No indexes</td></tr>';
+
+      $('tbl-slow').innerHTML = d.slow_queries.map(function (q) {
+        return '<tr><td class="mono" style="max-width: 700px; overflow: hidden; text-overflow: ellipsis;">' + escapeHtml(q.query) + '</td><td class="num">' + num(q.calls) + '</td><td class="num">' + q.mean_ms + '</td><td class="num">' + q.total_ms + '</td></tr>';
+      }).join('') || '<tr><td colspan="4" style="padding: 18px; color: var(--muted);">pg_stat_statements not enabled, or no data yet.</td></tr>';
+
+      // Group columns by table
+      var byTable = {};
+      d.schema_columns.forEach(function (c) { (byTable[c.table] = byTable[c.table] || []).push(c); });
+      var tables = Object.keys(byTable).sort();
+      $('schema').innerHTML = tables.map(function (t) {
+        var cols = byTable[t].map(function (c) {
+          return '<div class="col"><span class="cname">' + escapeHtml(c.column) + '</span><span class="ctype">' + escapeHtml(c.type) + '</span><span class="cnull ' + (c.nullable ? '' : 'no') + '">' + (c.nullable ? 'NULL ok' : 'NOT NULL') + '</span></div>';
+        }).join('');
+        return '<div class="schema-table"><div class="name">' + escapeHtml(t) + ' · ' + byTable[t].length + ' columns</div><div class="cols">' + cols + '</div></div>';
+      }).join('');
+    })
+    .catch(function (e) { if (e && e.message !== 'auth') showErr('Failed to load database data · ' + e.message); });
+})();
+</script>
+</body>
+</html>

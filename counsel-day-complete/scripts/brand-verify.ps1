@@ -486,6 +486,38 @@ if ($sentryDashHits.Count -eq 0) {
 }
 
 # ================================================================
+# 14 · Admin pages must not load external scripts or stylesheets
+# ================================================================
+# CSP-hardening · the admin surface is gated behind /api/admin-auth-check
+# but we still want defence-in-depth: no third-party CDN script tags
+# anywhere under /admin*. Self-host everything (Chart.js was the
+# original offender; now lives at /chart.umd.min.js).
+Write-Head "14 · Admin pages load no external scripts or stylesheets"
+$adminPath = Join-Path (Split-Path -Parent $PSScriptRoot) ''
+$adminFiles = Get-ChildItem -Path $adminPath -Recurse -Include 'admin.html', 'admin-*.html' -ErrorAction SilentlyContinue
+$adminExternalHits = @()
+foreach ($f in $adminFiles) {
+  $text = [System.IO.File]::ReadAllText($f.FullName)
+  # Match <script src="https://..."> and <link ... href="https://...">
+  # Allow data: URIs because they're inline payloads, not network calls.
+  $scriptMatches = [regex]::Matches($text, '<script[^>]+src=["''](https?://[^"'']+)["'']')
+  foreach ($m in $scriptMatches) { $adminExternalHits += "$($f.Name): script src $($m.Groups[1].Value)" }
+  $linkMatches = [regex]::Matches($text, '<link[^>]+href=["''](https?://[^"'']+)["''][^>]*>')
+  foreach ($m in $linkMatches) {
+    $href = $m.Groups[1].Value
+    # Allow canonical + alternate links to self (counsel.day) since those
+    # are SEO metadata, not network fetches.
+    if ($href -match '^https?://counsel\.day/') { continue }
+    $adminExternalHits += "$($f.Name): link href $href"
+  }
+}
+if ($adminExternalHits.Count -eq 0) {
+  Write-Pass "No external script or stylesheet references on the admin surface"
+} else {
+  Write-Fail "External resource on admin page (CSP-hardening rule)" ($adminExternalHits -join "`n       ")
+}
+
+# ================================================================
 # Summary
 # ================================================================
 Write-Host ""

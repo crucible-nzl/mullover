@@ -6,7 +6,7 @@
 <title>Admin · Counsel.day</title>
 <meta name="description" content="Counsel.day operations dashboard. Real-time DB counts, integration health, audit log, cron triggers.">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#0b1a2b">
+<meta name="theme-color" content="#f7f9fc">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <style>
   /* Admin uses its own palette · neutral/blue CMS aesthetic, distinct from
@@ -222,14 +222,20 @@
       <div class="out" data-cron-out="invite-reminder"></div>
     </div>
     <div class="cron-cell">
+      <div class="name">hard-delete-purge</div>
+      <div class="desc">Permanently delete users soft-deleted &gt; 14 days ago + cascade.</div>
+      <button class="btn btn-secondary" data-cron="hard-delete-purge">Run now</button>
+      <div class="out" data-cron-out="hard-delete-purge"></div>
+    </div>
+    <div class="cron-cell">
       <div class="name">pg-dump</div>
-      <div class="desc">Postgres backup to /var/backups/counsel-day/ (14-day retention).</div>
+      <div class="desc">Postgres backup to /home/deploy/backups/ (gzipped, in-process tsx).</div>
       <button class="btn btn-secondary" data-cron="pg-dump">Run now</button>
       <div class="out" data-cron-out="pg-dump"></div>
     </div>
     <div class="cron-cell">
       <div class="name">sitemap</div>
-      <div class="desc">Crawl /var/www and regenerate sitemap.xml.</div>
+      <div class="desc">Crawl /var/www and regenerate sitemap.xml (in-process tsx).</div>
       <button class="btn btn-secondary" data-cron="sitemap">Run now</button>
       <div class="out" data-cron-out="sitemap"></div>
     </div>

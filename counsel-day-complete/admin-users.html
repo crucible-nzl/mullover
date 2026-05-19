@@ -145,7 +145,7 @@
 
         var from = d.total === 0 ? 0 : state.offset + 1;
         var to = Math.min(state.offset + state.limit, d.total);
-        $('u-range').textContent = from + '–' + to + ' of ' + d.total;
+        $('u-range').textContent = from + ' to ' + to + ' of ' + d.total;
         $('u-prev').disabled = state.offset <= 0;
         $('u-next').disabled = state.offset + state.limit >= d.total;
       })

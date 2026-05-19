@@ -33,22 +33,27 @@ const jobSchema = z.object({
     'session-purge',
     'invite-expiry',
     'invite-reminder',
+    'hard-delete-purge',
     'pg-dump',
     'sitemap',
   ]),
 });
 
 // Map every job to the EXACT command to run. App crons go through
-// `npx tsx src/jobs/cron.ts <name>`; ops crons go through `sudo systemctl
-// start <unit>` because they need root file permissions.
+// `npx tsx src/jobs/cron.ts <name>`. Ops crons (sitemap, pg-dump) used
+// to shell to `sudo systemctl start` but the counsel-day-app systemd
+// unit has NoNewPrivileges=true (security hardening) which forbids sudo
+// from inside the running app process. Both ops crons are now in-process
+// tsx scripts that write to deploy-owned paths.
 const jobCommand: Record<string, { cmd: string; args: string[]; cwd?: string }> = {
-  'evening-prompt':   { cmd: 'npx',              args: ['tsx', 'src/jobs/cron.ts', 'evening-prompt'],   cwd: '/opt/counsel-day-app' },
-  'verdict-generate': { cmd: 'npx',              args: ['tsx', 'src/jobs/cron.ts', 'verdict-generate'], cwd: '/opt/counsel-day-app' },
-  'session-purge':    { cmd: 'npx',              args: ['tsx', 'src/jobs/cron.ts', 'session-purge'],    cwd: '/opt/counsel-day-app' },
-  'invite-expiry':    { cmd: 'npx',              args: ['tsx', 'src/jobs/cron.ts', 'invite-expiry'],    cwd: '/opt/counsel-day-app' },
-  'invite-reminder':  { cmd: 'npx',              args: ['tsx', 'src/jobs/cron.ts', 'invite-reminder'],  cwd: '/opt/counsel-day-app' },
-  'pg-dump':          { cmd: 'sudo',             args: ['systemctl', 'start', 'counsel-day-backup.service'] },
-  'sitemap':          { cmd: 'sudo',             args: ['systemctl', 'start', 'counsel-day-sitemap.service'] },
+  'evening-prompt':    { cmd: 'npx', args: ['tsx', 'src/jobs/cron.ts', 'evening-prompt'],    cwd: '/opt/counsel-day-app' },
+  'verdict-generate':  { cmd: 'npx', args: ['tsx', 'src/jobs/cron.ts', 'verdict-generate'],  cwd: '/opt/counsel-day-app' },
+  'session-purge':     { cmd: 'npx', args: ['tsx', 'src/jobs/cron.ts', 'session-purge'],     cwd: '/opt/counsel-day-app' },
+  'invite-expiry':     { cmd: 'npx', args: ['tsx', 'src/jobs/cron.ts', 'invite-expiry'],     cwd: '/opt/counsel-day-app' },
+  'invite-reminder':   { cmd: 'npx', args: ['tsx', 'src/jobs/cron.ts', 'invite-reminder'],   cwd: '/opt/counsel-day-app' },
+  'hard-delete-purge': { cmd: 'npx', args: ['tsx', 'src/jobs/cron.ts', 'hard-delete-purge'], cwd: '/opt/counsel-day-app' },
+  'sitemap':           { cmd: 'npx', args: ['tsx', 'src/jobs/sitemap.ts'],                   cwd: '/opt/counsel-day-app' },
+  'pg-dump':           { cmd: 'npx', args: ['tsx', 'src/jobs/pg-dump.ts'],                   cwd: '/opt/counsel-day-app' },
 };
 
 function runOnce(cmd: string, args: string[], cwd: string | undefined, timeoutMs: number): Promise<{ exitCode: number; stdout: string; stderr: string }> {

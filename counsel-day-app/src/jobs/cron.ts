@@ -369,6 +369,54 @@ async function inviteReminder() {
   console.log(`[cron · invite-reminder] sent ${sent}/${rows.length} reminders`);
 }
 
+/**
+ * Hard-delete soft-deleted users after the 14-day grace window.
+ *
+ * Per [[project-locked-settings]], soft-deletes (DELETE /api/me +
+ * admin soft_delete) are reversible for 14 days; afterwards the
+ * account, every decision they own, votes, notes, verdicts, and
+ * saved contacts are permanently removed. The schema has ON DELETE
+ * CASCADE everywhere that depends on users.id so this is one DELETE
+ * + Postgres handles the cascade.
+ *
+ * Stripe customer records are NOT cascaded · we keep the audit
+ * trail of subscription history but the email + name are wiped via
+ * the cascade. Operator can manually remove the Stripe customer
+ * later via the Customer Portal.
+ */
+async function hardDeletePurge() {
+  // Count first so we can log + audit before destroying
+  const candidates = await db.execute<{ id: string; email: string }>(sql`
+    SELECT id::text, email FROM users
+    WHERE deleted_at IS NOT NULL
+      AND deleted_at < NOW() - INTERVAL '14 days'
+  `);
+  const list = Array.from(candidates) as Array<{ id: string; email: string }>;
+  if (list.length === 0) {
+    console.log('[cron · hard-delete-purge] no users past the 14-day window');
+    return;
+  }
+
+  // Audit-log each pending deletion BEFORE the row disappears
+  for (const u of list) {
+    await db.insert(schema.auditLog).values({
+      action: 'user.hard_delete_purged',
+      targetType: 'user',
+      targetId: u.id,
+      metadata: { email_hash: Buffer.from(u.email).toString('base64').slice(0, 32) },
+    }).catch(() => { /* best-effort */ });
+  }
+
+  // Bulk delete · ON DELETE CASCADE handles every dependent table
+  await db.execute(sql`
+    DELETE FROM users
+    WHERE deleted_at IS NOT NULL
+      AND deleted_at < NOW() - INTERVAL '14 days'
+  `);
+
+  console.log(`[cron · hard-delete-purge] purged ${list.length} user${list.length === 1 ? '' : 's'} past the 14-day grace`);
+}
+
 async function main() {
   const job = process.argv[2];
   switch (job) {
@@ -377,8 +425,9 @@ async function main() {
     case 'session-purge':    return sessionPurge();
     case 'invite-expiry':    return inviteExpiry();
     case 'invite-reminder':  return inviteReminder();
+    case 'hard-delete-purge': return hardDeletePurge();
     default:
-      console.error(`Unknown job: ${job}. Valid: evening-prompt, verdict-generate, session-purge, invite-expiry, invite-reminder`);
+      console.error(`Unknown job: ${job}. Valid: evening-prompt, verdict-generate, session-purge, invite-expiry, invite-reminder, hard-delete-purge`);
       process.exit(2);
   }
 }

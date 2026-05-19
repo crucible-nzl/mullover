@@ -60,6 +60,22 @@ counsel.day {
     try_files {path} {path}.html
     file_server
 
+    # Serve our branded /404.html on 404s and /500.html on 5xx. Without
+    # this, Caddy returns its own ugly default page · SEO checkers
+    # downgrade us for it and users get a worse landing.
+    handle_errors {
+        @404 expression `{err.status_code} == 404`
+        @5xx expression `{err.status_code} >= 500 && {err.status_code} < 600`
+        handle @404 {
+            rewrite * /404.html
+            file_server
+        }
+        handle @5xx {
+            rewrite * /500.html
+            file_server
+        }
+    }
+
     header {
         Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
         X-Content-Type-Options "nosniff"

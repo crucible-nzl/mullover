@@ -1207,7 +1207,8 @@ section { padding: 30px 32px; border-bottom: 1px solid var(--rule); }
 }
 .colophon-brand .tld { font-weight: 400; font-style: italic; color: var(--wine); }
 .colophon-tagline { font-family: var(--font-body); font-size: 15px; line-height: 1.65; color: var(--ink-soft); margin: 0; max-width: 480px; }
-.colophon-col h5 {
+.colophon-col h5,
+.colophon-col .colophon-col-h {
   font-family: var(--font-mono); font-size: 12px; font-weight: 500;
   letter-spacing: 0.18em; text-transform: uppercase;
   color: var(--wine); margin: 0 0 16px;

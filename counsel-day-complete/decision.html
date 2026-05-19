@@ -141,6 +141,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   .dx-meta-panel .row .v.wine { color: var(--wine); font-style: italic; }
 
   .dx-actions { display: flex; gap: 14px; flex-wrap: wrap; padding-top: 30px; margin-top: 30px; border-top: 1px solid var(--ink); }
+
+  /* Daily quote card · sits between the CTA and the day strip */
+  .dx-quote-card { padding: 24px 30px; margin: 24px 0 30px; border-left: 3px solid var(--wine); background: var(--paper-deep, #fafafa); max-width: 920px; }
+  .dx-quote-eyebrow { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin-bottom: 10px; }
+  .dx-quote-text { font-family: var(--font-display); font-style: italic; font-size: clamp(18px, 1.8vw, 22px); line-height: 1.5; color: var(--ink); margin: 0 0 10px; max-width: 760px; }
+  .dx-quote-attr { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -224,6 +230,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <a href="vote-today.html" class="btn btn-large">Cast tonight's vote</a>
       </div>
     </div>
+
+    <!-- Daily quote · changes by day number, anchored on the considered-decision theme -->
+    <aside class="dx-quote-card" id="cd-quote-card" aria-label="Today's reflection">
+      <div class="dx-quote-eyebrow" id="cd-quote-eyebrow">A NOTE FOR TODAY</div>
+      <blockquote class="dx-quote-text" id="cd-quote-text">…</blockquote>
+      <div class="dx-quote-attr" id="cd-quote-attr">·</div>
+    </aside>
 
     <div class="dx-section-label" id="cd-strip-label">…</div>
 
@@ -478,6 +491,58 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       }
       txt('cd-c-remaining-val', d.days_remaining + ' day' + (d.days_remaining === 1 ? '' : 's'));
       txt('cd-c-remaining-sub', 'Until reveal');
+
+      // ---- daily quote ----
+      // 30 entries · one per day for the longest decision tier. Shorter
+      // tiers see a subset. The day number indexes the array · the same
+      // decision shows the same sequence every time, so the reflection
+      // feels like part of the file rather than a randomised distraction.
+      var DAILY_QUOTES = [
+        { t: "A considered decision is the residue of many evenings.", a: "Counsel.day" },
+        { t: "You are not making the decision tonight. You are giving it a place to rest.", a: "Counsel.day" },
+        { t: "Patience is the companion of wisdom.", a: "Augustine" },
+        { t: "The most useful piece of learning for the uses of life is to unlearn what is untrue.", a: "Antisthenes" },
+        { t: "Do nothing in a hurry; you will gain a day.", a: "French proverb" },
+        { t: "The first thought is rarely the best thought.", a: "Counsel.day" },
+        { t: "We are what we repeatedly choose. A good decision, then, is not an act, but a habit.", a: "After Aristotle" },
+        { t: "Sit quietly with the question. The answer is already on its way.", a: "Counsel.day" },
+        { t: "There is a great difference between knowing a thing and understanding it.", a: "Charles F. Kettering" },
+        { t: "He who is not in a hurry sees the whole road.", a: "Italian proverb" },
+        { t: "Mid-way: this is where the shape of your real answer begins to emerge.", a: "Counsel.day" },
+        { t: "The mind that opens to a new idea never returns to its original size.", a: "Albert Einstein" },
+        { t: "Doubt is the origin of wisdom.", a: "René Descartes" },
+        { t: "Time discovers truth.", a: "Seneca" },
+        { t: "The pause between question and answer is where the work happens.", a: "Counsel.day" },
+        { t: "Knowing yourself is the beginning of all wisdom.", a: "Aristotle" },
+        { t: "Quick decisions are unsafe decisions.", a: "Sophocles" },
+        { t: "Listen with the same intensity you bring to speaking.", a: "Counsel.day" },
+        { t: "We choose what we attend to, and we become what we choose.", a: "William James (paraphrased)" },
+        { t: "Two-thirds of the way: the conviction you started with is being tested by you, not by anyone else.", a: "Counsel.day" },
+        { t: "A wise man is never less alone than when he is alone.", a: "Jonathan Swift" },
+        { t: "The hardest thing to do is do nothing.", a: "Counsel.day" },
+        { t: "Better a clear answer late than a wrong answer fast.", a: "Counsel.day" },
+        { t: "All endeavour calls for the ability to tramp the last mile.", a: "Henry David Thoreau" },
+        { t: "Conviction is a quiet thing on the final stretch.", a: "Counsel.day" },
+        { t: "Even a stopped clock is right twice a day. Don't be a clock.", a: "Counsel.day" },
+        { t: "The thinking matters more than the choice itself.", a: "Counsel.day" },
+        { t: "Closing in: the last few votes are often the most honest.", a: "Counsel.day" },
+        { t: "Trust the slow accumulation of what you already know.", a: "Counsel.day" },
+        { t: "Tomorrow your answer arrives. Tonight, give it room.", a: "Counsel.day" }
+      ];
+      var qCard = document.getElementById('cd-quote-card');
+      if (qCard) {
+        if (d.day_number > 0 && !d.is_unsealed) {
+          // index by 1-based day, fall back to mod for safety on day 31+
+          var qIdx = ((d.day_number - 1) % DAILY_QUOTES.length + DAILY_QUOTES.length) % DAILY_QUOTES.length;
+          var q = DAILY_QUOTES[qIdx];
+          txt('cd-quote-eyebrow', 'DAY ' + d.day_number + ' OF ' + d.total_days + ' · A NOTE FOR TODAY');
+          txt('cd-quote-text', String.fromCharCode(0x201C) + q.t + String.fromCharCode(0x201D));
+          txt('cd-quote-attr', String.fromCharCode(0x00B7) + ' ' + q.a);
+        } else {
+          // Hide for not-started + already-unsealed states
+          qCard.style.display = 'none';
+        }
+      }
 
       var me = participants.filter(function (p) { return p.is_you; })[0];
       var myDates = (me && me.voted_dates) || [];

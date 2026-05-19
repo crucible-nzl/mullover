@@ -351,7 +351,7 @@
     })
       .then(function (r) {
         if (r.status !== 200) return null;
-        // Body may be empty (older deploys) or { ok, is_admin } — both fine
+        // Body may be empty (older deploys) or { ok, is_admin } · both fine
         return r.json().catch(function () { return { is_admin: r.headers.get('x-is-admin') === '1' }; });
       })
       .then(function (info) {

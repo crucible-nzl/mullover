@@ -165,6 +165,8 @@ These steps were run once on 17 May 2026; do not repeat unless rebuilding the bo
 | `ANTHROPIC_API_KEY` | `/etc/counsel-day-app/env.local` | Every 60 days (per Anthropic best practice) |
 | `RECAPTCHA_V3_SECRET_KEY` | `/etc/counsel-day-app/env.local` | Annual |
 | `SESSION_SIGNING_KEY` | `/etc/counsel-day-app/env.local` | Quarterly. Rotation invalidates all sessions; users re-login. |
+| `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT` | `/etc/counsel-day-app/env.local` | Generate once via `npx web-push generate-vapid-keys`; rotating invalidates every active push subscription so users would need to re-enable on each device. Only rotate on key compromise. |
+| `GA4_SERVICE_ACCOUNT_JSON` / `GA4_PROPERTY_ID` | `/etc/counsel-day-app/env.local` | Service account creds for the /admin-traffic dashboard. Rotate when the operator who owns the GCP project changes. |
 | SSH private key | `~/.ssh/id_ed25519_counsel_day` on operator laptops | Annual; on any laptop loss/compromise |
 
 To rotate a value in `env.local`:
@@ -438,6 +440,55 @@ Three keys appeared in plaintext in the AI-assisted build conversation: Brevo AP
 4. Verify in Stripe → Webhooks → recent attempts · should now succeed with the new secret
 
 After all three: verify nothing's broken by hitting `https://counsel.day/api/health` (200) and triggering one of each integration (signup → email arrives, pricing → checkout opens, webhook → recent delivery succeeds).
+
+### 7 · Web Push (PWA notifications)
+
+The PWA service worker (`/sw.js`) and frontend bootstrap (`/pwa.js`) ship in every commit; the backend uses `lib/push.ts` which dynamically loads `web-push` only when VAPID env is present, so the deploy is safe to ship before VAPID is configured.
+
+**Setup:**
+1. Generate the keypair (any machine with Node):
+   ```bash
+   npx web-push generate-vapid-keys
+   ```
+2. Install via SSH:
+   ```bash
+   ssh -i ~/.ssh/id_ed25519_counsel_day deploy@46.225.133.203 \
+     "sudo tee -a /etc/counsel-day-app/env.local > /dev/null <<EOF
+   VAPID_PUBLIC_KEY=...
+   VAPID_PRIVATE_KEY=...
+   VAPID_SUBJECT=mailto:admin@counsel.day
+   EOF
+   sudo chmod 600 /etc/counsel-day-app/env.local && \
+   sudo systemctl restart counsel-day-app"
+   ```
+3. Visit `https://counsel.day/account.html` in a real browser (HTTPS required); under Notifications, click **Enable push**. Phone test: install via Add to Home Screen first on iOS.
+4. Verify: the evening-prompt cron now logs `sent N emails, M push notifications`.
+
+**Rotate only on key compromise.** Rotating VAPID invalidates every active subscription · all users have to re-enable on each device.
+
+### 8 · GA4 service account (for the /admin-traffic dashboard)
+
+The Traffic admin page calls the GA4 Data API server-side. Without credentials it renders a setup prompt; with them, it serves 30-day sessions/users/pages/sources.
+
+**Setup:**
+1. https://console.cloud.google.com/ → create or pick a project.
+2. **IAM & Admin** → **Service Accounts** → **Create service account**. Skip the optional role on creation.
+3. Open the service account → **Keys** → **Add key** → JSON. Download.
+4. In GA4 Admin → **Property Access Management** → add the service account email (from the JSON key) with role **Viewer**.
+5. Copy the numeric property id from GA4 Admin → Property Settings (NOT the measurement id G-XXX).
+6. Install via SSH:
+   ```bash
+   # Replace the placeholders with your actual key contents and property id
+   ssh -i ~/.ssh/id_ed25519_counsel_day deploy@46.225.133.203 \
+     "sudo tee -a /etc/counsel-day-app/env.local > /dev/null <<'EOF'
+   GA4_PROPERTY_ID=123456789
+   GA4_SERVICE_ACCOUNT_JSON={\"type\":\"service_account\",...}
+   EOF
+   sudo chmod 600 /etc/counsel-day-app/env.local && \
+   sudo systemctl restart counsel-day-app"
+   ```
+7. The `@google-analytics/data` npm package is already declared in `package.json`; the next deploy will pick it up.
+8. Verify by loading `https://counsel.day/admin-traffic.html` as an admin user.
 
 ---
 

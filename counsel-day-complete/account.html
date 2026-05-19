@@ -149,7 +149,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 .danger-zone p { font-family: var(--font-body); font-size: 15px; line-height: 1.6; color: var(--ink); margin: 0 0 18px; }
 .danger-zone .dz-actions { display: flex; gap: 12px; flex-wrap: wrap; }
 
-.acct-head { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end; padding-bottom: 18px; border-bottom: 1px solid var(--ink); margin-bottom: 28px; }
+.acct-head { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end; padding-bottom: 18px; border-bottom: 1px solid var(--ink); margin-bottom: 0; }
+.acct-anchor-nav a { color: var(--ink); text-decoration: none; padding: 4px 0; border-bottom: 1px solid transparent; transition: border-color 120ms ease, color 120ms ease; }
+.acct-anchor-nav a:hover { border-bottom-color: var(--wine); color: var(--wine); }
+.acct-head-actions .btn-text { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); border-bottom: 1px solid transparent; padding-bottom: 1px; }
+.acct-head-actions .btn-text:hover { border-bottom-color: var(--wine); color: var(--wine); }
+#cd-acct-logout:hover { background: var(--wine); color: var(--paper) !important; }
 .acct-head .who .eyebrow { font-family: var(--font-mono); font-size: 13px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin-bottom: 12px; }
 .acct-head .who h1 { font-family: var(--font-display); font-size: clamp(36px, 4.6vw, 54px); font-weight: 400; line-height: 1.06; letter-spacing: -0.018em; color: var(--ink); margin: 0; }
 .acct-head .who h1 .ital { font-style: italic; color: var(--wine); font-weight: 400; }
@@ -189,12 +194,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="who">
         <div class="eyebrow">File · Account · Your settings</div>
         <h1>Your <span class="ital">account.</span></h1>
-        <div class="meta">Signed in as <strong id="cd-meta-email">…</strong> · Member since <strong id="cd-meta-since">…</strong></div>
+        <div class="meta">Signed in as <strong id="cd-meta-email">…</strong> · Member since <strong id="cd-meta-since">…</strong> · Account ID <span class="mono" id="cd-meta-id" style="font-size: 12px; color: var(--muted);">…</span></div>
+      </div>
+      <div class="acct-head-actions" style="display: flex; gap: 10px; align-items: center;">
+        <a href="decisions.html" class="btn-text">Your decisions</a>
+        <a href="billing.html" class="btn-text">Billing</a>
+        <a href="help.html" class="btn-text">Help</a>
+        <button type="button" id="cd-acct-logout" class="btn-text" style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; color: var(--wine); border: 1px solid var(--wine); padding: 8px 14px; background: transparent;">Log out</button>
       </div>
     </div>
 
+    <nav class="acct-anchor-nav" aria-label="Account sections" style="position: sticky; top: 0; z-index: 5; background: var(--paper); border-bottom: 1px solid var(--rule); padding: 10px 0; margin-bottom: 18px; display: flex; flex-wrap: wrap; gap: 16px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;">
+      <a href="#profile">Profile</a>
+      <a href="#security">Security</a>
+      <a href="#subscription">Subscription</a>
+      <a href="#prompts">Prompts</a>
+      <a href="#notifications">Notifications</a>
+      <a href="#devices">Devices</a>
+      <a href="#privacy">Privacy</a>
+    </nav>
+
     <!-- 01 PROFILE -->
-    <section class="method-stage">
+    <section class="method-stage" id="profile">
       <div class="method-stage-head">
         <div class="method-stage-eyebrow">Profile</div>
         <h2 class="method-stage-title">Your <span class="ital">identity</span> on the account.</h2>
@@ -245,7 +266,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <button type="button" id="cd-save-profile" class="btn" style="padding: 11px 24px;">Save profile</button>
         </div>
       </div>
-      <div class="acct-form-row">
+      <div class="acct-form-row" id="security">
         <div class="label">Password</div>
         <div class="value">
           <a href="#" class="btn btn-ghost" style="padding: 11px 22px; font-size: 14px;">Change password</a>
@@ -263,7 +284,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </section>
 
     <!-- 02 SUBSCRIPTION -->
-    <section class="method-stage">
+    <section class="method-stage" id="subscription">
       <div class="method-stage-head">
         <div class="method-stage-eyebrow">Subscription</div>
         <h2 class="method-stage-title">Your current <span class="ital">plan</span> and renewal.</h2>
@@ -289,7 +310,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </section>
 
     <!-- 03 VOTE-PROMPT TIMING -->
-    <section class="method-stage">
+    <section class="method-stage" id="prompts">
       <div class="method-stage-head">
         <div class="method-stage-eyebrow">Evening prompt</div>
         <h2 class="method-stage-title">When we ask you to <span class="ital">vote.</span></h2>
@@ -331,7 +352,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </section>
 
     <!-- 04 NOTIFICATIONS -->
-    <section class="method-stage">
+    <section class="method-stage" id="notifications">
       <div class="method-stage-head">
         <div class="method-stage-eyebrow">Notifications</div>
         <h2 class="method-stage-title">What we tell you, and <span class="ital">when.</span></h2>
@@ -363,7 +384,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </section>
 
     <!-- 05 DEVICES -->
-    <section class="method-stage">
+    <section class="method-stage" id="devices">
       <div class="method-stage-head">
         <div class="method-stage-eyebrow">Devices and sessions</div>
         <h2 class="method-stage-title">Everywhere you're signed <span class="ital">in.</span></h2>
@@ -389,7 +410,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </section>
 
     <!-- 06 PRIVACY -->
-    <section class="method-stage">
+    <section class="method-stage" id="privacy">
       <div class="method-stage-head">
         <div class="method-stage-eyebrow">Privacy controls</div>
         <h2 class="method-stage-title">Your <span class="ital">data,</span> on your terms.</h2>
@@ -531,6 +552,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       var u = d.user || {};
       set('cd-meta-email', u.email || '');
       set('cd-meta-since', fmtDate(u.created_at));
+      set('cd-meta-id', u.id ? u.id.slice(0, 8) : '');
       set('cd-input-name', u.first_name || '');
       set('cd-input-email', u.email || '');
       set('cd-signed-in-since', fmtDate(u.created_at) + (u.email_verified ? '' : ' · email not yet verified'));
@@ -614,6 +636,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       })
       .catch(function () { show('error', 'Network error. Please try again.'); })
       .finally(function () { btn.disabled = false; btn.textContent = orig; });
+  });
+})();
+</script>
+<script>
+// Top-of-page Log out button · POST /api/signout, then redirect home.
+(function () {
+  var btn = document.getElementById('cd-acct-logout');
+  if (!btn) return;
+  btn.addEventListener('click', function () {
+    btn.disabled = true; btn.textContent = 'Signing out…';
+    fetch('/api/signout', { method: 'POST', credentials: 'include' })
+      .catch(function () { /* fall through to redirect */ })
+      .finally(function () { window.location.href = '/'; });
   });
 })();
 </script>

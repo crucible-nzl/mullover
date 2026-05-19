@@ -41,6 +41,17 @@ const bodySchema = z.object({
   decision_id: z.string().uuid(),
   reason: z.string().trim().min(30).max(2000),
   contact: z.string().trim().toLowerCase().email().max(200).optional(),
+  // Comprehensive context · all optional so direct API users aren't broken.
+  // The web form requires category + preferred_resolution; everything else
+  // is genuinely optional to keep the friction reasonable.
+  category: z.enum(['technical', 'billing', 'statutory', 'other']).optional(),
+  decision_outcome: z.enum(['sealed_not_started', 'in_progress', 'completed_no_verdict', 'verdict_received', 'unsure']).optional(),
+  reproducible: z.enum(['yes', 'no', 'not_sure']).optional(),
+  steps_to_reproduce: z.string().trim().max(2000).optional(),
+  browser_device: z.string().trim().max(300).optional(),
+  preferred_resolution: z.enum(['full_refund', 'credit', 'reattempt', 'no_preference']).optional(),
+  date_of_issue: z.string().trim().max(20).optional(),
+  phone: z.string().trim().max(40).optional(),
 });
 
 function escapeHtml(s: string): string {
@@ -67,7 +78,18 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ ok: false, message: 'Please complete every field. The reason must be at least 30 characters.' }, { status: 422 });
   }
-  const { decision_id, reason } = parsed.data;
+  const {
+    decision_id,
+    reason,
+    category,
+    decision_outcome,
+    reproducible,
+    steps_to_reproduce,
+    browser_device,
+    preferred_resolution,
+    date_of_issue,
+    phone,
+  } = parsed.data;
 
   // Ownership check · the decision must belong to the requesting user.
   // Don't reveal "wrong owner" vs "no such decision" · both 404.
@@ -111,6 +133,14 @@ export async function POST(req: Request) {
       amount_paid_cents: decision.amountPaidCents,
       stripe_payment_intent_id: decision.stripePaymentIntentId,
       decision_status_at_request: decision.status,
+      category: category ?? null,
+      decision_outcome: decision_outcome ?? null,
+      reproducible: reproducible ?? null,
+      steps_to_reproduce: steps_to_reproduce ?? null,
+      browser_device: browser_device ?? null,
+      preferred_resolution: preferred_resolution ?? null,
+      date_of_issue: date_of_issue ?? null,
+      phone: phone ?? null,
     },
   });
 
@@ -119,20 +149,30 @@ export async function POST(req: Request) {
   const adminText = [
     `User: ${user.firstName ?? '(no name)'} <${user.email}>`,
     `Reply-to: ${contact}`,
+    phone ? `Phone: ${phone}` : null,
     `Decision: ${decision.id}`,
     `Tier: ${decision.tier} · paid ${(decision.amountPaidCents / 100).toFixed(2)} USD`,
     `Stripe payment intent: ${decision.stripePaymentIntentId ?? '(none)'}`,
     `Decision status: ${decision.status}`,
     `Question: ${decision.question}`,
     '',
-    'Reason for refund:',
+    '--- CONTEXT ---',
+    category ? `Category: ${category}` : null,
+    decision_outcome ? `Decision outcome at time of issue: ${decision_outcome}` : null,
+    date_of_issue ? `Date issue occurred: ${date_of_issue}` : null,
+    reproducible ? `Reproducible: ${reproducible}` : null,
+    browser_device ? `Browser/device: ${browser_device}` : null,
+    preferred_resolution ? `Preferred resolution: ${preferred_resolution}` : null,
+    '',
+    '--- REASON ---',
     reason,
+    steps_to_reproduce ? '\n--- STEPS TO REPRODUCE ---\n' + steps_to_reproduce : null,
     '',
     'Process via Stripe Dashboard → Payments → find this PaymentIntent → Refund.',
     'Then admin must update decisions.status to "refunded" and set refunded_at.',
     '',
     '· Counsel.day refund request',
-  ].join('\n');
+  ].filter(Boolean).join('\n');
   await sendTransactional({
     to: { email: OPS_INBOX, name: 'Counsel.day refunds' },
     subject: adminSubject,

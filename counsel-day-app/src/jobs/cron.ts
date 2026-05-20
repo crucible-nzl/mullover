@@ -197,6 +197,13 @@ async function verdictGenerate() {
 async function sessionPurge() {
   const r = await db.execute(sql`DELETE FROM sessions WHERE expires_at < NOW() RETURNING id`);
   console.log(`[cron · session-purge] deleted ${(r as unknown as Array<unknown>).length} expired sessions`);
+
+  // Also clean up rate_limits rows whose reset_at is more than 24h
+  // in the past · the helper resets them lazily on next hit but
+  // dead buckets accumulate (IPs that abused us once a month ago
+  // and never returned). 24h is well past every window we use.
+  const rl = await db.execute(sql`DELETE FROM rate_limits WHERE reset_at < NOW() - INTERVAL '24 hours' RETURNING key`);
+  console.log(`[cron · session-purge] pruned ${(rl as unknown as Array<unknown>).length} stale rate_limits rows`);
 }
 
 /**

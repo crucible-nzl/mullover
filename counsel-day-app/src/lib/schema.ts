@@ -301,6 +301,24 @@ export const savedContacts = pgTable(
 );
 
 // ---------------------------------------------------------------------------
+// RATE LIMITS · fixed-window counter keyed by "<scope>:<value>". Application
+// code does key construction (e.g. "signin-ip:1.2.3.4"). One row per bucket.
+// See lib/rate-limit.ts for the helper.
+// ---------------------------------------------------------------------------
+export const rateLimits = pgTable(
+  'rate_limits',
+  {
+    key: text('key').primaryKey(),
+    count: integer('count').notNull().default(0),
+    resetAt: timestamp('reset_at', { withTimezone: true }).notNull().defaultNow(),
+    lastHitAt: timestamp('last_hit_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    resetIdx: index('rate_limits_reset_idx').on(t.resetAt),
+  })
+);
+
+// ---------------------------------------------------------------------------
 // PRODUCTS · admin-editable price list. Stripe Prices remain the source of
 // truth for billing; this table is the presentational layer + admin's
 // window into which Stripe Price object maps to each tier.

@@ -21,6 +21,7 @@ import { verifyPassword } from '@/lib/auth';
 import { createSession, ctxFromHeaders, buildSessionCookie } from '@/lib/sessions';
 import { sendTransactional, buildVerificationEmail } from '@/lib/email';
 import { newToken } from '@/lib/tokens';
+import { checkRateLimit, getClientIp, rateLimitResponse } from '@/lib/rate-limit';
 import { eq, sql } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
@@ -35,6 +36,16 @@ const signinSchema = z.object({
 });
 
 export async function POST(req: Request) {
+  // Rate-limit by IP BEFORE we parse anything · cheapest possible
+  // bail-out for abuse traffic. Per docs/SECURITY_PENTEST_2026-05-20
+  // recommendation: 10 attempts per IP per hour catches email-bomb
+  // flooding without trapping NATed households on a bad day.
+  const ip = getClientIp(req);
+  const ipCheck = await checkRateLimit(`signin-ip:${ip}`, 10, 3600);
+  if (!ipCheck.allowed) {
+    return rateLimitResponse(ipCheck, 'Too many sign-in attempts from this network. Please wait and try again.');
+  }
+
   // Parse body (multipart, urlencoded, or JSON)
   let raw: Record<string, unknown>;
   try {
@@ -54,6 +65,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, message: 'Please enter a valid email address.' }, { status: 422 });
   }
   const { email, password } = parsed.data;
+
+  // Per-email rate limit · 5/hour. Catches a targeted attack where
+  // the abuser rotates IPs but always uses the same victim email.
+  // Keyed by the lowercased email so all variants of capitalisation
+  // share the bucket.
+  const emailCheck = await checkRateLimit(`signin-email:${email}`, 5, 3600);
+  if (!emailCheck.allowed) {
+    // Return the same generic message · don't disclose that this is
+    // an email-specific limit (which would confirm the email exists
+    // or is being targeted).
+    return rateLimitResponse(emailCheck, 'Too many sign-in attempts. Please wait and try again.');
+  }
 
   // Look up user · case-insensitive. Soft-deleted accounts cannot sign in
   // (GDPR Article 17 · deleted_at IS NULL filter); the grace window keeps

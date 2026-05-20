@@ -38,17 +38,17 @@
 
   <h2>KPIs · cumulative</h2>
   <div class="grid-4">
-    <div class="card"><div class="label">Gross revenue</div><div class="value" id="m-rev">…</div><div class="sub">Sum of decisions.amount_paid_cents</div></div>
-    <div class="card"><div class="label">AI cost (Anthropic)</div><div class="value" id="m-ai">…</div><div class="sub">Sum of verdicts.cost_cents</div></div>
-    <div class="card"><div class="label">Net</div><div class="value" id="m-net">…</div><div class="sub">Revenue minus AI cost</div></div>
-    <div class="card"><div class="label">Gross margin</div><div class="value" id="m-margin">…</div><div class="sub">Net / revenue</div></div>
+    <div class="card"><div class="label">Gross revenue</div><div class="value skel skel-value" id="m-rev">…</div><div class="sub">Sum of decisions.amount_paid_cents</div></div>
+    <div class="card"><div class="label">AI cost (Anthropic)</div><div class="value skel skel-value" id="m-ai">…</div><div class="sub">Sum of verdicts.cost_cents</div></div>
+    <div class="card"><div class="label">Net</div><div class="value skel skel-value" id="m-net">…</div><div class="sub">Revenue minus AI cost</div></div>
+    <div class="card"><div class="label">Gross margin</div><div class="value skel skel-value" id="m-margin">…</div><div class="sub">Net / revenue</div></div>
   </div>
 
   <h2>Refunds, last 30 days</h2>
   <div class="grid-3">
-    <div class="card"><div class="label">Requests</div><div class="value" id="m-rr">…</div></div>
-    <div class="card"><div class="label">Processed</div><div class="value" id="m-rp">…</div></div>
-    <div class="card"><div class="label">Processed / requested</div><div class="value" id="m-rr-ratio">…</div></div>
+    <div class="card"><div class="label">Requests</div><div class="value skel skel-value" id="m-rr">…</div></div>
+    <div class="card"><div class="label">Processed</div><div class="value skel skel-value" id="m-rp">…</div></div>
+    <div class="card"><div class="label">Processed / requested</div><div class="value skel skel-value" id="m-rr-ratio">…</div></div>
   </div>
 
   <h2>Daily revenue · last 90 days</h2>
@@ -64,7 +64,8 @@
 <script src="/chart.umd.min.js"></script>
 <script>
 (function () {
-  fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) { if (d && d.ok && d.user) { document.getElementById('adm-identity').textContent = d.user.email + ' · admin'; } });
+  fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) {
+      document.querySelectorAll(".skel").forEach(function (el) { el.classList.remove("skel", "skel-value"); }); if (d && d.ok && d.user) { document.getElementById('adm-identity').textContent = d.user.email + ' · admin'; } });
   document.getElementById('adm-logout').addEventListener('click', function (e) { e.preventDefault(); fetch('/api/signout', { method: 'POST', credentials: 'include' }).finally(function () { window.location.href = '/'; }); });
   function $(id) { return document.getElementById(id); }
   function showErr(m) { var el = $('adm-error'); el.style.display = 'block'; el.textContent = m; }

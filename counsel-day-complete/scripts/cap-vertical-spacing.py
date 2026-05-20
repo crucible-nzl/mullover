@@ -4,7 +4,7 @@ Scope:
   - All .css files under counsel-day-complete/
   - All <style> blocks in .html files
   - All inline style="..." attributes in .html files
-Exclusions: admin.html, admin-app.js, og-image-generator.html, homepage.html, scripts/
+Exclusions: admin.html, og-image-generator.html, homepage.html, scripts/
 
 Handles:
   - padding-top, padding-bottom, margin-top, margin-bottom (single value)
@@ -19,7 +19,7 @@ import sys
 
 CAP_PX = 30
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-EXCLUDE_FILES = {'admin.html', 'admin-app.js', 'og-image-generator.html', 'homepage.html'}
+EXCLUDE_FILES = {'admin.html', 'og-image-generator.html', 'homepage.html'}
 EXCLUDE_DIRS = {'scripts'}
 
 

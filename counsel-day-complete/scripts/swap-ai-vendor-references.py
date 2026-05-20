@@ -5,7 +5,7 @@ with the brand-abstracted phrase "our AI synthesis tool".
 EXCLUDES:
   - privacy.html, sub-processors.html, security.html  (legal/GDPR sub-processor disclosure must
     name Anthropic by law)
-  - admin.html, admin-app.js                          (internal admin panel, names the vendor in
+  - admin.html                                        (internal admin panel, names the vendor in
     operational copy)
   - robots.txt                                        (ClaudeBot is the Anthropic crawler user-agent,
     unrelated to our use of Claude)
@@ -24,7 +24,6 @@ EXCLUDE_FILES = {
     'sub-processors.html',
     'security.html',
     'admin.html',
-    'admin-app.js',
     'robots.txt',
 }
 EXCLUDE_DIRS = {'scripts', 'ops'}

@@ -49,9 +49,9 @@
 
   <h2>Health</h2>
   <div class="grid-3">
-    <div class="card"><div class="label">Version</div><div class="value" id="m-version" style="font-size: 13px; line-height: 1.4;">…</div></div>
-    <div class="card"><div class="label">Database size</div><div class="value" id="m-size">…</div></div>
-    <div class="card"><div class="label">Connections</div><div class="value" id="m-conns">…</div><div class="sub" id="m-conns-sub"></div></div>
+    <div class="card"><div class="label">Version</div><div class="value skel skel-value" id="m-version" style="font-size: 13px; line-height: 1.4;">…</div></div>
+    <div class="card"><div class="label">Database size</div><div class="value skel skel-value" id="m-size">…</div></div>
+    <div class="card"><div class="label">Connections</div><div class="value skel skel-value" id="m-conns">…</div><div class="sub" id="m-conns-sub"></div></div>
   </div>
 
   <h2>Tables · by size</h2>
@@ -79,7 +79,8 @@
 
 <script>
 (function () {
-  fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) { if (d && d.ok && d.user) { document.getElementById('adm-identity').textContent = d.user.email + ' · admin'; } });
+  fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) {
+      document.querySelectorAll(".skel").forEach(function (el) { el.classList.remove("skel", "skel-value"); }); if (d && d.ok && d.user) { document.getElementById('adm-identity').textContent = d.user.email + ' · admin'; } });
   document.getElementById('adm-logout').addEventListener('click', function (e) { e.preventDefault(); fetch('/api/signout', { method: 'POST', credentials: 'include' }).finally(function () { window.location.href = '/'; }); });
   function $(id) { return document.getElementById(id); }
   function showErr(m) { var el = $('adm-error'); el.style.display = 'block'; el.textContent = m; }

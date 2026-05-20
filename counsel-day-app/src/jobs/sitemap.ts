@@ -11,7 +11,7 @@
  * app process cannot grant under NoNewPrivileges).
  *
  * Excludes:
- *   · admin*.html, admin-*.html, admin-app.js     · private surfaces
+ *   · admin*.html, admin-*.html                  · private surfaces
  *   · og-image-generator.html, homepage.html       · internal
  *   · 404.html, 500.html, maintenance.html, offline.html, signed-out.html, session-expired.html
  *   · invite.html, signup.html, signin.html, *-password.html, verify-email.html, start.html
@@ -28,7 +28,7 @@ const ROOT = process.env.STATIC_ROOT || '/var/www/counsel.day';
 const BASE_URL = (process.env.APP_BASE_URL || 'https://counsel.day').replace(/\/$/, '');
 
 const EXCLUDED_FILES = new Set([
-  'admin.html', 'admin-app.js', 'og-image-generator.html', 'homepage.html',
+  'admin.html', 'og-image-generator.html', 'homepage.html',
   '404.html', '500.html', 'maintenance.html', 'offline.html',
   'signed-out.html', 'session-expired.html',
   'invite.html', 'signup.html', 'signin.html',

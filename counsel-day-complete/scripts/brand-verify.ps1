@@ -14,7 +14,7 @@
 #   pwsh ./scripts/brand-verify.ps1 -Path path/to/file    (lint a single file before commit)
 #   pwsh ./scripts/brand-verify.ps1 -Verbose              (show every passed check)
 #
-# Carve-out · admin.html, admin-app.js, og-image-generator.html are excluded
+# Carve-out · admin.html, og-image-generator.html are excluded
 # from every rule. The admin portal deliberately uses a different design
 # system (CMS palette + Geist Mono + Chart.js).
 #
@@ -72,6 +72,7 @@ $allFiles = if (Test-Path -PathType Leaf $root) {
         $_.FullName -notlike '*\dist\*' -and
         $_.FullName -notlike '*\.git\*' -and
         $_.FullName -notlike '*\ops\*' -and
+        $_.FullName -notlike '*\partials\*' -and
         $_.Name -ne 'homepage.html'
       }
 }

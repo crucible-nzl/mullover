@@ -51,9 +51,9 @@
   <div id="ga-content" style="display:none;">
     <h2>30-day totals</h2>
     <div class="grid-3">
-      <div class="card"><div class="label">Sessions</div><div class="value" id="m-sessions">…</div></div>
-      <div class="card"><div class="label">Active users</div><div class="value" id="m-users">…</div></div>
-      <div class="card"><div class="label">Pageviews</div><div class="value" id="m-pageviews">…</div></div>
+      <div class="card"><div class="label">Sessions</div><div class="value skel skel-value" id="m-sessions">…</div></div>
+      <div class="card"><div class="label">Active users</div><div class="value skel skel-value" id="m-users">…</div></div>
+      <div class="card"><div class="label">Pageviews</div><div class="value skel skel-value" id="m-pageviews">…</div></div>
     </div>
 
     <h2>Sessions and users, last 30 days</h2>
@@ -75,7 +75,8 @@
 <script src="/chart.umd.min.js"></script>
 <script>
 (function () {
-  fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) { if (d && d.ok && d.user) { document.getElementById('adm-identity').textContent = d.user.email + ' · admin'; } });
+  fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) {
+      document.querySelectorAll(".skel").forEach(function (el) { el.classList.remove("skel", "skel-value"); }); if (d && d.ok && d.user) { document.getElementById('adm-identity').textContent = d.user.email + ' · admin'; } });
   document.getElementById('adm-logout').addEventListener('click', function (e) { e.preventDefault(); fetch('/api/signout', { method: 'POST', credentials: 'include' }).finally(function () { window.location.href = '/'; }); });
   function $(id) { return document.getElementById(id); }
   function showErr(m) { var el = $('adm-error'); el.style.display = 'block'; el.textContent = m; }

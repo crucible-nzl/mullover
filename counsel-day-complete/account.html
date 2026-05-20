@@ -302,7 +302,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
         <div class="right">
           <a href="pricing.html" class="btn" id="cd-plan-cta">Choose a plan</a>
-          <a href="billing.html" class="btn-ghost" id="cd-plan-portal" style="display: none;">Manage in Stripe</a>
+          <button type="button" class="btn-ghost" id="cd-plan-portal" style="display: none;">Manage in Stripe</button>
+          <div id="cd-portal-err" role="alert" style="display: none; color: #b00020; font-size: 13px; margin-top: 8px;"></div>
         </div>
       </div>
 
@@ -623,6 +624,38 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       if (portalEl) portalEl.style.display = planDef.portalVisible ? '' : 'none';
     })
     .catch(function (err) { console.warn('[account] /api/me failed', err); });
+})();
+</script>
+<script>
+// Stripe Customer Portal handoff for the "Manage in Stripe" button. POSTs to
+// /api/billing/portal which mints a one-time portal session URL on the user's
+// stripe_customer_id and 302s the browser to Stripe's hosted page.
+(function () {
+  var btn = document.getElementById('cd-plan-portal');
+  if (!btn) return;
+  var errEl = document.getElementById('cd-portal-err');
+  function showErr(text) { if (!errEl) return; errEl.textContent = text; errEl.style.display = 'block'; }
+  btn.addEventListener('click', function () {
+    if (errEl) errEl.style.display = 'none';
+    btn.disabled = true;
+    var original = btn.textContent;
+    btn.textContent = 'Opening Stripe…';
+    fetch('/api/billing/portal', { method: 'POST', credentials: 'include', headers: { accept: 'application/json' } })
+      .then(function (r) { return r.json().then(function (b) { return { status: r.status, body: b }; }); })
+      .then(function (res) {
+        if (res.status === 200 && res.body && res.body.url) { window.location.href = res.body.url; return; }
+        if (res.status === 401) { window.location.href = '/signin?next=/account'; return; }
+        var msg = (res.body && res.body.message) || 'Could not open Stripe right now. Please try again.';
+        showErr(msg);
+        btn.disabled = false;
+        btn.textContent = original;
+      })
+      .catch(function () {
+        showErr('Network error. Please try again.');
+        btn.disabled = false;
+        btn.textContent = original;
+      });
+  });
 })();
 </script>
 <script>

@@ -131,21 +131,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <a class="skip-link" href="#main-content">Skip to main content</a>
 
+<!-- CD:PARTIAL:nav-app -->
 <nav class="nav-bar" aria-label="Primary site navigation">
   <div class="nav-inner">
     <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
     <div class="nav-links">
-      <a href="decisions.html" class="active">Your decisions</a>
+      <a href="decisions.html">Your decisions</a>
       <a href="vote-today.html">Tonight's vote</a>
       <a href="compose.html">Compose</a>
       <a href="account.html">Account</a>
       <a href="help.html">Help</a>
     </div>
     <div class="nav-cta">
-      <a href="account.html" class="btn-text">James G.</a>
+      <a href="account.html" class="btn-text" id="cd-nav-name">Account</a>
     </div>
   </div>
 </nav>
+<!-- /CD:PARTIAL:nav-app -->
 
 <main id="main-content">
   <div class="ds-shell">
@@ -191,16 +193,25 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
 
     <div class="ds-filters" role="tablist" aria-label="Filter decisions">
-      <button type="button" class="active" data-filter="all" onclick="applyFilter(this)">All · 8</button>
-      <button type="button" data-filter="running" onclick="applyFilter(this)">Sealed · running</button>
-      <button type="button" data-filter="awaiting" onclick="applyFilter(this)">Awaiting reveal</button>
-      <button type="button" data-filter="unsealed" onclick="applyFilter(this)">Unsealed · concluded</button>
-      <button type="button" data-filter="draft" onclick="applyFilter(this)">Drafts</button>
+      <button type="button" class="active" data-filter="all" onclick="applyFilter(this)">All <span class="filter-count" data-count="all">·</span></button>
+      <button type="button" data-filter="running" onclick="applyFilter(this)">Sealed · running <span class="filter-count" data-count="running">·</span></button>
+      <button type="button" data-filter="awaiting" onclick="applyFilter(this)">Awaiting reveal <span class="filter-count" data-count="awaiting">·</span></button>
+      <button type="button" data-filter="unsealed" onclick="applyFilter(this)">Unsealed · concluded <span class="filter-count" data-count="unsealed">·</span></button>
+      <button type="button" data-filter="draft" onclick="applyFilter(this)">Drafts <span class="filter-count" data-count="draft">·</span></button>
     </div>
 
     <div class="ds-actions-row">
-      <span class="count-line">Showing 8 decisions · most recently filed first</span>
-      <span class="count-line">Click any row to open</span>
+      <span class="count-line" id="cd-count-line">Showing all decisions</span>
+      <label style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); display: inline-flex; align-items: center; gap: 8px;">
+        Sort
+        <select id="cd-sort-select" style="font-family: var(--font-ui); font-size: 13px; padding: 4px 8px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink);">
+          <option value="filed_desc">Most recently filed</option>
+          <option value="filed_asc">Oldest filed first</option>
+          <option value="closes_asc">Closes soonest</option>
+          <option value="closes_desc">Closes latest</option>
+          <option value="partner_asc">Partner (A to Z)</option>
+        </select>
+      </label>
     </div>
 
     <div class="ds-table-wrap">
@@ -229,6 +240,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </main>
 
+<!-- CD:PARTIAL:colophon -->
 <footer class="colophon">
   <div class="colophon-inner">
     <div class="colophon-top">
@@ -248,7 +260,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <h3 class="colophon-col-h">The product</h3>
         <a href="method.html">The method</a>
         <a href="why-time.html">Why time</a>
-          <a href="verdict.html">A real verdict</a>
+        <a href="verdict.html">A real verdict</a>
       </div>
       <div class="colophon-col">
         <h5>Support</h5>
@@ -266,10 +278,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
     </div>
     <div class="colophon-bottom">
-      <div>© 2026 Counsel.day · USD pricing worldwide</div>
+      <div>&copy; 2026 Counsel.day &middot; USD pricing worldwide</div>
     </div>
   </div>
 </footer>
+<!-- /CD:PARTIAL:colophon -->
 
 <a class="go-to-top" id="go-to-top" href="#top" aria-label="Go to top of page">
   <svg viewBox="0 0 24 24" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
@@ -277,6 +290,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </a>
 
 <script>
+// Map a raw decision status from the API to the filter-bucket label used in
+// the chip row. Buckets: running (sealed + active votes accepting),
+// awaiting (verdict generating), unsealed (completed + verdict revealed),
+// draft (still being composed or waiting on invitees).
+window.__cdBucketFor = function (status) {
+  if (status === 'active' || status === 'sealed') return 'running';
+  if (status === 'verdict_generating')             return 'awaiting';
+  if (status === 'completed')                      return 'unsealed';
+  if (status === 'draft' || status === 'pending_invites') return 'draft';
+  return 'other';
+};
+
 function applyFilter(btn) {
   document.querySelectorAll('.ds-filters button').forEach(function (b) { b.classList.remove('active'); });
   btn.classList.add('active');
@@ -284,11 +309,14 @@ function applyFilter(btn) {
   var rows = document.querySelectorAll('.ds-table tbody tr');
   var shown = 0;
   rows.forEach(function (r) {
-    var match = kind === 'all' || r.dataset.status === kind;
+    var bucket = window.__cdBucketFor(r.dataset.status);
+    var match = kind === 'all' || bucket === kind;
     r.style.display = match ? '' : 'none';
     if (match) shown += 1;
   });
-  document.querySelector('.ds-actions-row .count-line').textContent = 'Showing ' + shown + ' decision' + (shown === 1 ? '' : 's') + ' · most recently filed first';
+  var label = kind === 'all' ? 'all decisions' : (shown + ' decision' + (shown === 1 ? '' : 's') + ' · ' + (btn.textContent.replace(/\s*·\s*\d+\s*$/, '').trim()).toLowerCase());
+  var cl = document.getElementById('cd-count-line');
+  if (cl) cl.textContent = 'Showing ' + label;
 }
 
 (function () {
@@ -352,6 +380,38 @@ function applyFilter(btn) {
       '<td class="partner">' + partner + '</td>' +
     '</tr>';
   }
+  var current = [];
+
+  function sortList(mode) {
+    var sorted = current.slice();
+    if (mode === 'filed_asc') {
+      sorted.sort(function (a, b) { return String(a.starts_at || '').localeCompare(String(b.starts_at || '')); });
+    } else if (mode === 'closes_asc') {
+      sorted.sort(function (a, b) { return String(a.unseals_at || '9999').localeCompare(String(b.unseals_at || '9999')); });
+    } else if (mode === 'closes_desc') {
+      sorted.sort(function (a, b) { return String(b.unseals_at || '0').localeCompare(String(a.unseals_at || '0')); });
+    } else if (mode === 'partner_asc') {
+      sorted.sort(function (a, b) { return tierLabel(a.tier).localeCompare(tierLabel(b.tier)); });
+    } else {
+      sorted.sort(function (a, b) { return String(b.starts_at || '').localeCompare(String(a.starts_at || '')); });
+    }
+    tbody.innerHTML = sorted.map(rowHtml).join('');
+    var active = document.querySelector('.ds-filters button.active');
+    if (active) applyFilter(active);
+  }
+
+  function updateCounts(list) {
+    var counts = { all: list.length, running: 0, awaiting: 0, unsealed: 0, draft: 0, other: 0 };
+    list.forEach(function (d) {
+      var b = window.__cdBucketFor(d.status);
+      counts[b] = (counts[b] || 0) + 1;
+    });
+    Object.keys(counts).forEach(function (k) {
+      var el = document.querySelector('.filter-count[data-count="' + k + '"]');
+      if (el) el.textContent = '· ' + counts[k];
+    });
+  }
+
   fetch('/api/me', { credentials: 'include' })
     .then(function (r) {
       if (r.status === 401) { window.location.href = '/signin?next=/decisions.html'; return null; }
@@ -359,16 +419,20 @@ function applyFilter(btn) {
     })
     .then(function (d) {
       if (!d || !d.ok) return;
-      var list = d.decisions || [];
-      if (list.length === 0) {
+      current = d.decisions || [];
+      if (current.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" style="padding: 40px; text-align: center; font-family: var(--font-body); color: var(--ink-soft);"><p style="margin: 0 0 18px;">You have not filed any decisions yet.</p><a href="/compose.html" class="btn">Compose your first decision</a></td></tr>';
         return;
       }
-      tbody.innerHTML = list.map(rowHtml).join('');
+      updateCounts(current);
+      sortList('filed_desc');
     })
     .catch(function () {
       tbody.innerHTML = '<tr><td colspan="7" style="padding: 30px; text-align: center; color: var(--muted);">Could not load your decisions. Please refresh.</td></tr>';
     });
+
+  var sortSel = document.getElementById('cd-sort-select');
+  if (sortSel) sortSel.addEventListener('change', function () { sortList(sortSel.value); });
 })();
 </script>
 <script src="pwa.js" defer></script>

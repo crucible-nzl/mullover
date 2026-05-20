@@ -37,15 +37,53 @@
   }
 
   // ---------- 2 · Install prompt capture ----------
+  // Showing "Install app" on the very first page-view is noisy · the user
+  // hasn't decided whether they care yet. Defer it until:
+  //   (a) this is at least the user's 2nd distinct visit (visit counter
+  //       in localStorage, incremented once per browser session), OR
+  //   (b) the user has performed a meaningful interaction this session,
+  //       signalled by other code calling window.CounselDayPWA.markEngaged()
+  //       (compose, vote-today, verdict-reveal call this on success).
+  // Until one of those is true, the captured beforeinstallprompt sits in
+  // `deferredInstall` ready to fire, but the install buttons stay hidden.
   var deferredInstall = null;
-  window.addEventListener('beforeinstallprompt', function (e) {
-    e.preventDefault();
-    deferredInstall = e;
-    // Reveal any install buttons that were waiting in the wings.
+  var SESSION_KEY = 'cd-pwa-session-tick';
+  var VISIT_KEY = 'cd-pwa-visit-count';
+  var ENGAGED_KEY = 'cd-pwa-engaged';
+
+  function readNum(key) {
+    try { return parseInt(window.localStorage.getItem(key) || '0', 10) || 0; } catch (e) { return 0; }
+  }
+  function writeNum(key, n) {
+    try { window.localStorage.setItem(key, String(n)); } catch (e) { /* private mode */ }
+  }
+  function isEngaged() {
+    try { return window.localStorage.getItem(ENGAGED_KEY) === '1'; } catch (e) { return false; }
+  }
+
+  // Increment the visit counter at most once per browser session.
+  try {
+    if (window.sessionStorage && !window.sessionStorage.getItem(SESSION_KEY)) {
+      window.sessionStorage.setItem(SESSION_KEY, '1');
+      writeNum(VISIT_KEY, readNum(VISIT_KEY) + 1);
+    }
+  } catch (e) { /* storage disabled · prompt will just stay hidden */ }
+
+  function shouldReveal() {
+    return readNum(VISIT_KEY) >= 2 || isEngaged();
+  }
+
+  function revealInstallButtons() {
     document.querySelectorAll('[data-cd-install]').forEach(function (btn) {
       btn.hidden = false;
       btn.disabled = false;
     });
+  }
+
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    deferredInstall = e;
+    if (shouldReveal()) revealInstallButtons();
   });
 
   document.addEventListener('click', function (e) {
@@ -59,6 +97,15 @@
       btn.hidden = true;
     });
   });
+
+  // Exposed for app surfaces to call on success of a real interaction.
+  window.CounselDayPWA = {
+    markEngaged: function () {
+      try { window.localStorage.setItem(ENGAGED_KEY, '1'); } catch (e) { /* noop */ }
+      if (deferredInstall) revealInstallButtons();
+    },
+    visitCount: function () { return readNum(VISIT_KEY); },
+  };
 
   // ---------- 3 · Push subscription helpers ----------
   function urlBase64ToUint8Array(base64) {

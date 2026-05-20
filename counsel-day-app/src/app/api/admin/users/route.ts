@@ -20,7 +20,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { db, schema } from '@/lib/db';
 import { sql, eq } from 'drizzle-orm';
-import { requireAdmin } from '@/lib/admin-auth';
+import { requireAdmin, requireFreshMfa } from '@/lib/admin-auth';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -116,11 +116,15 @@ export async function GET(req: Request) {
 
 const patchSchema = z.object({
   user_id: z.string().uuid(),
-  action: z.enum(['promote', 'demote', 'soft_delete', 'restore']),
+  action: z.enum(['promote', 'demote', 'soft_delete', 'restore', 'reset_password', 'force_signout']),
 });
 
 export async function PATCH(req: Request) {
-  const gate = await requireAdmin(req);
+  // Step-up MFA · every user-management PATCH (promote/demote/
+  // soft_delete/restore) is destructive · require a fresh TOTP code
+  // in the last 5 minutes. If the admin has no MFA enrolled the gate
+  // falls through (MFA is optional at the user level).
+  const gate = await requireFreshMfa(req);
   if (gate instanceof NextResponse) return gate;
 
   let raw: unknown;
@@ -161,6 +165,29 @@ export async function PATCH(req: Request) {
     await db.delete(schema.sessions).where(eq(schema.sessions.userId, user_id)).catch(() => {});
   } else if (action === 'restore') {
     await db.update(schema.users).set({ deletedAt: null, updatedAt: new Date() }).where(eq(schema.users.id, user_id));
+  } else if (action === 'force_signout') {
+    // Revoke every session for the target user. They get logged out
+    // on next page load (auth-check returns 401).
+    await db.delete(schema.sessions).where(eq(schema.sessions.userId, user_id));
+  } else if (action === 'reset_password') {
+    // Mint a one-hour password-reset token, email the user. The
+    // existing /api/password-reset/consume route handles the redeem.
+    const { newToken } = await import('@/lib/tokens');
+    const { sendTransactional } = await import('@/lib/email');
+    const token = newToken();
+    await db.insert(schema.passwordResetTokens).values({
+      token,
+      userId: user_id,
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+    });
+    const BASE = process.env.APP_BASE_URL ?? 'https://counsel.day';
+    const resetUrl = `${BASE}/reset-password.html?token=${encodeURIComponent(token)}`;
+    await sendTransactional({
+      to: { email: t.email },
+      subject: 'Reset your Counsel.day password',
+      textContent: `An admin triggered a password reset on your Counsel.day account.\n\nFollow this link within one hour to set a new password:\n${resetUrl}\n\nIf you did not expect this, reply to this email · we will investigate.\n\n· Counsel.day`,
+      htmlContent: `<p>An admin triggered a password reset on your Counsel.day account.</p><p><a href="${resetUrl}" style="color: #722F37;">Set a new password (link valid for one hour)</a></p><p style="color: #6b7a90; font-size: 13px;">If you did not expect this, reply to this email · we will investigate.</p>`,
+    }).catch(() => { /* email send failure is non-fatal; audit-log captures the trigger */ });
   }
 
   await db.insert(schema.auditLog).values({

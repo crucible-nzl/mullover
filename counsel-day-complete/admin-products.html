@@ -71,12 +71,20 @@
   </div>
 
   <div id="adm-error" class="status-banner is-error" style="display:none;"></div>
+
+  <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 18px;">
+    <button type="button" id="cd-stripe-sync-btn" class="btn-save" style="background: var(--ink); color: var(--surface); border: none; font-family: var(--font-ui); font-size: 13px; font-weight: 500; padding: 7px 16px; cursor: pointer;">Check Stripe sync</button>
+    <span id="cd-stripe-sync-msg" style="font-family: var(--font-mono); font-size: 11px; color: var(--muted);"></span>
+  </div>
+  <div id="cd-stripe-sync-results" style="display: none; background: var(--surface); border: 1px solid var(--border); padding: 14px 18px; margin-bottom: 22px; font-family: var(--font-mono); font-size: 12px;"></div>
+
   <div id="prod-list">Loading…</div>
 </div>
 
 <script>
 (function () {
-  fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) { if (d && d.ok && d.user) { document.getElementById('adm-identity').textContent = d.user.email + ' · admin'; } });
+  fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) {
+      document.querySelectorAll(".skel").forEach(function (el) { el.classList.remove("skel", "skel-value"); }); if (d && d.ok && d.user) { document.getElementById('adm-identity').textContent = d.user.email + ' · admin'; } });
   document.getElementById('adm-logout').addEventListener('click', function (e) { e.preventDefault(); fetch('/api/signout', { method: 'POST', credentials: 'include' }).finally(function () { window.location.href = '/'; }); });
   function $(id) { return document.getElementById(id); }
   function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]; }); }
@@ -136,21 +144,90 @@
     var msg = card.querySelector('[data-msg]');
     msg.className = 'msg';
     msg.textContent = '';
+    save(payload, btn, msg);
+  });
+
+  function save(payload, btn, msg) {
     fetch('/api/admin/products', { method: 'PATCH', credentials: 'include', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) })
       .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
       .then(function (res) {
         if (res.status === 200) {
           msg.className = 'msg ok'; msg.textContent = 'Saved.';
           setTimeout(load, 800);
-        } else {
-          msg.className = 'msg err'; msg.textContent = (res.body && res.body.message) || 'Save failed';
+          btn.disabled = false;
+          return;
         }
+        if (res.status === 401 && res.body && res.body.mfa_step_up_required) {
+          var code = window.prompt('Deactivating a tier requires re-verification with your authenticator app.\n\nEnter 6-digit code (or recovery code):');
+          if (!code) { btn.disabled = false; return; }
+          fetch('/api/me/mfa/step-up', { method: 'POST', credentials: 'include', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ code: code.trim() }) })
+            .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+            .then(function (sr) {
+              if (sr.status === 200) { save(payload, btn, msg); }
+              else { msg.className = 'msg err'; msg.textContent = (sr.body && sr.body.message) || 'Code not accepted.'; btn.disabled = false; }
+            })
+            .catch(function () { msg.className = 'msg err'; msg.textContent = 'Step-up failed.'; btn.disabled = false; });
+          return;
+        }
+        msg.className = 'msg err'; msg.textContent = (res.body && res.body.message) || 'Save failed';
+        btn.disabled = false;
       })
-      .catch(function () { msg.className = 'msg err'; msg.textContent = 'Network error'; })
-      .finally(function () { btn.disabled = false; });
-  });
+      .catch(function () { msg.className = 'msg err'; msg.textContent = 'Network error'; btn.disabled = false; });
+  }
 
   load();
+
+  // Stripe sync · queries each product's stripe_price_id against the Stripe
+  // Prices API and reports mismatches in active/amount/currency. Useful
+  // before a price change to confirm the DB row still points at a live
+  // Price; useful after to confirm the new Price ID is recognised.
+  var syncBtn = $('cd-stripe-sync-btn');
+  var syncMsg = $('cd-stripe-sync-msg');
+  var syncOut = $('cd-stripe-sync-results');
+  if (syncBtn) {
+    syncBtn.addEventListener('click', function () {
+      syncBtn.disabled = true;
+      syncMsg.textContent = 'Querying Stripe…';
+      syncOut.style.display = 'none';
+      fetch('/api/admin/products/stripe-sync', { credentials: 'include', headers: { accept: 'application/json' } })
+        .then(function (r) { return r.json().then(function (b) { return { status: r.status, body: b }; }); })
+        .then(function (res) {
+          syncBtn.disabled = false;
+          if (res.status !== 200 || !res.body || !res.body.ok) {
+            var m = (res.body && res.body.message) || 'Stripe sync failed';
+            syncMsg.textContent = m;
+            return;
+          }
+          var prices = res.body.prices || [];
+          var hasMismatch = prices.some(function (p) {
+            return p.error || (p.match && (!p.match.active || !p.match.amount || !p.match.currency));
+          });
+          syncMsg.textContent = hasMismatch ? 'Mismatch found · review below' : 'All ' + prices.length + ' Price IDs match (checked ' + new Date(res.body.checked_at).toLocaleTimeString() + ')';
+          syncMsg.style.color = hasMismatch ? 'var(--red)' : 'var(--green)';
+          var rows = prices.map(function (p) {
+            var status;
+            if (p.error) { status = '<span style="color: var(--red);">ERROR · ' + escapeHtml(p.error) + '</span>'; }
+            else if (!p.match.active || !p.match.amount || !p.match.currency) {
+              var parts = [];
+              if (!p.match.active)   parts.push('active: db=' + p.db_is_active + ' / stripe=' + p.stripe_active);
+              if (!p.match.amount)   parts.push('amount: db=' + p.db_price_cents + ' / stripe=' + p.stripe_unit_amount);
+              if (!p.match.currency) parts.push('currency: db=' + p.db_currency + ' / stripe=' + p.stripe_currency);
+              status = '<span style="color: var(--yellow);">MISMATCH · ' + escapeHtml(parts.join(' · ')) + '</span>';
+            } else {
+              status = '<span style="color: var(--green);">OK · ' + escapeHtml(p.stripe_product_name || '') + '</span>';
+            }
+            return '<div style="padding: 6px 0; border-bottom: 1px solid var(--rule);"><strong>' + escapeHtml(p.key) + '</strong> · <code style="background: var(--surface-2); padding: 1px 5px;">' + escapeHtml(p.stripe_price_id || '(none)') + '</code> · ' + status + '</div>';
+          });
+          syncOut.innerHTML = rows.join('');
+          syncOut.style.display = 'block';
+        })
+        .catch(function () {
+          syncBtn.disabled = false;
+          syncMsg.textContent = 'Network error';
+          syncMsg.style.color = 'var(--red)';
+        });
+    });
+  }
 })();
 </script>
 </body>

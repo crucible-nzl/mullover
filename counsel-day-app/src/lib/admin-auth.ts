@@ -17,7 +17,15 @@
 import { NextResponse } from 'next/server';
 import { db, schema } from './db';
 import { readSession, readSessionCookie } from './sessions';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
+
+/**
+ * Five-minute fresh-MFA window. Admin destructive actions
+ * (promote/demote, soft-delete, product deactivation) require
+ * the operator to have presented a fresh TOTP code within this
+ * many seconds. Step up via POST /api/me/mfa/step-up.
+ */
+export const FRESH_MFA_WINDOW_SECONDS = 5 * 60;
 
 const ALLOWED_ORIGINS = new Set([
   'https://counsel.day',
@@ -76,4 +84,64 @@ export async function requireAdmin(req: Request): Promise<{ userId: string } | N
   }
 
   return { userId: session.userId };
+}
+
+/**
+ * Step-up gate · enforces that the admin has presented a fresh TOTP
+ * code in the last FRESH_MFA_WINDOW_SECONDS. Apply this on top of
+ * requireAdmin() for destructive operations.
+ *
+ * Returns { userId, sessionId } if fresh, NextResponse(401/403) otherwise.
+ *
+ * Policy nuance:
+ *   · If the user has NO MFA enrolled, the gate falls through · MFA
+ *     is optional at the user level (per the locked-settings memory)
+ *     so we can't require what doesn't exist. The /admin-users page
+ *     should nudge admins to enable MFA for the benefit to kick in.
+ *   · If the user HAS MFA enrolled and the session's mfa_verified_at
+ *     is missing or older than the window, return 401 with
+ *     mfa_step_up_required so the UI can prompt for re-verification.
+ */
+export async function requireFreshMfa(req: Request): Promise<{ userId: string; sessionId: string } | NextResponse> {
+  const gate = await requireAdmin(req);
+  if (gate instanceof NextResponse) return gate;
+
+  const sessionId = readSessionCookie(req.headers);
+  if (!sessionId) {
+    return NextResponse.json({ ok: false, message: 'Session missing.' }, { status: 401 });
+  }
+
+  // Check whether this user has MFA enrolled at all. No enrolment =
+  // step-up has nothing to gate against · let the action through.
+  const mfaRows = await db
+    .select({ enabledAt: schema.mfaSecrets.enabledAt })
+    .from(schema.mfaSecrets)
+    .where(eq(schema.mfaSecrets.userId, gate.userId))
+    .limit(1);
+  const mfaEnrolled = mfaRows.length > 0 && mfaRows[0].enabledAt !== null;
+  if (!mfaEnrolled) {
+    return { userId: gate.userId, sessionId };
+  }
+
+  // MFA enrolled · check freshness.
+  const stampRows = await db.execute<{ mfa_verified_at: string | null }>(sql`
+    SELECT mfa_verified_at::text FROM sessions WHERE id = ${sessionId} LIMIT 1
+  `);
+  const stamp = (stampRows[0] as { mfa_verified_at: string | null })?.mfa_verified_at;
+  if (stamp) {
+    const ageSec = (Date.now() - new Date(stamp).getTime()) / 1000;
+    if (ageSec >= 0 && ageSec < FRESH_MFA_WINDOW_SECONDS) {
+      return { userId: gate.userId, sessionId };
+    }
+  }
+
+  return NextResponse.json(
+    {
+      ok: false,
+      message: 'Re-verify with your authenticator app to continue.',
+      mfa_step_up_required: true,
+      window_seconds: FRESH_MFA_WINDOW_SECONDS,
+    },
+    { status: 401 }
+  );
 }

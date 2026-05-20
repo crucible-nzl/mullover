@@ -111,6 +111,9 @@ export async function POST(req: Request) {
 
   const ctx = ctxFromHeaders(req.headers);
   const session = await createSession(ch.userId, ctx);
+  // Stamp the fresh-MFA timestamp · gates step-up checks on admin
+  // destructive actions (5-minute window per requireFreshMfa).
+  await db.execute(sql`UPDATE sessions SET mfa_verified_at = NOW() WHERE id = ${session.id}`);
   const res = NextResponse.json({ ok: true, redirect: '/account' }, { status: 200 });
   res.headers.set('set-cookie', buildSessionCookie(session.id, session.expiresAt));
   return res;

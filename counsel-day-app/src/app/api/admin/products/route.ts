@@ -22,7 +22,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { db, schema } from '@/lib/db';
 import { asc, eq } from 'drizzle-orm';
-import { requireAdmin } from '@/lib/admin-auth';
+import { requireAdmin, requireFreshMfa } from '@/lib/admin-auth';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -62,9 +62,6 @@ const patchSchema = z.object({
 });
 
 export async function PATCH(req: Request) {
-  const gate = await requireAdmin(req);
-  if (gate instanceof NextResponse) return gate;
-
   let raw: unknown;
   try { raw = await req.json(); } catch {
     return NextResponse.json({ ok: false, message: 'Body must be JSON.' }, { status: 400 });
@@ -74,6 +71,15 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ ok: false, message: 'Some fields are invalid.', errors: parsed.error.flatten() }, { status: 422 });
   }
   const { id, ...patch } = parsed.data;
+
+  // Step-up MFA only when the patch deactivates a tier (is_active =
+  // false). Display-name / description / price edits go through
+  // requireAdmin alone because those are recoverable; flipping
+  // is_active off hides a tier from /pricing immediately and is
+  // harder to notice mid-day.
+  const isDeactivation = patch.is_active === false;
+  const gate = isDeactivation ? await requireFreshMfa(req) : await requireAdmin(req);
+  if (gate instanceof NextResponse) return gate;
 
   const existing = await db
     .select({ id: schema.products.id, key: schema.products.key, priceCents: schema.products.priceCents, name: schema.products.name })

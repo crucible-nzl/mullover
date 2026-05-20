@@ -68,6 +68,7 @@ export const sessions = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     userAgent: text('user_agent'),
     ipAddress: inet('ip_address'),
+    mfaVerifiedAt: timestamp('mfa_verified_at', { withTimezone: true }),
   },
   (t) => ({
     userIdx: index('sessions_user_idx').on(t.userId),

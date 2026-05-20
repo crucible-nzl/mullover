@@ -1,0 +1,32 @@
+[Unit]
+Description=Counsel.day · Postgres backup verification (weekly test-restore)
+After=postgresql.service counsel-day-backup.service
+Wants=postgresql.service
+
+[Service]
+Type=oneshot
+User=deploy
+Group=deploy
+WorkingDirectory=/opt/counsel-day-app
+EnvironmentFile=/etc/counsel-day-app/env.local
+Environment="BACKUP_DIR=/var/backups/counsel-day"
+ExecStart=/opt/counsel-day-app/scripts/backup-verify.sh
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=counsel-day-backup-verify
+TimeoutStartSec=30min
+
+# Hardening · the verify job creates and drops its own throwaway DB on
+# the local Postgres cluster. It does not touch the production schema.
+# It needs to read the backup directory and write a temporary file
+# while gunzip pipes through psql.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+PrivateTmp=true
+ReadOnlyPaths=/var/backups/counsel-day

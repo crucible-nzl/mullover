@@ -1,0 +1,14 @@
+[Unit]
+Description=Counsel.day · Backup verification · weekly on Sundays at 04:15 UTC
+Requires=counsel-day-backup-verify.service
+
+[Timer]
+# Sundays at 04:15 UTC · one hour after the daily backup (which fires
+# at 03:15 UTC). That gap is intentional: it gives the most recent
+# dump time to finish writing before we try to load it.
+OnCalendar=Sun *-*-* 04:15:00
+Persistent=true
+AccuracySec=5m
+
+[Install]
+WantedBy=timers.target

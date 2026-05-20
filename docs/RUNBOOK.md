@@ -209,6 +209,19 @@ Add to `deploy` user's crontab on the server:
 
 (Off-box backup is a follow-up item; see security backlog L5.)
 
+**Weekly backup verification** · the daily `pg_dump` confirms the file got written; the weekly verify proves it can be restored. Install steps:
+
+```bash
+# On the box (one-time):
+sudo cp /opt/counsel-day-app/ops/counsel-day-backup-verify.service /etc/systemd/system/
+sudo cp /opt/counsel-day-app/ops/counsel-day-backup-verify.timer   /etc/systemd/system/
+sudo chmod +x /opt/counsel-day-app/scripts/backup-verify.sh
+sudo systemctl daemon-reload
+sudo systemctl enable --now counsel-day-backup-verify.timer
+```
+
+Runs Sundays at 04:15 UTC. Picks the newest `.sql.gz` in `/var/backups/counsel-day/`, creates a throwaway database `counsel_day_verify_<stamp>`, restores into it, runs row-count sanity checks against `users`/`decisions`/`sessions`, drops the throwaway DB. Exits non-zero on failure so `systemctl status counsel-day-backup-verify` surfaces the failure (and journalctl shows the full restore error). Manual run for testing: `sudo systemctl start counsel-day-backup-verify.service`.
+
 ---
 
 ## Disaster scenarios

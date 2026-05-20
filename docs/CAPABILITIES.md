@@ -7,7 +7,9 @@ A complete audit of every promise made in the customer-facing UI, the admin port
 - 🟡 **Designed** · the implementation path is documented and the build hour assigned; not yet running.
 - 🔴 **At risk** · no clear delivery path; the UI promise must be removed before launch.
 
-**Last reviewed:** 14 May 2026 · against [`design-notes.md`](design-notes.md), [`PRODUCTION_PLAN.md`](PRODUCTION_PLAN.md), [`counsel-day-complete/account.html`](../counsel-day-complete/account.html), [`counsel-day-complete/admin.html`](../counsel-day-complete/admin.html), [`counsel-day-complete/privacy.html`](../counsel-day-complete/privacy.html).
+**Last reviewed:** 20 May 2026 · against [`design-notes.md`](design-notes.md), [`PRODUCTION_PLAN.md`](PRODUCTION_PLAN.md), [`counsel-day-complete/account.html`](../counsel-day-complete/account.html), [`counsel-day-complete/admin.html`](../counsel-day-complete/admin.html), [`counsel-day-complete/privacy.html`](../counsel-day-complete/privacy.html), and the live deployment at counsel.day (Hetzner CAX11, Next.js 15, Postgres 16).
+
+> **Stack changes since the original draft (May 14):** auth moved off Auth0 to bespoke session-cookie + Argon2id + TOTP MFA (otplib); FastAPI/RQ replaced by Next.js 15 App Router + cron jobs in `counsel-day-app/src/jobs/cron.ts`; Cloudflare R2 replaced by Hetzner Cloud Backups (server-level rolling snapshots) plus daily encrypted `pg_dump`; static site lives at `counsel-day-complete/` served by Caddy 2.6 with forward-auth. Items in §4 and §5 below reflect the new stack; older sections still cite legacy plans pending a full rewrite.
 
 ---
 
@@ -72,44 +74,54 @@ A complete audit of every promise made in the customer-facing UI, the admin port
 
 ---
 
-## 4 · Authentication and sessions (account.html § 7 + Auth0)
+## 4 · Authentication and sessions (account.html § 7)
+
+Auth is bespoke. No Auth0. Email + password (Argon2id via `@node-rs/argon2`); session cookies (`HttpOnly; Secure; SameSite=Lax`) stored in Postgres `sessions` table; CSRF via SameSite + Origin/Referer checks; TOTP MFA via `otplib` 12.0.1 with single-use recovery codes; step-up MFA window (5 min) on destructive admin actions.
 
 | # | Promise | Where it appears | Implementation | Status |
 |---|---|---|---|---|
-| 4.1 | Sign in via Google | nav · "Sign in" + account.html | Auth0 Google connection. | 🟡 Designed |
-| 4.2 | Sign in via magic-link email | locked settings | Auth0 email-magic-link connection. | 🟡 Designed |
-| 4.3 | View active sessions | account.html § 7 | Auth0 Management API `users/{id}/sessions` returns the list; rendered in account UI. | 🟡 Designed |
-| 4.4 | Sign out this device | account.html § 9 + § 7 | Auth0 SDK logout (clears local session cookie). | 🟡 Designed |
-| 4.5 | Sign out specific device | account.html § 7 per-row "Sign out" | Auth0 Management API `users/{id}/sessions/{session_id}` DELETE. | 🟡 Designed |
-| 4.6 | Sign out all devices | account.html § 7 | Auth0 Management API `users/{id}/multifactor` revoke or full session purge. | 🟡 Designed |
-| 4.7 | Change email (via Auth0) | account.html § 2 | Auth0 hosts the email-change flow; verify-new-before-deactivate-old per locked settings. | 🟡 Designed |
-| 4.8 | MFA opt-in (TOTP / hardware key) | locked settings (no requirement at launch) | Auth0 MFA rule allows opt-in; not required at launch. Operators required to use hardware key in Phase 2. | 🟡 Designed |
-| 4.9 | 24h account-deletion SLA + cascade | privacy.html § 7.3 + account.html § 8 | Backend job; cascade across Postgres + Auth0 + backup expiry; reversal email window. | 🟡 Designed |
+| 4.1 | Sign in via email + password | /signin | `/api/signin` route; Argon2id verify; rate-limited via `rate_limits` table + Sentry burst alerts. | ✅ Implemented |
+| 4.2 | Sign up via email + password | /signup | `/api/signup` route; double opt-in via `email_verification_tokens` table. | ✅ Implemented |
+| 4.3 | Sign in via magic link | locked settings | Deferred · password + MFA covers the same risk. | 🟡 Deferred |
+| 4.4 | View active sessions | account.html § 7 | `/api/me/sessions` lists sessions for `users.id`. | ✅ Implemented |
+| 4.5 | Sign out this device | account.html § 9 + § 7 | `/api/signout` deletes the cookie's session row. | ✅ Implemented |
+| 4.6 | Sign out specific device | account.html § 7 per-row "Sign out" | `/api/me/sessions/:id` DELETE. | ✅ Implemented |
+| 4.7 | Sign out all devices | account.html § 7 | `/api/me/sessions` DELETE; deletes every row for `users.id`. | ✅ Implemented |
+| 4.8 | Operator force sign-out | /admin-users | `/api/admin/users` PATCH `action=force_signout` (under step-up MFA when MFA is enrolled). | ✅ Implemented (2026-05-20) |
+| 4.9 | Change email (verify-new-before-deactivate-old) | account.html § 2 | `/api/me/email-change-request` + `/api/me/email-change-confirm`. | ✅ Implemented |
+| 4.10 | Reset password (self-serve) | /forgot-password.html | `/api/forgot-password` issues `password_reset_tokens`; 1h expiry; single use. | ✅ Implemented |
+| 4.11 | Operator-triggered password reset | /admin-users | `/api/admin/users` PATCH `action=reset_password`; mints a 1h token and emails the user. | ✅ Implemented (2026-05-20) |
+| 4.12 | MFA opt-in (TOTP) | account.html § 7 | `/api/me/mfa/enroll-start` → QR + secret · `/api/me/mfa/enroll-verify` → enable + recovery codes; required for admin step-up. | ✅ Implemented |
+| 4.13 | MFA recovery codes (single-use) | MFA enrol modal | 10 codes generated at enrol; consumed atomically during verify; printable. | ✅ Implemented |
+| 4.14 | MFA step-up for destructive admin actions | /admin-users (deactivate, role change), /admin-products (deactivate) | `requireFreshMfa` checks `sessions.mfa_verified_at < 5 min`; 401 with `mfa_step_up_required` flag triggers TOTP prompt in admin UI; `/api/me/mfa/step-up` refreshes the timestamp. | ✅ Implemented (2026-05-20) |
+| 4.15 | Account deletion (soft) | account.html § 8 | `/api/me/delete` soft-deletes (`users.deleted_at`); hard-delete cron purges after 30d retention. | ✅ Implemented |
+| 4.16 | Operator soft-delete + restore | /admin-users | `/api/admin/users` PATCH `action=soft_delete` / `action=restore`. | ✅ Implemented |
 
 ---
 
-## 5 · Admin portal (admin.html · operator-only)
+## 5 · Admin portal (admin SaaS suite, operator-only)
+
+The admin is a multi-page Next.js app served from the static site with a session-cookie gate (`users.is_admin = true`). Surfaces: `/admin`, `/admin-users`, `/admin-products`, `/admin-growth`, `/admin-engagement`, `/admin-traffic`, `/admin-finance`, `/admin-verdict-logs`, `/admin-database`. All POSTs validate Origin/Referer; destructive PATCHes require fresh MFA (§4.14).
 
 | # | Promise | Where it appears | Implementation | Status |
 |---|---|---|---|---|
-| 5.1 | View all users with filter/search/pagination | admin.html § 2 | FastAPI `/admin/users` returns paginated user list; client-side filter and sort. | ✅ UI prototype · 🟡 Backend |
-| 5.2 | View user detail (5 tabs: account, subscription, usage, audit, notes) | admin.html § 2 user detail | Five endpoints under `/admin/users/{id}/*`. Vote/note content never returned to the operator surface. | ✅ UI prototype · 🟡 Backend |
-| 5.3 | Send password reset (Auth0 magic link) | admin user-detail · Operator actions | Auth0 Management API `users/{id}/password-reset`. | 🟡 Designed |
-| 5.4 | Suspend / restore account | admin user-detail | Auth0 `blocked = true/false` + audit log entry. | 🟡 Designed |
-| 5.5 | Change subscription tier (6 plans) | admin Change-tier modal | Stripe subscription update + immediate UI sync. | ✅ UI prototype · 🟡 Backend |
-| 5.6 | Force sign-out all sessions | admin user-detail | Auth0 Management API session-purge. | 🟡 Designed |
-| 5.7 | Add internal note (operator-only) | admin user-detail Notes tab | INSERT into `user_notes` table (operator-readable only). | ✅ UI prototype · 🟡 Backend |
-| 5.8 | Mark as VIP | admin user-detail | Boolean flag on user; surfaces in UI; no functional change. | ✅ UI prototype · 🟡 Backend |
-| 5.9 | Email a user (one-off, via Brevo) | admin Email modal | Brevo transactional send. | ✅ UI prototype · 🟡 Backend |
-| 5.10 | Initiate deletion / cancel deletion | admin user-detail · danger actions | Same 24h cascade job; operator can cancel within window. | ✅ UI prototype · 🟡 Backend |
-| 5.11 | Open user in Auth0 dashboard | admin user-detail | Deep-link to `manage.auth0.com/dashboard/.../users/{sub}`. | ✅ Link present · Auth0 tenant pending |
-| 5.12 | Bulk email / reset / suspend / change tier | admin bulk actions | Loop the per-user endpoints with audit log capturing batch id. | ✅ UI prototype · 🟡 Backend |
-| 5.13 | Export users as CSV | admin bulk actions | Real CSV blob in the prototype; production server-renders. | ✅ Works in prototype |
-| 5.14 | Configure marketing tags (GTM/GA4/PostHog/Meta Pixel) | admin § 10 | Settings stored in `marketing_tags` table; injected at build time into the Cloudflare Pages deploy. | ✅ UI prototype · 🟡 Backend |
-| 5.15 | Configure verdict AI (model, prompt, params) | admin § 9 | Settings stored in `ai_config` table; FastAPI reads on every verdict run; per-verdict capture of which version was used. | ✅ UI prototype · 🟡 Backend |
-| 5.16 | Bind / rotate Anthropic API key from Infisical | admin § 9 | Infisical SDK; webhook on rotation; 24h overlap window. | 🟡 Designed |
-| 5.17 | Test verdict on sample data | admin § 9 | Triggers an out-of-band Claude call with a fixed fixture; result shown to operator only, not stored against any real decision. | 🟡 Designed |
-| 5.18 | Append-only audit log | admin all operator actions | `audit_log` table with INSERT-only grant on the operator role. Reviewed weekly. | 🟡 Designed |
+| 5.1 | Paginated user list with filter/search | /admin-users | `/api/admin/users` GET with `q`, `cursor`, `limit`. | ✅ Implemented |
+| 5.2 | User drill-down: activity (last 50 audit_log) | /admin-users · "Activity" button | `/api/admin/users/activity?user_id=…` returns audit_log rows where the user was actor OR target. | ✅ Implemented (2026-05-20) |
+| 5.3 | User drill-down: decisions | /admin-users · "Decisions" button | `/api/admin/users/decisions?user_id=…` returns decisions with status, tier, duration, vote_count, has_verdict. | ✅ Implemented (2026-05-20) |
+| 5.4 | Promote / demote admin role | /admin-users | `/api/admin/users` PATCH `action=promote_admin / demote_admin` (lockout-protected: cannot demote last admin). | ✅ Implemented |
+| 5.5 | Operator-triggered password reset | /admin-users | See §4.11. | ✅ Implemented (2026-05-20) |
+| 5.6 | Operator force sign-out (all sessions) | /admin-users | See §4.8. | ✅ Implemented (2026-05-20) |
+| 5.7 | Soft-delete + restore user | /admin-users | See §4.16. | ✅ Implemented |
+| 5.8 | Product/pricing display management | /admin-products | `/api/admin/products` GET/PATCH; edits display name, description, price_cents, currency, Stripe Price ID, is_active. | ✅ Implemented |
+| 5.9 | Stripe sync check | /admin-products · "Check Stripe sync" button | `/api/admin/products/stripe-sync` queries Stripe Prices API for each configured Price ID and surfaces mismatches in active / amount / currency. | ✅ Implemented (2026-05-20) |
+| 5.10 | Finance metrics (MRR, ARR, refunds, charge volume) | /admin-finance | `/api/admin/finance` aggregates from `stripe_webhook_events` + Stripe API; cached in-memory. | ✅ Implemented |
+| 5.11 | Growth metrics (signups, activation, paid conversion) | /admin-growth | `/api/admin/growth` aggregates from `users`, `decisions`, `stripe_webhook_events`. | ✅ Implemented |
+| 5.12 | Engagement metrics (DAU/WAU, vote completion, partner-pair rates) | /admin-engagement | `/api/admin/engagement` aggregates from `votes`, `participants`, `decisions`. | ✅ Implemented |
+| 5.13 | Traffic dashboard (GA4 + GSC) | /admin-traffic | `/api/admin/traffic` reads GA4 Data API (service account) and Google Search Console. | ✅ Implemented (GA4 service-account JSON pending James) |
+| 5.14 | Verdict logs (Claude calls, token usage, errors) | /admin-verdict-logs | `/api/admin/verdict-logs` reads `verdict_runs` table. | ✅ Implemented |
+| 5.15 | Database health (table sizes, slow queries, pg_stat_user_tables) | /admin-database | `/api/admin/database` runs `pg_stat_*` reads; read-only. | ✅ Implemented |
+| 5.16 | Append-only audit log | every admin PATCH/POST | `audit_log` table; INSERT-only grant on `app_admin` role; surfaced in /admin-users activity drill-down. | ✅ Implemented |
+| 5.17 | Skeleton loaders on every admin metric tile | every admin page | `.skel` class applied at render; removed on data fetch success. Implemented across 8 pages 2026-05-20. | ✅ Implemented (2026-05-20) |
 
 ---
 

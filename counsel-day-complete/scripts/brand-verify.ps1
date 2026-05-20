@@ -518,6 +518,27 @@ if ($adminExternalHits.Count -eq 0) {
 }
 
 # ================================================================
+# 15 · favicon.svg present at root
+# ================================================================
+# SEO checkers (Yoast, SEO Site Checkup) downgrade pages without a
+# discoverable favicon. The Caddyfile maps /favicon.ico → favicon.svg
+# so legacy crawlers also get a 200.
+Write-Head "15 · favicon.svg present"
+$projectRoot = if ($Path) { (Get-Item $Path).Directory.FullName } else { (Split-Path -Parent $PSScriptRoot) }
+# When linting a single file, $projectRoot may not be the site root.
+# Fall back to walking upward until we find counsel-day-complete.
+if (-not (Test-Path (Join-Path $projectRoot 'favicon.svg'))) {
+  # Recompute from script location
+  $projectRoot = Split-Path -Parent $PSScriptRoot
+}
+$faviconPath = Join-Path $projectRoot 'favicon.svg'
+if (Test-Path $faviconPath) {
+  Write-Pass "favicon.svg present at site root"
+} else {
+  Write-Fail "favicon.svg missing at site root" "Create counsel-day-complete/favicon.svg or restore from git"
+}
+
+# ================================================================
 # Summary
 # ================================================================
 Write-Host ""

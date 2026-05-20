@@ -38,10 +38,10 @@
 
   <h2>KPIs</h2>
   <div class="grid-4">
-    <div class="card"><div class="label">Active annual subscribers</div><div class="value" id="m-subs">…</div><div class="sub">Consumer Annual · $99 USD/year</div></div>
-    <div class="card"><div class="label">MRR (cents)</div><div class="value" id="m-mrr">…</div><div class="sub">Annual / 12</div></div>
-    <div class="card"><div class="label">ARR (cents)</div><div class="value" id="m-arr">…</div><div class="sub">12 × MRR</div></div>
-    <div class="card"><div class="label">30-day churn</div><div class="value" id="m-churn">…</div><div class="sub" id="m-churn-sub">As a percent of 30d-ago active</div></div>
+    <div class="card"><div class="label">Active annual subscribers</div><div class="value skel skel-value" id="m-subs">…</div><div class="sub">Consumer Annual · $99 USD/year</div></div>
+    <div class="card"><div class="label">MRR (cents)</div><div class="value skel skel-value" id="m-mrr">…</div><div class="sub">Annual / 12</div></div>
+    <div class="card"><div class="label">ARR (cents)</div><div class="value skel skel-value" id="m-arr">…</div><div class="sub">12 × MRR</div></div>
+    <div class="card"><div class="label">30-day churn</div><div class="value skel skel-value" id="m-churn">…</div><div class="sub" id="m-churn-sub">As a percent of 30d-ago active</div></div>
   </div>
 
   <h2>Signups, last 90 days</h2>
@@ -68,6 +68,8 @@
     .then(function (r) { if (r.status === 401 || r.status === 403) { window.location.href = '/signin?next=/admin-growth.html'; throw new Error('auth'); } return r.json(); })
     .then(function (d) {
       $('adm-last-loaded').textContent = 'Loaded at ' + new Date(d.generated_at).toLocaleString();
+      // Remove skeleton shimmer once data lands
+      document.querySelectorAll('.skel').forEach(function (el) { el.classList.remove('skel', 'skel-value'); });
       $('m-subs').textContent = d.mrr.active_subscribers;
       $('m-mrr').textContent = '$' + fmtCents(d.mrr.mrr_cents) + ' USD';
       $('m-arr').textContent = '$' + fmtCents(d.mrr.arr_cents) + ' USD';

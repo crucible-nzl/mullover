@@ -204,10 +204,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     var btn = form.querySelector('button[type="submit"]');
-    btn.disabled = true; btn.textContent = 'Signing in…';
+    btn.disabled = true; btn.textContent = 'Signing in' + String.fromCharCode(0x2026);
     fetch(form.action, { method: 'POST', body: new FormData(form), credentials: 'include' })
       .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
       .then(function (res) {
+        if (res.status === 200 && res.body.mfa_required) {
+          // Two-factor challenge · swap the form for a TOTP input
+          promptForMfaCode(res.body.challenge);
+          return;
+        }
         if (res.status === 200 && res.body.redirect) {
           window.location.href = res.body.redirect;
         } else if (res.status === 200) {
@@ -219,6 +224,36 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       .catch(function () { show('error', 'Network error. Please try again.'); })
       .finally(function () { btn.disabled = false; btn.textContent = 'Sign in'; });
   });
+
+  function promptForMfaCode(challenge) {
+    form.style.display = 'none';
+    var card = form.parentElement;
+    var wrap = document.createElement('div');
+    wrap.innerHTML =
+      '<div class="form-eyebrow">Step 2 of 2</div>' +
+      '<h2 class="form-title">Two-factor <span class="ital">code.</span></h2>' +
+      '<p class="form-lede">Enter the 6-digit code from your authenticator app. If you have lost your device, use a recovery code instead.</p>' +
+      '<div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 18px;">' +
+        '<input type="text" id="cd-mfa-code" inputmode="numeric" autocomplete="one-time-code" maxlength="14" placeholder="123456" style="font-family: var(--font-mono); font-size: 18px; padding: 10px 12px; border: 1px solid var(--ink); background: var(--paper); width: 160px;">' +
+        '<button type="button" id="cd-mfa-go" class="btn">Verify</button>' +
+      '</div>' +
+      '<div id="cd-mfa-err" style="display:none; padding: 12px 14px; margin-top: 14px; background: #fdecea; border-left: 3px solid #c0392b; color: #6b1e16; font-family: var(--font-body); font-size: 14px;"></div>';
+    card.appendChild(wrap);
+    document.getElementById('cd-mfa-code').focus();
+    document.getElementById('cd-mfa-go').addEventListener('click', function () {
+      var code = document.getElementById('cd-mfa-code').value.trim();
+      var err = document.getElementById('cd-mfa-err');
+      err.style.display = 'none';
+      fetch('/api/signin/mfa-verify', { method: 'POST', credentials: 'include', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ challenge: challenge, code: code }) })
+        .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+        .then(function (res) {
+          if (res.status === 200 && res.body.redirect) { window.location.href = res.body.redirect; return; }
+          err.style.display = 'block';
+          err.textContent = (res.body && res.body.message) || 'Code not accepted.';
+        })
+        .catch(function () { err.style.display = 'block'; err.textContent = 'Network error.'; });
+    });
+  }
 })();
 </script>
 <script src="pwa.js" defer></script>

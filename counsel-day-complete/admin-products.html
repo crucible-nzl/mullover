@@ -32,6 +32,12 @@
   .help-callout { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); padding: 14px 18px; font-size: 13px; line-height: 1.55; color: var(--ink-soft); margin-bottom: 22px; }
   .help-callout strong { color: var(--ink); }
   .help-callout code { font-family: var(--font-mono); font-size: 12px; background: var(--surface-2); padding: 1px 6px; }
+  /* Stripe-binding warning · highlights tiers where the operator has
+     set a display price but no stripe_price_id, meaning checkout will
+     fail. Triggered after data loads in the script. */
+  .prod-card.no-stripe { border-left: 4px solid var(--yellow); }
+  .prod-card .stripe-warn { display: none; font-family: var(--font-mono); font-size: 11px; color: var(--yellow); margin-top: 8px; padding: 6px 10px; background: #fef3c7; border: 1px solid #fde68a; }
+  .prod-card.no-stripe .stripe-warn { display: block; }
 </style>
 </head>
 <body>
@@ -80,11 +86,13 @@
 
   function render(products) {
     var html = products.map(function (p) {
-      return '<div class="prod-card" data-id="' + escapeHtml(p.id) + '">' +
+      var needsStripe = p.is_active && p.price_cents > 0 && !p.stripe_price_id;
+      return '<div class="prod-card' + (needsStripe ? ' no-stripe' : '') + '" data-id="' + escapeHtml(p.id) + '">' +
         '<div class="head">' +
           '<div><span class="key' + (p.is_active ? '' : ' inactive') + '">' + escapeHtml(p.key) + (p.is_active ? '' : ' · inactive') + '</span></div>' +
           '<div class="updated">Updated ' + fmtTs(p.updated_at) + '</div>' +
         '</div>' +
+        '<div class="stripe-warn">No Stripe Price ID bound · checkout will fail for this tier. Create a Price in Stripe Dashboard and paste the price_xxx id below.</div>' +
         '<div class="prod-grid">' +
           '<div><label>Name</label><input type="text" data-field="name" value="' + escapeHtml(p.name) + '" maxlength="120"></div>' +
           '<div><label>Price (cents)</label><input type="number" data-field="price_cents" value="' + p.price_cents + '" min="0" step="1"></div>' +

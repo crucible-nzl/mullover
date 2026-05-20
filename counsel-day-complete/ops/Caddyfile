@@ -57,6 +57,12 @@ counsel.day {
         }
     }
 
+    # Legacy crawlers (and a few SEO checkers) request /favicon.ico
+    # literally · serve the SVG with a 200 instead of letting them get
+    # a 404. Modern browsers use the <link rel="icon"> declarations.
+    @favicon_ico path /favicon.ico
+    rewrite @favicon_ico /favicon.svg
+
     try_files {path} {path}.html
     file_server
 

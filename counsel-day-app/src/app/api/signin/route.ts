@@ -22,6 +22,7 @@ import { createSession, ctxFromHeaders, buildSessionCookie } from '@/lib/session
 import { sendTransactional, buildVerificationEmail } from '@/lib/email';
 import { newToken } from '@/lib/tokens';
 import { checkRateLimit, getClientIp, rateLimitResponse } from '@/lib/rate-limit';
+import { trackAuthFailure } from '@/lib/security-alerts';
 import { eq, sql } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
@@ -43,6 +44,7 @@ export async function POST(req: Request) {
   const ip = getClientIp(req);
   const ipCheck = await checkRateLimit(`signin-ip:${ip}`, 10, 3600);
   if (!ipCheck.allowed) {
+    void trackAuthFailure('signin-rate-limit', ip, { reason: 'ip_bucket', limit: 10 });
     return rateLimitResponse(ipCheck, 'Too many sign-in attempts from this network. Please wait and try again.');
   }
 
@@ -72,6 +74,7 @@ export async function POST(req: Request) {
   // share the bucket.
   const emailCheck = await checkRateLimit(`signin-email:${email}`, 5, 3600);
   if (!emailCheck.allowed) {
+    void trackAuthFailure('signin-rate-limit', `email:${email}`, { reason: 'email_bucket', limit: 5 });
     // Return the same generic message · don't disclose that this is
     // an email-specific limit (which would confirm the email exists
     // or is being targeted).
@@ -98,9 +101,34 @@ export async function POST(req: Request) {
   if (password && user?.passwordHash) {
     const ok = await verifyPassword(user.passwordHash, password);
     if (!ok) {
+      // Track for burst alerting · keyed by ip+email so a single
+      // attacker hitting one account fires faster than one IP
+      // probing many accounts.
+      void trackAuthFailure('signin-password', `${ip}|${email}`, { reason: 'wrong_password' });
       // Generic message · no enumeration
       return NextResponse.json({ ok: false, message: 'That email and password did not match.' }, { status: 401 });
     }
+
+    // MFA check · if the user has MFA enabled, mint a challenge token
+    // and return mfa_required so the client prompts for a TOTP code.
+    // The session is NOT created here · /api/signin/mfa-verify does
+    // that after the second factor passes.
+    const mfaRows = await db
+      .select({ enabledAt: schema.mfaSecrets.enabledAt })
+      .from(schema.mfaSecrets)
+      .where(eq(schema.mfaSecrets.userId, user.id))
+      .limit(1);
+    if (mfaRows[0]?.enabledAt) {
+      const { newChallengeId } = await import('@/lib/mfa');
+      const challengeId = newChallengeId();
+      const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+      await db.insert(schema.mfaChallenges).values({ id: challengeId, userId: user.id, expiresAt });
+      return NextResponse.json(
+        { ok: true, mfa_required: true, challenge: challengeId, message: 'Enter the 6-digit code from your authenticator app.' },
+        { status: 200, headers: { 'cache-control': 'private, no-store' } }
+      );
+    }
+
     const ctx = ctxFromHeaders(req.headers);
     const session = await createSession(user.id, ctx);
     const res = NextResponse.json({ ok: true, redirect: '/account' }, { status: 200 });

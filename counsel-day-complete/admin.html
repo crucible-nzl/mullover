@@ -229,6 +229,12 @@
       <div class="out" data-cron-out="hard-delete-purge"></div>
     </div>
     <div class="cron-cell">
+      <div class="name">audit-prune</div>
+      <div class="desc">Trim audit_log: 24mo retention general · 7y retention for refunds &amp; hard-deletes.</div>
+      <button class="btn btn-secondary" data-cron="audit-prune">Run now</button>
+      <div class="out" data-cron-out="audit-prune"></div>
+    </div>
+    <div class="cron-cell">
       <div class="name">pg-dump</div>
       <div class="desc">Postgres backup to /home/deploy/backups/ (gzipped, in-process tsx).</div>
       <button class="btn btn-secondary" data-cron="pg-dump">Run now</button>

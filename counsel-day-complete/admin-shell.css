@@ -81,3 +81,14 @@ h3 { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: 
 .status-banner.is-error { border-left-color: var(--red); }
 .status-banner.is-warn  { border-left-color: var(--yellow); }
 .status-banner.is-ok    { border-left-color: var(--green); }
+
+/* Loading skeletons · applied to .card .value / .canvas-wrap while
+   the page is fetching. The shimmer is a subtle gradient slide; users
+   see something other than '...' for the first ~200ms of every load. */
+@keyframes cd-skeleton-shimmer { 0% { background-position: -200px 0; } 100% { background-position: 200px 0; } }
+.skel { background: linear-gradient(90deg, var(--surface-2) 0%, var(--rule) 50%, var(--surface-2) 100%); background-size: 400px 100%; animation: cd-skeleton-shimmer 1.2s ease-in-out infinite; color: transparent !important; border-radius: 2px; user-select: none; }
+.skel.skel-value { display: inline-block; min-width: 60px; height: 28px; }
+.skel.skel-sub   { display: inline-block; min-width: 120px; height: 12px; margin-top: 6px; }
+.canvas-wrap.skel { height: 280px; }
+.tbl .skel-row td { padding: 14px; }
+.tbl .skel-row .skel { display: block; height: 14px; }

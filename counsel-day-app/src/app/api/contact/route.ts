@@ -20,6 +20,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { sendTransactional } from '@/lib/email';
+import { checkRateLimit, getClientIp, rateLimitResponse } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -44,6 +45,16 @@ function escapeHtml(s: string): string {
 }
 
 export async function POST(req: Request) {
+  // Rate limit · 3 contact submissions per IP per hour. Per
+  // docs/SECURITY_PENTEST_2026-05-20.md item 8.2. The form's
+  // honeypot field below catches naive bots; this catches everyone
+  // else.
+  const ip = getClientIp(req);
+  const ipCheck = await checkRateLimit(`contact-ip:${ip}`, 3, 3600);
+  if (!ipCheck.allowed) {
+    return rateLimitResponse(ipCheck, 'Too many messages from this network. Please wait and try again.');
+  }
+
   let raw: Record<string, unknown>;
   try {
     const ct = req.headers.get('content-type') ?? '';

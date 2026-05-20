@@ -34,6 +34,7 @@ const jobSchema = z.object({
     'invite-expiry',
     'invite-reminder',
     'hard-delete-purge',
+    'audit-prune',
     'pg-dump',
     'sitemap',
   ]),
@@ -52,6 +53,7 @@ const jobCommand: Record<string, { cmd: string; args: string[]; cwd?: string }> 
   'invite-expiry':     { cmd: 'npx', args: ['tsx', 'src/jobs/cron.ts', 'invite-expiry'],     cwd: '/opt/counsel-day-app' },
   'invite-reminder':   { cmd: 'npx', args: ['tsx', 'src/jobs/cron.ts', 'invite-reminder'],   cwd: '/opt/counsel-day-app' },
   'hard-delete-purge': { cmd: 'npx', args: ['tsx', 'src/jobs/cron.ts', 'hard-delete-purge'], cwd: '/opt/counsel-day-app' },
+  'audit-prune':       { cmd: 'npx', args: ['tsx', 'src/jobs/cron.ts', 'audit-prune'],       cwd: '/opt/counsel-day-app' },
   'sitemap':           { cmd: 'npx', args: ['tsx', 'src/jobs/sitemap.ts'],                   cwd: '/opt/counsel-day-app' },
   'pg-dump':           { cmd: 'npx', args: ['tsx', 'src/jobs/pg-dump.ts'],                   cwd: '/opt/counsel-day-app' },
 };

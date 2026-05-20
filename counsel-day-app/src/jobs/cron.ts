@@ -204,6 +204,10 @@ async function sessionPurge() {
   // and never returned). 24h is well past every window we use.
   const rl = await db.execute(sql`DELETE FROM rate_limits WHERE reset_at < NOW() - INTERVAL '24 hours' RETURNING key`);
   console.log(`[cron · session-purge] pruned ${(rl as unknown as Array<unknown>).length} stale rate_limits rows`);
+
+  // Expired MFA challenges · TTL is 5 min so this catches abandoned flows.
+  const mc = await db.execute(sql`DELETE FROM mfa_challenges WHERE expires_at < NOW() RETURNING id`);
+  console.log(`[cron · session-purge] deleted ${(mc as unknown as Array<unknown>).length} expired mfa_challenges`);
 }
 
 /**
@@ -377,6 +381,39 @@ async function inviteReminder() {
 }
 
 /**
+ * Audit-log retention · prune entries older than 24 months.
+ *
+ * Per docs/SECURITY_PENTEST_2026-05-20.md item 14. Counsel.day has no
+ * regulatory obligation to retain audit_log beyond 24 months · NZ
+ * Privacy Act + GDPR Art. 5(1)(e) both call for "no longer than
+ * necessary." Two-year window preserves a useful trail for incident
+ * forensics without unbounded growth.
+ *
+ * Exception · refund.* and user.hard_delete_purged actions are kept
+ * for 7 years because NZ Tax Administration Act 1994 mandates 7-year
+ * financial record retention (refund processing rows can carry
+ * billing context the IRD might request).
+ */
+async function auditPrune() {
+  const general = await db.execute(sql`
+    DELETE FROM audit_log
+    WHERE created_at < NOW() - INTERVAL '24 months'
+      AND action NOT LIKE 'refund.%'
+      AND action <> 'user.hard_delete_purged'
+    RETURNING id
+  `);
+  const financial = await db.execute(sql`
+    DELETE FROM audit_log
+    WHERE created_at < NOW() - INTERVAL '7 years'
+      AND (action LIKE 'refund.%' OR action = 'user.hard_delete_purged')
+    RETURNING id
+  `);
+  const gCount = (general as unknown as Array<unknown>).length;
+  const fCount = (financial as unknown as Array<unknown>).length;
+  console.log(`[cron · audit-prune] removed ${gCount} general + ${fCount} financial audit_log rows`);
+}
+
+/**
  * Hard-delete soft-deleted users after the 14-day grace window.
  *
  * Per [[project-locked-settings]], soft-deletes (DELETE /api/me +
@@ -433,8 +470,9 @@ async function main() {
     case 'invite-expiry':    return inviteExpiry();
     case 'invite-reminder':  return inviteReminder();
     case 'hard-delete-purge': return hardDeletePurge();
+    case 'audit-prune':       return auditPrune();
     default:
-      console.error(`Unknown job: ${job}. Valid: evening-prompt, verdict-generate, session-purge, invite-expiry, invite-reminder, hard-delete-purge`);
+      console.error(`Unknown job: ${job}. Valid: evening-prompt, verdict-generate, session-purge, invite-expiry, invite-reminder, hard-delete-purge, audit-prune`);
       process.exit(2);
   }
 }

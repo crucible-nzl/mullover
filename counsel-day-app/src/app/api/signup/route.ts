@@ -24,6 +24,7 @@ import { db, schema } from '@/lib/db';
 import { signupSchema } from '@/lib/validators';
 import { sendTransactional, buildVerificationEmail } from '@/lib/email';
 import { newToken } from '@/lib/tokens';
+import { checkRateLimit, getClientIp, rateLimitResponse } from '@/lib/rate-limit';
 import { eq, sql } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
@@ -32,6 +33,15 @@ export const runtime = 'nodejs';
 const VERIFICATION_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 export async function POST(req: Request) {
+  // --- Rate limit by IP · 5 signups per hour per IP ---
+  // Per docs/SECURITY_PENTEST_2026-05-20.md item 8.2. Cheap bail-out
+  // for abuse traffic; runs before body parse + reCAPTCHA + DB lookup.
+  const ip = getClientIp(req);
+  const ipCheck = await checkRateLimit(`signup-ip:${ip}`, 5, 3600);
+  if (!ipCheck.allowed) {
+    return rateLimitResponse(ipCheck, 'Too many signup attempts from this network. Please wait and try again.');
+  }
+
   // --- Parse the form ---
   let raw: Record<string, unknown>;
   try {
@@ -58,9 +68,22 @@ export async function POST(req: Request) {
   }
   const input = parsed.data;
 
-  // --- reCAPTCHA verification (skipped if secret not set; tracked in audit) ---
+  // --- reCAPTCHA verification (signup) ---
+  // When RECAPTCHA_V3_SECRET_KEY is set the token is REQUIRED. Previous
+  // behaviour silently bypassed verification when the token was absent,
+  // which a bot could exploit by simply omitting the field.
+  // Fail-open policy: if Google's verify API itself is unreachable, we
+  // allow the signup through but write an audit_log row flagged for
+  // operator review. Per docs/SECURITY_PENTEST_2026-05-20.md.
+  let recaptchaFlag: string | null = null;
   const recaptchaSecret = process.env.RECAPTCHA_V3_SECRET_KEY;
-  if (recaptchaSecret && input.g_recaptcha_token) {
+  if (recaptchaSecret) {
+    if (!input.g_recaptcha_token) {
+      return NextResponse.json(
+        { ok: false, message: 'Verification challenge missing. Please reload the page and try again.' },
+        { status: 422 }
+      );
+    }
     try {
       const v = await fetch('https://www.google.com/recaptcha/api/siteverify', {
         method: 'POST',
@@ -69,17 +92,27 @@ export async function POST(req: Request) {
           secret: recaptchaSecret,
           response: input.g_recaptcha_token,
         }),
-      }).then((r) => r.json() as Promise<{ success: boolean; score?: number }>);
-      if (!v.success || (v.score ?? 0) < 0.5) {
+      }).then((r) => r.json() as Promise<{ success: boolean; score?: number; action?: string; 'error-codes'?: string[] }>);
+      if (!v.success) {
         return NextResponse.json(
-          { ok: false, message: 'reCAPTCHA failed. Please try again.' },
+          { ok: false, message: 'Verification challenge could not be validated. Please reload and try again.' },
           { status: 403 }
         );
       }
-    } catch {
-      // If the verify endpoint itself fails, fail open with audit. We do
-      // not block legitimate signups because Google is unreachable.
-      console.warn('[signup] reCAPTCHA verify unreachable; allowing through');
+      const score = v.score ?? 0;
+      if (score < 0.5) {
+        // Hard reject below 0.5 · likely bot
+        return NextResponse.json(
+          { ok: false, message: 'Verification challenge failed. If this keeps happening please contact help@counsel.day.' },
+          { status: 403 }
+        );
+      }
+      // Mid-confidence scores get audit-logged but the signup proceeds.
+      if (score < 0.7) recaptchaFlag = `low_confidence_score_${score.toFixed(2)}`;
+    } catch (err) {
+      // Google API unreachable · fail-open with audit (operator review).
+      recaptchaFlag = 'recaptcha_unavailable';
+      console.warn('[signup] reCAPTCHA verify unreachable; allowing through', err);
     }
   }
 
@@ -167,6 +200,15 @@ export async function POST(req: Request) {
         userAgent: req.headers.get('user-agent') ?? null,
       },
     ]);
+    if (recaptchaFlag) {
+      await db.insert(schema.auditLog).values({
+        actorUserId: userId,
+        action: 'signup.recaptcha_flag',
+        targetType: 'user',
+        targetId: userId,
+        metadata: { flag: recaptchaFlag },
+      });
+    }
   } catch (err) {
     console.warn('[signup] consent log insert failed (non-fatal)', err);
   }

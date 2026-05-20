@@ -301,6 +301,34 @@ export const savedContacts = pgTable(
 );
 
 // ---------------------------------------------------------------------------
+// MFA · per-user TOTP secret + recovery codes, plus short-lived
+// challenge tokens issued during the two-step sign-in flow.
+// ---------------------------------------------------------------------------
+export const mfaSecrets = pgTable('mfa_secrets', {
+  userId: uuid('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+  secret: text('secret').notNull(),
+  recoveryCodes: jsonb('recovery_codes').notNull().default([]),
+  enabledAt: timestamp('enabled_at', { withTimezone: true }),
+  lastUsedAt: timestamp('last_used_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const mfaChallenges = pgTable(
+  'mfa_challenges',
+  {
+    id: text('id').primaryKey(),
+    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    attempts: integer('attempts').notNull().default(0),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    expiresIdx: index('mfa_challenges_expires_idx').on(t.expiresAt),
+  })
+);
+
+// ---------------------------------------------------------------------------
 // RATE LIMITS · fixed-window counter keyed by "<scope>:<value>". Application
 // code does key construction (e.g. "signin-ip:1.2.3.4"). One row per bucket.
 // See lib/rate-limit.ts for the helper.

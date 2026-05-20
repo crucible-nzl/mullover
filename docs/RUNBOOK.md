@@ -164,7 +164,11 @@ These steps were run once on 17 May 2026; do not repeat unless rebuilding the bo
 | `STRIPE_SECRET_KEY` | `/etc/counsel-day-app/env.local` | When team changes; never log |
 | `ANTHROPIC_API_KEY` | `/etc/counsel-day-app/env.local` | Every 60 days (per Anthropic best practice) |
 | `RECAPTCHA_V3_SECRET_KEY` | `/etc/counsel-day-app/env.local` | Annual |
-| `SESSION_SIGNING_KEY` | `/etc/counsel-day-app/env.local` | Quarterly. Rotation invalidates all sessions; users re-login. |
+<!-- SESSION_SIGNING_KEY · removed 2026-05-20. Sessions are opaque
+     random tokens stored in the `sessions` table; no signing key is
+     consumed by the code. If it's still set in /etc/counsel-day-app/env.local
+     it can be deleted (no impact). -->
+
 | `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT` | `/etc/counsel-day-app/env.local` | Generate once via `npx web-push generate-vapid-keys`; rotating invalidates every active push subscription so users would need to re-enable on each device. Only rotate on key compromise. |
 | `GA4_SERVICE_ACCOUNT_JSON` / `GA4_PROPERTY_ID` | `/etc/counsel-day-app/env.local` | Service account creds for the /admin-traffic dashboard. Rotate when the operator who owns the GCP project changes. |
 | SSH private key | `~/.ssh/id_ed25519_counsel_day` on operator laptops | Annual; on any laptop loss/compromise |

@@ -301,6 +301,31 @@ export const savedContacts = pgTable(
 );
 
 // ---------------------------------------------------------------------------
+// PRODUCTS · admin-editable price list. Stripe Prices remain the source of
+// truth for billing; this table is the presentational layer + admin's
+// window into which Stripe Price object maps to each tier.
+// ---------------------------------------------------------------------------
+export const products = pgTable(
+  'products',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    key: text('key').notNull().unique(),
+    name: text('name').notNull(),
+    description: text('description'),
+    priceCents: integer('price_cents').notNull(),
+    currency: text('currency').notNull().default('USD'),
+    stripePriceId: text('stripe_price_id'),
+    isActive: boolean('is_active').notNull().default(true),
+    sortOrder: integer('sort_order').notNull().default(100),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedBy: uuid('updated_by').references(() => users.id, { onDelete: 'set null' }),
+  },
+  (t) => ({
+    activeIdx: index('products_active_idx').on(t.isActive, t.sortOrder),
+  })
+);
+
+// ---------------------------------------------------------------------------
 // PUSH SUBSCRIPTIONS · Web Push endpoint per (user, browser/device). The
 // p256dh + auth keys are the asymmetric pieces the push library needs to
 // encrypt payloads to that specific subscription.

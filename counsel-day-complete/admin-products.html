@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin · Products · Counsel.day</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f7f9fc">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin-shell.css">
+<style>
+  .prod-card { background: var(--surface); border: 1px solid var(--border); padding: 18px 22px; margin-bottom: 14px; }
+  .prod-card .head { display: flex; gap: 14px; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+  .prod-card .key { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--accent); background: var(--accent-soft); padding: 3px 9px; }
+  .prod-card .key.inactive { background: #fee2e2; color: var(--red); }
+  .prod-card .updated { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; color: var(--muted); }
+  .prod-grid { display: grid; grid-template-columns: 1fr 140px 140px; gap: 14px; margin-bottom: 12px; }
+  @media (max-width: 900px) { .prod-grid { grid-template-columns: 1fr; } }
+  .prod-grid label { display: block; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+  .prod-grid input, .prod-grid textarea { font-family: var(--font-ui); font-size: 14px; padding: 8px 11px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); width: 100%; }
+  .prod-grid textarea { font-family: var(--font-body); line-height: 1.45; resize: vertical; min-height: 60px; }
+  .prod-grid input:focus, .prod-grid textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .prod-card .controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .prod-card .controls label.toggle { display: inline-flex; gap: 8px; align-items: center; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; color: var(--ink-soft); cursor: pointer; }
+  .prod-card .controls input[type="text"].stripe { font-family: var(--font-mono); font-size: 12px; min-width: 240px; padding: 6px 10px; border: 1px solid var(--border); background: var(--surface); }
+  .prod-card .btn-save { background: var(--accent); color: var(--surface); border: none; font-family: var(--font-ui); font-size: 13px; font-weight: 500; padding: 7px 16px; cursor: pointer; }
+  .prod-card .btn-save:hover { filter: brightness(1.1); }
+  .prod-card .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+  .prod-card .msg { font-family: var(--font-mono); font-size: 11px; padding: 6px 10px; display: none; margin-left: 10px; }
+  .prod-card .msg.ok { background: #d1fae5; color: var(--green); display: inline-block; }
+  .prod-card .msg.err { background: #fee2e2; color: var(--red); display: inline-block; }
+  .help-callout { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); padding: 14px 18px; font-size: 13px; line-height: 1.55; color: var(--ink-soft); margin-bottom: 22px; }
+  .help-callout strong { color: var(--ink); }
+  .help-callout code { font-family: var(--font-mono); font-size: 12px; background: var(--surface-2); padding: 1px 6px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">counsel<span class="tld">.day</span> · admin</div>
+  <div class="meta">
+    <a href="/account.html">← User-facing site</a>
+    <span id="adm-identity">…</span>
+    <a href="#" id="adm-logout">Log out</a>
+  </div>
+</div>
+<nav class="adm-subnav" aria-label="Admin sections">
+  <a href="/admin.html">Overview</a>
+  <a href="/admin-users.html">Users</a>
+  <a href="/admin-products.html" class="active">Products</a>
+  <a href="/admin-growth.html">Growth</a>
+  <a href="/admin-engagement.html">Engagement</a>
+  <a href="/admin-traffic.html">Traffic</a>
+  <a href="/admin-finance.html">Finance</a>
+  <a href="/admin-verdict-logs.html">Verdict logs</a>
+  <a href="/admin-database.html">Database</a>
+</nav>
+
+<div class="shell">
+  <h1>Products and pricing</h1>
+  <p class="lede">Edit the display name, description, price, and Stripe Price ID for each public tier. Changes are audit-logged and shown on /pricing within five minutes of save.</p>
+
+  <div class="help-callout">
+    <strong>Pricing flow:</strong> Stripe Price objects are immutable. To change a price, create a new Price in Stripe Dashboard (Products → counsel-day-prod), copy its <code>price_xxx</code> id, and paste it into <em>Stripe Price ID</em> below alongside the new display value. The amount you charge is whatever the linked Stripe Price says, regardless of what's typed here. This screen controls only the customer-facing display.
+  </div>
+
+  <div id="adm-error" class="status-banner is-error" style="display:none;"></div>
+  <div id="prod-list">Loading…</div>
+</div>
+
+<script>
+(function () {
+  fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) { if (d && d.ok && d.user) { document.getElementById('adm-identity').textContent = d.user.email + ' · admin'; } });
+  document.getElementById('adm-logout').addEventListener('click', function (e) { e.preventDefault(); fetch('/api/signout', { method: 'POST', credentials: 'include' }).finally(function () { window.location.href = '/'; }); });
+  function $(id) { return document.getElementById(id); }
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]; }); }
+  function showErr(m) { var el = $('adm-error'); el.style.display = 'block'; el.textContent = m; }
+  function fmtPrice(c) { return '$' + (c / 100).toFixed(2); }
+  function fmtTs(s) { try { return new Date(s).toLocaleString(); } catch (e) { return s; } }
+
+  function render(products) {
+    var html = products.map(function (p) {
+      return '<div class="prod-card" data-id="' + escapeHtml(p.id) + '">' +
+        '<div class="head">' +
+          '<div><span class="key' + (p.is_active ? '' : ' inactive') + '">' + escapeHtml(p.key) + (p.is_active ? '' : ' · inactive') + '</span></div>' +
+          '<div class="updated">Updated ' + fmtTs(p.updated_at) + '</div>' +
+        '</div>' +
+        '<div class="prod-grid">' +
+          '<div><label>Name</label><input type="text" data-field="name" value="' + escapeHtml(p.name) + '" maxlength="120"></div>' +
+          '<div><label>Price (cents)</label><input type="number" data-field="price_cents" value="' + p.price_cents + '" min="0" step="1"></div>' +
+          '<div><label>Display ' + escapeHtml(p.currency) + '</label><input type="text" value="' + fmtPrice(p.price_cents) + '" readonly style="background: var(--surface-2);"></div>' +
+        '</div>' +
+        '<div><label style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; display: block;">Description (shown on /pricing)</label><textarea data-field="description" maxlength="500" style="font-family: var(--font-body); font-size: 14px; padding: 8px 11px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); width: 100%; line-height: 1.45; resize: vertical; min-height: 60px;">' + escapeHtml(p.description || '') + '</textarea></div>' +
+        '<div class="controls" style="margin-top: 12px;">' +
+          '<label style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);">Stripe Price ID' +
+          '<input type="text" class="stripe" data-field="stripe_price_id" value="' + escapeHtml(p.stripe_price_id || '') + '" placeholder="price_xxx" style="display: block; margin-top: 4px;"></label>' +
+          '<label class="toggle"><input type="checkbox" data-field="is_active"' + (p.is_active ? ' checked' : '') + '> Active</label>' +
+          '<label class="toggle"><input type="number" data-field="sort_order" value="' + p.sort_order + '" min="0" max="10000" step="10" style="width: 70px; padding: 5px 8px; font-family: var(--font-mono); font-size: 12px;"> Sort order</label>' +
+          '<button type="button" class="btn-save" data-save>Save</button>' +
+          '<span class="msg" data-msg></span>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+    $('prod-list').innerHTML = html;
+  }
+
+  function load() {
+    fetch('/api/admin/products', { credentials: 'include' })
+      .then(function (r) { if (r.status === 401 || r.status === 403) { window.location.href = '/signin?next=/admin-products.html'; throw new Error('auth'); } return r.json(); })
+      .then(function (d) { if (!d || !d.ok) throw new Error((d && d.message) || 'Failed'); render(d.products); })
+      .catch(function (e) { if (e && e.message !== 'auth') showErr('Failed to load products · ' + e.message); });
+  }
+
+  document.body.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-save]');
+    if (!btn) return;
+    var card = btn.closest('.prod-card');
+    var id = card.getAttribute('data-id');
+    var payload = { id: id };
+    card.querySelectorAll('[data-field]').forEach(function (el) {
+      var f = el.getAttribute('data-field');
+      if (el.type === 'checkbox') payload[f] = el.checked;
+      else if (el.type === 'number') payload[f] = Number(el.value);
+      else if (f === 'stripe_price_id' && el.value.trim() === '') payload[f] = null;
+      else payload[f] = el.value.trim();
+    });
+    btn.disabled = true;
+    var msg = card.querySelector('[data-msg]');
+    msg.className = 'msg';
+    msg.textContent = '';
+    fetch('/api/admin/products', { method: 'PATCH', credentials: 'include', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) })
+      .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+      .then(function (res) {
+        if (res.status === 200) {
+          msg.className = 'msg ok'; msg.textContent = 'Saved.';
+          setTimeout(load, 800);
+        } else {
+          msg.className = 'msg err'; msg.textContent = (res.body && res.body.message) || 'Save failed';
+        }
+      })
+      .catch(function () { msg.className = 'msg err'; msg.textContent = 'Network error'; })
+      .finally(function () { btn.disabled = false; });
+  });
+
+  load();
+})();
+</script>
+</body>
+</html>

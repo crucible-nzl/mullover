@@ -220,7 +220,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <p class="method-stage-body" style="margin-bottom: 28px;">Use this if you have a small number of decisions to run. The full verdict (five-layer analysis plus AI-written synthesis paragraph) is included on every paid tier. Solo Free ships with a Python-only numerical summary so the free tier is genuinely free.</p>
 
       <div class="price-grid">
-        <div class="price-cell">
+        <div data-cd-price-key="solo_free" class="price-cell">
           <div class="tag">Solo · free</div>
           <div class="name">Solo <span class="ital">first decision</span></div>
           <div class="amount-row"><span class="amount">$0</span><span class="ccy">USD per decision</span></div>
@@ -235,7 +235,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </ul>
         </div>
 
-        <div class="price-cell">
+        <div data-cd-price-key="solo_paid" class="price-cell">
           <div class="tag">Solo · paid</div>
           <div class="name">Solo</div>
           <div class="amount-row"><span class="amount">14</span><span class="ccy">USD per decision</span></div>
@@ -250,7 +250,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </ul>
         </div>
 
-        <div class="price-cell featured">
+        <div data-cd-price-key="couple" class="price-cell featured">
           <div class="tag">Couple</div>
           <div class="name">Couple</div>
           <div class="amount-row"><span class="amount">25</span><span class="ccy">USD per decision</span></div>
@@ -265,7 +265,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </ul>
         </div>
 
-        <div class="price-cell">
+        <div data-cd-price-key="family" class="price-cell">
           <div class="tag">Family</div>
           <div class="name">Family</div>
           <div class="amount-row"><span class="amount">49</span><span class="ccy">USD per decision</span></div>
@@ -293,7 +293,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <p class="method-stage-body" style="margin-bottom: 28px;">Most people pay per decision. Per-decision is the right shape for this product · a decision worth running carefully is not the same as a subscription. Consumer Annual exists for the small number of households whose lives genuinely call for several decisions in a year, and it gives them a single price ceiling.</p>
 
       <div style="display: grid; grid-template-columns: minmax(0, 1fr); max-width: 720px; margin: 0;">
-        <div class="price-cell" style="border: 1px solid var(--ink); background: var(--paper);">
+        <div data-cd-price-key="consumer_annual" class="price-cell" style="border: 1px solid var(--ink); background: var(--paper);">
           <div class="tag">Consumer Annual</div>
           <div class="name">Consumer <span class="ital">Annual</span></div>
           <div class="amount-row"><span class="amount">$99</span><span class="ccy">USD per year</span></div>
@@ -622,6 +622,34 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       alert('Network error. Please try again.');
     });
   });
+})();
+</script>
+<script>
+// Dynamic pricing · pulls current values from /api/products (admin-editable).
+// Falls back silently to the static markup if the fetch fails.
+(function () {
+  fetch('/api/products', { credentials: 'omit', cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) {
+      if (!d || !d.ok || !d.products) return;
+      d.products.forEach(function (p) {
+        var cell = document.querySelector('[data-cd-price-key="' + p.key + '"]');
+        if (!cell) return;
+        var nameEl = cell.querySelector('.tag');
+        if (nameEl && p.name) nameEl.textContent = p.name;
+        var amt = cell.querySelector('.amount');
+        if (amt) {
+          // currency is USD; the .ccy sibling text already says 'USD per decision/year'
+          if (p.price_cents === 0) amt.textContent = '$0 '; /* USD */
+          else if (p.price_cents % 100 === 0) amt.textContent = '$' + (p.price_cents / 100) + ' '; /* USD */
+          else amt.textContent = '$' + (p.price_cents / 100).toFixed(2) + ' '; /* USD */
+        }
+        // Description override (the .period <p> below the amount-row).
+        var period = cell.querySelector('.period');
+        if (period && p.description) period.textContent = p.description;
+      });
+    })
+    .catch(function () { /* keep static fallback */ });
 })();
 </script>
 <script src="pwa.js" defer></script>

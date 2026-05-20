@@ -114,6 +114,13 @@ export async function POST(req: Request) {
   // Stamp the fresh-MFA timestamp · gates step-up checks on admin
   // destructive actions (5-minute window per requireFreshMfa).
   await db.execute(sql`UPDATE sessions SET mfa_verified_at = NOW() WHERE id = ${session.id}`);
+  await db.insert(schema.auditLog).values({
+    actorUserId: ch.userId,
+    action: recoveryIdx !== -1 ? 'auth.signin.mfa_recovery' : 'auth.signin.mfa',
+    targetType: 'user',
+    targetId: ch.userId,
+    metadata: { ip, user_agent: ctx.userAgent ?? null },
+  }).catch(() => {});
   const res = NextResponse.json({ ok: true, redirect: '/account' }, { status: 200 });
   res.headers.set('set-cookie', buildSessionCookie(session.id, session.expiresAt));
   return res;

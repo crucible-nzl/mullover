@@ -131,6 +131,13 @@ export async function POST(req: Request) {
 
     const ctx = ctxFromHeaders(req.headers);
     const session = await createSession(user.id, ctx);
+    await db.insert(schema.auditLog).values({
+      actorUserId: user.id,
+      action: 'auth.signin.password',
+      targetType: 'user',
+      targetId: user.id,
+      metadata: { ip, user_agent: ctx.userAgent ?? null },
+    }).catch(() => {});
     const res = NextResponse.json({ ok: true, redirect: '/account' }, { status: 200 });
     res.headers.set('set-cookie', buildSessionCookie(session.id, session.expiresAt));
     return res;

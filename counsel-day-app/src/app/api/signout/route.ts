@@ -8,7 +8,8 @@
  */
 
 import { NextResponse } from 'next/server';
-import { destroySession, readSessionCookie, buildClearedSessionCookie } from '@/lib/sessions';
+import { destroySession, readSession, readSessionCookie, buildClearedSessionCookie } from '@/lib/sessions';
+import { db, schema } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -18,6 +19,19 @@ const BASE = process.env.APP_BASE_URL ?? 'https://counsel.day';
 async function handler(req: Request, redirectInsteadOfJson: boolean) {
   const sessionId = readSessionCookie(req.headers);
   if (sessionId) {
+    // Look up the user behind the session so we can audit-log the
+    // signout against them. readSession returns null for expired or
+    // unknown ids · the destroy is still attempted either way.
+    const session = await readSession(sessionId);
+    if (session) {
+      await db.insert(schema.auditLog).values({
+        actorUserId: session.userId,
+        action: 'auth.signout',
+        targetType: 'user',
+        targetId: session.userId,
+        metadata: { ip: req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? null },
+      }).catch(() => {});
+    }
     try { await destroySession(sessionId); } catch { /* ignore */ }
   }
   const clearedCookie = buildClearedSessionCookie();

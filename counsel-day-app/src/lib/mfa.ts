@@ -17,7 +17,7 @@
  */
 
 import { authenticator } from 'otplib';
-import { argon2id, hash as argonHash, verify as argonVerify } from '@node-rs/argon2';
+import { hash as argonHash, verify as argonVerify } from '@node-rs/argon2';
 import { randomBytes } from 'node:crypto';
 import { nanoid } from 'nanoid';
 
@@ -27,12 +27,15 @@ authenticator.options = { window: 1, step: 30, digits: 6 };
 const RECOVERY_CODE_COUNT = 10;
 const RECOVERY_CODE_LEN = 10; // 10 alphanumeric chars · ~52 bits of entropy
 
+// Argon2 parameters · algorithm = 2 means Argon2id (literal because the
+// @node-rs/argon2 named enum is an ambient const enum that can't be
+// referenced under isolatedModules). Matches lib/auth.ts.
 const ARGON2_OPTS = {
+  algorithm: 2 as const,
   memoryCost: 19_456,
   timeCost: 2,
   parallelism: 1,
-  algorithm: argon2id,
-} as const;
+};
 
 /**
  * Generate a fresh base32 TOTP secret (otplib's `generateSecret`

@@ -20,13 +20,14 @@ TimeoutStartSec=30min
 # the local Postgres cluster. It does not touch the production schema.
 # It needs to read the backup directory and write a temporary file
 # while gunzip pipes through psql.
-NoNewPrivileges=true
-ProtectSystem=strict
-ProtectHome=true
+#
+# NoNewPrivileges is intentionally NOT set true · the script calls
+# `sudo -u postgres psql` to elevate to the postgres role for the
+# CREATE/DROP DATABASE statements. The remaining hardening lines
+# below still narrow filesystem and capability access.
 ProtectKernelTunables=true
 ProtectKernelModules=true
 ProtectControlGroups=true
 RestrictSUIDSGID=true
 LockPersonality=true
 PrivateTmp=true
-ReadOnlyPaths=/var/backups/counsel-day

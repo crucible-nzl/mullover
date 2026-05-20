@@ -26,15 +26,16 @@
 set -euo pipefail
 
 BACKUP_DIR="${BACKUP_DIR:-/var/backups/counsel-day}"
-# Verify-DB connection: we connect as the deploy user against the
-# local cluster, NOT the application's DATABASE_URL · the test DB is
-# disposable and lives only for the duration of this run.
-PG_HOST="${VERIFY_PG_HOST:-localhost}"
-PG_USER="${VERIFY_PG_USER:-deploy}"
-# Allow override for CI; defaults to the local socket via psql defaults.
+# Verify-DB connection: we connect via `sudo -u postgres psql` (peer
+# auth on the Unix socket). This avoids needing a password-bearing
+# Postgres role for the deploy OS user, mirrors the existing RUNBOOK
+# pattern (sudo -u postgres pg_dump …) and keeps least-privilege:
+# counsel_day_app does not need CREATEDB just so we can verify a dump.
+# The systemd unit must NOT set NoNewPrivileges=true · sudo needs the
+# setuid bit to elevate.
 
-if ! command -v pg_isready >/dev/null 2>&1; then
-  echo "[verify · ERROR] pg_isready not in PATH; install postgresql-client" >&2
+if ! command -v psql >/dev/null 2>&1; then
+  echo "[verify · ERROR] psql not in PATH; install postgresql-client" >&2
   exit 1
 fi
 
@@ -65,19 +66,19 @@ echo "[verify · target db] $TEST_DB"
 cleanup() {
   # Drop the test DB whether the restore succeeded or not. Use IF EXISTS
   # so we don't error if creation failed early.
-  psql -h "$PG_HOST" -U "$PG_USER" -d postgres -v ON_ERROR_STOP=1 \
+  sudo -n -u postgres psql -d postgres -v ON_ERROR_STOP=1 \
     -c "DROP DATABASE IF EXISTS \"$TEST_DB\";" >/dev/null 2>&1 || true
 }
 trap cleanup EXIT
 
-psql -h "$PG_HOST" -U "$PG_USER" -d postgres -v ON_ERROR_STOP=1 \
+sudo -n -u postgres psql -d postgres -v ON_ERROR_STOP=1 \
   -c "CREATE DATABASE \"$TEST_DB\";" >/dev/null
 
 # Restore. Pipe failures should abort because pg_dump dumps with
 # --clean --if-exists, restore is forgiving of object-exists noise.
 # We capture stderr to summarise; full output goes to journalctl.
 RESTORE_ERR=$(gunzip -c "$LATEST" \
-  | psql -h "$PG_HOST" -U "$PG_USER" -d "$TEST_DB" -v ON_ERROR_STOP=1 2>&1 >/dev/null)
+  | sudo -n -u postgres psql -d "$TEST_DB" -v ON_ERROR_STOP=1 2>&1 >/dev/null)
 RC=$?
 
 if [ $RC -ne 0 ]; then
@@ -90,9 +91,9 @@ fi
 # a non-trivial production database. The numbers are intentionally low
 # floors (presence > volume) · this is a "did the schema land" check,
 # not a content audit.
-ROW_USERS=$(psql -h "$PG_HOST" -U "$PG_USER" -d "$TEST_DB" -tAc "SELECT COUNT(*) FROM users;" || echo "0")
-ROW_DECISIONS=$(psql -h "$PG_HOST" -U "$PG_USER" -d "$TEST_DB" -tAc "SELECT COUNT(*) FROM decisions;" || echo "0")
-ROW_SESSIONS=$(psql -h "$PG_HOST" -U "$PG_USER" -d "$TEST_DB" -tAc "SELECT COUNT(*) FROM sessions;" || echo "0")
+ROW_USERS=$(sudo -n -u postgres psql -d "$TEST_DB" -tAc "SELECT COUNT(*) FROM users;" || echo "0")
+ROW_DECISIONS=$(sudo -n -u postgres psql -d "$TEST_DB" -tAc "SELECT COUNT(*) FROM decisions;" || echo "0")
+ROW_SESSIONS=$(sudo -n -u postgres psql -d "$TEST_DB" -tAc "SELECT COUNT(*) FROM sessions;" || echo "0")
 
 echo "[verify · rows] users=$ROW_USERS decisions=$ROW_DECISIONS sessions=$ROW_SESSIONS"
 

@@ -13,7 +13,22 @@
   .toolbar input { padding: 9px 12px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); font-family: var(--font-ui); font-size: 14px; min-width: 280px; }
   .toolbar select { padding: 9px 12px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); font-family: var(--font-ui); font-size: 14px; }
   .toolbar .count { margin-left: auto; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+  .users-tbl { table-layout: fixed; }
   .users-tbl td { vertical-align: middle; }
+  /* Date cells must never line-wrap · keeps "22 May 8:06 am" intact rather
+     than breaking into three lines when the table is cramped. */
+  .users-tbl td.when { white-space: nowrap; font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); }
+  .users-tbl td.name { white-space: nowrap; }
+  .users-tbl col.col-email { width: 26%; }
+  .users-tbl col.col-name { width: 12%; }
+  .users-tbl col.col-plan { width: 7%; }
+  .users-tbl col.col-dec { width: 6%; text-align: center; }
+  .users-tbl col.col-when { width: 11%; }
+  .users-tbl col.col-status { width: 7%; }
+  .users-tbl col.col-actions { width: 20%; }
+  .users-tbl td.email { word-break: break-all; font-family: var(--font-mono); font-size: 11px; }
+  .users-tbl td.actions { white-space: nowrap; }
+  .users-tbl .actions button { padding: 4px 7px !important; font-size: 9.5px !important; letter-spacing: 0.04em !important; }
   .users-tbl .pill { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 7px; border-radius: 2px; background: var(--surface-2); color: var(--ink-soft); }
   .users-tbl .pill.admin { background: var(--accent-soft); color: var(--accent); }
   .users-tbl .pill.deleted { background: #fee2e2; color: var(--red); }
@@ -69,6 +84,16 @@
   </div>
 
   <table class="tbl users-tbl">
+    <colgroup>
+      <col class="col-email">
+      <col class="col-name">
+      <col class="col-plan">
+      <col class="col-dec">
+      <col class="col-when">
+      <col class="col-when">
+      <col class="col-status">
+      <col class="col-actions">
+    </colgroup>
     <thead><tr>
       <th>Email</th>
       <th>Name</th>
@@ -99,7 +124,23 @@
   function showErr(m) { var el = $('adm-error'); el.style.display = 'block'; el.textContent = m; setTimeout(function () { el.style.display = 'none'; }, 6000); }
   function showOk(m) { var el = $('adm-msg'); el.style.display = 'block'; el.textContent = m; setTimeout(function () { el.style.display = 'none'; }, 4000); }
   function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]; }); }
-  function fmtTs(s) { if (!s) return '·'; try { var d = new Date(s); return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); } catch (e) { return s; } }
+  // Compact date/time format · "22 May, 8:06 am" rather than
+  // "5/22/2026 08:06 AM". Fits the narrow LAST ACTIVE / SIGNED UP
+  // columns without line-wrapping.
+  function fmtTs(s) {
+    if (!s) return '·';
+    try {
+      var d = new Date(s);
+      var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var hh = d.getHours();
+      var mm = d.getMinutes();
+      var ampm = hh >= 12 ? 'pm' : 'am';
+      var hh12 = hh % 12;
+      if (hh12 === 0) hh12 = 12;
+      var mmStr = mm < 10 ? ('0' + mm) : ('' + mm);
+      return d.getDate() + ' ' + MONTHS[d.getMonth()] + ', ' + hh12 + ':' + mmStr + ' ' + ampm;
+    } catch (e) { return s; }
+  }
 
   var state = { q: '', sort: 'created_at', limit: 50, offset: 0, total: 0 };
 
@@ -139,14 +180,14 @@
           }
 
           return '<tr>' +
-            '<td class="mono">' + escapeHtml(u.email) + '</td>' +
-            '<td>' + escapeHtml(u.first_name || '·') + '</td>' +
+            '<td class="email">' + escapeHtml(u.email) + '</td>' +
+            '<td class="name">' + escapeHtml(u.first_name || '·') + '</td>' +
             '<td><span class="pill">' + escapeHtml(u.current_plan || 'free') + '</span></td>' +
             '<td class="num">' + u.decision_count + '</td>' +
-            '<td>' + fmtTs(u.last_active_at) + '</td>' +
-            '<td>' + fmtTs(u.created_at) + '</td>' +
+            '<td class="when">' + fmtTs(u.last_active_at) + '</td>' +
+            '<td class="when">' + fmtTs(u.created_at) + '</td>' +
             '<td>' + pills.join(' ') + '</td>' +
-            '<td><div class="actions">' + actions.join('') + '</div></td>' +
+            '<td class="actions"><div class="actions">' + actions.join('') + '</div></td>' +
           '</tr>';
         }).join('');
         $('u-rows').innerHTML = rows || '<tr><td colspan="8" style="padding: 18px; color: var(--muted);">No users match.</td></tr>';
@@ -225,9 +266,9 @@
           var CATEGORY = {
             all:      function () { return true; },
             auth:     function (a) { return /^auth\.(signin|signout)/.test(a); },
-            admin:    function (a) { return /^admin\./.test(a) && !/^admin\.cron\./.test(a); },
+            admin:    function (a) { return /^admin\./.test(a) && !/^admin\.cron\./.test(a) && !/^cron\./.test(a); },
             mfa:      function (a) { return /^mfa\./.test(a) || /^auth\.signin\.mfa/.test(a); },
-            cron:     function (a) { return /^admin\.cron\./.test(a); },
+            cron:     function (a) { return /^(admin\.cron\.|cron\.)/.test(a); },
             decision: function (a) { return /^(decision\.|verdict\.|vote\.)/.test(a); },
             signup:   function (a) { return /^(auth\.signup|signup\.)/.test(a); },
           };

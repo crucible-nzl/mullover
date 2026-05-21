@@ -23,6 +23,7 @@ import { NextResponse } from 'next/server';
 import { db, schema } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin-auth';
 import { sql } from 'drizzle-orm';
+import { getAnthropicCost, getAnthropicBalance } from '@/lib/anthropic-billing';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -179,25 +180,20 @@ export async function GET(req: Request) {
     const testTokensIn = Number(r.test_tokens_in);
     const testTokensOut = Number(r.test_tokens_out);
     const testCost = Number(r.test_cost_cents);
-    // Manual offset · captures Anthropic spend incurred before commit
-    // 82307a9 added persistence to /admin-testing-area. Set
-    // CD_ANTHROPIC_HISTORICAL_OFFSET_CENTS in /etc/counsel-day-app/env.local
-    // to whatever number Anthropic's billing console shows that isn't
-    // in verdicts or verdict_test_runs yet.
-    const historicalOffsetCents = Number(process.env.CD_ANTHROPIC_HISTORICAL_OFFSET_CENTS || 0) || 0;
     return {
       total: Number(r.total),
       last_7_days: Number(r.last_7),
       tokens_input: prodTokensIn + testTokensIn,
       tokens_output: prodTokensOut + testTokensOut,
-      cost_usd: (prodCost + testCost + historicalOffsetCents) / 100,
-      // Split for the operator to see where the spend is going.
+      // Sum of internal tracking. The /admin overview also calls
+      // getAnthropicCost() below to get the LIVE billing figure direct
+      // from Anthropic's Admin API · that's the authoritative number.
+      cost_usd: (prodCost + testCost) / 100,
       production: { count: Number(r.total), tokens_input: prodTokensIn, tokens_output: prodTokensOut, cost_usd: prodCost / 100 },
       testing:    { count: Number(r.test_total), tokens_input: testTokensIn, tokens_output: testTokensOut, cost_usd: testCost / 100 },
-      historical_offset_usd: historicalOffsetCents / 100,
       last_generated_at: r.last_generated,
     };
-  }, { total: 0, last_7_days: 0, tokens_input: 0, tokens_output: 0, cost_usd: 0, production: { count: 0, tokens_input: 0, tokens_output: 0, cost_usd: 0 }, testing: { count: 0, tokens_input: 0, tokens_output: 0, cost_usd: 0 }, historical_offset_usd: 0, last_generated_at: null });
+  }, { total: 0, last_7_days: 0, tokens_input: 0, tokens_output: 0, cost_usd: 0, production: { count: 0, tokens_input: 0, tokens_output: 0, cost_usd: 0 }, testing: { count: 0, tokens_input: 0, tokens_output: 0, cost_usd: 0 }, last_generated_at: null });
 
   // ---- Cron health · derived from audit_log + table activity ----
   const cronHealth = await safe(async () => {
@@ -313,6 +309,15 @@ export async function GET(req: Request) {
     };
   }, { sessions_active: 0, sessions_expired: 0, saved_contacts: 0, consent_log_total: 0 });
 
+  // Live Anthropic billing · authoritative spend and balance direct
+  // from Anthropic's Admin API. Requires ANTHROPIC_ADMIN_API_KEY in
+  // env.local. If unset both helpers return null and the dashboard
+  // falls back to the internal verdicts+verdict_test_runs sum.
+  const [anthropicCost, anthropicBalance] = await Promise.all([
+    getAnthropicCost(),
+    getAnthropicBalance(),
+  ]);
+
   return NextResponse.json(
     {
       ok: true,
@@ -320,6 +325,11 @@ export async function GET(req: Request) {
       users,
       decisions,
       verdicts,
+      anthropic_billing: {
+        configured: anthropicCost !== null || anthropicBalance !== null,
+        cost: anthropicCost,
+        balance: anthropicBalance,
+      },
       cron_health: cronHealth,
       stripe,
       refunds,

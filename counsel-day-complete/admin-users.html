@@ -62,7 +62,7 @@
     <select id="u-sort">
       <option value="created_at">Newest first</option>
       <option value="email">Email A-Z</option>
-      <option value="last_session_at">Last sign-in</option>
+      <option value="last_active_at">Last active</option>
       <option value="decisions">Decision count</option>
     </select>
     <span class="count" id="u-count">…</span>
@@ -74,7 +74,7 @@
       <th>Name</th>
       <th>Plan</th>
       <th>Decisions</th>
-      <th>Last sign-in</th>
+      <th>Last active</th>
       <th>Signed up</th>
       <th>Status</th>
       <th>Actions</th>
@@ -143,7 +143,7 @@
             '<td>' + escapeHtml(u.first_name || '·') + '</td>' +
             '<td><span class="pill">' + escapeHtml(u.current_plan || 'free') + '</span></td>' +
             '<td class="num">' + u.decision_count + '</td>' +
-            '<td>' + fmtTs(u.last_session_at) + '</td>' +
+            '<td>' + fmtTs(u.last_active_at) + '</td>' +
             '<td>' + fmtTs(u.created_at) + '</td>' +
             '<td>' + pills.join(' ') + '</td>' +
             '<td><div class="actions">' + actions.join('') + '</div></td>' +

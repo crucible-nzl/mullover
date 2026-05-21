@@ -640,17 +640,48 @@ async function timeCapsuleDeliver() {
   console.log(`[cron · time-capsule] delivered ${sent}/${(dueRows as unknown as unknown[]).length} due capsules`);
 }
 
+/**
+ * Wrapper that writes a cron.<job>.completed audit_log row after every
+ * successful run, with the elapsed time. Used so the operator looking
+ * at /admin-audit-log can confirm that the daily/hourly crons actually
+ * fired · before this every systemd-triggered job ran silently and the
+ * audit log looked "stale" for hours on end (Task 2 from 2026-05-22).
+ *
+ * On failure the wrapper still writes a row with status=failed and the
+ * error message metadata, then re-raises so the outer process exits non-
+ * zero and systemctl status surfaces the failure.
+ */
+async function runWithHeartbeat<T>(job: string, fn: () => Promise<T>): Promise<T> {
+  const started = Date.now();
+  try {
+    const result = await fn();
+    await db.insert(schema.auditLog).values({
+      action: `cron.${job}.completed`,
+      targetType: 'cron',
+      metadata: { job, duration_ms: Date.now() - started, status: 'ok' },
+    }).catch(() => {});
+    return result;
+  } catch (err) {
+    await db.insert(schema.auditLog).values({
+      action: `cron.${job}.failed`,
+      targetType: 'cron',
+      metadata: { job, duration_ms: Date.now() - started, status: 'failed', error: (err as Error).message?.slice(0, 500) ?? 'unknown' },
+    }).catch(() => {});
+    throw err;
+  }
+}
+
 async function main() {
   const job = process.argv[2];
   switch (job) {
-    case 'evening-prompt':    return eveningPrompt();
-    case 'verdict-generate':  return verdictGenerate();
-    case 'session-purge':     return sessionPurge();
-    case 'invite-expiry':     return inviteExpiry();
-    case 'invite-reminder':   return inviteReminder();
-    case 'hard-delete-purge': return hardDeletePurge();
-    case 'audit-prune':       return auditPrune();
-    case 'time-capsule-deliver': return timeCapsuleDeliver();
+    case 'evening-prompt':       return runWithHeartbeat(job, eveningPrompt);
+    case 'verdict-generate':     return runWithHeartbeat(job, verdictGenerate);
+    case 'session-purge':        return runWithHeartbeat(job, sessionPurge);
+    case 'invite-expiry':        return runWithHeartbeat(job, inviteExpiry);
+    case 'invite-reminder':      return runWithHeartbeat(job, inviteReminder);
+    case 'hard-delete-purge':    return runWithHeartbeat(job, hardDeletePurge);
+    case 'audit-prune':          return runWithHeartbeat(job, auditPrune);
+    case 'time-capsule-deliver': return runWithHeartbeat(job, timeCapsuleDeliver);
     default:
       console.error(`Unknown job: ${job}. Valid: evening-prompt, verdict-generate, session-purge, invite-expiry, invite-reminder, hard-delete-purge, audit-prune, time-capsule-deliver`);
       process.exit(2);

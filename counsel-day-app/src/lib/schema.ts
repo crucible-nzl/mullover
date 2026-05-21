@@ -69,6 +69,10 @@ export const sessions = pgTable(
     userAgent: text('user_agent'),
     ipAddress: inet('ip_address'),
     mfaVerifiedAt: timestamp('mfa_verified_at', { withTimezone: true }),
+    // Touched on every authed request by readSession. Drives the
+    // "Last active" column on /admin-users instead of the stale
+    // MAX(sessions.created_at) we used before.
+    lastActiveAt: timestamp('last_active_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => ({
     userIdx: index('sessions_user_idx').on(t.userId),
@@ -251,6 +255,35 @@ export const verdicts = pgTable(
   (t) => ({
     decisionUnique: uniqueIndex('verdicts_decision_unique').on(t.decisionId),
   })
+);
+
+// ---------------------------------------------------------------------------
+// VERDICT TEST RUNS · /admin-testing-area persists every Anthropic call here
+// so /admin overview can sum real spend and /admin-verdict-logs can show a
+// "Testing verdicts" tab next to production. Mirrors verdicts but stores the
+// operator-supplied fixture too (questions/votes/notes that wouldn't exist
+// on a real decision row).
+// ---------------------------------------------------------------------------
+export const verdictTestRuns = pgTable(
+  'verdict_test_runs',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    triggeredByUserId: uuid('triggered_by_user_id').references(() => users.id, { onDelete: 'set null' }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    question: text('question').notNull(),
+    format: text('format').notNull(),
+    durationDays: integer('duration_days').notNull(),
+    tier: text('tier').notNull(),
+    participantsJson: jsonb('participants_json').notNull(),
+    aiModel: text('ai_model'),
+    synthesisText: text('synthesis_text'),
+    promptUsed: text('prompt_used'),
+    tokensInput: integer('tokens_input'),
+    tokensOutput: integer('tokens_output'),
+    costCents: integer('cost_cents'),
+    analysisJson: jsonb('analysis_json'),
+    label: text('label'),
+  }
 );
 
 // ---------------------------------------------------------------------------

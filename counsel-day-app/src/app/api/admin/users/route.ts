@@ -29,7 +29,7 @@ const querySchema = z.object({
   q: z.string().trim().max(200).optional(),
   limit: z.coerce.number().int().min(1).max(200).default(50),
   offset: z.coerce.number().int().min(0).default(0),
-  sort: z.enum(['created_at', 'email', 'last_session_at', 'decisions']).default('created_at'),
+  sort: z.enum(['created_at', 'email', 'last_active_at', 'decisions']).default('created_at'),
 });
 
 export async function GET(req: Request) {
@@ -46,10 +46,10 @@ export async function GET(req: Request) {
   // Build the order-by safely. We never interpolate user-supplied values
   // into SQL directly · the sort key is validated by the zod enum above.
   const orderBy =
-    sort === 'email'             ? sql`u.email ASC` :
-    sort === 'last_session_at'   ? sql`last_session_at DESC NULLS LAST` :
-    sort === 'decisions'         ? sql`decision_count DESC` :
-                                   sql`u.created_at DESC`;
+    sort === 'email'           ? sql`u.email ASC` :
+    sort === 'last_active_at'  ? sql`last_active_at DESC NULLS LAST` :
+    sort === 'decisions'       ? sql`decision_count DESC` :
+                                 sql`u.created_at DESC`;
 
   // Search · ILIKE on email + first_name, parameterised. Empty q = no filter.
   const search = q && q.length > 0 ? sql`AND (u.email ILIKE ${'%' + q + '%'} OR u.first_name ILIKE ${'%' + q + '%'})` : sql``;
@@ -64,7 +64,7 @@ export async function GET(req: Request) {
     created_at: string;
     deleted_at: string | null;
     decision_count: string;
-    last_session_at: string | null;
+    last_active_at: string | null;
   };
   const rows = await db.execute<Row>(sql`
     SELECT u.id::text AS id,
@@ -76,7 +76,7 @@ export async function GET(req: Request) {
            u.created_at::text AS created_at,
            u.deleted_at::text AS deleted_at,
            COALESCE((SELECT count(*) FROM decisions d WHERE d.owner_user_id = u.id), 0)::text AS decision_count,
-           (SELECT MAX(s.created_at)::text FROM sessions s WHERE s.user_id = u.id) AS last_session_at
+           (SELECT MAX(s.last_active_at)::text FROM sessions s WHERE s.user_id = u.id) AS last_active_at
     FROM users u
     WHERE 1 = 1 ${search}
     ORDER BY ${orderBy}
@@ -107,7 +107,7 @@ export async function GET(req: Request) {
         created_at: r.created_at,
         deleted_at: r.deleted_at,
         decision_count: Number(r.decision_count),
-        last_session_at: r.last_session_at,
+        last_active_at: r.last_active_at,
       })),
     },
     { headers: { 'cache-control': 'private, no-store' } }

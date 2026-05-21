@@ -50,6 +50,7 @@
 
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { db, schema } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin-auth';
 import { getAnthropic, VERDICT_MODEL, VERDICT_SYSTEM_PROMPT } from '@/lib/anthropic';
 import { calculateAnthropicCostCents } from '@/lib/anthropic-pricing';
@@ -228,10 +229,39 @@ export async function POST(req: Request) {
       msg.usage.input_tokens,
       msg.usage.output_tokens,
     );
+
+    // Persist the run so:
+    //   · /admin overview can sum Anthropic spend across production + test
+    //   · /admin-verdict-logs "Testing verdicts" tab can show prior tuning
+    //     sessions without forcing the operator to re-run them
+    //   · the operator gets a stable URL/id back for sharing or replay
+    // Failure to persist is non-fatal · the inline result still returns.
+    let testRunId: string | null = null;
+    try {
+      const inserted = await db.insert(schema.verdictTestRuns).values({
+        triggeredByUserId: gate.userId,
+        question: body.question,
+        format: body.format,
+        durationDays: body.duration_days,
+        tier: body.tier,
+        participantsJson: body.participants as unknown,
+        aiModel: VERDICT_MODEL,
+        synthesisText: synthesis,
+        promptUsed: VERDICT_SYSTEM_PROMPT,
+        tokensInput: msg.usage.input_tokens,
+        tokensOutput: msg.usage.output_tokens,
+        costCents,
+      }).returning({ id: schema.verdictTestRuns.id });
+      testRunId = inserted[0]?.id ?? null;
+    } catch (e) {
+      console.warn('[testing-area] failed to persist test run:', (e as Error).message);
+    }
+
     return NextResponse.json(
       {
         ok: true,
         mode: 'ai',
+        test_run_id: testRunId,
         elapsed_ms: Date.now() - started,
         summary,
         verdict: {

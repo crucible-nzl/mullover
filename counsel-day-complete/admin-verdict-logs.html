@@ -56,22 +56,43 @@
   <p class="lede">Every verdict, with full content, the prompt used, tokens, cost, and any errors during generation or database writes. <span class="ts" id="adm-last-loaded"></span></p>
   <div id="adm-error" class="status-banner is-error" style="display:none;"></div>
 
-  <h2>Summary</h2>
-  <div class="grid-4">
-    <div class="card"><div class="label">Total verdicts</div><div class="value skel skel-value" id="m-total">…</div></div>
-    <div class="card"><div class="label">Last 30 days</div><div class="value skel skel-value" id="m-30">…</div></div>
-    <div class="card"><div class="label">Total tokens (in + out)</div><div class="value skel skel-value" id="m-tokens">…</div><div class="sub" id="m-tokens-sub"></div></div>
-    <div class="card"><div class="label">Total AI cost</div><div class="value skel skel-value" id="m-cost">…</div></div>
+  <div class="tabs" role="tablist" aria-label="Verdict log scope" style="display: flex; gap: 8px; margin-bottom: 22px; border-bottom: 1px solid var(--rule);">
+    <button type="button" id="tab-prod" data-tab="prod" class="active" style="background: none; border: none; padding: 10px 16px; font-family: var(--font-ui); font-size: 14px; color: var(--accent); border-bottom: 2px solid var(--accent); cursor: pointer; margin-bottom: -1px;">Production verdicts</button>
+    <button type="button" id="tab-test" data-tab="test" style="background: none; border: none; padding: 10px 16px; font-family: var(--font-ui); font-size: 14px; color: var(--muted); border-bottom: 2px solid transparent; cursor: pointer; margin-bottom: -1px;">Testing verdicts</button>
   </div>
 
-  <h2>Recent verdicts · last 50</h2>
-  <div id="vd-list">Loading…</div>
+  <section id="pane-prod">
+    <h2>Production summary</h2>
+    <div class="grid-4">
+      <div class="card"><div class="label">Total verdicts</div><div class="value skel skel-value" id="m-total">…</div></div>
+      <div class="card"><div class="label">Last 30 days</div><div class="value skel skel-value" id="m-30">…</div></div>
+      <div class="card"><div class="label">Total tokens (in + out)</div><div class="value skel skel-value" id="m-tokens">…</div><div class="sub" id="m-tokens-sub"></div></div>
+      <div class="card"><div class="label">Total AI cost</div><div class="value skel skel-value" id="m-cost">…</div></div>
+    </div>
 
-  <h2>Verdict generation errors · last 30d</h2>
-  <div id="vd-errors">Loading…</div>
+    <h2>Recent verdicts · last 50</h2>
+    <div id="vd-list">Loading…</div>
 
-  <h2>Database errors logged by the app · last 30d</h2>
-  <div id="db-errors">Loading…</div>
+    <h2>Verdict generation errors · last 30d</h2>
+    <div id="vd-errors">Loading…</div>
+
+    <h2>Database errors logged by the app · last 30d</h2>
+    <div id="db-errors">Loading…</div>
+  </section>
+
+  <section id="pane-test" style="display: none;">
+    <h2>Testing summary</h2>
+    <p class="lede" style="margin-top: -8px;">Runs from <a href="/admin-testing-area.html" style="color: var(--accent);">/admin-testing-area</a>. Real Anthropic spend, no customer-visible side effects. Persisted so you can compare prompt iterations over time.</p>
+    <div class="grid-4">
+      <div class="card"><div class="label">Total test runs</div><div class="value skel skel-value" id="m-test-total">…</div></div>
+      <div class="card"><div class="label">Last 30 days</div><div class="value skel skel-value" id="m-test-30">…</div></div>
+      <div class="card"><div class="label">Total tokens (in + out)</div><div class="value skel skel-value" id="m-test-tokens">…</div><div class="sub" id="m-test-tokens-sub"></div></div>
+      <div class="card"><div class="label">Total test cost</div><div class="value skel skel-value" id="m-test-cost">…</div></div>
+    </div>
+
+    <h2>Recent test runs · last 100</h2>
+    <div id="vd-test-list">Loading…</div>
+  </section>
 </div>
 
 <script>
@@ -147,8 +168,69 @@
       }
       renderErrors('vd-errors', d.errors, 'No verdict generation errors in the last 30 days.');
       renderErrors('db-errors', d.db_errors, 'No database errors logged by the app in the last 30 days.');
+
+      // ---- Testing tab ----
+      var ts = d.test_summary || { total: 0, last_30d: 0, total_tokens_input: 0, total_tokens_output: 0, total_cost_cents: 0 };
+      $('m-test-total').textContent = num(ts.total);
+      $('m-test-30').textContent = num(ts.last_30d);
+      var testTokensTotal = (ts.total_tokens_input || 0) + (ts.total_tokens_output || 0);
+      $('m-test-tokens').textContent = num(testTokensTotal);
+      $('m-test-tokens-sub').textContent = num(ts.total_tokens_input) + ' in · ' + num(ts.total_tokens_output) + ' out';
+      $('m-test-cost').textContent = usd(ts.total_cost_cents);
+
+      var testList = $('vd-test-list');
+      var testRuns = d.test_runs || [];
+      if (!testRuns.length) {
+        testList.innerHTML = '<div class="status-banner">No testing runs yet. <a href="/admin-testing-area.html" style="color: var(--accent);">Run one</a>.</div>';
+      } else {
+        testList.innerHTML = testRuns.map(function (t) {
+          var stats = '<span><strong>' + num((t.tokens_input || 0) + (t.tokens_output || 0)) + '</strong> tokens</span><span><strong>' + usd(t.cost_cents) + '</strong> cost</span><span><strong>' + (t.ai_model || '·') + '</strong></span>';
+          var who = t.triggered_by_email ? ' · by ' + escapeHtml(t.triggered_by_email) : '';
+          var summary = t.synthesis_text ? escapeHtml(t.synthesis_text) : '<em style="color: var(--muted);">No synthesis text.</em>';
+          var participantsJson = t.participants_json ? JSON.stringify(t.participants_json, null, 2) : 'null';
+          return '<div class="vd-card" data-id="' + escapeHtml(t.id) + '">' +
+            '<div class="vd-head">' +
+              '<div class="q">' + escapeHtml(t.question || '(no question)') + '<div class="vd-stats">' + stats + '</div></div>' +
+              '<div class="meta">' +
+                '<span class="pill">' + escapeHtml(t.tier || '?') + '</span>' +
+                '<span>' + fmtTs(t.created_at) + who + '</span>' +
+                '<button type="button" class="toggle" data-cd-toggle>Expand</button>' +
+              '</div>' +
+            '</div>' +
+            '<div class="vd-body">' +
+              '<div class="vd-section"><h4>Synthesis text</h4><div class="vd-text">' + summary + '</div></div>' +
+              '<div class="vd-section"><h4>Fixture (votes JSON)</h4><div class="vd-json">' + escapeHtml(participantsJson) + '</div></div>' +
+              '<div class="vd-section"><h4>Format · duration</h4><div class="vd-text" style="max-height: none;">' + escapeHtml(t.format) + ' · ' + (t.duration_days || '?') + ' days</div></div>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+        testList.addEventListener('click', function (e) {
+          var tgt = e.target;
+          if (tgt && tgt.getAttribute && tgt.getAttribute('data-cd-toggle') !== null) {
+            var card = tgt.closest('.vd-card');
+            if (card) { card.classList.toggle('open'); tgt.textContent = card.classList.contains('open') ? 'Collapse' : 'Expand'; }
+          }
+        });
+      }
     })
     .catch(function (e) { if (e && e.message !== 'auth') showErr('Failed to load verdict logs · ' + e.message); });
+
+  // ---- Tab switching ----
+  document.querySelectorAll('.tabs button[data-tab]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.tabs button[data-tab]').forEach(function (x) {
+        x.classList.remove('active');
+        x.style.color = 'var(--muted)';
+        x.style.borderBottom = '2px solid transparent';
+      });
+      b.classList.add('active');
+      b.style.color = 'var(--accent)';
+      b.style.borderBottom = '2px solid var(--accent)';
+      var tab = b.dataset.tab;
+      document.getElementById('pane-prod').style.display = tab === 'prod' ? '' : 'none';
+      document.getElementById('pane-test').style.display = tab === 'test' ? '' : 'none';
+    });
+  });
 })();
 </script>
 </body>

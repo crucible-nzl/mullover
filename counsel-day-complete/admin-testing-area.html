@@ -84,7 +84,7 @@
 
 <div class="shell">
   <h1>Testing area · run a verdict on fixture data</h1>
-  <p class="lede">Operator sandbox for prompt-tuning, tone checks, and AI-output spot-checks. Hits the real Anthropic API with the production system prompt. <strong>Nothing is persisted</strong> · no rows in <code>decisions</code>, <code>votes</code>, <code>verdicts</code>, or <code>verdict_runs</code>. Each run costs roughly $0.02-$0.05 of Anthropic credits.</p>
+  <p class="lede">Operator sandbox for prompt-tuning, tone checks, and AI-output spot-checks. Hits the real Anthropic API with the production system prompt. Every run is persisted to <code>verdict_test_runs</code> and visible under the Testing tab in <a href="/admin-verdict-logs.html">verdict logs</a> for later review. Each run costs roughly $0.02-$0.05 of Anthropic credits.</p>
 
   <div class="ta-help">
     <strong>How it works:</strong> Fill in the question, choose a tier, give each participant a name, then click through 7 days of votes (and notes, if you want to test tone-handling). Click <em>Run verdict</em> and the AI synthesis appears below alongside the numerical per-participant summary. <strong>Solo Free</strong> skips the AI call and returns numbers only · same as the customer-facing experience for that tier.
@@ -122,7 +122,13 @@
   </div>
 
   <div class="ta-actions">
-    <button type="button" id="cd-fill-demo" class="btn btn-load">Fill with demo data</button>
+    <label style="display: inline-flex; gap: 8px; align-items: center; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);">
+      Preset
+      <select id="cd-preset" style="font-family: var(--font-ui); font-size: 13px; padding: 8px 11px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); min-width: 280px;">
+        <option value="">Choose a classic question…</option>
+      </select>
+    </label>
+    <button type="button" id="cd-fill-demo" class="btn btn-load">Fill with current preset</button>
     <button type="button" id="cd-add-participant" class="btn btn-load">+ Add participant</button>
     <span class="ta-status" id="cd-status"></span>
   </div>
@@ -438,6 +444,278 @@
     // 0..scriptLen-1 each cover roughly equal slices of the duration.
     return Math.max(0, Math.min(scriptLen - 1, Math.round((i / (dur - 1)) * (scriptLen - 1))));
   }
+
+  // 10 classic-question presets. Picking one sets tier + question + participants
+  // (with full scripts) so the operator can run a real fixture end-to-end with
+  // one click. Each preset reuses the same 7-step script + telescoping logic
+  // as DEMO_FIXTURES; the script targets the closing direction shown after the
+  // dash in the preset id (e.g. "couple-childrenA" ends LEAN YES).
+  var PRESETS = [
+    {
+      id: 'couple-wellington', label: 'Couple · Should we move to Wellington in March?',
+      tier: 'couple', uses: 'couple',
+    },
+    {
+      id: 'couple-christchurch', label: 'Couple · Should we move to Christchurch City',
+      tier: 'couple',
+      question: 'Should we move to Christchurch City?',
+      participants: [
+        { name: 'James', script: [
+          { direction: 'lean_yes',  note: 'Job market is genuinely thicker in Christchurch.' },
+          { direction: 'lean_yes',  note: '' },
+          { direction: 'strong_yes', note: 'Walked the central garden city loop, felt right.' },
+          { direction: 'lean_yes',  note: 'Sums for the mortgage still work at the new prices.' },
+          { direction: 'lean_no',   note: 'Talked to dad about quakes, harder than I expected.' },
+          { direction: 'lean_yes',  note: '' },
+          { direction: 'strong_yes', note: 'Decided. Want to make the move.' },
+        ]},
+        { name: 'Alexandra', script: [
+          { direction: 'lean_no',   note: 'I want to want this but I do not yet.' },
+          { direction: 'lean_no',   note: '' },
+          { direction: 'lean_yes',  note: 'Spent an afternoon in the city, something shifted.' },
+          { direction: 'lean_no',   note: 'Worried about being further from mum.' },
+          { direction: 'lean_no',   note: '' },
+          { direction: 'lean_yes',  note: 'I think monthly visits up could actually work.' },
+          { direction: 'lean_yes',  note: 'Ready to try.' },
+        ]},
+      ],
+    },
+    {
+      id: 'couple-child', label: 'Couple · Should we have another child?',
+      tier: 'couple',
+      question: 'Should we have another child?',
+      participants: [
+        { name: 'James', script: [
+          { direction: 'lean_no',   note: 'The first year was harder than I want to repeat.' },
+          { direction: 'lean_no',   note: '' },
+          { direction: 'lean_yes',  note: 'Watched her play with Lila today. Something opened.' },
+          { direction: 'lean_no',   note: 'Money is still real.' },
+          { direction: 'lean_no',   note: '' },
+          { direction: 'lean_yes',  note: 'My sister had her second and it looked manageable.' },
+          { direction: 'lean_yes',  note: 'Ready to talk dates.' },
+        ]},
+        { name: 'Alexandra', script: [
+          { direction: 'lean_yes',  note: 'I have wanted two for a long time.' },
+          { direction: 'strong_yes', note: 'Lila asked for a sister today.' },
+          { direction: 'lean_yes',  note: '' },
+          { direction: 'lean_yes',  note: 'I want to be honest that my body is the variable here.' },
+          { direction: 'lean_yes',  note: 'Talked to my GP, options exist if it takes a while.' },
+          { direction: 'strong_yes', note: '' },
+          { direction: 'strong_yes', note: 'Yes. I want to try.' },
+        ]},
+      ],
+    },
+    {
+      id: 'couple-renovate', label: 'Couple · Should we renovate or move?',
+      tier: 'couple',
+      question: 'Should we renovate the house or move?',
+      participants: [
+        { name: 'James', script: [
+          { direction: 'lean_no',   note: 'Renovating sounds simpler than packing.' },
+          { direction: 'lean_no',   note: 'Architect quoted higher than expected.' },
+          { direction: 'lean_yes',  note: 'But the catchment for schools matters more than I admitted.' },
+          { direction: 'lean_yes',  note: 'Renovation is six months of dust in our face.' },
+          { direction: 'lean_yes',  note: '' },
+          { direction: 'lean_yes',  note: 'Listed a few houses we both like.' },
+          { direction: 'lean_yes',  note: 'Decided. Move.' },
+        ]},
+        { name: 'Alexandra', script: [
+          { direction: 'lean_yes',  note: 'I want a fresh place, not a fixed one.' },
+          { direction: 'lean_yes',  note: '' },
+          { direction: 'lean_yes',  note: 'Reviewed the move costs vs reno costs. Move wins.' },
+          { direction: 'lean_no',   note: 'But I love our kitchen.' },
+          { direction: 'lean_yes',  note: 'Kitchens can be made again. Schools cannot.' },
+          { direction: 'lean_yes',  note: '' },
+          { direction: 'lean_yes',  note: 'Ready to look properly.' },
+        ]},
+      ],
+    },
+    {
+      id: 'couple-business', label: 'Couple · Should we start the business together?',
+      tier: 'couple',
+      question: 'Should we start the business together this year?',
+      participants: [
+        { name: 'James', script: [
+          { direction: 'lean_yes',  note: 'Customers are asking unprompted.' },
+          { direction: 'lean_yes',  note: '' },
+          { direction: 'strong_yes', note: 'Pitched it to two people, both said they would buy.' },
+          { direction: 'lean_yes',  note: 'Three months of runway is the minimum.' },
+          { direction: 'lean_no',   note: 'My current salary is hard to leave.' },
+          { direction: 'lean_yes',  note: 'But the offer renews in February anyway.' },
+          { direction: 'strong_yes', note: 'Committing. Let us start in March.' },
+        ]},
+        { name: 'Alexandra', script: [
+          { direction: 'lean_no',   note: 'I cannot do this alongside a full-time role.' },
+          { direction: 'lean_no',   note: '' },
+          { direction: 'lean_no',   note: 'Working two jobs ages people.' },
+          { direction: 'lean_yes',  note: 'But the idea itself is genuinely good.' },
+          { direction: 'lean_yes',  note: 'Three days at the day job, two on this?' },
+          { direction: 'lean_yes',  note: 'Talked to HR, three-day weeks are real.' },
+          { direction: 'lean_yes',  note: 'Yes. Three-day version.' },
+        ]},
+      ],
+    },
+    {
+      id: 'solo-promotion', label: 'Solo paid · Should I take the promotion?',
+      tier: 'solo_paid',
+      question: 'Should I take the promotion that requires moving cities?',
+      participants: [
+        { name: 'James', script: [
+          { direction: 'lean_yes',  note: 'The role itself is the right next step.' },
+          { direction: 'lean_yes',  note: '' },
+          { direction: 'strong_yes', note: 'Met the new team, they want me.' },
+          { direction: 'lean_no',   note: 'But my parents are aging.' },
+          { direction: 'lean_no',   note: '' },
+          { direction: 'lean_yes',  note: 'Cleared a monthly travel budget with my sister.' },
+          { direction: 'strong_yes', note: 'Decided. Accepting.' },
+        ]},
+      ],
+    },
+    {
+      id: 'solo-resign', label: 'Solo paid · Should I resign without a next job?',
+      tier: 'solo_paid',
+      question: 'Should I resign without a next job lined up?',
+      participants: [
+        { name: 'James', script: [
+          { direction: 'lean_no',   note: 'No income is genuinely scary.' },
+          { direction: 'lean_no',   note: '' },
+          { direction: 'lean_yes',  note: 'Manager said the team would not survive 2026 anyway.' },
+          { direction: 'lean_no',   note: 'Twelve months of runway is the floor.' },
+          { direction: 'lean_yes',  note: 'Counted savings. Eleven months at current burn.' },
+          { direction: 'lean_yes',  note: '' },
+          { direction: 'lean_yes',  note: 'Resigning end of month.' },
+        ]},
+      ],
+    },
+    {
+      id: 'solo-therapist', label: 'Solo paid · Should I start seeing a therapist?',
+      tier: 'solo_paid',
+      question: 'Should I start seeing a therapist this year?',
+      participants: [
+        { name: 'James', script: [
+          { direction: 'lean_no',   note: 'I have always handled things on my own.' },
+          { direction: 'lean_yes',  note: 'But Tuesday’s reaction was not me.' },
+          { direction: 'lean_yes',  note: '' },
+          { direction: 'lean_yes',  note: 'Two friends said it was worth a year.' },
+          { direction: 'lean_yes',  note: 'The cost is real but is a fortnightly coffee.' },
+          { direction: 'lean_yes',  note: '' },
+          { direction: 'lean_yes',  note: 'Booked the first session.' },
+        ]},
+      ],
+    },
+    {
+      id: 'family-schools', label: 'Family · Should we change the children’s schools?',
+      tier: 'family',
+      question: 'Should we change the children’s schools to the closer ones?',
+      participants: [
+        { name: 'Alex', script: [
+          { direction: 'lean_yes',  note: 'The new schools sit twelve minutes closer.' },
+          { direction: 'lean_yes',  note: '' },
+          { direction: 'lean_yes',  note: 'Both heads of department were warm at the visit.' },
+          { direction: 'lean_yes',  note: 'Reading age matches.' },
+          { direction: 'strong_yes', note: 'Reviewed the maths curriculum, it is stronger.' },
+          { direction: 'strong_yes', note: '' },
+          { direction: 'strong_yes', note: 'Filing the transfer this week.' },
+        ]},
+        { name: 'Jordan', script: [
+          { direction: 'lean_no',   note: 'We promised the kids continuity.' },
+          { direction: 'lean_no',   note: '' },
+          { direction: 'lean_yes',  note: 'But the friend group has already moved on.' },
+          { direction: 'lean_yes',  note: 'Twelve minutes a day is two hours a week of family time.' },
+          { direction: 'lean_yes',  note: '' },
+          { direction: 'lean_yes',  note: 'I can support the move.' },
+          { direction: 'lean_yes',  note: 'Yes.' },
+        ]},
+        { name: 'Sam', script: [
+          { direction: 'strong_no', note: 'I do not want to lose my friends.' },
+          { direction: 'strong_no', note: '' },
+          { direction: 'lean_no',   note: 'Visited the new playground. It was ok.' },
+          { direction: 'lean_no',   note: '' },
+          { direction: 'lean_no',   note: 'Still no.' },
+          { direction: 'lean_yes',  note: 'Met two new kids, they were ok.' },
+          { direction: 'lean_yes',  note: 'I will go if it is with my sister.' },
+        ]},
+      ],
+    },
+    {
+      id: 'family-grandparent', label: 'Family · Should grandma move in with us?',
+      tier: 'family',
+      question: 'Should grandma move in with us this year?',
+      participants: [
+        { name: 'Alex', script: [
+          { direction: 'lean_yes',  note: 'Her flat is no longer safe for her alone.' },
+          { direction: 'strong_yes', note: 'Mum cried with relief when I floated it.' },
+          { direction: 'lean_yes',  note: '' },
+          { direction: 'lean_yes',  note: 'Spare room is ready with a small reno.' },
+          { direction: 'strong_yes', note: 'I want her with us.' },
+          { direction: 'strong_yes', note: '' },
+          { direction: 'strong_yes', note: 'Yes.' },
+        ]},
+        { name: 'Jordan', script: [
+          { direction: 'lean_no',   note: 'We have not had this conversation properly.' },
+          { direction: 'lean_no',   note: '' },
+          { direction: 'lean_yes',  note: 'Took your mum out for coffee. She was lovely.' },
+          { direction: 'lean_yes',  note: 'I can do this if we agree house rules first.' },
+          { direction: 'lean_yes',  note: '' },
+          { direction: 'lean_yes',  note: 'Wrote the rules together at the table.' },
+          { direction: 'lean_yes',  note: 'Yes.' },
+        ]},
+        { name: 'Sam', script: [
+          { direction: 'lean_yes',  note: 'I like grandma.' },
+          { direction: 'lean_yes',  note: '' },
+          { direction: 'lean_yes',  note: 'She bakes the best bread.' },
+          { direction: 'lean_yes',  note: '' },
+          { direction: 'lean_yes',  note: 'Yes please.' },
+          { direction: 'strong_yes', note: '' },
+          { direction: 'strong_yes', note: 'Yes.' },
+        ]},
+      ],
+    },
+  ];
+
+  // Populate the preset dropdown on load.
+  (function () {
+    var sel = $('cd-preset');
+    if (!sel) return;
+    PRESETS.forEach(function (p) {
+      var opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.label;
+      sel.appendChild(opt);
+    });
+    sel.addEventListener('change', function () {
+      var preset = PRESETS.find(function (p) { return p.id === sel.value; });
+      if (!preset) return;
+      // Switch tier first so syncTier sets the right participant bounds.
+      $('cd-tier').value = preset.tier;
+      syncTier();
+      // Then auto-fill if the preset has its own participants;
+      // otherwise leave the canonical DEMO_FIXTURES[tier] in place and
+      // just override the question.
+      if (preset.question) $('cd-q').value = preset.question;
+      if (preset.participants) {
+        var dur = durationDays();
+        participants = preset.participants.map(function (p) {
+          var votes = [];
+          var lastCanonicalNote = null;
+          for (var i = 0; i < dur; i++) {
+            var idx = scriptIndexForDay(i, dur, p.script.length);
+            var entry = p.script[idx];
+            var note = entry.note || '';
+            if (note && note === lastCanonicalNote) note = '';
+            lastCanonicalNote = entry.note || '';
+            votes.push({ direction: entry.direction, note: note });
+          }
+          return { display_name: p.name, votes: votes };
+        });
+        renderParticipants();
+      } else if (preset.uses && DEMO_FIXTURES[preset.uses]) {
+        // Use the canonical DEMO_FIXTURES (e.g. couple-wellington reuses the
+        // existing Wellington couple fixture).
+        $('cd-fill-demo').click();
+      }
+    });
+  })();
 
   $('cd-fill-demo').addEventListener('click', function () {
     var tier = $('cd-tier').value;

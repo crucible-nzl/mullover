@@ -134,7 +134,11 @@ export async function GET(req: Request) {
     },
   });
 
-  // ---- Verdicts (sums) ----
+  // ---- Verdicts (sums · production + testing) ----
+  // /admin overview reports the combined Anthropic spend because finance
+  // wants the real number on the bill. Production verdicts go into the
+  // verdicts table; operator test runs from /admin-testing-area go into
+  // verdict_test_runs. Both spent real money on the same API key.
   const verdicts = await safe(async () => {
     const rows = await db.execute<{
       total: string;
@@ -142,27 +146,51 @@ export async function GET(req: Request) {
       tokens_in: string;
       tokens_out: string;
       cost_cents: string;
+      test_total: string;
+      test_tokens_in: string;
+      test_tokens_out: string;
+      test_cost_cents: string;
       last_generated: string | null;
     }>(sql`
-      SELECT
-        count(*)::text AS total,
-        count(*) FILTER (WHERE generated_at > NOW() - INTERVAL '7 days')::text AS last_7,
-        COALESCE(SUM(tokens_input), 0)::text AS tokens_in,
-        COALESCE(SUM(tokens_output), 0)::text AS tokens_out,
-        COALESCE(SUM(cost_cents), 0)::text AS cost_cents,
-        MAX(generated_at)::text AS last_generated
-      FROM verdicts
+      WITH prod AS (
+        SELECT
+          count(*)::text AS total,
+          count(*) FILTER (WHERE generated_at > NOW() - INTERVAL '7 days')::text AS last_7,
+          COALESCE(SUM(tokens_input), 0)::text AS tokens_in,
+          COALESCE(SUM(tokens_output), 0)::text AS tokens_out,
+          COALESCE(SUM(cost_cents), 0)::text AS cost_cents,
+          MAX(generated_at)::text AS last_generated
+        FROM verdicts
+      ),
+      test AS (
+        SELECT
+          count(*)::text AS test_total,
+          COALESCE(SUM(tokens_input), 0)::text AS test_tokens_in,
+          COALESCE(SUM(tokens_output), 0)::text AS test_tokens_out,
+          COALESCE(SUM(cost_cents), 0)::text AS test_cost_cents
+        FROM verdict_test_runs
+      )
+      SELECT * FROM prod, test
     `);
     const r = rows[0] as Record<string, string | null>;
+    const prodTokensIn = Number(r.tokens_in);
+    const prodTokensOut = Number(r.tokens_out);
+    const prodCost = Number(r.cost_cents);
+    const testTokensIn = Number(r.test_tokens_in);
+    const testTokensOut = Number(r.test_tokens_out);
+    const testCost = Number(r.test_cost_cents);
     return {
       total: Number(r.total),
       last_7_days: Number(r.last_7),
-      tokens_input: Number(r.tokens_in),
-      tokens_output: Number(r.tokens_out),
-      cost_usd: Number(r.cost_cents) / 100,
+      tokens_input: prodTokensIn + testTokensIn,
+      tokens_output: prodTokensOut + testTokensOut,
+      cost_usd: (prodCost + testCost) / 100,
+      // Split for the operator to see where the spend is going.
+      production: { count: Number(r.total), tokens_input: prodTokensIn, tokens_output: prodTokensOut, cost_usd: prodCost / 100 },
+      testing:    { count: Number(r.test_total), tokens_input: testTokensIn, tokens_output: testTokensOut, cost_usd: testCost / 100 },
       last_generated_at: r.last_generated,
     };
-  }, { total: 0, last_7_days: 0, tokens_input: 0, tokens_output: 0, cost_usd: 0, last_generated_at: null });
+  }, { total: 0, last_7_days: 0, tokens_input: 0, tokens_output: 0, cost_usd: 0, production: { count: 0, tokens_input: 0, tokens_output: 0, cost_usd: 0 }, testing: { count: 0, tokens_input: 0, tokens_output: 0, cost_usd: 0 }, last_generated_at: null });
 
   // ---- Cron health · derived from audit_log + table activity ----
   const cronHealth = await safe(async () => {

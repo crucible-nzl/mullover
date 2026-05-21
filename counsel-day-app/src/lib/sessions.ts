@@ -45,21 +45,36 @@ export async function createSession(userId: string, ctx: SessionContext): Promis
   return { id, expiresAt };
 }
 
-/** Look up + validate a session id; returns the user or null. */
+/** Look up + validate a session id; returns the user or null.
+ *  Also touches last_active_at as a side effect (rate-limited to once
+ *  per minute · we don't need fine-grained activity tracking and the
+ *  UPDATE-per-request would otherwise spam the row hot). */
+const LAST_ACTIVE_TOUCH_MS = 60 * 1000; // touch at most every 60s
 export async function readSession(sessionId: string | undefined): Promise<{ userId: string; expiresAt: Date } | null> {
   if (!sessionId) return null;
-  const rows = await db
-    .select({ userId: schema.sessions.userId, expiresAt: schema.sessions.expiresAt })
-    .from(schema.sessions)
-    .where(eq(schema.sessions.id, sessionId))
-    .limit(1);
-  if (rows.length === 0) return null;
-  if (rows[0].expiresAt.getTime() < Date.now()) {
+  const rows = await db.execute<{ user_id: string; expires_at: string; last_active_at: string }>(sql`
+    SELECT user_id::text, expires_at::text, last_active_at::text
+    FROM sessions WHERE id = ${sessionId} LIMIT 1
+  `);
+  const arr = Array.from(rows);
+  if (arr.length === 0) return null;
+  const row = arr[0];
+  const expiresAt = new Date(row.expires_at);
+  if (expiresAt.getTime() < Date.now()) {
     // Expired · fire-and-forget delete
     void destroySession(sessionId);
     return null;
   }
-  return rows[0];
+  // Throttled "last active" touch · only updates if the existing value
+  // is older than LAST_ACTIVE_TOUCH_MS. Single round-trip; the WHERE
+  // clause does the rate-limiting in SQL so we don't burn extra reads.
+  void db.execute(sql`
+    UPDATE sessions
+    SET last_active_at = NOW()
+    WHERE id = ${sessionId}
+      AND last_active_at < NOW() - INTERVAL '${sql.raw(String(Math.floor(LAST_ACTIVE_TOUCH_MS / 1000)))} seconds'
+  `).catch(() => {});
+  return { userId: row.user_id, expiresAt };
 }
 
 /** Hard-delete a session row (logout). */

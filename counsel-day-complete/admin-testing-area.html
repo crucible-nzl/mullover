@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin · Testing area · Counsel.day</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f7f9fc">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin-shell.css">
+<style>
+  .ta-help { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); padding: 14px 18px; font-size: 13px; line-height: 1.55; color: var(--ink-soft); margin-bottom: 22px; }
+  .ta-help strong { color: var(--ink); }
+  .ta-help code { font-family: var(--font-mono); font-size: 12px; background: var(--surface-2); padding: 1px 6px; }
+  .ta-meta { background: var(--surface); border: 1px solid var(--border); padding: 18px 22px; margin-bottom: 18px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+  @media (max-width: 900px) { .ta-meta { grid-template-columns: 1fr; } }
+  .ta-field label { display: block; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .ta-field input, .ta-field select, .ta-field textarea { font-family: var(--font-ui); font-size: 14px; padding: 8px 11px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); width: 100%; }
+  .ta-field textarea { font-family: var(--font-body); line-height: 1.45; resize: vertical; min-height: 60px; }
+  .ta-grid { background: var(--surface); border: 1px solid var(--border); padding: 18px 22px; margin-bottom: 18px; }
+  .ta-grid h3 { margin: 0 0 14px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); display: flex; gap: 14px; align-items: baseline; }
+  .ta-grid h3 .day { color: var(--accent); }
+  .ta-participant { margin-bottom: 22px; padding-bottom: 22px; border-bottom: 1px dotted var(--rule); }
+  .ta-participant:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .ta-participant-head { display: flex; gap: 14px; align-items: baseline; margin-bottom: 14px; }
+  .ta-participant-head input.name { font-family: var(--font-ui); font-size: 14px; padding: 6px 10px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); flex: 0 0 200px; }
+  .ta-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+  @media (max-width: 1100px) { .ta-days { grid-template-columns: repeat(4, 1fr); } }
+  @media (max-width: 700px) { .ta-days { grid-template-columns: repeat(2, 1fr); } }
+  .ta-day { border: 1px solid var(--rule); padding: 10px 10px; background: var(--surface); }
+  .ta-day .lbl { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; }
+  .ta-day select { width: 100%; font-family: var(--font-ui); font-size: 12px; padding: 4px 6px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); margin-bottom: 6px; }
+  .ta-day textarea { width: 100%; font-family: var(--font-body); font-size: 12px; padding: 5px 7px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); min-height: 50px; resize: vertical; }
+  .ta-add-row { background: var(--surface-2); border: 1px dashed var(--rule); padding: 10px 16px; cursor: pointer; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .ta-add-row:hover { background: var(--surface); color: var(--ink); }
+  .ta-remove { background: none; border: 1px solid var(--rule); color: var(--muted); padding: 3px 9px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; margin-left: auto; }
+  .ta-remove:hover { color: var(--red); border-color: var(--red); }
+  .ta-actions { display: flex; gap: 14px; align-items: center; margin-bottom: 22px; }
+  .ta-actions .btn { background: var(--accent); color: var(--surface); border: none; font-family: var(--font-ui); font-size: 14px; font-weight: 500; padding: 10px 22px; cursor: pointer; }
+  .ta-actions .btn:hover { filter: brightness(1.1); }
+  .ta-actions .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .ta-actions .btn-load { background: var(--ink); }
+  .ta-status { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+  .ta-result { background: var(--surface); border: 1px solid var(--border); padding: 22px 26px; margin-top: 22px; display: none; }
+  .ta-result.show { display: block; }
+  .ta-result h2 { margin: 0 0 14px; font-family: var(--font-ui); font-size: 16px; font-weight: 600; color: var(--ink); }
+  .ta-result .meta { font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-bottom: 14px; }
+  .ta-result .meta span { margin-right: 18px; }
+  .ta-result .meta strong { color: var(--ink); }
+  .ta-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 22px; }
+  .ta-summary-card { background: var(--surface-2); padding: 14px 18px; border-left: 3px solid var(--accent); }
+  .ta-summary-card .name { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  .ta-summary-card .verdict-word { font-family: var(--font-display); font-size: 22px; font-weight: 500; color: var(--ink); margin-bottom: 8px; }
+  .ta-summary-card .stats { font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); line-height: 1.6; }
+  .ta-synth { background: var(--paper); padding: 18px 22px; font-family: var(--font-body); font-size: 15px; line-height: 1.65; color: var(--ink); border: 1px solid var(--rule); margin-bottom: 14px; white-space: pre-wrap; }
+  .ta-prompts { background: var(--surface-2); padding: 12px 16px; font-family: var(--font-mono); font-size: 11px; line-height: 1.5; color: var(--ink-soft); border: 1px solid var(--rule); max-height: 280px; overflow-y: auto; white-space: pre-wrap; margin-bottom: 14px; }
+  details.ta-collapsible { background: var(--surface-2); border: 1px solid var(--rule); padding: 10px 14px; margin-bottom: 10px; }
+  details.ta-collapsible summary { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); cursor: pointer; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">counsel<span class="tld">.day</span> · admin</div>
+  <div class="meta">
+    <a href="/account.html">← User-facing site</a>
+    <span id="adm-identity">…</span>
+    <a href="#" id="adm-logout">Log out</a>
+  </div>
+</div>
+<nav class="adm-subnav" aria-label="Admin sections">
+  <a href="/admin.html">Overview</a>
+  <a href="/admin-users.html">Users</a>
+  <a href="/admin-products.html">Products</a>
+  <a href="/admin-growth.html">Growth</a>
+  <a href="/admin-engagement.html">Engagement</a>
+  <a href="/admin-traffic.html">Traffic</a>
+  <a href="/admin-finance.html">Finance</a>
+  <a href="/admin-verdict-logs.html">Verdict logs</a>
+  <a href="/admin-audit-log.html">Audit log</a>
+  <a href="/admin-database.html">Database</a>
+  <a href="/admin-testing-area.html" class="active">Testing area</a>
+</nav>
+
+<div class="shell">
+  <h1>Testing area · run a verdict on fixture data</h1>
+  <p class="lede">Operator sandbox for prompt-tuning, tone checks, and AI-output spot-checks. Hits the real Anthropic API with the production system prompt. <strong>Nothing is persisted</strong> · no rows in <code>decisions</code>, <code>votes</code>, <code>verdicts</code>, or <code>verdict_runs</code>. Each run costs roughly $0.02-$0.05 of Anthropic credits.</p>
+
+  <div class="ta-help">
+    <strong>How it works:</strong> Fill in the question, choose a tier, give each participant a name, then click through 7 days of votes (and notes, if you want to test tone-handling). Click <em>Run verdict</em> and the AI synthesis appears below alongside the numerical per-participant summary. <strong>Solo Free</strong> skips the AI call and returns numbers only · same as the customer-facing experience for that tier.
+  </div>
+
+  <div id="adm-error" class="status-banner is-error" style="display:none;"></div>
+
+  <!-- Top meta · question + format + duration + tier -->
+  <div class="ta-meta">
+    <div class="ta-field" style="grid-column: 1 / -1;">
+      <label for="cd-q">Question</label>
+      <textarea id="cd-q" placeholder="Should we move to Wellington in March?"></textarea>
+    </div>
+    <div class="ta-field">
+      <label for="cd-tier">Tier</label>
+      <select id="cd-tier">
+        <option value="couple">Couple (2 participants, AI verdict)</option>
+        <option value="family">Family (3-6 participants, AI verdict)</option>
+        <option value="solo_paid">Solo paid (1 participant, AI verdict)</option>
+        <option value="solo_free">Solo free (1 participant, numbers only)</option>
+      </select>
+    </div>
+    <div class="ta-field">
+      <label for="cd-format">Format</label>
+      <select id="cd-format">
+        <option value="strong_lean" selected>Strong / Lean · 4-direction</option>
+        <option value="yes_no">Yes / No · 2-direction</option>
+        <option value="a_b">Option A / Option B</option>
+      </select>
+    </div>
+    <div class="ta-field">
+      <label for="cd-duration">Duration (days)</label>
+      <input type="number" id="cd-duration" value="7" min="1" max="30">
+    </div>
+  </div>
+
+  <div class="ta-actions">
+    <button type="button" id="cd-fill-demo" class="btn btn-load">Fill with demo data</button>
+    <button type="button" id="cd-add-participant" class="btn btn-load">+ Add participant</button>
+    <span class="ta-status" id="cd-status"></span>
+  </div>
+
+  <!-- Participant rows · populated by JS -->
+  <div id="cd-participants"></div>
+
+  <div class="ta-actions" style="margin-top: 22px;">
+    <button type="button" id="cd-run" class="btn">Run verdict</button>
+    <span class="ta-status" id="cd-run-status"></span>
+  </div>
+
+  <div class="ta-result" id="cd-result">
+    <h2>Result</h2>
+    <div class="meta" id="cd-result-meta"></div>
+    <div class="ta-summary" id="cd-result-summary"></div>
+    <div id="cd-result-verdict-wrap" style="display: none;">
+      <h3 style="margin: 22px 0 8px; font-family: var(--font-ui); font-size: 14px; font-weight: 600; color: var(--ink);">AI verdict synthesis</h3>
+      <div class="ta-synth" id="cd-result-synth"></div>
+      <details class="ta-collapsible">
+        <summary>System prompt sent</summary>
+        <div class="ta-prompts" id="cd-result-system"></div>
+      </details>
+      <details class="ta-collapsible">
+        <summary>User prompt sent (votes as JSON)</summary>
+        <div class="ta-prompts" id="cd-result-user"></div>
+      </details>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) {
+    document.querySelectorAll(".skel").forEach(function (el) { el.classList.remove("skel", "skel-value"); });
+    if (d && d.ok && d.user) { document.getElementById('adm-identity').textContent = d.user.email + ' · admin'; }
+  });
+  document.getElementById('adm-logout').addEventListener('click', function (e) {
+    e.preventDefault();
+    fetch('/api/signout', { method: 'POST', credentials: 'include' }).finally(function () { window.location.href = '/'; });
+  });
+
+  function $(id) { return document.getElementById(id); }
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]; }); }
+  function showErr(m) { var el = $('adm-error'); el.style.display = 'block'; el.textContent = m; }
+
+  var DIRECTIONS = [
+    { value: 'strong_yes', label: 'Strong Yes' },
+    { value: 'lean_yes',   label: 'Lean Yes' },
+    { value: 'lean_no',    label: 'Lean No' },
+    { value: 'strong_no',  label: 'Strong No' },
+    { value: 'skip',       label: '· Skip (didn\'t vote)' },
+  ];
+
+  // Map tier → min/max participants. Used to add/remove participant
+  // rows when the tier dropdown changes.
+  var TIER_PARTICIPANTS = {
+    solo_free: { min: 1, max: 1 },
+    solo_paid: { min: 1, max: 1 },
+    couple:    { min: 2, max: 2 },
+    family:    { min: 3, max: 6 },
+  };
+
+  // ---- state ----
+  var participants = []; // [{ display_name, votes: [{direction, note}] }]
+
+  function durationDays() { return Math.max(1, parseInt($('cd-duration').value, 10) || 7); }
+
+  function blankVotes(n) {
+    var out = [];
+    for (var i = 0; i < n; i++) out.push({ direction: 'strong_yes', note: '' });
+    return out;
+  }
+
+  function dateForDayIndex(i, durationN) {
+    // Display only · server doesn't care about the exact date so long as
+    // it's YYYY-MM-DD. Anchor to today minus (durationN-1) days so the
+    // sequence ends today. Lets the operator see how a "next evening"
+    // run would look right now.
+    var d = new Date();
+    d.setDate(d.getDate() - (durationN - 1 - i));
+    var y = d.getFullYear();
+    var m = String(d.getMonth() + 1).padStart(2, '0');
+    var day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+  }
+
+  function renderParticipants() {
+    var dur = durationDays();
+    var html = participants.map(function (p, pi) {
+      var dayHtml = '';
+      for (var i = 0; i < dur; i++) {
+        var v = p.votes[i] || { direction: 'strong_yes', note: '' };
+        var opts = DIRECTIONS.map(function (d) {
+          return '<option value="' + d.value + '"' + (d.value === v.direction ? ' selected' : '') + '>' + d.label + '</option>';
+        }).join('');
+        dayHtml += '<div class="ta-day">' +
+          '<div class="lbl">Day ' + (i + 1) + '</div>' +
+          '<select data-p="' + pi + '" data-i="' + i + '" data-f="direction">' + opts + '</select>' +
+          '<textarea data-p="' + pi + '" data-i="' + i + '" data-f="note" placeholder="Optional note">' + escapeHtml(v.note || '') + '</textarea>' +
+        '</div>';
+      }
+      return '<div class="ta-participant" data-p="' + pi + '">' +
+        '<div class="ta-participant-head">' +
+          '<input type="text" class="name" placeholder="Name" value="' + escapeHtml(p.display_name) + '" data-p="' + pi + '" data-f="display_name">' +
+          '<span style="font-family: var(--font-mono); font-size: 11px; color: var(--muted);">Participant ' + (pi + 1) + ' · ' + dur + ' days</span>' +
+          '<button type="button" class="ta-remove" data-remove-p="' + pi + '">Remove</button>' +
+        '</div>' +
+        '<div class="ta-days">' + dayHtml + '</div>' +
+      '</div>';
+    }).join('');
+    $('cd-participants').innerHTML = html || '<div style="padding: 30px; text-align: center; color: var(--muted);">No participants yet. Click <strong>Fill with demo data</strong> or <strong>+ Add participant</strong>.</div>';
+  }
+
+  function syncTier() {
+    var tier = $('cd-tier').value;
+    var bounds = TIER_PARTICIPANTS[tier];
+    while (participants.length < bounds.min) {
+      participants.push({ display_name: 'Participant ' + (participants.length + 1), votes: blankVotes(durationDays()) });
+    }
+    while (participants.length > bounds.max) participants.pop();
+    renderParticipants();
+  }
+
+  function reseedVotes() {
+    var dur = durationDays();
+    participants.forEach(function (p) {
+      if (p.votes.length < dur) {
+        while (p.votes.length < dur) p.votes.push({ direction: 'strong_yes', note: '' });
+      } else if (p.votes.length > dur) {
+        p.votes = p.votes.slice(0, dur);
+      }
+    });
+    renderParticipants();
+  }
+
+  // ---- wire change handlers ----
+  $('cd-participants').addEventListener('input', function (e) {
+    var t = e.target;
+    if (!t.dataset) return;
+    var pi = parseInt(t.dataset.p, 10);
+    var i = t.dataset.i != null ? parseInt(t.dataset.i, 10) : null;
+    var f = t.dataset.f;
+    if (!Number.isInteger(pi) || !participants[pi]) return;
+    if (f === 'display_name') participants[pi].display_name = t.value;
+    else if (i != null && participants[pi].votes[i]) participants[pi].votes[i][f] = t.value;
+  });
+
+  $('cd-participants').addEventListener('click', function (e) {
+    var t = e.target;
+    if (!t || !t.dataset || t.dataset.removeP == null) return;
+    var pi = parseInt(t.dataset.removeP, 10);
+    var tier = $('cd-tier').value;
+    var bounds = TIER_PARTICIPANTS[tier];
+    if (participants.length <= bounds.min) {
+      showErr('Tier "' + tier + '" requires at least ' + bounds.min + ' participant(s). Switch tier to remove.');
+      return;
+    }
+    participants.splice(pi, 1);
+    renderParticipants();
+  });
+
+  $('cd-tier').addEventListener('change', syncTier);
+  $('cd-duration').addEventListener('change', reseedVotes);
+  $('cd-add-participant').addEventListener('click', function () {
+    var tier = $('cd-tier').value;
+    var bounds = TIER_PARTICIPANTS[tier];
+    if (participants.length >= bounds.max) {
+      showErr('Tier "' + tier + '" caps at ' + bounds.max + ' participant(s).');
+      return;
+    }
+    participants.push({ display_name: 'Participant ' + (participants.length + 1), votes: blankVotes(durationDays()) });
+    renderParticipants();
+  });
+
+  $('cd-fill-demo').addEventListener('click', function () {
+    $('cd-q').value = 'Should we move to Wellington in March?';
+    $('cd-tier').value = 'couple';
+    $('cd-duration').value = '7';
+    participants = [
+      { display_name: 'James', votes: [
+        { direction: 'lean_yes',  note: 'The job offer is real and the timing is good.' },
+        { direction: 'lean_yes',  note: '' },
+        { direction: 'strong_yes', note: 'Walked through the neighbourhood today, it felt like home.' },
+        { direction: 'lean_yes',  note: 'Cost of living math still works.' },
+        { direction: 'lean_no',   note: 'Talked to mum, harder than I expected.' },
+        { direction: 'lean_yes',  note: '' },
+        { direction: 'strong_yes', note: 'Decided I want to make the move.' },
+      ]},
+      { display_name: 'Alexandra', votes: [
+        { direction: 'lean_no',   note: 'I want to want this but I do not yet.' },
+        { direction: 'lean_no',   note: '' },
+        { direction: 'lean_yes',  note: 'The walk-through changed something.' },
+        { direction: 'lean_no',   note: 'Worried about leaving the studio.' },
+        { direction: 'lean_no',   note: '' },
+        { direction: 'lean_yes',  note: 'I think I can do the studio remotely for the first year.' },
+        { direction: 'lean_yes',  note: 'Ready to try.' },
+      ]},
+    ];
+    renderParticipants();
+  });
+
+  // ---- run ----
+  $('cd-run').addEventListener('click', function () {
+    $('adm-error').style.display = 'none';
+    var question = $('cd-q').value.trim();
+    if (!question) { showErr('Add a question first.'); return; }
+    if (participants.length === 0) { showErr('Add at least one participant.'); return; }
+    var btn = $('cd-run');
+    btn.disabled = true;
+    $('cd-run-status').textContent = 'Calling Anthropic…';
+    var body = {
+      question: question,
+      format: $('cd-format').value,
+      duration_days: durationDays(),
+      tier: $('cd-tier').value,
+      participants: participants.map(function (p) {
+        return {
+          display_name: p.display_name,
+          votes: p.votes.map(function (v, i) {
+            return {
+              vote_date: dateForDayIndex(i, durationDays()),
+              direction: v.direction,
+              conviction: null,
+              note: v.note || null,
+            };
+          }),
+        };
+      }),
+    };
+    fetch('/api/admin/testing-area/run-verdict', {
+      method: 'POST', credentials: 'include',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+      .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+      .then(function (res) {
+        btn.disabled = false;
+        $('cd-run-status').textContent = '';
+        if (res.status !== 200 || !res.body.ok) {
+          showErr((res.body && res.body.message) || 'Run failed.');
+          return;
+        }
+        renderResult(res.body);
+      })
+      .catch(function () {
+        btn.disabled = false;
+        $('cd-run-status').textContent = '';
+        showErr('Network error.');
+      });
+  });
+
+  function renderResult(d) {
+    var resEl = $('cd-result');
+    resEl.classList.add('show');
+    resEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    var meta = [];
+    meta.push('<span>Mode: <strong>' + (d.mode === 'ai' ? 'AI · ' + (d.verdict && d.verdict.model || '') : 'Numbers only (Solo Free)') + '</strong></span>');
+    if (d.elapsed_ms != null) meta.push('<span>Elapsed: <strong>' + d.elapsed_ms + ' ms</strong></span>');
+    if (d.verdict) {
+      meta.push('<span>Tokens: <strong>' + d.verdict.tokens_input + ' in · ' + d.verdict.tokens_output + ' out</strong></span>');
+      meta.push('<span>Cost: <strong>$' + (d.verdict.cost_cents / 100).toFixed(4) + '</strong></span>');
+    }
+    $('cd-result-meta').innerHTML = meta.join('');
+    $('cd-result-summary').innerHTML = (d.summary || []).map(function (p) {
+      return '<div class="ta-summary-card">' +
+        '<div class="name">' + escapeHtml(p.display_name) + '</div>' +
+        '<div class="verdict-word">' + escapeHtml(p.verdict_word) + '</div>' +
+        '<div class="stats">' +
+          '<div>' + p.vote_count + ' votes cast · ' + p.skip_count + ' skipped</div>' +
+          '<div>Strong yes: ' + p.counts.strong_yes + ' · Lean yes: ' + p.counts.lean_yes + '</div>' +
+          '<div>Lean no: ' + p.counts.lean_no + ' · Strong no: ' + p.counts.strong_no + '</div>' +
+          '<div>Average score: <strong>' + p.average + '</strong></div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+    if (d.verdict) {
+      $('cd-result-verdict-wrap').style.display = 'block';
+      $('cd-result-synth').textContent = d.verdict.synthesis_text || '(no text returned)';
+      $('cd-result-system').textContent = d.verdict.prompt_used || '';
+      $('cd-result-user').textContent = d.verdict.user_prompt || '';
+    } else {
+      $('cd-result-verdict-wrap').style.display = 'none';
+    }
+  }
+
+  // initial state
+  syncTier();
+})();
+</script>
+<script src="ga4.js" defer></script>
+</body>
+</html>

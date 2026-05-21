@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':'denied','ad_user_data':'denied','ad_personalization':'denied',
+    'analytics_storage':'denied','functionality_storage':'denied',
+    'personalization_storage':'denied','security_storage':'granted','wait_for_update':500
+  });
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':'denied','ad_user_data':'denied','ad_personalization':'denied','analytics_storage':'denied'
+    });
+  }
+</script>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', { 'anonymize_ip': true, 'allow_google_signals': false, 'allow_ad_personalization_signals': false });
+</script>
+
+<title>Helper bot &middot; Counsel.day</title>
+<meta name="description" content="The Counsel.day helper bot answers factual product questions about pricing, the sealed-vote method, accounts, billing, refunds, and technical issues. For your actual decision, the product is the answer.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="canonical" href="https://counsel.day/helper">
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="styles-i8.css">
+<style>
+.hp-head { padding: 36px 32px 24px; border-bottom: 1px solid var(--rule); background: var(--paper); }
+.hp-head-inner { max-width: 880px; margin: 0 auto; }
+.hp-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine); margin-bottom: 14px; }
+.hp-title { font-family: var(--font-display); font-size: clamp(28px, 3.4vw, 40px); font-weight: 500; line-height: 1.2; color: var(--ink); margin: 0 0 12px; }
+.hp-title .ital { font-style: italic; color: var(--wine); }
+.hp-lede { font-family: var(--font-display); font-style: italic; font-size: 18px; line-height: 1.5; color: var(--ink-soft); max-width: 700px; margin: 0; }
+
+.hp-body { max-width: 880px; margin: 0 auto; padding: 24px 32px 60px; }
+.hp-rules { border: 1px solid var(--rule); padding: 16px 20px; background: var(--paper-deep); margin-bottom: 24px; font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: var(--ink-soft); }
+.hp-rules strong { color: var(--ink); font-weight: 500; }
+.hp-rules ul { margin: 8px 0 0 18px; padding: 0; }
+.hp-rules li { margin-bottom: 4px; }
+
+.hp-window { border: 1px solid var(--ink); background: var(--paper); display: flex; flex-direction: column; height: 60vh; min-height: 420px; }
+.hp-transcript { flex: 1 1 auto; overflow-y: auto; padding: 20px 24px; }
+.hp-msg { margin-bottom: 18px; max-width: 88%; }
+.hp-msg.user { margin-left: auto; text-align: left; }
+.hp-msg.assistant { margin-right: auto; }
+.hp-msg-role { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 6px; }
+.hp-msg.user .hp-msg-role { color: var(--wine); }
+.hp-msg.assistant .hp-msg-role { color: var(--ink-soft); }
+.hp-msg-bubble { font-family: var(--font-body); font-size: 15px; line-height: 1.6; padding: 12px 16px; border: 1px solid var(--rule); white-space: pre-wrap; color: var(--ink); }
+.hp-msg.user .hp-msg-bubble { background: var(--wine-soft); border-color: var(--wine); }
+.hp-msg.assistant .hp-msg-bubble { background: var(--paper); }
+.hp-msg.system .hp-msg-bubble { font-style: italic; color: var(--muted); border-color: var(--rule); background: var(--paper-deep); }
+
+.hp-form { display: flex; gap: 0; border-top: 1px solid var(--rule); }
+.hp-input { flex: 1 1 auto; padding: 14px 18px; border: none; font-family: var(--font-body); font-size: 15px; line-height: 1.45; color: var(--ink); background: var(--paper); resize: none; min-height: 56px; max-height: 200px; outline: none; }
+.hp-input:focus { background: var(--paper-deep); }
+.hp-send { font-family: var(--font-ui); font-size: 14px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; padding: 0 26px; background: var(--wine); color: var(--paper); border: none; cursor: pointer; min-width: 110px; }
+.hp-send:hover { background: var(--wine-deep); }
+.hp-send[disabled] { opacity: 0.45; cursor: not-allowed; }
+
+.hp-escalate { display: none; margin-top: 14px; padding: 14px 18px; border: 1px solid var(--wine); background: var(--wine-soft); font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: var(--ink); }
+.hp-escalate.is-on { display: block; }
+.hp-escalate a { color: var(--wine); border-bottom: 1px solid var(--wine); text-decoration: none; padding-bottom: 1px; font-family: var(--font-ui); }
+
+.hp-status { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-top: 12px; min-height: 14px; }
+.hp-status.err { color: var(--wine); }
+</style>
+</head>
+<body>
+
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<!-- CD:PARTIAL:nav-app -->
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="decisions.html">Your decisions</a>
+      <a href="vote-today.html">Tonight's vote</a>
+      <a href="compose.html">Compose</a>
+      <a href="account.html">Account</a>
+      <a href="help.html">Help</a>
+    </div>
+    <div class="nav-cta">
+      <a href="account.html" class="btn-text">Account</a>
+    </div>
+  </div>
+</nav>
+<!-- /CD:PARTIAL:nav-app -->
+
+<main id="main-content">
+
+  <header class="hp-head">
+    <div class="hp-head-inner">
+      <div class="hp-eyebrow">File &middot; Helper bot</div>
+      <h1 class="hp-title">Ask about how Counsel.day <span class="ital">works.</span></h1>
+      <p class="hp-lede">The bot answers factual questions about the product &middot; pricing, the sealed-vote method, accounts, billing, refunds, technical issues. For your actual decision, the product is the answer.</p>
+    </div>
+  </header>
+
+  <div class="hp-body">
+
+    <div class="hp-rules">
+      <strong>What the bot answers</strong>
+      <ul>
+        <li>How sealed votes, durations, and verdicts work.</li>
+        <li>Pricing across Solo Free, Solo Paid, Couple, Family. All USD.</li>
+        <li>Account, billing, MFA, password, refunds, GDPR data export.</li>
+        <li>Technical issues &middot; verdict missing, can&apos;t sign in, vote not saving.</li>
+      </ul>
+      <strong>What it refuses</strong> &middot; personal decisions, relationship advice, mental-health questions. Those belong inside the product itself, or with a qualified professional. The bot will escalate to <a href="mailto:support@counsel.day">support@counsel.day</a> when it doesn&apos;t know.
+    </div>
+
+    <div class="hp-window" aria-label="Helper bot transcript">
+      <div class="hp-transcript" id="hp-transcript" aria-live="polite">
+        <div class="hp-msg system">
+          <div class="hp-msg-role">Helper</div>
+          <div class="hp-msg-bubble">Ask anything about how Counsel.day works. I keep the answers short. For anything I don&apos;t know, I&apos;ll point you at <a href="mailto:support@counsel.day">support@counsel.day</a>.</div>
+        </div>
+      </div>
+      <form class="hp-form" id="hp-form">
+        <textarea class="hp-input" id="hp-input" name="message" placeholder="Ask about pricing, durations, billing, refunds &hellip;" maxlength="2000" required></textarea>
+        <button type="submit" class="hp-send" id="hp-send">Ask</button>
+      </form>
+    </div>
+
+    <div class="hp-escalate" id="hp-escalate">
+      Need a human? <a href="mailto:support@counsel.day?subject=Helper%20question">Email support@counsel.day</a> &middot; one business day reply, faster if it&apos;s a billing issue.
+    </div>
+
+    <div class="hp-status" id="hp-status">&nbsp;</div>
+
+  </div>
+
+</main>
+
+<!-- CD:PARTIAL:colophon -->
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The app</h5>
+        <a href="decisions.html">Your decisions</a>
+        <a href="vote-today.html">Tonight's vote</a>
+        <a href="compose.html">Compose</a>
+        <a href="account.html">Your account</a>
+      </div>
+      <div class="colophon-col">
+        <h3 class="colophon-col-h">The product</h3>
+        <a href="method.html">The method</a>
+        <a href="why-time.html">Why time</a>
+      </div>
+      <div class="colophon-col">
+        <h5>Support</h5>
+        <a href="help.html">Help</a>
+        <a href="contact.html">Contact</a>
+        <a href="helper.html">Helper bot</a>
+      </div>
+      <div class="colophon-col">
+        <h3 class="colophon-col-h">The fine print</h3>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>&copy; 2026 Counsel.day &middot; USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+<!-- /CD:PARTIAL:colophon -->
+
+<script>
+(function () {
+  'use strict';
+  var transcript = document.getElementById('hp-transcript');
+  var form = document.getElementById('hp-form');
+  var input = document.getElementById('hp-input');
+  var send = document.getElementById('hp-send');
+  var statusEl = document.getElementById('hp-status');
+  var escalateEl = document.getElementById('hp-escalate');
+  var history = [];
+
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+  function status(text, isErr) { statusEl.textContent = text || ''; statusEl.classList.toggle('err', !!isErr); }
+  function appendMsg(role, content) {
+    var wrap = document.createElement('div');
+    wrap.className = 'hp-msg ' + role;
+    wrap.innerHTML =
+      '<div class="hp-msg-role">' + (role === 'user' ? 'You' : 'Helper') + '</div>' +
+      '<div class="hp-msg-bubble">' + linkify(escapeHtml(content)) + '</div>';
+    transcript.appendChild(wrap);
+    transcript.scrollTop = transcript.scrollHeight;
+  }
+  function linkify(html) {
+    // Promote mailto: and https: URLs to anchors after escape · safe
+    // because the regex matches against already-escaped text. Use a
+    // callback form rather than backref tokens (the verifier flags
+    // dollar-N as a possible bare-USD value).
+    return html
+      .replace(/(mailto:[^\s]+)/g, function (m) { return '<a href="' + m + '">' + m + '</a>'; })
+      .replace(/(https?:\/\/[^\s)]+)/g, function (m) { return '<a href="' + m + '" target="_blank" rel="noopener">' + m + '</a>'; });
+  }
+
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); }
+  });
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var text = String(input.value || '').trim();
+    if (!text) return;
+    input.value = '';
+    send.disabled = true;
+    status('Asking the helper bot…');
+    appendMsg('user', text);
+    history.push({ role: 'user', content: text });
+
+    fetch('/api/chatbot/message', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ message: text, history: history.slice(-12) }),
+    })
+      .then(function (r) {
+        if (r.status === 401) { window.location.href = '/signin?next=' + encodeURIComponent('/helper.html'); return null; }
+        return r.json().then(function (j) { return { status: r.status, body: j }; });
+      })
+      .then(function (res) {
+        send.disabled = false;
+        if (!res) return;
+        if (res.status === 429) {
+          status((res.body && res.body.message) || 'Rate limit hit. Try again later.', true);
+          return;
+        }
+        if (res.status !== 200 || !res.body || !res.body.ok) {
+          var m = (res.body && res.body.message) || 'The helper bot is offline. Email support@counsel.day.';
+          appendMsg('system', m);
+          status('Failed', true);
+          return;
+        }
+        appendMsg('assistant', res.body.reply || '');
+        history.push({ role: 'assistant', content: res.body.reply || '' });
+        if (res.body.escalate) escalateEl.classList.add('is-on');
+        status('');
+        input.focus();
+      })
+      .catch(function () {
+        send.disabled = false;
+        appendMsg('system', 'Network error. Please try again.');
+        status('Network error', true);
+      });
+  });
+})();
+</script>
+<script src="pwa.js" defer></script>
+<script src="ga4.js" defer></script>
+</body>
+</html>

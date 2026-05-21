@@ -18,6 +18,8 @@ import { sendTransactional } from '../lib/email';
 import { sendPushToUser } from '../lib/push';
 import { getAnthropic, VERDICT_MODEL, VERDICT_SYSTEM_PROMPT } from '../lib/anthropic';
 import { calculateAnthropicCostCents } from '../lib/anthropic-pricing';
+import { spawn } from 'node:child_process';
+import { join } from 'node:path';
 
 const APP_BASE_URL = process.env.APP_BASE_URL ?? 'https://counsel.day';
 
@@ -87,6 +89,92 @@ async function eveningPrompt() {
   console.log(`[cron · evening-prompt] sent ${sent} emails, ${pushed} push notifications`);
 }
 
+/**
+ * Split the Anthropic verdict output into prose vs the fenced JSON
+ * appendix introduced in prompt v5. Returns the prose with the JSON
+ * block removed, plus the parsed object (or null if absent/malformed).
+ * Falls back gracefully · if the model omits the block, the prose
+ * still ships and the structured panels degrade to spaCy-derived
+ * themes from the Python analysis layer.
+ */
+function splitVerdictOutput(raw: string): {
+  prose: string;
+  structured: { themes?: unknown[]; asymmetries?: unknown[]; key_quotes?: unknown[] } | null;
+} {
+  const match = raw.match(/```(?:json)?\s*\n([\s\S]*?)\n```\s*$/);
+  if (!match) return { prose: raw.trim(), structured: null };
+  const prose = raw.slice(0, match.index).trim();
+  try {
+    const parsed = JSON.parse(match[1]);
+    if (parsed && typeof parsed === 'object') return { prose, structured: parsed };
+  } catch {
+    // malformed JSON · keep prose, drop the block silently
+  }
+  return { prose, structured: null };
+}
+
+/**
+ * Invoke counsel-day-app/python/analyse_verdict.py with the decision +
+ * votes + ai_themes payload on stdin. The script always exits 0 and
+ * writes JSON on stdout (errors as { version, error: '...' }), so this
+ * helper resolves to whatever it printed. 30-second timeout · the
+ * script is short and CPU-bound; if it hangs we move on.
+ */
+async function runVerdictAnalysis(input: Record<string, unknown>): Promise<Record<string, unknown> | null> {
+  const scriptPath = process.env.VERDICT_ANALYSIS_SCRIPT
+    || join(process.cwd(), 'python', 'analyse_verdict.py');
+  const pythonBin = process.env.PYTHON_BIN || 'python3';
+  return await new Promise((resolve) => {
+    const proc = spawn(pythonBin, [scriptPath], { stdio: ['pipe', 'pipe', 'pipe'] });
+    let stdout = '';
+    let stderr = '';
+    let settled = false;
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      try { proc.kill('SIGKILL'); } catch { /* noop */ }
+      console.warn('[cron · verdict-analysis] timeout after 30s');
+      resolve(null);
+    }, 30_000);
+    proc.stdout.on('data', (d) => { stdout += d.toString('utf-8'); });
+    proc.stderr.on('data', (d) => { stderr += d.toString('utf-8'); });
+    proc.on('error', (err) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      console.warn('[cron · verdict-analysis] spawn failed:', err.message);
+      resolve(null);
+    });
+    proc.on('close', (code) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      if (code !== 0) {
+        console.warn(`[cron · verdict-analysis] exit ${code}; stderr: ${stderr.slice(0, 500)}`);
+        resolve(null);
+        return;
+      }
+      try {
+        const parsed = JSON.parse(stdout);
+        resolve(parsed && typeof parsed === 'object' ? parsed : null);
+      } catch (err) {
+        console.warn('[cron · verdict-analysis] JSON parse failed:', (err as Error).message);
+        resolve(null);
+      }
+    });
+    try {
+      proc.stdin.write(JSON.stringify(input));
+      proc.stdin.end();
+    } catch (err) {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      console.warn('[cron · verdict-analysis] stdin write failed:', (err as Error).message);
+      resolve(null);
+    }
+  });
+}
+
 async function verdictGenerate() {
   const anthropic = getAnthropic();
   if (!anthropic) {
@@ -149,15 +237,38 @@ async function verdictGenerate() {
         messages: [{ role: 'user', content: userPrompt }],
       });
 
-      const synthesis = msg.content
+      const rawOutput = msg.content
         .filter((b) => b.type === 'text')
         .map((b) => (b as { text: string }).text)
         .join('\n');
+      const { prose: synthesis, structured } = splitVerdictOutput(rawOutput);
+
+      // Run the Python analysis pass · sentiment, word clouds, themes,
+      // vocabulary overlap, asymmetries. Output stored frozen in
+      // verdicts.analysis_json and served by /api/verdict-report.
+      // Failure here is non-fatal · the verdict still ships with prose
+      // only and the report page degrades gracefully.
+      const analysis = await runVerdictAnalysis({
+        decision: {
+          id: d.id,
+          question: d.question,
+          format: d.format,
+          duration_days: d.durationDays,
+        },
+        participants: (await db.execute(sql`
+          SELECT display_name, position FROM participants
+          WHERE decision_id = ${d.id} ORDER BY position
+        `)),
+        votes: voteRows,
+        ai_themes: structured?.themes ?? [],
+        next_conversation_prompt: null,
+      });
 
       await db.insert(schema.verdicts).values({
         decisionId: d.id,
         aiModel: VERDICT_MODEL,
         synthesisText: synthesis,
+        themes: (structured?.themes ?? null) as unknown,
         promptUsed: VERDICT_SYSTEM_PROMPT,
         tokensInput: msg.usage.input_tokens,
         tokensOutput: msg.usage.output_tokens,
@@ -165,6 +276,7 @@ async function verdictGenerate() {
         // hard-coded to Opus rates, which silently mis-reported spend
         // as soon as VERDICT_AI_MODEL flipped to Sonnet.
         costCents: calculateAnthropicCostCents(VERDICT_MODEL, msg.usage.input_tokens, msg.usage.output_tokens),
+        analysisJson: analysis as unknown,
       });
 
       await db
@@ -464,18 +576,83 @@ async function hardDeletePurge() {
   console.log(`[cron · hard-delete-purge] purged ${list.length} user${list.length === 1 ? '' : 's'} past the 14-day grace`);
 }
 
+/**
+ * Daily · find verdict_time_capsules rows where deliver_at <= NOW() AND
+ * delivered_at IS NULL, send the re-link email, stamp delivered_at.
+ * The user opted in from /verdict-report.html for the 6 / 12 / 24-month
+ * intervals. Email body just says "you sealed this N months ago, here
+ * it is again" with a link back to the same report page.
+ */
+async function timeCapsuleDeliver() {
+  const dueRows = await db.execute(sql`
+    SELECT tc.id, tc.decision_id, tc.user_id, tc.interval_months,
+           u.email, u.first_name,
+           d.question
+    FROM verdict_time_capsules tc
+    JOIN users u ON u.id = tc.user_id
+    JOIN decisions d ON d.id = tc.decision_id
+    WHERE tc.delivered_at IS NULL
+      AND tc.deliver_at <= NOW()
+      AND u.deleted_at IS NULL
+    ORDER BY tc.deliver_at
+    LIMIT 100
+  `);
+
+  let sent = 0;
+  for (const r of dueRows as unknown as Array<{
+    id: string; decision_id: string; user_id: string; interval_months: number;
+    email: string; first_name: string | null; question: string;
+  }>) {
+    const greeting = r.first_name ? `Hi ${r.first_name},` : 'Hi,';
+    const url = `${APP_BASE_URL}/verdict-report?id=${r.decision_id}&capsule=${r.interval_months}mo`;
+    const intervalText = r.interval_months === 6 ? 'six months'
+      : r.interval_months === 12 ? 'one year' : 'two years';
+    try {
+      await sendTransactional({
+        to: { email: r.email, name: r.first_name ?? undefined },
+        subject: `Your Counsel.day record from ${intervalText} ago`,
+        textContent: [
+          greeting, '',
+          `${intervalText} ago you sealed a decision on Counsel.day:`,
+          '',
+          `> ${r.question}`,
+          '',
+          'You asked to be reminded when this much time had passed. The record is here:',
+          url, '',
+          'Open it on a quiet evening if you want to compare what was true then with what is true now.',
+          '', '· Counsel.day',
+        ].join('\n'),
+        htmlContent:
+          `<p>${greeting}</p>` +
+          `<p>${intervalText} ago you sealed a decision on Counsel.day:</p>` +
+          `<blockquote style="border-left:3px solid #722F37;padding:6px 0 6px 16px;margin:14px 0;font-style:italic;">${r.question}</blockquote>` +
+          `<p>You asked to be reminded when this much time had passed. The record is here:</p>` +
+          `<p><a href="${url}" style="color:#722F37;">${url}</a></p>` +
+          `<p>Open it on a quiet evening if you want to compare what was true then with what is true now.</p>` +
+          `<p>· Counsel.day</p>`,
+      });
+      await db.execute(sql`UPDATE verdict_time_capsules SET delivered_at = NOW() WHERE id = ${r.id}`);
+      sent += 1;
+    } catch (err) {
+      console.warn(`[cron · time-capsule] failed for capsule ${r.id}:`, (err as Error).message);
+    }
+  }
+  console.log(`[cron · time-capsule] delivered ${sent}/${(dueRows as unknown as unknown[]).length} due capsules`);
+}
+
 async function main() {
   const job = process.argv[2];
   switch (job) {
-    case 'evening-prompt':   return eveningPrompt();
-    case 'verdict-generate': return verdictGenerate();
-    case 'session-purge':    return sessionPurge();
-    case 'invite-expiry':    return inviteExpiry();
-    case 'invite-reminder':  return inviteReminder();
+    case 'evening-prompt':    return eveningPrompt();
+    case 'verdict-generate':  return verdictGenerate();
+    case 'session-purge':     return sessionPurge();
+    case 'invite-expiry':     return inviteExpiry();
+    case 'invite-reminder':   return inviteReminder();
     case 'hard-delete-purge': return hardDeletePurge();
     case 'audit-prune':       return auditPrune();
+    case 'time-capsule-deliver': return timeCapsuleDeliver();
     default:
-      console.error(`Unknown job: ${job}. Valid: evening-prompt, verdict-generate, session-purge, invite-expiry, invite-reminder, hard-delete-purge, audit-prune`);
+      console.error(`Unknown job: ${job}. Valid: evening-prompt, verdict-generate, session-purge, invite-expiry, invite-reminder, hard-delete-purge, audit-prune, time-capsule-deliver`);
       process.exit(2);
   }
 }

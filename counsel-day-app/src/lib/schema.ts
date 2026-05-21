@@ -243,10 +243,36 @@ export const verdicts = pgTable(
     tokensInput: integer('tokens_input'),
     tokensOutput: integer('tokens_output'),
     costCents: integer('cost_cents'),
+    // Premium-report payload computed by python/analyse_verdict.py at
+    // cron-time and stored frozen. Shape documented in
+    // db/migrations/0011_verdict_analysis_and_time_capsules.sql.
+    analysisJson: jsonb('analysis_json'),
   },
   (t) => ({
     decisionUnique: uniqueIndex('verdicts_decision_unique').on(t.decisionId),
   })
+);
+
+// ---------------------------------------------------------------------------
+// VERDICT TIME CAPSULES · 6 / 12 / 24-month opt-in re-delivery emails.
+// One row per (decision, user, interval) triple. Cron job
+// time-capsule-deliver scans for delivered_at IS NULL AND deliver_at <= NOW().
+// ---------------------------------------------------------------------------
+export const verdictTimeCapsules = pgTable(
+  'verdict_time_capsules',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    decisionId: uuid('decision_id')
+      .notNull()
+      .references(() => decisions.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    intervalMonths: integer('interval_months').notNull(),
+    deliverAt: timestamp('deliver_at', { withTimezone: true }).notNull(),
+    deliveredAt: timestamp('delivered_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  }
 );
 
 // ---------------------------------------------------------------------------

@@ -43,34 +43,82 @@ export async function GET(req: Request) {
   const gate = await requireAdmin(req);
   if (gate instanceof NextResponse) return gate;
 
-  const [costAllTime, costRecent, balance, usage] = await Promise.all([
-    fetchRaw('/v1/organizations/cost_report', {
+  // Known + speculative Admin API endpoints. We're hunting for whichever
+  // one returns the "current spent / monthly limit" pair that the
+  // platform.claude.com console renders · cost_report + usage_report
+  // both lag and don't expose the spend-limit total.
+  const probe = (path: string) => fetchRaw(path);
+  const probeWith = (path: string, params: Record<string, string>) => fetchRaw(path, params);
+
+  const [
+    costAllTime,
+    costRecent,
+    balance,
+    usage,
+    // Speculative endpoints · listed alphabetically. Most will 404; we
+    // want to see WHICH return 200 and what shape they have.
+    apiKeys,
+    billing,
+    billingPeriod,
+    currentBillingPeriod,
+    me,
+    organization,
+    spendLimits,
+    usageRoot,
+    usageSummary,
+    workspaces,
+  ] = await Promise.all([
+    probeWith('/v1/organizations/cost_report', {
       starting_at: '2024-01-01T00:00:00Z',
       bucket_width: '1d',
       limit: '5',
     }),
-    fetchRaw('/v1/organizations/cost_report', {
+    probeWith('/v1/organizations/cost_report', {
       starting_at: '2026-05-15T00:00:00Z',
       bucket_width: '1d',
       limit: '10',
     }),
-    fetchRaw('/v1/organizations/credit_balance'),
-    fetchRaw('/v1/organizations/usage_report/messages', {
+    probe('/v1/organizations/credit_balance'),
+    probeWith('/v1/organizations/usage_report/messages', {
       starting_at: '2026-05-15T00:00:00Z',
       bucket_width: '1d',
       limit: '10',
     }),
+    probe('/v1/organizations/api_keys'),
+    probe('/v1/organizations/billing'),
+    probe('/v1/organizations/billing_period'),
+    probe('/v1/organizations/current_billing_period'),
+    probe('/v1/organizations/me'),
+    probe('/v1/organizations'),
+    probe('/v1/organizations/spend_limits'),
+    probe('/v1/organizations/usage_report'),
+    probe('/v1/organizations/usage_summary'),
+    probe('/v1/organizations/workspaces'),
   ]);
 
   return NextResponse.json(
     {
       ok: true,
-      hint: 'Paste the four raw response bodies back to Claude so the parser in lib/anthropic-billing.ts can be fixed to match Anthropic\'s actual shape.',
+      hint: 'Look for any path that returned status 200 (other than cost_report / usage_report which we already use). Those are candidates for surfacing the real-time spent / spend-limit pair the console shows.',
       key_configured: !!process.env.ANTHROPIC_ADMIN_API_KEY,
-      cost_all_time: costAllTime,
-      cost_recent: costRecent,
-      credit_balance: balance,
-      usage_recent: usage,
+      known: {
+        cost_all_time: costAllTime,
+        cost_recent: costRecent,
+        credit_balance: balance,
+        usage_recent: usage,
+      },
+      probes: {
+        api_keys: apiKeys,
+        billing,
+        billing_period: billingPeriod,
+        current_billing_period: currentBillingPeriod,
+        me,
+        organization,
+        spend_limits: spendLimits,
+        usage_root: usageRoot,
+        usage_summary: usageSummary,
+        workspaces,
+      },
     },
     { status: 200, headers: { 'cache-control': 'private, no-store' } }
   );

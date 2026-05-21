@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin · Audit log · Counsel.day</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f7f9fc">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin-shell.css">
+<style>
+  .al-controls { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; padding: 14px 18px; background: var(--surface); border: 1px solid var(--border); }
+  .al-controls label { display: inline-flex; gap: 8px; align-items: center; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .al-controls input[type="text"],
+  .al-controls select { font-family: var(--font-ui); font-size: 13px; padding: 6px 10px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); }
+  .al-controls input[type="text"] { min-width: 220px; font-family: var(--font-mono); font-size: 12px; }
+  .al-controls .btn-go { background: var(--accent); color: var(--surface); border: none; padding: 7px 14px; font-family: var(--font-ui); font-size: 13px; font-weight: 500; cursor: pointer; }
+  .al-controls .btn-go:hover { filter: brightness(1.1); }
+  .al-controls .btn-reset { background: none; color: var(--muted); border: 1px solid var(--rule); padding: 7px 14px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; }
+  .al-controls .count { font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-left: auto; }
+  .al-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .al-chips button { background: var(--surface); color: var(--ink-soft); border: 1px solid var(--rule); padding: 6px 12px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; cursor: pointer; }
+  .al-chips button.active { background: var(--accent); color: var(--surface); border-color: var(--accent); }
+  .al-table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); font-family: var(--font-mono); font-size: 12px; }
+  .al-table thead th { background: var(--surface-2); padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--rule); font-weight: 600; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .al-table tbody td { padding: 10px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  .al-table tbody tr:last-child td { border-bottom: none; }
+  .al-table .when { white-space: nowrap; color: var(--ink-soft); }
+  .al-table .action a { color: var(--accent); cursor: pointer; text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  .al-table .action a:hover { background: var(--accent-soft); }
+  .al-table .actor a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); cursor: pointer; }
+  .al-table .actor .anon { color: var(--muted); font-style: italic; }
+  .al-table .meta-cell { color: var(--ink-soft); max-width: 480px; word-break: break-word; }
+  .al-table .meta-cell pre { margin: 0; font-family: var(--font-mono); font-size: 11px; line-height: 1.45; background: var(--surface-2); padding: 6px 8px; border: 1px solid var(--rule); white-space: pre-wrap; }
+  .al-load-more { display: block; margin: 18px auto 0; background: var(--surface); border: 1px solid var(--rule); color: var(--ink); padding: 9px 22px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; }
+  .al-load-more:hover { background: var(--surface-2); }
+  .al-load-more[disabled] { opacity: 0.5; cursor: not-allowed; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">counsel<span class="tld">.day</span> · admin</div>
+  <div class="meta">
+    <a href="/account.html">← User-facing site</a>
+    <span id="adm-identity">…</span>
+    <a href="#" id="adm-logout">Log out</a>
+  </div>
+</div>
+<nav class="adm-subnav" aria-label="Admin sections">
+  <a href="/admin.html">Overview</a>
+  <a href="/admin-users.html">Users</a>
+  <a href="/admin-products.html">Products</a>
+  <a href="/admin-growth.html">Growth</a>
+  <a href="/admin-engagement.html">Engagement</a>
+  <a href="/admin-traffic.html">Traffic</a>
+  <a href="/admin-finance.html">Finance</a>
+  <a href="/admin-verdict-logs.html">Verdict logs</a>
+  <a href="/admin-audit-log.html" class="active">Audit log</a>
+  <a href="/admin-database.html">Database</a>
+</nav>
+
+<div class="shell">
+  <h1>Audit log</h1>
+  <p class="lede">Every audit-logged event across the platform. Newest first. Filter by action category or exact action string. Each row holds the actor, target, IP, and metadata.</p>
+  <div id="adm-error" class="status-banner is-error" style="display:none;"></div>
+
+  <div class="al-chips" role="tablist" aria-label="Filter by event category">
+    <button type="button" data-cat="all" class="active">All</button>
+    <button type="button" data-cat="auth">Auth (signin/signout/MFA)</button>
+    <button type="button" data-cat="admin">Admin actions</button>
+    <button type="button" data-cat="signup">Signup</button>
+    <button type="button" data-cat="mfa">MFA enrol / recovery</button>
+    <button type="button" data-cat="refund">Refunds</button>
+    <button type="button" data-cat="cron">Cron</button>
+    <button type="button" data-cat="decision">Decisions</button>
+  </div>
+
+  <div class="al-controls">
+    <label>Action equals
+      <input type="text" id="cd-action-filter" placeholder="e.g. auth.signin.password">
+    </label>
+    <button type="button" class="btn-go" id="cd-action-apply">Apply</button>
+    <button type="button" class="btn-reset" id="cd-action-reset">Reset</button>
+    <span class="count" id="cd-count">Loading…</span>
+  </div>
+
+  <table class="al-table">
+    <thead>
+      <tr>
+        <th style="width: 170px;">When</th>
+        <th style="width: 220px;">Actor</th>
+        <th style="width: 240px;">Action</th>
+        <th>Target / metadata</th>
+      </tr>
+    </thead>
+    <tbody id="cd-al-tbody">
+      <tr><td colspan="4" style="padding: 30px; text-align: center; color: var(--muted);">Loading audit-log entries…</td></tr>
+    </tbody>
+  </table>
+
+  <button type="button" class="al-load-more" id="cd-load-more" style="display: none;">Load 50 older</button>
+</div>
+
+<script>
+(function () {
+  fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) {
+    document.querySelectorAll(".skel").forEach(function (el) { el.classList.remove("skel", "skel-value"); });
+    if (d && d.ok && d.user) { document.getElementById('adm-identity').textContent = d.user.email + ' · admin'; }
+  });
+  document.getElementById('adm-logout').addEventListener('click', function (e) {
+    e.preventDefault();
+    fetch('/api/signout', { method: 'POST', credentials: 'include' }).finally(function () { window.location.href = '/'; });
+  });
+
+  function $(id) { return document.getElementById(id); }
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]; }); }
+  function fmtTs(s) { try { return new Date(s).toLocaleString(); } catch (e) { return s; } }
+  function showErr(m) { var el = $('adm-error'); el.style.display = 'block'; el.textContent = m; }
+
+  // Category to action-prefix mapping. Server only filters by EXACT action,
+  // so for category mode we fetch a bigger page and filter client-side.
+  // Switching to a server-side prefix filter would require an API change;
+  // doable later if the table volume grows past ~200 events/day.
+  var CATEGORY_PREFIX = {
+    auth:     /^auth\.(signin|signout)/,
+    admin:    /^admin\./,
+    signup:   /^(auth\.signup|signup\.)/,
+    mfa:      /^mfa\./,
+    refund:   /^refund\./,
+    cron:     /^admin\.cron\./,
+    decision: /^(decision\.|verdict\.|vote\.)/,
+  };
+
+  var state = {
+    actionFilter: '',
+    category: 'all',
+    rows: [],
+    nextBefore: null,
+    actorCache: {},
+  };
+
+  function load(opts) {
+    opts = opts || {};
+    var url = '/api/admin/audit-log?limit=' + (opts.limit || 100);
+    if (state.actionFilter) url += '&action=' + encodeURIComponent(state.actionFilter);
+    if (opts.before) url += '&before=' + encodeURIComponent(opts.before);
+    return fetch(url, { credentials: 'include' })
+      .then(function (r) {
+        if (r.status === 401 || r.status === 403) {
+          window.location.href = '/signin?next=/admin-audit-log.html';
+          throw new Error('auth');
+        }
+        return r.json();
+      })
+      .then(function (j) {
+        if (!j || !j.ok) throw new Error((j && j.message) || 'Could not load audit log.');
+        return j;
+      });
+  }
+
+  function applyCategoryFilter(rows) {
+    if (state.category === 'all') return rows;
+    var matcher = CATEGORY_PREFIX[state.category];
+    if (!matcher) return rows;
+    return rows.filter(function (r) { return matcher.test(r.action || ''); });
+  }
+
+  // Lookup actor emails in bulk so we don't issue 50 separate requests.
+  // /api/admin/users is paginated · this is best-effort. If a userId
+  // isn't in the first page we show the uuid instead.
+  function hydrateActors() {
+    return fetch('/api/admin/users?limit=200', { credentials: 'include' })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (j && j.ok && Array.isArray(j.users)) {
+          j.users.forEach(function (u) { state.actorCache[u.id] = u.email; });
+        }
+      })
+      .catch(function () { /* non-fatal */ });
+  }
+
+  function actorCell(uid) {
+    if (!uid) return '<span class="anon">(system / anonymous)</span>';
+    var email = state.actorCache[uid];
+    if (email) {
+      return '<a href="/admin-users.html?focus=' + encodeURIComponent(uid) + '">' + escapeHtml(email) + '</a>';
+    }
+    return '<a href="/admin-users.html?focus=' + encodeURIComponent(uid) + '" title="' + escapeHtml(uid) + '">' + escapeHtml(uid.slice(0, 8)) + '…</a>';
+  }
+
+  function metaCell(r) {
+    var parts = [];
+    if (r.target_type) parts.push('<div><strong>' + escapeHtml(r.target_type) + '</strong> · ' + escapeHtml(r.target_id || '·') + '</div>');
+    if (r.ip_address) parts.push('<div>IP: ' + escapeHtml(r.ip_address) + '</div>');
+    if (r.metadata && Object.keys(r.metadata).length > 0) {
+      parts.push('<pre>' + escapeHtml(JSON.stringify(r.metadata, null, 2)) + '</pre>');
+    }
+    return parts.join('');
+  }
+
+  function render() {
+    var tbody = $('cd-al-tbody');
+    var rows = applyCategoryFilter(state.rows);
+    if (rows.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="padding: 30px; text-align: center; color: var(--muted);">No matching events.</td></tr>';
+    } else {
+      tbody.innerHTML = rows.map(function (r) {
+        var actionLink = '<a data-cd-action="' + escapeHtml(r.action) + '">' + escapeHtml(r.action) + '</a>';
+        return '<tr>' +
+          '<td class="when">' + escapeHtml(fmtTs(r.created_at)) + '</td>' +
+          '<td class="actor">' + actorCell(r.actor_user_id) + '</td>' +
+          '<td class="action">' + actionLink + '</td>' +
+          '<td class="meta-cell">' + metaCell(r) + '</td>' +
+        '</tr>';
+      }).join('');
+    }
+    $('cd-count').textContent = rows.length + ' shown · ' + state.rows.length + ' fetched';
+    $('cd-load-more').style.display = state.nextBefore ? 'block' : 'none';
+  }
+
+  function reload() {
+    state.rows = [];
+    state.nextBefore = null;
+    $('cd-al-tbody').innerHTML = '<tr><td colspan="4" style="padding: 30px; text-align: center; color: var(--muted);">Loading…</td></tr>';
+    load({ limit: 100 }).then(function (j) {
+      state.rows = j.rows || [];
+      state.nextBefore = j.next_before;
+      render();
+    }).catch(function (e) { if (e && e.message !== 'auth') showErr(e.message); });
+  }
+
+  // ---- wire chips ----
+  document.querySelectorAll('.al-chips button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.al-chips button').forEach(function (x) { x.classList.remove('active'); });
+      b.classList.add('active');
+      state.category = b.dataset.cat;
+      render();
+    });
+  });
+
+  // ---- wire action-equals filter ----
+  $('cd-action-apply').addEventListener('click', function () {
+    state.actionFilter = $('cd-action-filter').value.trim();
+    reload();
+  });
+  $('cd-action-filter').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') $('cd-action-apply').click();
+  });
+  $('cd-action-reset').addEventListener('click', function () {
+    state.actionFilter = '';
+    $('cd-action-filter').value = '';
+    reload();
+  });
+
+  // ---- click action to filter by it ----
+  $('cd-al-tbody').addEventListener('click', function (e) {
+    var t = e.target;
+    if (t && t.tagName === 'A' && t.dataset && t.dataset.cdAction) {
+      e.preventDefault();
+      state.actionFilter = t.dataset.cdAction;
+      $('cd-action-filter').value = t.dataset.cdAction;
+      reload();
+    }
+  });
+
+  // ---- load more ----
+  $('cd-load-more').addEventListener('click', function () {
+    if (!state.nextBefore) return;
+    $('cd-load-more').disabled = true;
+    load({ limit: 50, before: state.nextBefore }).then(function (j) {
+      var added = j.rows || [];
+      state.rows = state.rows.concat(added);
+      state.nextBefore = j.next_before;
+      render();
+      $('cd-load-more').disabled = false;
+    }).catch(function (e) { if (e && e.message !== 'auth') showErr(e.message); $('cd-load-more').disabled = false; });
+  });
+
+  // Hydrate actor names FIRST so the first paint has emails, then load.
+  hydrateActors().then(reload);
+})();
+</script>
+<script src="ga4.js" defer></script>
+</body>
+</html>

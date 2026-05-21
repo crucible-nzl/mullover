@@ -28,6 +28,7 @@
   <a href="/admin-traffic.html">Traffic</a>
   <a href="/admin-finance.html" class="active">Finance</a>
   <a href="/admin-verdict-logs.html">Verdict logs</a>
+  <a href="/admin-audit-log.html">Audit log</a>
   <a href="/admin-database.html">Database</a>
 </nav>
 
@@ -59,6 +60,14 @@
 
   <h2>Revenue by tier · cumulative</h2>
   <div class="chart-card"><div class="title">Revenue split</div><div class="canvas-wrap"><canvas id="chart-tier"></canvas></div></div>
+
+  <h2 style="margin-top: 36px;">Stripe webhooks · delivery health</h2>
+  <p class="lede" style="margin-top: -8px;">Cross-reference of our idempotency table against Stripe's recent event log. Any row showing <span style="color: var(--red);">UNPROCESSED</span> means Stripe sent us the event but our handler 4xx'd or 5xx'd. Use the Stripe Dashboard link to inspect + re-send.</p>
+  <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 14px;">
+    <button type="button" id="cd-wh-refresh" class="btn-save" style="background: var(--ink); color: var(--surface); border: none; font-family: var(--font-ui); font-size: 13px; font-weight: 500; padding: 7px 16px; cursor: pointer;">Check Stripe webhook health</button>
+    <span id="cd-wh-msg" style="font-family: var(--font-mono); font-size: 11px; color: var(--muted);"></span>
+  </div>
+  <div id="cd-wh-results" style="display: none;"></div>
 </div>
 
 <script src="/chart.umd.min.js"></script>
@@ -106,6 +115,61 @@
       });
     })
     .catch(function (e) { if (e && e.message !== 'auth') showErr('Failed to load finance data · ' + e.message); });
+
+  // Stripe webhook health · operator-driven, not auto-loaded (the
+  // request hits the Stripe API and we don't want every finance page
+  // load to cost a round-trip).
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]; }); }
+  function fmtTs(s) { try { return new Date(s).toLocaleString(); } catch (e) { return s; } }
+  var whBtn = document.getElementById('cd-wh-refresh');
+  var whMsg = document.getElementById('cd-wh-msg');
+  var whOut = document.getElementById('cd-wh-results');
+  if (whBtn) {
+    whBtn.addEventListener('click', function () {
+      whBtn.disabled = true;
+      whMsg.textContent = 'Querying Stripe…';
+      whOut.style.display = 'none';
+      fetch('/api/admin/stripe-webhooks', { credentials: 'include' })
+        .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+        .then(function (res) {
+          whBtn.disabled = false;
+          if (res.status !== 200 || !res.body || !res.body.ok) {
+            whMsg.textContent = (res.body && res.body.message) || 'Stripe sync failed';
+            whMsg.style.color = 'var(--red)';
+            return;
+          }
+          var c = res.body.counts || {};
+          var allHealthy = c.stripe_unprocessed === 0 && c.stripe_pending === 0;
+          whMsg.textContent = allHealthy
+            ? 'All ' + c.stripe_listed + ' recent Stripe events processed · ' + new Date(res.body.checked_at).toLocaleTimeString()
+            : c.stripe_unprocessed + ' unprocessed · ' + c.stripe_pending + ' pending in Stripe';
+          whMsg.style.color = allHealthy ? 'var(--green)' : 'var(--red)';
+          var rows = (res.body.stripe_events || []).map(function (e) {
+            var processedTag = e.processed
+              ? '<span style="color: var(--green);">PROCESSED</span>'
+              : '<span style="color: var(--red);">UNPROCESSED</span>';
+            var pendingTag = e.pending_webhooks > 0
+              ? ' · <span style="color: var(--yellow);">PENDING ' + e.pending_webhooks + '</span>'
+              : '';
+            return '<tr>' +
+              '<td style="padding: 6px 10px; font-family: var(--font-mono); font-size: 11px; color: var(--muted); white-space: nowrap;">' + new Date(e.created * 1000).toLocaleString() + '</td>' +
+              '<td style="padding: 6px 10px; font-family: var(--font-mono); font-size: 11px;"><a href="' + escapeHtml(e.dashboard_url) + '" target="_blank" rel="noopener" style="color: var(--accent);">' + escapeHtml(e.id) + '</a></td>' +
+              '<td style="padding: 6px 10px; font-family: var(--font-mono); font-size: 12px;">' + escapeHtml(e.type) + '</td>' +
+              '<td style="padding: 6px 10px; font-family: var(--font-mono); font-size: 11px;">' + processedTag + pendingTag + '</td>' +
+            '</tr>';
+          }).join('');
+          whOut.innerHTML = '<table style="width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border);">' +
+            '<thead><tr style="background: var(--surface-2);"><th style="text-align: left; padding: 8px 10px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--rule);">When (Stripe)</th><th style="text-align: left; padding: 8px 10px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--rule);">Event id</th><th style="text-align: left; padding: 8px 10px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--rule);">Type</th><th style="text-align: left; padding: 8px 10px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--rule);">Status</th></tr></thead>' +
+            '<tbody>' + (rows || '<tr><td colspan="4" style="padding: 20px; text-align: center; color: var(--muted);">No recent Stripe events.</td></tr>') + '</tbody></table>';
+          whOut.style.display = 'block';
+        })
+        .catch(function () {
+          whBtn.disabled = false;
+          whMsg.textContent = 'Network error';
+          whMsg.style.color = 'var(--red)';
+        });
+    });
+  }
 })();
 </script>
 </body>

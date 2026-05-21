@@ -132,6 +132,7 @@
   <a href="/admin-traffic.html">Traffic</a>
   <a href="/admin-finance.html">Finance</a>
   <a href="/admin-verdict-logs.html">Verdict logs</a>
+  <a href="/admin-audit-log.html">Audit log</a>
   <a href="/admin-database.html">Database</a>
 </nav>
 
@@ -141,6 +142,7 @@
   <p class="lede">Live data from production · auto-refreshes every 60 seconds · <span class="ts" id="adm-last-loaded"></span></p>
 
   <div id="adm-error" class="status-banner is-error" style="display:none;"></div>
+  <div id="cd-backup-banner" class="status-banner" style="display:none; margin-bottom: 18px;"></div>
 
   <!-- Counts -->
   <h2>Users</h2>
@@ -413,9 +415,34 @@
     });
   });
 
+  // Weekly backup-verify status · surfaces a red banner when the most
+  // recent run did NOT exit PASS, or when the status file is older than
+  // 8 days (means the systemd timer didn't fire). Driven by
+  // /api/admin/backup-verify-status which reads /var/log/counsel-day/
+  // backup-verify-status.json.
+  function loadBackupStatus() {
+    fetch('/api/admin/backup-verify-status', { credentials: 'include' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var el = document.getElementById('cd-backup-banner');
+        if (!el || !d || !d.ok) return;
+        if (!d.present) { el.style.display = 'none'; return; }
+        if (d.healthy) { el.style.display = 'none'; return; }
+        el.classList.remove('is-ok');
+        el.classList.add('is-error');
+        var reason = d.stale
+          ? 'Backup-verify last ran ' + d.age_days + ' days ago · the Sunday timer may be broken.'
+          : 'Backup-verify FAILED on ' + (d.checked_at || '?') + ' · ' + (d.reason || 'unknown reason') + '. Run `journalctl -u counsel-day-backup-verify -n 50` on the box.';
+        el.textContent = reason;
+        el.style.display = 'block';
+      })
+      .catch(function () { /* non-fatal */ });
+  }
+
   loadOverview();
   loadIntegrations();
-  setInterval(function () { loadOverview(); loadIntegrations(); }, 60 * 1000);
+  loadBackupStatus();
+  setInterval(function () { loadOverview(); loadIntegrations(); loadBackupStatus(); }, 60 * 1000);
 })();
 </script>
 </body>

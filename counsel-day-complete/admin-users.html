@@ -46,6 +46,7 @@
   <a href="/admin-traffic.html">Traffic</a>
   <a href="/admin-finance.html">Finance</a>
   <a href="/admin-verdict-logs.html">Verdict logs</a>
+  <a href="/admin-audit-log.html">Audit log</a>
   <a href="/admin-database.html">Database</a>
 </nav>
 
@@ -212,7 +213,7 @@
     document.getElementById('drill-close').addEventListener('click', function () { document.body.removeChild(overlay); });
     overlay.addEventListener('click', function (e) { if (e.target === overlay) document.body.removeChild(overlay); });
 
-    var endpoint = kind === 'activity' ? '/api/admin/users/activity?user_id=' + userId : '/api/admin/users/decisions?user_id=' + userId;
+    var endpoint = kind === 'activity' ? '/api/admin/users/activity?user_id=' + userId + '&limit=200' : '/api/admin/users/decisions?user_id=' + userId;
     fetch(endpoint, { credentials: 'include' })
       .then(function (r) { return r.json(); })
       .then(function (d) {
@@ -220,9 +221,49 @@
         if (!d || !d.ok) { body.textContent = 'Failed: ' + ((d && d.message) || 'unknown'); return; }
         if (kind === 'activity') {
           if (!d.events.length) { body.innerHTML = '<em>No audit-log entries for this user.</em>'; return; }
-          body.innerHTML = '<table style="width: 100%; border-collapse: collapse;"><thead><tr><th style="text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--rule);">When</th><th style="text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--rule);">Action</th><th style="text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--rule);">Target</th><th style="text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--rule);">Metadata</th></tr></thead><tbody>' + d.events.map(function (ev) {
-            return '<tr><td style="padding: 5px 8px; border-bottom: 1px dotted var(--rule); color: var(--muted);">' + new Date(ev.created_at).toLocaleString() + '</td><td style="padding: 5px 8px; border-bottom: 1px dotted var(--rule); color: var(--accent);">' + escapeHtml(ev.action) + '</td><td style="padding: 5px 8px; border-bottom: 1px dotted var(--rule);">' + escapeHtml((ev.target_type || '') + ' ' + (ev.target_id || '·')) + '</td><td style="padding: 5px 8px; border-bottom: 1px dotted var(--rule); word-break: break-all; max-width: 260px;">' + escapeHtml(JSON.stringify(ev.metadata || {})) + '</td></tr>';
-          }).join('') + '</tbody></table>';
+          var CATEGORY = {
+            all:      function () { return true; },
+            auth:     function (a) { return /^auth\.(signin|signout)/.test(a); },
+            admin:    function (a) { return /^admin\./.test(a) && !/^admin\.cron\./.test(a); },
+            mfa:      function (a) { return /^mfa\./.test(a) || /^auth\.signin\.mfa/.test(a); },
+            cron:     function (a) { return /^admin\.cron\./.test(a); },
+            decision: function (a) { return /^(decision\.|verdict\.|vote\.)/.test(a); },
+            signup:   function (a) { return /^(auth\.signup|signup\.)/.test(a); },
+          };
+          var allEvents = d.events;
+          var current = 'all';
+          function counts(cat) { return allEvents.filter(CATEGORY[cat]).length; }
+          function renderTable(cat) {
+            var rows = allEvents.filter(CATEGORY[cat]);
+            if (rows.length === 0) {
+              return '<div style="padding: 18px; color: var(--muted); font-style: italic;">No matching entries in this category.</div>';
+            }
+            return '<table style="width: 100%; border-collapse: collapse;"><thead><tr><th style="text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--rule);">When</th><th style="text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--rule);">Action</th><th style="text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--rule);">Target</th><th style="text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--rule);">Metadata</th></tr></thead><tbody>' + rows.map(function (ev) {
+              return '<tr><td style="padding: 5px 8px; border-bottom: 1px dotted var(--rule); color: var(--muted); white-space: nowrap;">' + new Date(ev.created_at).toLocaleString() + '</td><td style="padding: 5px 8px; border-bottom: 1px dotted var(--rule); color: var(--accent);">' + escapeHtml(ev.action) + '</td><td style="padding: 5px 8px; border-bottom: 1px dotted var(--rule);">' + escapeHtml((ev.target_type || '') + ' ' + (ev.target_id || '·')) + '</td><td style="padding: 5px 8px; border-bottom: 1px dotted var(--rule); word-break: break-all; max-width: 260px;">' + escapeHtml(JSON.stringify(ev.metadata || {})) + '</td></tr>';
+            }).join('') + '</tbody></table>';
+          }
+          function chipHtml(cat, label) {
+            var active = cat === current;
+            return '<button type="button" data-act-cat="' + cat + '" style="background: ' + (active ? 'var(--accent)' : 'var(--surface)') + '; color: ' + (active ? 'var(--surface)' : 'var(--ink-soft)') + '; border: 1px solid ' + (active ? 'var(--accent)' : 'var(--rule)') + '; padding: 5px 11px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; cursor: pointer;">' + label + ' · ' + counts(cat) + '</button>';
+          }
+          function renderAll() {
+            body.innerHTML = '<div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px;">' +
+              chipHtml('all', 'All') +
+              chipHtml('auth', 'Auth') +
+              chipHtml('admin', 'Admin') +
+              chipHtml('mfa', 'MFA') +
+              chipHtml('cron', 'Cron') +
+              chipHtml('decision', 'Decisions') +
+              chipHtml('signup', 'Signup') +
+            '</div>' + renderTable(current);
+            body.querySelectorAll('[data-act-cat]').forEach(function (btn) {
+              btn.addEventListener('click', function () {
+                current = btn.getAttribute('data-act-cat');
+                renderAll();
+              });
+            });
+          }
+          renderAll();
         } else {
           if (!d.decisions.length) { body.innerHTML = '<em>No decisions owned by this user.</em>'; return; }
           body.innerHTML = '<table style="width: 100%; border-collapse: collapse;"><thead><tr><th style="text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--rule);">Question</th><th style="padding: 6px 8px; border-bottom: 1px solid var(--rule);">Tier</th><th style="padding: 6px 8px; border-bottom: 1px solid var(--rule);">Status</th><th style="padding: 6px 8px; border-bottom: 1px solid var(--rule);">Days</th><th style="padding: 6px 8px; border-bottom: 1px solid var(--rule);">Votes</th><th style="padding: 6px 8px; border-bottom: 1px solid var(--rule);">Verdict</th><th style="padding: 6px 8px; border-bottom: 1px solid var(--rule);">Filed</th></tr></thead><tbody>' + d.decisions.map(function (dec) {

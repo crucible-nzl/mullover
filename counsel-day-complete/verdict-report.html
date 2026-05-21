@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':'denied','ad_user_data':'denied','ad_personalization':'denied',
+    'analytics_storage':'denied','functionality_storage':'denied',
+    'personalization_storage':'denied','security_storage':'granted','wait_for_update':500
+  });
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':'denied','ad_user_data':'denied','ad_personalization':'denied','analytics_storage':'denied'
+    });
+  }
+</script>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', { 'anonymize_ip': true, 'allow_google_signals': false, 'allow_ad_personalization_signals': false });
+</script>
+<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
+
+<title>Your verdict report &middot; Counsel.day</title>
+<meta name="description" content="The full premium verdict report for your Counsel.day decision. Vote trajectory, sentiment trace, theme attribution, asymmetry analysis, vocabulary overlap, and re-delivery scheduling.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="author" content="James Graham, founder of Counsel.day">
+<meta property="article:modified_time" content="2026-05-22T00:00:00+12:00">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="canonical" href="https://counsel.day/verdict-report">
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="styles-i8.css">
+<style>
+/* verdict-report.html · premium report page · panels around the synthesis prose */
+
+.rpt-head { padding: 36px 32px 26px; border-bottom: 1px solid var(--rule); background: var(--paper); }
+.rpt-head-inner { max-width: 1080px; margin: 0 auto; }
+.rpt-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine); margin-bottom: 14px; }
+.rpt-question { font-family: var(--font-display); font-size: clamp(28px, 3.4vw, 40px); font-weight: 500; line-height: 1.18; color: var(--ink); margin: 0 0 14px; max-width: 880px; }
+.rpt-question .ital { font-style: italic; color: var(--wine); }
+.rpt-meta { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.rpt-meta strong { color: var(--ink); font-weight: 500; }
+
+.rpt-body { max-width: 1080px; margin: 0 auto; padding: 30px 32px 60px; }
+
+.panel { border: 1px solid var(--ink); background: var(--paper); padding: 26px 30px; margin-bottom: 24px; }
+.panel + .panel { margin-top: 0; }
+.panel-eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin-bottom: 12px; }
+.panel-title { font-family: var(--font-display); font-size: 24px; font-weight: 500; line-height: 1.28; color: var(--ink); margin: 0 0 16px; }
+.panel-title .ital { font-style: italic; color: var(--wine); }
+.panel-body { font-family: var(--font-body); font-size: 17px; line-height: 1.65; color: var(--ink-soft); }
+.panel-body strong { color: var(--ink); font-weight: 500; }
+
+.synth-prose { font-family: var(--font-body); font-size: 18px; line-height: 1.7; color: var(--ink); white-space: pre-wrap; }
+.synth-prose p { margin: 0 0 16px; }
+
+.theme-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-top: 6px; }
+.theme-card { border: 1px solid var(--rule); padding: 16px 18px; background: var(--paper); }
+.theme-name { font-family: var(--font-display); font-size: 18px; font-weight: 500; color: var(--ink); margin: 0 0 6px; }
+.theme-mentions { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.theme-quote { font-family: var(--font-body); font-size: 14px; line-height: 1.5; color: var(--ink-soft); font-style: italic; margin: 0; }
+
+.trajectory-wrap { height: 280px; margin-top: 6px; }
+.wordcloud-wrap { height: 320px; margin-top: 6px; }
+.wordcloud-wrap text { font-family: var(--font-display); font-weight: 500; }
+
+.sent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+.sent-card { border: 1px solid var(--rule); padding: 18px 20px; }
+.sent-partner { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin-bottom: 8px; }
+.sent-label { font-family: var(--font-display); font-size: 22px; font-weight: 500; color: var(--ink); margin: 0 0 6px; }
+.sent-compound { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+
+.asym-list { margin: 0; padding: 0; list-style: none; }
+.asym-list li { padding: 12px 0; border-bottom: 1px solid var(--rule); }
+.asym-list li:last-child { border-bottom: none; }
+.asym-type { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin-bottom: 4px; }
+.asym-desc { font-family: var(--font-body); font-size: 15px; line-height: 1.55; color: var(--ink); margin: 0; }
+.asym-pair { font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+.quotes-list { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.quote-card { border-left: 3px solid var(--wine); padding: 10px 16px; background: var(--paper-deep); }
+.quote-card.b { border-left-color: var(--rose); }
+.quote-partner { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine); margin-bottom: 4px; }
+.quote-card.b .quote-partner { color: var(--rose); }
+.quote-text { font-family: var(--font-body); font-size: 15px; line-height: 1.55; color: var(--ink); font-style: italic; margin: 0; }
+.quote-date { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
+@media (max-width: 700px) { .quotes-list { grid-template-columns: 1fr; } }
+
+.tc-row { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 6px; }
+.tc-option { border: 1px solid var(--rule); padding: 14px 18px; cursor: pointer; transition: border-color 160ms ease, background 160ms ease; min-width: 180px; }
+.tc-option:hover { border-color: var(--ink); }
+.tc-option.active { border-color: var(--wine); background: var(--wine-soft); }
+.tc-option-label { font-family: var(--font-display); font-size: 18px; font-weight: 500; color: var(--ink); margin: 0 0 4px; }
+.tc-option-when { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.tc-actions { margin-top: 18px; display: flex; gap: 12px; align-items: center; }
+.tc-btn { font-family: var(--font-ui); font-size: 14px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; padding: 12px 22px; background: var(--wine); color: var(--paper); border: 1px solid var(--wine); cursor: pointer; }
+.tc-btn:hover { background: var(--wine-deep); border-color: var(--wine-deep); }
+.tc-btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+.tc-status { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.tc-status.ok { color: var(--wine); }
+
+.multi-teaser { border: 1px dashed var(--rule); padding: 22px 26px; background: var(--paper-deep); margin-top: 24px; text-align: center; }
+.multi-teaser p { font-family: var(--font-body); font-size: 15px; color: var(--ink-soft); margin: 0 0 12px; }
+.multi-teaser a { font-family: var(--font-ui); font-size: 14px; color: var(--wine); border-bottom: 1px solid var(--wine); text-decoration: none; padding-bottom: 1px; }
+
+.state-msg { padding: 60px 30px; text-align: center; max-width: 640px; margin: 0 auto; }
+.state-msg h2 { font-family: var(--font-display); font-size: 28px; font-weight: 500; color: var(--ink); margin: 0 0 12px; }
+.state-msg p { font-family: var(--font-body); font-size: 17px; line-height: 1.55; color: var(--ink-soft); margin: 0 0 22px; }
+.state-msg .btn { display: inline-block; font-family: var(--font-ui); font-size: 14px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; padding: 14px 28px; background: var(--wine); color: var(--paper); text-decoration: none; }
+.state-msg .btn:hover { background: var(--wine-deep); }
+
+#rpt-sections { display: none; }
+#rpt-sections.is-ready { display: block; }
+#rpt-loading { padding: 80px 30px; text-align: center; color: var(--muted); font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<!-- CD:PARTIAL:nav-app -->
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="decisions.html">Your decisions</a>
+      <a href="vote-today.html">Tonight's vote</a>
+      <a href="compose.html">Compose</a>
+      <a href="account.html">Account</a>
+      <a href="help.html">Help</a>
+    </div>
+    <div class="nav-cta">
+      <a href="account.html" class="btn-text" id="cd-nav-name">Account</a>
+    </div>
+  </div>
+</nav>
+<!-- /CD:PARTIAL:nav-app -->
+
+<main id="main-content">
+
+  <header class="rpt-head">
+    <div class="rpt-head-inner">
+      <div class="rpt-eyebrow" id="rpt-fileref">Loading record &hellip;</div>
+      <h1 class="rpt-question" id="rpt-question">Loading the verdict <span class="ital">report.</span></h1>
+      <div class="rpt-meta" id="rpt-meta">&nbsp;</div>
+    </div>
+  </header>
+
+  <div class="rpt-body">
+
+    <div id="rpt-loading">Reading the sealed record &hellip;</div>
+
+    <div id="rpt-state"></div>
+
+    <div id="rpt-sections">
+
+      <!-- 1 · Synthesis prose -->
+      <section class="panel" id="panel-synth">
+        <div class="panel-eyebrow">File &middot; Synthesis</div>
+        <h2 class="panel-title">The verdict, in <span class="ital">prose.</span></h2>
+        <div class="synth-prose" id="rpt-synth"></div>
+        <p class="panel-body" id="rpt-prompt-wrap" style="margin-top: 22px;"><strong>The conversation that follows: </strong><em id="rpt-prompt"></em></p>
+      </section>
+
+      <!-- 2 · Vote trajectory (Chart.js) -->
+      <section class="panel" id="panel-traj">
+        <div class="panel-eyebrow">File &middot; Trajectory</div>
+        <h2 class="panel-title">How each line moved <span class="ital">day by day.</span></h2>
+        <div class="trajectory-wrap"><canvas id="rpt-traj-canvas"></canvas></div>
+      </section>
+
+      <!-- 3 · Themes (AI-derived + NLP-derived merged) -->
+      <section class="panel" id="panel-themes">
+        <div class="panel-eyebrow">File &middot; Themes</div>
+        <h2 class="panel-title">What you kept writing <span class="ital">about.</span></h2>
+        <div class="theme-grid" id="rpt-themes"></div>
+      </section>
+
+      <!-- 4 · Word cloud (D3 + d3-cloud) -->
+      <section class="panel" id="panel-wordcloud">
+        <div class="panel-eyebrow">File &middot; Vocabulary</div>
+        <h2 class="panel-title">The words you actually <span class="ital">used.</span></h2>
+        <div class="wordcloud-wrap"><svg id="rpt-wordcloud" width="100%" height="100%"></svg></div>
+      </section>
+
+      <!-- 5 · Sentiment per participant -->
+      <section class="panel" id="panel-sentiment">
+        <div class="panel-eyebrow">File &middot; Sentiment</div>
+        <h2 class="panel-title">The tone of each <span class="ital">stream.</span></h2>
+        <div class="sent-grid" id="rpt-sentiment"></div>
+        <p class="panel-body" style="margin-top: 16px; font-size: 13px; color: var(--muted);">VADER compound sentiment, scored independently per partner across all notes. Negative is below zero, positive above; neutral is within &plusmn;0.05.</p>
+      </section>
+
+      <!-- 6 · Asymmetries -->
+      <section class="panel" id="panel-asymmetry">
+        <div class="panel-eyebrow">File &middot; Asymmetry</div>
+        <h2 class="panel-title">Where the two lines were <span class="ital">different.</span></h2>
+        <ul class="asym-list" id="rpt-asymmetries"></ul>
+      </section>
+
+      <!-- 7 · Vocabulary overlap -->
+      <section class="panel" id="panel-vocab">
+        <div class="panel-eyebrow">File &middot; Vocabulary overlap</div>
+        <h2 class="panel-title">The words you shared, and the words you held <span class="ital">alone.</span></h2>
+        <div id="rpt-vocab-overlap" class="panel-body"></div>
+      </section>
+
+      <!-- 8 · Key quotes -->
+      <section class="panel" id="panel-quotes">
+        <div class="panel-eyebrow">File &middot; Key quotes</div>
+        <h2 class="panel-title">The lines that <span class="ital">held.</span></h2>
+        <div class="quotes-list" id="rpt-quotes"></div>
+      </section>
+
+      <!-- 9 · Time capsules -->
+      <section class="panel" id="panel-capsules">
+        <div class="panel-eyebrow">File &middot; Re-delivery</div>
+        <h2 class="panel-title">Re-read this report <span class="ital">later.</span></h2>
+        <p class="panel-body">Some decisions look different at six months. Or a year. We can email you this report at any of three points after today &middot; no further action required from you.</p>
+        <div class="tc-row" id="rpt-capsule-options">
+          <div class="tc-option" data-months="6">
+            <div class="tc-option-label">6 months</div>
+            <div class="tc-option-when" id="tc-when-6">&middot;</div>
+          </div>
+          <div class="tc-option" data-months="12">
+            <div class="tc-option-label">12 months</div>
+            <div class="tc-option-when" id="tc-when-12">&middot;</div>
+          </div>
+          <div class="tc-option" data-months="24">
+            <div class="tc-option-label">24 months</div>
+            <div class="tc-option-when" id="tc-when-24">&middot;</div>
+          </div>
+        </div>
+        <div class="tc-actions">
+          <button type="button" class="tc-btn" id="tc-save" disabled>Schedule the selected re-deliveries</button>
+          <span class="tc-status" id="tc-status"></span>
+        </div>
+      </section>
+
+      <!-- 10 · Multi-decision teaser -->
+      <aside class="multi-teaser" id="panel-multi">
+        <p>Your patterns become visible when you have more than one sealed record. The cross-decision dashboard shows recurring themes and your decision vocabulary fingerprint.</p>
+        <a href="decisions-insights.html">Open the multi-decision dashboard</a>
+      </aside>
+
+    </div>
+
+  </div>
+
+</main>
+
+<!-- CD:PARTIAL:colophon -->
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The app</h5>
+        <a href="decisions.html">Your decisions</a>
+        <a href="vote-today.html">Tonight's vote</a>
+        <a href="compose.html">Compose</a>
+        <a href="account.html">Your account</a>
+      </div>
+      <div class="colophon-col">
+        <h3 class="colophon-col-h">The product</h3>
+        <a href="method.html">The method</a>
+        <a href="why-time.html">Why time</a>
+        <a href="verdict.html">A real verdict</a>
+      </div>
+      <div class="colophon-col">
+        <h5>Support</h5>
+        <a href="help.html">Help</a>
+        <a href="contact.html">Contact</a>
+        <a href="faq.html">FAQ</a>
+      </div>
+      <div class="colophon-col">
+        <h3 class="colophon-col-h">The fine print</h3>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="refunds.html">Refunds</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>&copy; 2026 Counsel.day &middot; USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+<!-- /CD:PARTIAL:colophon -->
+
+<a class="go-to-top" id="go-to-top" href="#top" aria-label="Go to top of page">
+  <svg viewBox="0 0 24 24" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+  <span class="label">Top</span>
+</a>
+
+<!-- Vendor JS · self-hosted (no CDN, no third-party calls) -->
+<script src="/chart.umd.min.js"></script>
+<script src="/d3.v7.min.js"></script>
+<script src="/d3.layout.cloud.min.js"></script>
+
+<script>
+/* /verdict-report.html hydration. Pulls from /api/verdict-report?id=<uuid>.
+   Branches on response status:
+     200 sealed=true  → render the "still sealed until X" state
+     200 sealed=false → render the full report (all panels)
+     402              → render the free-tier upsell
+     409              → "verdict generating" state
+     401/403/404/etc  → generic error
+*/
+(function () {
+  'use strict';
+
+  var qs = new URLSearchParams(window.location.search);
+  var id = qs.get('id');
+
+  function el(id) { return document.getElementById(id); }
+  function set(idStr, text) { var n = el(idStr); if (n) n.textContent = (text == null ? '·' : String(text)); }
+  function fmtDate(s) {
+    if (!s) return '·';
+    try { return new Date(s).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' }); }
+    catch (e) { return s; }
+  }
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+  function showState(html) {
+    el('rpt-loading').style.display = 'none';
+    el('rpt-state').innerHTML = html;
+  }
+
+  if (!id || !/^[0-9a-f-]{36}$/i.test(id)) {
+    showState('<div class="state-msg"><h2>No record selected</h2><p>Open this report from the link in your verdict-ready email, or from your decisions list.</p><a class="btn" href="decisions.html">Your decisions</a></div>');
+    return;
+  }
+
+  fetch('/api/verdict-report?id=' + encodeURIComponent(id), { credentials: 'include' })
+    .then(function (r) {
+      if (r.status === 401) { window.location.href = '/signin?next=' + encodeURIComponent('/verdict-report.html?id=' + id); return null; }
+      return r.json().then(function (j) { return { status: r.status, body: j }; });
+    })
+    .then(function (res) {
+      if (!res) return;
+      var status = res.status;
+      var body = res.body || {};
+      var ref = 'CD &middot; ' + String(id).slice(0, 8).toUpperCase();
+
+      if (status === 402) {
+        el('rpt-fileref').innerHTML = ref;
+        set('rpt-question', 'The premium report is a paid-tier feature.');
+        showState('<div class="state-msg"><h2>This decision is on the free tier</h2><p>' + escapeHtml(body.message || '') + '</p><a class="btn" href="account.html">Upgrade your account</a></div>');
+        return;
+      }
+      if (status === 200 && body.sealed) {
+        var d = body.decision || {};
+        el('rpt-fileref').innerHTML = 'File &middot; ' + ref + ' &middot; SEALED';
+        set('rpt-question', '"' + (d.question || '') + '"');
+        set('rpt-meta', 'Sealed for ' + (d.duration_days || '·') + ' days · unseals on ' + fmtDate(d.unseals_at));
+        showState('<div class="state-msg"><h2>Sealed &middot; ' + (d.days_remaining || 0) + ' days remaining</h2><p>The premium report opens when the decision unseals on ' + escapeHtml(fmtDate(d.unseals_at)) + '. Until then, neither stream has been opened.</p><a class="btn" href="decisions.html">Your decisions</a></div>');
+        return;
+      }
+      if (status === 409) {
+        el('rpt-fileref').innerHTML = 'File &middot; ' + ref;
+        set('rpt-question', 'The verdict is being generated.');
+        showState('<div class="state-msg"><h2>Almost ready</h2><p>' + escapeHtml(body.message || 'Check back in a few minutes.') + '</p><a class="btn" href="decisions.html">Your decisions</a></div>');
+        return;
+      }
+      if (status !== 200 || body.sealed || !body.verdict) {
+        showState('<div class="state-msg"><h2>Could not load this report</h2><p>' + escapeHtml(body.message || 'Please try again later.') + '</p><a class="btn" href="decisions.html">Your decisions</a></div>');
+        return;
+      }
+
+      // ---- Ready · render the full report ----
+      el('rpt-loading').style.display = 'none';
+      el('rpt-sections').classList.add('is-ready');
+
+      var d = body.decision || {};
+      var v = body.verdict || {};
+      var a = body.analysis || null;
+      var participants = body.participants || [];
+      var votes = body.votes || [];
+      var capsules = body.time_capsules || [];
+
+      el('rpt-fileref').innerHTML = 'File &middot; ' + ref + ' &middot; OPENED ' + escapeHtml(fmtDate(v.generatedAt));
+      set('rpt-question', d.question || '');
+      var partnerNames = participants.map(function (p) { return p.displayName; }).join(' &middot; ');
+      el('rpt-meta').innerHTML =
+        '<strong>Tier:</strong> ' + escapeHtml(d.tier || '·') +
+        ' &middot; <strong>Sealed for:</strong> ' + (d.duration_days || '·') + ' days' +
+        ' &middot; <strong>Partners:</strong> ' + partnerNames;
+
+      // Synthesis prose
+      set('rpt-synth', v.synthesisText || '');
+      if (v.nextConversationPrompt) {
+        set('rpt-prompt', v.nextConversationPrompt);
+      } else {
+        el('rpt-prompt-wrap').style.display = 'none';
+      }
+
+      // Trajectory · Chart.js line per participant
+      renderTrajectory(votes, participants);
+
+      // Themes
+      renderThemes(a, v.themes);
+
+      // Word cloud
+      renderWordCloud(a);
+
+      // Sentiment
+      renderSentiment(a, participants);
+
+      // Asymmetries
+      renderAsymmetries(a);
+
+      // Vocabulary overlap
+      renderVocabOverlap(a, participants);
+
+      // Key quotes
+      renderKeyQuotes(a, v.themes);
+
+      // Time capsules
+      renderCapsules(capsules, d.unseals_at);
+    })
+    .catch(function (err) {
+      console.warn('[verdict-report]', err);
+      showState('<div class="state-msg"><h2>Network error</h2><p>Could not reach the server. Please refresh.</p></div>');
+    });
+
+  // ---- Renderers ----
+
+  function renderTrajectory(votes, participants) {
+    var canvas = document.getElementById('rpt-traj-canvas');
+    if (!canvas || !window.Chart) return;
+    // Map direction to numeric: NO=-2, LEAN NO=-1, NEUTRAL=0, LEAN YES=1, YES=2
+    var dirVal = function (d) {
+      var s = String(d || '').toUpperCase();
+      if (s === 'YES' || s === 'STRONG YES') return 2;
+      if (s === 'LEAN YES') return 1;
+      if (s === 'NEUTRAL' || s === 'NEITHER') return 0;
+      if (s === 'LEAN NO') return -1;
+      if (s === 'NO' || s === 'STRONG NO') return -2;
+      return 0;
+    };
+    var byPartner = {};
+    var allDates = {};
+    votes.forEach(function (row) {
+      var name = row.display_name;
+      var date = String(row.vote_date).slice(0, 10);
+      allDates[date] = true;
+      (byPartner[name] = byPartner[name] || []).push({ date: date, value: dirVal(row.direction) });
+    });
+    var labels = Object.keys(allDates).sort();
+    var palette = ['#722F37', '#c4806b', '#3a3530', '#9b9286'];
+    var datasets = Object.keys(byPartner).map(function (name, i) {
+      var rowsByDate = {};
+      byPartner[name].forEach(function (r) { rowsByDate[r.date] = r.value; });
+      var data = labels.map(function (d) { return rowsByDate[d] == null ? null : rowsByDate[d]; });
+      return {
+        label: name,
+        data: data,
+        borderColor: palette[i % palette.length],
+        backgroundColor: palette[i % palette.length],
+        borderWidth: 2,
+        spanGaps: true,
+        tension: 0.15,
+        pointRadius: 4,
+      };
+    });
+    new Chart(canvas, {
+      type: 'line',
+      data: { labels: labels, datasets: datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { labels: { font: { family: "'Geist Mono', monospace", size: 11 } } } },
+        scales: {
+          y: {
+            min: -2.2, max: 2.2,
+            ticks: {
+              stepSize: 1,
+              font: { family: "'Geist Mono', monospace", size: 11 },
+              callback: function (v) {
+                return ({ '-2': 'NO', '-1': 'LEAN NO', '0': 'NEUTRAL', '1': 'LEAN YES', '2': 'YES' })[String(v)] || '';
+              },
+            },
+          },
+          x: { ticks: { font: { family: "'Geist Mono', monospace", size: 10 } } },
+        },
+      },
+    });
+  }
+
+  function renderThemes(analysis, aiThemes) {
+    var host = document.getElementById('rpt-themes');
+    if (!host) return;
+    var themes = [];
+    // Prefer AI-derived themes (with key_quote) when present; fall back to
+    // NLP-derived themes. Merge by lowercase name so duplicates collapse.
+    var seen = {};
+    (aiThemes || []).forEach(function (t) {
+      var key = String(t.name || '').toLowerCase();
+      if (!key || seen[key]) return;
+      seen[key] = true;
+      themes.push({ name: t.name, mentions: Number(t.mentions || 0), attributed_to: t.attributed_to || [], key_quote: t.key_quote || '' });
+    });
+    if (analysis && Array.isArray(analysis.themes)) {
+      analysis.themes.forEach(function (t) {
+        var key = String(t.name || '').toLowerCase();
+        if (!key || seen[key]) return;
+        seen[key] = true;
+        themes.push({ name: t.name, mentions: Number(t.mentions || 0), attributed_to: t.attributed_to || [], key_quote: t.key_quote || '' });
+      });
+    }
+    themes.sort(function (a, b) { return b.mentions - a.mentions; });
+    if (themes.length === 0) {
+      host.innerHTML = '<p class="panel-body">No themes were extracted for this decision.</p>';
+      return;
+    }
+    host.innerHTML = themes.slice(0, 12).map(function (t) {
+      return '<div class="theme-card">' +
+               '<div class="theme-name">' + escapeHtml(t.name) + '</div>' +
+               '<div class="theme-mentions">' + t.mentions + ' mention(s)' + (t.attributed_to && t.attributed_to.length ? ' &middot; ' + escapeHtml(t.attributed_to.join(', ')) : '') + '</div>' +
+               (t.key_quote ? '<p class="theme-quote">&ldquo;' + escapeHtml(t.key_quote) + '&rdquo;</p>' : '') +
+             '</div>';
+    }).join('');
+  }
+
+  function renderWordCloud(analysis) {
+    var svg = document.getElementById('rpt-wordcloud');
+    if (!svg || !window.d3 || !window.d3.layout || !window.d3.layout.cloud) return;
+    var cloudData = (analysis && Array.isArray(analysis.word_cloud)) ? analysis.word_cloud : [];
+    if (cloudData.length === 0) {
+      svg.outerHTML = '<p class="panel-body">No vocabulary cloud was extracted.</p>';
+      return;
+    }
+    var wrap = svg.parentNode;
+    var width = wrap.clientWidth || 800;
+    var height = wrap.clientHeight || 320;
+    var max = cloudData.reduce(function (m, w) { return Math.max(m, Number(w.weight || 1)); }, 1);
+    var scale = function (w) { return 14 + (Number(w.weight || 1) / max) * 36; };
+    var d3sel = window.d3.select(svg).attr('viewBox', '0 0 ' + width + ' ' + height);
+    window.d3.layout.cloud()
+      .size([width, height])
+      .words(cloudData.map(function (w) { return { text: w.word, size: scale(w) }; }))
+      .padding(3)
+      .rotate(0)
+      .font('Newsreader')
+      .fontSize(function (d) { return d.size; })
+      .on('end', function (placed) {
+        d3sel.append('g')
+          .attr('transform', 'translate(' + (width / 2) + ',' + (height / 2) + ')')
+          .selectAll('text')
+          .data(placed)
+          .enter().append('text')
+          .style('font-size', function (d) { return d.size + 'px'; })
+          .style('fill', function (d, i) { return i % 4 === 0 ? '#722F37' : (i % 5 === 0 ? '#c4806b' : '#0a0a0a'); })
+          .attr('text-anchor', 'middle')
+          .attr('transform', function (d) { return 'translate(' + d.x + ',' + d.y + ') rotate(' + d.rotate + ')'; })
+          .text(function (d) { return d.text; });
+      })
+      .start();
+  }
+
+  function renderSentiment(analysis, participants) {
+    var host = document.getElementById('rpt-sentiment');
+    if (!host) return;
+    var per = (analysis && analysis.sentiment && analysis.sentiment.per_participant) || {};
+    var rows = participants.map(function (p) {
+      var s = per[p.displayName] || {};
+      return { name: p.displayName, compound: Number(s.compound != null ? s.compound : 0), label: s.label || 'neutral' };
+    });
+    if (rows.length === 0) {
+      host.innerHTML = '<p class="panel-body">No sentiment scores were extracted.</p>';
+      return;
+    }
+    host.innerHTML = rows.map(function (r) {
+      var cls = r.compound > 0.05 ? 'positive' : (r.compound < -0.05 ? 'negative' : 'neutral');
+      return '<div class="sent-card">' +
+               '<div class="sent-partner">' + escapeHtml(r.name) + '</div>' +
+               '<div class="sent-label">' + escapeHtml(r.label) + '</div>' +
+               '<div class="sent-compound">compound ' + (r.compound >= 0 ? '+' : '') + r.compound.toFixed(3) + ' &middot; ' + cls + '</div>' +
+             '</div>';
+    }).join('');
+  }
+
+  function renderAsymmetries(analysis) {
+    var host = document.getElementById('rpt-asymmetries');
+    if (!host) return;
+    var asyms = (analysis && Array.isArray(analysis.asymmetries)) ? analysis.asymmetries : [];
+    if (asyms.length === 0) {
+      host.outerHTML = '<p class="panel-body">No structural asymmetries were detected.</p>';
+      return;
+    }
+    host.innerHTML = asyms.slice(0, 8).map(function (x) {
+      var pair = '';
+      if (x.left && x.right) {
+        pair = '<div class="asym-pair">' + escapeHtml((x.left.partner || '') + ': "' + (x.left.word || '') + '" &middot; ' + (x.right.partner || '') + ': "' + (x.right.word || '') + '"') + '</div>';
+      }
+      return '<li>' +
+               '<div class="asym-type">' + escapeHtml(x.type || 'asymmetry') + '</div>' +
+               '<p class="asym-desc">' + escapeHtml(x.description || '') + '</p>' +
+               pair +
+             '</li>';
+    }).join('');
+  }
+
+  function renderVocabOverlap(analysis, participants) {
+    var host = document.getElementById('rpt-vocab-overlap');
+    if (!host) return;
+    var ov = (analysis && analysis.vocabulary_overlap) || null;
+    if (!ov) {
+      host.innerHTML = '<p>No vocabulary overlap was extracted.</p>';
+      return;
+    }
+    var shared = (ov.shared || []).slice(0, 24);
+    var only = ov.only_to || {};
+    var html = '<p style="margin: 0 0 14px;"><strong>Shared vocabulary &middot;</strong> ';
+    html += shared.length ? shared.map(escapeHtml).join(', ') : 'none';
+    html += '</p>';
+    Object.keys(only).forEach(function (name) {
+      var words = (only[name] || []).slice(0, 18);
+      if (words.length === 0) return;
+      html += '<p style="margin: 0 0 10px;"><strong>Only ' + escapeHtml(name) + ' wrote &middot;</strong> ' + words.map(escapeHtml).join(', ') + '</p>';
+    });
+    host.innerHTML = html;
+  }
+
+  function renderKeyQuotes(analysis, aiThemes) {
+    var host = document.getElementById('rpt-quotes');
+    if (!host) return;
+    var quotes = [];
+    if (analysis && Array.isArray(analysis.key_quotes)) {
+      analysis.key_quotes.forEach(function (q) { quotes.push(q); });
+    }
+    // Pull verbatim AI key_quotes via the structured appendix when present.
+    if (aiThemes) {
+      // aiThemes may contain key_quote per theme; lift those too.
+      aiThemes.forEach(function (t) {
+        if (t.key_quote) quotes.push({ partner: (t.attributed_to && t.attributed_to[0]) || '·', vote_date: null, quote: t.key_quote });
+      });
+    }
+    if (quotes.length === 0) {
+      host.outerHTML = '<p class="panel-body">No key quotes were extracted.</p>';
+      return;
+    }
+    host.innerHTML = quotes.slice(0, 6).map(function (q, i) {
+      return '<div class="quote-card' + (i % 2 === 1 ? ' b' : '') + '">' +
+               '<div class="quote-partner">' + escapeHtml(q.partner || '·') + '</div>' +
+               '<p class="quote-text">&ldquo;' + escapeHtml(q.quote || '') + '&rdquo;</p>' +
+               (q.vote_date ? '<div class="quote-date">' + escapeHtml(fmtDate(q.vote_date)) + '</div>' : '') +
+             '</div>';
+    }).join('');
+  }
+
+  function renderCapsules(existing, unsealsAt) {
+    var existingMonths = {};
+    (existing || []).forEach(function (c) { existingMonths[Number(c.intervalMonths)] = c; });
+    var base = unsealsAt ? new Date(unsealsAt) : new Date();
+    [6, 12, 24].forEach(function (m) {
+      var when = new Date(base.getTime());
+      when.setUTCMonth(when.getUTCMonth() + m);
+      set('tc-when-' + m, fmtDate(when));
+      if (existingMonths[m]) {
+        var opt = document.querySelector('.tc-option[data-months="' + m + '"]');
+        if (opt) opt.classList.add('active');
+      }
+    });
+    var options = document.querySelectorAll('.tc-option');
+    var btn = document.getElementById('tc-save');
+    function syncBtn() {
+      var any = document.querySelectorAll('.tc-option.active').length > 0;
+      btn.disabled = !any;
+    }
+    options.forEach(function (opt) {
+      opt.addEventListener('click', function () {
+        opt.classList.toggle('active');
+        syncBtn();
+      });
+    });
+    syncBtn();
+    btn.addEventListener('click', function () {
+      var chosen = Array.from(document.querySelectorAll('.tc-option.active')).map(function (o) { return Number(o.getAttribute('data-months')); });
+      if (chosen.length === 0) return;
+      btn.disabled = true;
+      var status = document.getElementById('tc-status');
+      status.textContent = 'Saving…';
+      status.classList.remove('ok');
+      fetch('/api/verdict-report/time-capsules', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ decision_id: id, intervals: chosen }),
+      })
+        .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+        .then(function (res) {
+          if (res.status === 200 && res.body.ok) {
+            status.textContent = 'Scheduled · ' + (res.body.newly_added || []).join(', ') + (res.body.already_subscribed && res.body.already_subscribed.length ? ' (already had: ' + res.body.already_subscribed.join(', ') + ')' : '');
+            status.classList.add('ok');
+          } else {
+            status.textContent = (res.body && res.body.message) || 'Failed to save.';
+          }
+          btn.disabled = false;
+        })
+        .catch(function () { status.textContent = 'Network error.'; btn.disabled = false; });
+    });
+  }
+
+  // Go-to-top widget · same as other pages
+  (function () {
+    var top = document.getElementById('go-to-top');
+    if (!top) return;
+    function update() { if (window.scrollY > 600) { top.classList.add('visible'); } else { top.classList.remove('visible'); } }
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+    top.addEventListener('click', function (e) { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  })();
+})();
+</script>
+<script src="pwa.js" defer></script>
+<script src="ga4.js" defer></script>
+</body>
+</html>

@@ -31,6 +31,10 @@ param(
 $ErrorActionPreference = "Stop"
 $root = if ($Path) { $Path } else { Split-Path -Parent $PSScriptRoot }
 if (-not (Test-Path $root)) { Write-Error "Path not found: $root"; exit 2 }
+# Project root for cross-file artefacts (fonts.css, styles-i8.css, etc.)
+# In single-file -Path mode `$root` points at the file being linted, so
+# repo-wide assets must be resolved from the script's location.
+$projectRoot = Split-Path -Parent $PSScriptRoot
 
 $script:failures = 0
 $script:warnings = 0
@@ -117,7 +121,7 @@ foreach ($f in $htmlFiles) {
 }
 
 # Verify the central /fonts/fonts.css declares every required @font-face
-$fontsCssPath = Join-Path $root 'fonts/fonts.css'
+$fontsCssPath = Join-Path $projectRoot 'fonts/fonts.css'
 if (Test-Path $fontsCssPath) {
   $fontsCss = [System.IO.File]::ReadAllText($fontsCssPath)
   $cssRequired = @{

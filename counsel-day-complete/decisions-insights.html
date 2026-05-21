@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':'denied','ad_user_data':'denied','ad_personalization':'denied',
+    'analytics_storage':'denied','functionality_storage':'denied',
+    'personalization_storage':'denied','security_storage':'granted','wait_for_update':500
+  });
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':'denied','ad_user_data':'denied','ad_personalization':'denied','analytics_storage':'denied'
+    });
+  }
+</script>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', { 'anonymize_ip': true, 'allow_google_signals': false, 'allow_ad_personalization_signals': false });
+</script>
+
+<title>Decisions insights &middot; Counsel.day</title>
+<meta name="description" content="Patterns across all your unsealed Counsel.day decisions. Recurring themes, your decision vocabulary, and the trajectory of decisions you have already made.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="canonical" href="https://counsel.day/decisions-insights">
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="styles-i8.css">
+<style>
+.di-head { padding: 36px 32px 26px; border-bottom: 1px solid var(--rule); background: var(--paper); }
+.di-head-inner { max-width: 1080px; margin: 0 auto; }
+.di-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine); margin-bottom: 14px; }
+.di-title { font-family: var(--font-display); font-size: clamp(28px, 3.4vw, 40px); font-weight: 500; line-height: 1.18; color: var(--ink); margin: 0 0 12px; max-width: 760px; }
+.di-title .ital { font-style: italic; color: var(--wine); }
+.di-lede { font-family: var(--font-display); font-style: italic; font-size: 19px; line-height: 1.5; color: var(--ink-soft); max-width: 720px; margin: 0; }
+
+.di-body { max-width: 1080px; margin: 0 auto; padding: 30px 32px 60px; }
+
+.di-panel { border: 1px solid var(--ink); background: var(--paper); padding: 24px 28px; margin-bottom: 22px; }
+.di-panel-eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin-bottom: 10px; }
+.di-panel-title { font-family: var(--font-display); font-size: 22px; font-weight: 500; line-height: 1.28; color: var(--ink); margin: 0 0 14px; }
+
+.di-decision-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.di-decision { border: 1px solid var(--rule); padding: 18px 20px; background: var(--paper); }
+.di-decision .meta { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.di-decision .q { font-family: var(--font-display); font-size: 18px; font-weight: 500; line-height: 1.32; color: var(--ink); margin: 0 0 12px; }
+.di-decision .prev { font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: var(--ink-soft); margin: 0 0 12px; }
+.di-decision .themes { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--wine); margin: 0 0 12px; }
+.di-decision a { font-family: var(--font-ui); font-size: 13px; color: var(--wine); border-bottom: 1px solid var(--wine); text-decoration: none; padding-bottom: 1px; }
+
+.di-empty { padding: 60px 30px; text-align: center; color: var(--ink-soft); }
+.di-empty h2 { font-family: var(--font-display); font-size: 24px; font-weight: 500; color: var(--ink); margin: 0 0 12px; }
+.di-empty p { font-family: var(--font-body); font-size: 16px; line-height: 1.55; margin: 0 0 22px; }
+.di-empty a { font-family: var(--font-ui); font-size: 14px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; padding: 12px 22px; background: var(--wine); color: var(--paper); text-decoration: none; }
+
+.di-theme-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.di-theme-chip { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; padding: 6px 12px; border: 1px solid var(--wine); color: var(--wine); }
+.di-theme-chip .count { color: var(--muted); margin-left: 6px; }
+
+.di-vocab-fp { font-family: var(--font-body); font-size: 15px; line-height: 1.7; color: var(--ink); }
+.di-vocab-fp .word { display: inline-block; margin-right: 14px; }
+.di-vocab-fp .word.heavy { font-weight: 500; color: var(--wine); }
+
+.di-locked { border: 1px dashed var(--rule); padding: 22px 26px; background: var(--paper-deep); }
+.di-locked p { font-family: var(--font-body); font-size: 15px; color: var(--ink-soft); margin: 0; }
+.di-locked strong { color: var(--wine); }
+</style>
+</head>
+<body>
+
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<!-- CD:PARTIAL:nav-app -->
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="decisions.html">Your decisions</a>
+      <a href="vote-today.html">Tonight's vote</a>
+      <a href="compose.html">Compose</a>
+      <a href="account.html">Account</a>
+      <a href="help.html">Help</a>
+    </div>
+    <div class="nav-cta">
+      <a href="account.html" class="btn-text">Account</a>
+    </div>
+  </div>
+</nav>
+<!-- /CD:PARTIAL:nav-app -->
+
+<main id="main-content">
+  <header class="di-head">
+    <div class="di-head-inner">
+      <div class="di-eyebrow">File &middot; Multi-decision dashboard</div>
+      <h1 class="di-title">Patterns across the decisions you have already <span class="ital">made.</span></h1>
+      <p class="di-lede">Once you have two or more sealed records, the recurring themes and the words you keep returning to appear here. Patterns become visible at scale, not in a single decision.</p>
+    </div>
+  </header>
+
+  <div class="di-body">
+    <div id="di-state"></div>
+    <div id="di-content" style="display: none;">
+
+      <section class="di-panel">
+        <div class="di-panel-eyebrow">File &middot; Decisions</div>
+        <h2 class="di-panel-title">Every unsealed record on your account.</h2>
+        <div class="di-decision-grid" id="di-decisions"></div>
+      </section>
+
+      <section class="di-panel" id="di-themes-panel">
+        <div class="di-panel-eyebrow">File &middot; Recurring themes</div>
+        <h2 class="di-panel-title">Themes that appear in more than one decision.</h2>
+        <div id="di-themes"></div>
+      </section>
+
+      <section class="di-panel" id="di-vocab-panel">
+        <div class="di-panel-eyebrow">File &middot; Decision vocabulary</div>
+        <h2 class="di-panel-title">The words you tend to use across all your records.</h2>
+        <div class="di-vocab-fp" id="di-vocab"></div>
+      </section>
+
+    </div>
+  </div>
+</main>
+
+<!-- CD:PARTIAL:colophon -->
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The app</h5>
+        <a href="decisions.html">Your decisions</a>
+        <a href="vote-today.html">Tonight's vote</a>
+        <a href="compose.html">Compose</a>
+        <a href="account.html">Your account</a>
+      </div>
+      <div class="colophon-col">
+        <h3 class="colophon-col-h">The product</h3>
+        <a href="method.html">The method</a>
+        <a href="why-time.html">Why time</a>
+      </div>
+      <div class="colophon-col">
+        <h5>Support</h5>
+        <a href="help.html">Help</a>
+        <a href="contact.html">Contact</a>
+      </div>
+      <div class="colophon-col">
+        <h3 class="colophon-col-h">The fine print</h3>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>&copy; 2026 Counsel.day &middot; USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+<!-- /CD:PARTIAL:colophon -->
+
+<script>
+(function () {
+  'use strict';
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+  function fmtDate(s) {
+    if (!s) return '·';
+    try { return new Date(s).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' }); }
+    catch (e) { return s; }
+  }
+
+  fetch('/api/me/decision-insights', { credentials: 'include' })
+    .then(function (r) {
+      if (r.status === 401) { window.location.href = '/signin?next=' + encodeURIComponent('/decisions-insights.html'); return null; }
+      return r.json();
+    })
+    .then(function (d) {
+      if (!d || !d.ok) {
+        document.getElementById('di-state').innerHTML = '<div class="di-empty"><h2>Could not load insights</h2><p>Please refresh.</p></div>';
+        return;
+      }
+      if (!d.unlock_state || !d.unlock_state.has_any) {
+        document.getElementById('di-state').innerHTML = '<div class="di-empty"><h2>No unsealed decisions yet</h2><p>The dashboard fills in once you have completed at least one paid decision.</p><a href="compose.html">Start a decision</a></div>';
+        return;
+      }
+      document.getElementById('di-content').style.display = 'block';
+      // Decisions list
+      var grid = document.getElementById('di-decisions');
+      grid.innerHTML = (d.decisions || []).map(function (dec) {
+        var themes = (dec.top_themes || []).map(function (t) { return escapeHtml(t.name); }).join(' &middot; ');
+        return '<div class="di-decision">' +
+                 '<div class="meta">' + escapeHtml(dec.tier) + ' &middot; opened ' + escapeHtml(fmtDate(dec.unseals_at)) + '</div>' +
+                 '<p class="q">' + escapeHtml(dec.question) + '</p>' +
+                 (dec.synthesis_preview ? '<p class="prev">' + escapeHtml(dec.synthesis_preview) + '</p>' : '') +
+                 (themes ? '<p class="themes">' + themes + '</p>' : '') +
+                 '<a href="verdict-report.html?id=' + encodeURIComponent(dec.id) + '">Open the full report &rarr;</a>' +
+               '</div>';
+      }).join('');
+      // Recurring themes panel
+      if (d.unlock_state.has_cross_decision) {
+        var themesHost = document.getElementById('di-themes');
+        if ((d.recurring_themes || []).length === 0) {
+          themesHost.innerHTML = '<p style="font-family: var(--font-body); color: var(--ink-soft);">No themes yet recur across decisions.</p>';
+        } else {
+          themesHost.innerHTML = '<div class="di-theme-row">' + d.recurring_themes.map(function (t) {
+            return '<span class="di-theme-chip">' + escapeHtml(t.name) + ' <span class="count">' + t.decision_count + 'x</span></span>';
+          }).join('') + '</div>';
+        }
+        // Vocab fingerprint
+        var vocabHost = document.getElementById('di-vocab');
+        if ((d.vocabulary_fingerprint || []).length === 0) {
+          vocabHost.innerHTML = '<p style="color: var(--ink-soft);">No vocabulary signal yet.</p>';
+        } else {
+          var maxW = d.vocabulary_fingerprint[0].weight || 1;
+          vocabHost.innerHTML = d.vocabulary_fingerprint.map(function (w) {
+            var heavy = (w.weight / maxW) > 0.5 ? ' heavy' : '';
+            return '<span class="word' + heavy + '">' + escapeHtml(w.word) + '</span>';
+          }).join('');
+        }
+      } else {
+        document.getElementById('di-themes-panel').innerHTML = '<div class="di-locked"><p><strong>One more decision until the cross-decision view unlocks.</strong> Recurring themes and your decision vocabulary appear once two or more decisions are sealed and opened.</p></div>';
+        document.getElementById('di-vocab-panel').style.display = 'none';
+      }
+    });
+})();
+</script>
+<script src="pwa.js" defer></script>
+<script src="ga4.js" defer></script>
+</body>
+</html>

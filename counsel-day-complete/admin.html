@@ -325,12 +325,21 @@
         set('m-v-7', d.verdicts.last_7_days.toLocaleString());
         // Prefer the live Anthropic figure when the Admin API is configured;
         // fall back to the internal sum from verdicts + verdict_test_runs.
+        // Tiny amounts (< $1) format to 4 decimals so $0.0032 doesn't
+        // collapse to $0.00 · early-stage spend matters.
+        function formatUsd(v) {
+          if (typeof v !== 'number' || !isFinite(v)) return '$0.00';
+          var abs = Math.abs(v);
+          if (abs >= 1) return '$' + v.toFixed(2);
+          if (abs > 0)  return '$' + v.toFixed(4);
+          return '$0.00';
+        }
         var billing = d.anthropic_billing || { configured: false, cost: null };
         if (billing.configured && billing.cost && typeof billing.cost.total_usd === 'number') {
-          set('m-v-cost', '$' + billing.cost.total_usd.toFixed(2) + ' USD');
-          set('m-v-tokens', 'Live (settled) · internal sum was $' + d.verdicts.cost_usd.toFixed(2));
+          set('m-v-cost', formatUsd(billing.cost.total_usd) + ' USD');
+          set('m-v-tokens', 'Live (settled) · internal sum ' + formatUsd(d.verdicts.cost_usd) + ' · ' + (billing.cost.pages_walked || 0) + ' page(s) walked');
         } else {
-          set('m-v-cost', '$' + d.verdicts.cost_usd.toFixed(2) + ' USD');
+          set('m-v-cost', formatUsd(d.verdicts.cost_usd) + ' USD');
           set('m-v-tokens', (d.verdicts.tokens_input + d.verdicts.tokens_output).toLocaleString() + ' tokens · internal sum (admin key not set)');
         }
         set('m-v-last', fmtTs(d.verdicts.last_generated_at));

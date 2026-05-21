@@ -10,6 +10,9 @@ Group=deploy
 WorkingDirectory=/opt/counsel-day-app
 EnvironmentFile=/etc/counsel-day-app/env.local
 Environment="BACKUP_DIR=/var/backups/counsel-day"
+Environment="BACKUP_VERIFY_STATUS_FILE=/var/log/counsel-day/backup-verify-status.json"
+ExecStartPre=/bin/mkdir -p /var/log/counsel-day
+ExecStartPre=/bin/chown deploy:deploy /var/log/counsel-day
 ExecStart=/opt/counsel-day-app/scripts/backup-verify.sh
 StandardOutput=journal
 StandardError=journal

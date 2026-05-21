@@ -158,3 +158,34 @@ Exit `0` is required to push. Exit `1` (Check 12 fail) means: open the failing f
 3. Run `python scripts/inject-analytics.py` · it will detect the new ID isn't in pages and re-inject. (For an ID change, you need to first delete the old snippet block from every page, then re-inject. Add a flag to the injector or do a one-time `sed` sweep.)
 
 **Consent Mode v2**: defaults to denied on every storage type except `security_storage`. User grants via the banner injected by `ga4.js`, which calls `gtag('consent', 'update', { analytics_storage: 'granted' })`. GPC/DNT signals upgrade the default to denied silently with no banner shown. See [docs/COUNSEL_DAY_SEO_STRATEGY.md] and [docs/GA4_FUNNEL.md] for the event catalogue.
+
+## 14 · Static-HTML partials (nav + footer + analytics-adjacent)
+
+**Why this exists.** Counsel.day's public surface is plain HTML served by Caddy · no framework, no templating runtime. The colophon footer recurs on 54 pages and the primary nav on 50. Editing them by hand is how drift starts: an updated link sits in `decisions.html` but not `account.html` and the site quietly diverges.
+
+**The pattern.** A page opts into a shared region by wrapping it with marker comments:
+
+```html
+<!-- CD:PARTIAL:colophon -->
+<footer class="colophon">… your existing content …</footer>
+<!-- /CD:PARTIAL:colophon -->
+```
+
+The canonical source lives at `counsel-day-complete/partials/<name>.html`. Three partials are seeded:
+
+- `partials/colophon.html` · the footer used on every page
+- `partials/nav-public.html` · the marketing-surface nav (sign-in/start a decision)
+- `partials/nav-app.html` · the signed-in app nav (decisions / vote-today / compose / account)
+
+**The sync command.** Run `python counsel-day-complete/scripts/sync-partials.py` whenever a partial changes. The script walks every wrapped page and replaces the body between the markers verbatim with the partial's contents.
+
+Flags:
+- `--check` exits 1 if any wrapped page would change · suitable for pre-commit and CI.
+- `--list` lists every page currently opting in.
+- (no flag) applies.
+
+**Onboarding a page.** Wrap its existing nav / footer with the markers shown above and run the script. Don't bulk-wrap everything at once · navs differ subtly between marketing pages (signed-out CTA) and app pages (Account button), and confirming the canonical version reads right on each page is faster done one-by-one. Pages wrapped as of 2026-05-20: decisions, account, billing, compose, vote-today, verdict-reveal, signin, signup.
+
+**Don't reinvent this as a templating engine.** The marker pattern is intentionally lightweight · no build step, no runtime overhead, no dependency. If you find yourself wanting `{{variable}}` interpolation, the answer is "render that bit with JavaScript at runtime."
+
+Related memory: [project_partials_pattern.md](../../.claude/projects/c--Users-James-OneDrive-Documents--Mullover-ai/memory/project_partials_pattern.md).

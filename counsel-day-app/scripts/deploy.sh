@@ -9,9 +9,23 @@
 # ============================================================
 set -euo pipefail
 
-SSH_KEY="${HOME}/.ssh/id_ed25519_counsel_day"
-SSH_TARGET="deploy@46.225.133.203"
+# SSH connection settings · resolved from ~/.ssh/config when SSH_TARGET
+# matches a Host alias. Override SSH_KEY / SSH_TARGET via env when running
+# from a machine where the laptop's default identity isn't in ~/.ssh.
+# Default target is the Host alias `counsel-day-prod-01` from ssh_config;
+# falls back to the literal IP + key path if the alias isn't configured.
+SSH_TARGET="${SSH_TARGET:-counsel-day-prod-01}"
+SSH_KEY="${SSH_KEY:-}"
 REMOTE_PATH="/opt/counsel-day-app"
+
+# Build the ssh / scp -i flag only when SSH_KEY is explicitly set ·
+# otherwise rely on ssh_config's IdentityFile so we don't second-guess
+# the user's shell environment ($HOME, agent forwarding, etc).
+if [ -n "$SSH_KEY" ]; then
+  SSH_OPTS=(-i "$SSH_KEY")
+else
+  SSH_OPTS=()
+fi
 
 cd "$(dirname "$0")/.."
 
@@ -28,17 +42,17 @@ else
 fi
 
 echo "[deploy] 2/5 · push source to ${SSH_TARGET}:${REMOTE_PATH} (tar-over-ssh)"
-ssh -i "${SSH_KEY}" "${SSH_TARGET}" "sudo mkdir -p ${REMOTE_PATH} && sudo chown -R deploy:deploy ${REMOTE_PATH}"
+ssh "${SSH_OPTS[@]}" "${SSH_TARGET}" "sudo mkdir -p ${REMOTE_PATH} && sudo chown -R deploy:deploy ${REMOTE_PATH}"
 tar -czf - \
   --exclude='node_modules' \
   --exclude='.next' \
   --exclude='.env' \
   --exclude='.env.local' \
   --exclude='.git' \
-  . | ssh -i "${SSH_KEY}" "${SSH_TARGET}" "tar -xzf - -C ${REMOTE_PATH}"
+  . | ssh "${SSH_OPTS[@]}" "${SSH_TARGET}" "tar -xzf - -C ${REMOTE_PATH}"
 
 echo "[deploy] 3/5 · npm install + build on server"
-ssh -i "${SSH_KEY}" "${SSH_TARGET}" "
+ssh "${SSH_OPTS[@]}" "${SSH_TARGET}" "
   set -e
   cd ${REMOTE_PATH}
   # Stamp the current git short-sha into .git-rev so /api/health can
@@ -61,7 +75,7 @@ ssh -i "${SSH_KEY}" "${SSH_TARGET}" "
 "
 
 echo "[deploy] 4/5 · run database migrations"
-ssh -i "${SSH_KEY}" "${SSH_TARGET}" "
+ssh "${SSH_OPTS[@]}" "${SSH_TARGET}" "
   set -e
   cd ${REMOTE_PATH}
   set -a; source /etc/counsel-day-app/env.local; set +a
@@ -69,7 +83,7 @@ ssh -i "${SSH_KEY}" "${SSH_TARGET}" "
 "
 
 echo "[deploy] 5/5 · restart systemd unit"
-ssh -i "${SSH_KEY}" "${SSH_TARGET}" "
+ssh "${SSH_OPTS[@]}" "${SSH_TARGET}" "
   sudo systemctl daemon-reload
   sudo systemctl restart counsel-day-app
   sleep 2

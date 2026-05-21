@@ -174,11 +174,11 @@
   <div class="grid-4">
     <div class="card"><div class="label">Verdicts generated · all-time</div><div class="value skel skel-value" id="m-v-total">…</div></div>
     <div class="card"><div class="label">Verdicts · last 7 days</div><div class="value skel skel-value" id="m-v-7">…</div></div>
-    <div class="card"><div class="label">Anthropic spend · settled</div><div class="value skel skel-value" id="m-v-cost">…</div><div class="sub" id="m-v-tokens"></div></div>
+    <div class="card"><div class="label">Anthropic spend · live</div><div class="value skel skel-value" id="m-v-cost">…</div><div class="sub" id="m-v-tokens"></div></div>
     <div class="card"><div class="label">Last verdict</div><div class="value skel skel-value" id="m-v-last" style="font-size: 14px; font-family: var(--font-mono); font-weight: 500;">…</div></div>
   </div>
   <p style="font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin: -4px 0 18px;">
-    <span id="m-v-billing-note">Anthropic spend pulls live from the Admin API (cost_report endpoint, 5-min cache). Settled data lags real-time by 2-5 days; today&apos;s testing-area runs appear later in the week. Check the live dashboard at <a href="https://platform.claude.com/cost" target="_blank" rel="noopener" style="color: var(--accent);">platform.claude.com/cost</a> for the current number including unsettled spend.</span>
+    <span id="m-v-billing-note">Headline is the realtime spend · usage_report tokens &times; per-model pricing, matches the &ldquo;$X.XX spent&rdquo; figure shown at <a href="https://platform.claude.com/cost" target="_blank" rel="noopener" style="color: var(--accent);">platform.claude.com/cost</a>. The sub-line also shows the settled total from cost_report (lags 2-5 days, finance-reconciled) and our internal sum (verdicts + verdict_test_runs). 5-min cache.</span>
   </p>
 
   <h2>Other</h2>
@@ -323,10 +323,12 @@
         // Verdicts
         set('m-v-total', d.verdicts.total.toLocaleString());
         set('m-v-7', d.verdicts.last_7_days.toLocaleString());
-        // Prefer the live Anthropic figure when the Admin API is configured;
-        // fall back to the internal sum from verdicts + verdict_test_runs.
-        // Tiny amounts (< $1) format to 4 decimals so $0.0032 doesn't
-        // collapse to $0.00 · early-stage spend matters.
+        // Headline = realtime spend (usage_report × per-model pricing) ·
+        // matches the Anthropic console's "$X.XX spent" figure. Sub-line
+        // shows the settled-by-Anthropic number (cost_report, lags 2-5
+        // days) + tokens · gives the operator both the running total
+        // and the finance-reconciled number. Tiny amounts (< $1) format
+        // to 4 decimals so $0.0032 doesn't collapse to $0.00.
         function formatUsd(v) {
           if (typeof v !== 'number' || !isFinite(v)) return '$0.00';
           var abs = Math.abs(v);
@@ -335,9 +337,19 @@
           return '$0.00';
         }
         var billing = d.anthropic_billing || { configured: false, cost: null };
-        if (billing.configured && billing.cost && typeof billing.cost.total_usd === 'number') {
+        if (billing.configured && billing.cost && typeof billing.cost.realtime_usd === 'number') {
+          var c = billing.cost;
+          var totalTokens = (c.total_input_tokens || 0) + (c.total_output_tokens || 0);
+          set('m-v-cost', formatUsd(c.realtime_usd) + ' USD');
+          set('m-v-tokens',
+            'Realtime · settled ' + formatUsd(c.settled_usd) +
+            ' · ' + totalTokens.toLocaleString() + ' tokens · internal sum ' +
+            formatUsd(d.verdicts.cost_usd)
+          );
+        } else if (billing.configured && billing.cost && typeof billing.cost.total_usd === 'number') {
+          // Backward-compat: older billing shape (settled-only).
           set('m-v-cost', formatUsd(billing.cost.total_usd) + ' USD');
-          set('m-v-tokens', 'Live (settled) · internal sum ' + formatUsd(d.verdicts.cost_usd) + ' · ' + (billing.cost.pages_walked || 0) + ' page(s) walked');
+          set('m-v-tokens', 'Live (settled) · internal sum ' + formatUsd(d.verdicts.cost_usd));
         } else {
           set('m-v-cost', formatUsd(d.verdicts.cost_usd) + ' USD');
           set('m-v-tokens', (d.verdicts.tokens_input + d.verdicts.tokens_output).toLocaleString() + ' tokens · internal sum (admin key not set)');

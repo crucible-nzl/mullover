@@ -310,8 +310,12 @@ export async function GET(req: Request) {
   }, { sessions_active: 0, sessions_expired: 0, saved_contacts: 0, consent_log_total: 0 });
 
   // Live Anthropic billing · authoritative spend direct from Anthropic's
-  // Admin API (cost_report endpoint, paginated). Requires
-  // ANTHROPIC_ADMIN_API_KEY in env.local. Returns null when unset.
+  // Admin API. Two figures: settled (cost_report, lags 2-5 days) AND
+  // realtime-estimated (usage_report × per-model pricing, matches the
+  // Anthropic console's "$X.XX spent" number). The admin card uses the
+  // realtime figure as the headline · that's what the user wants when
+  // they ask "how much have we actually spent today". Requires
+  // ANTHROPIC_ADMIN_API_KEY in env.local; returns null when unset.
   //
   // Credit balance is NOT surfaced · the /v1/organizations/credit_balance
   // endpoint 404s on Counsel.day's account type. Operator checks the

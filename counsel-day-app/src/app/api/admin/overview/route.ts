@@ -23,7 +23,7 @@ import { NextResponse } from 'next/server';
 import { db, schema } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin-auth';
 import { sql } from 'drizzle-orm';
-import { getAnthropicCost, getAnthropicBalance } from '@/lib/anthropic-billing';
+import { getAnthropicCost } from '@/lib/anthropic-billing';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -309,14 +309,14 @@ export async function GET(req: Request) {
     };
   }, { sessions_active: 0, sessions_expired: 0, saved_contacts: 0, consent_log_total: 0 });
 
-  // Live Anthropic billing · authoritative spend and balance direct
-  // from Anthropic's Admin API. Requires ANTHROPIC_ADMIN_API_KEY in
-  // env.local. If unset both helpers return null and the dashboard
-  // falls back to the internal verdicts+verdict_test_runs sum.
-  const [anthropicCost, anthropicBalance] = await Promise.all([
-    getAnthropicCost(),
-    getAnthropicBalance(),
-  ]);
+  // Live Anthropic billing · authoritative spend direct from Anthropic's
+  // Admin API (cost_report endpoint, paginated). Requires
+  // ANTHROPIC_ADMIN_API_KEY in env.local. Returns null when unset.
+  //
+  // Credit balance is NOT surfaced · the /v1/organizations/credit_balance
+  // endpoint 404s on Counsel.day's account type. Operator checks the
+  // console at platform.claude.com/cost manually for that.
+  const anthropicCost = await getAnthropicCost();
 
   return NextResponse.json(
     {
@@ -326,9 +326,8 @@ export async function GET(req: Request) {
       decisions,
       verdicts,
       anthropic_billing: {
-        configured: anthropicCost !== null || anthropicBalance !== null,
+        configured: anthropicCost !== null,
         cost: anthropicCost,
-        balance: anthropicBalance,
       },
       cron_health: cronHealth,
       stripe,

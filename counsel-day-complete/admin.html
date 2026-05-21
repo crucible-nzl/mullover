@@ -174,10 +174,12 @@
   <div class="grid-4">
     <div class="card"><div class="label">Verdicts generated · all-time</div><div class="value skel skel-value" id="m-v-total">…</div></div>
     <div class="card"><div class="label">Verdicts · last 7 days</div><div class="value skel skel-value" id="m-v-7">…</div></div>
-    <div class="card"><div class="label">Anthropic spend · live</div><div class="value skel skel-value" id="m-v-cost">…</div><div class="sub" id="m-v-tokens"></div></div>
-    <div class="card"><div class="label">Anthropic credit balance</div><div class="value skel skel-value" id="m-v-balance">…</div><div class="sub" id="m-v-balance-sub"></div></div>
+    <div class="card"><div class="label">Anthropic spend · settled</div><div class="value skel skel-value" id="m-v-cost">…</div><div class="sub" id="m-v-tokens"></div></div>
+    <div class="card"><div class="label">Last verdict</div><div class="value skel skel-value" id="m-v-last" style="font-size: 14px; font-family: var(--font-mono); font-weight: 500;">…</div></div>
   </div>
-  <p style="font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin: -4px 0 18px;">Spend + balance pull live from Anthropic's Admin API (5-min cache). Requires <code>ANTHROPIC_ADMIN_API_KEY</code> in env.local · falls back to internal verdicts + verdict_test_runs sum when the key is absent. <span id="m-v-last" style="font-family: var(--font-mono);"></span></p>
+  <p style="font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin: -4px 0 18px;">
+    <span id="m-v-billing-note">Anthropic spend pulls live from the Admin API (cost_report endpoint, 5-min cache). Settled data lags real-time by 2-5 days; today&apos;s testing-area runs appear later in the week. Check the live dashboard at <a href="https://platform.claude.com/cost" target="_blank" rel="noopener" style="color: var(--accent);">platform.claude.com/cost</a> for the current number including unsettled spend.</span>
+  </p>
 
   <h2>Other</h2>
   <div class="grid-4">
@@ -322,26 +324,16 @@
         set('m-v-total', d.verdicts.total.toLocaleString());
         set('m-v-7', d.verdicts.last_7_days.toLocaleString());
         // Prefer the live Anthropic figure when the Admin API is configured;
-        // fall back to our internal sum otherwise.
-        var billing = d.anthropic_billing || { configured: false, cost: null, balance: null };
+        // fall back to the internal sum from verdicts + verdict_test_runs.
+        var billing = d.anthropic_billing || { configured: false, cost: null };
         if (billing.configured && billing.cost && typeof billing.cost.total_usd === 'number') {
           set('m-v-cost', '$' + billing.cost.total_usd.toFixed(2) + ' USD');
-          set('m-v-tokens', 'Live · Anthropic billing · internal sum was $' + d.verdicts.cost_usd.toFixed(2));
+          set('m-v-tokens', 'Live (settled) · internal sum was $' + d.verdicts.cost_usd.toFixed(2));
         } else {
           set('m-v-cost', '$' + d.verdicts.cost_usd.toFixed(2) + ' USD');
           set('m-v-tokens', (d.verdicts.tokens_input + d.verdicts.tokens_output).toLocaleString() + ' tokens · internal sum (admin key not set)');
         }
-        if (billing.balance && typeof billing.balance.balance_usd === 'number') {
-          set('m-v-balance', '$' + billing.balance.balance_usd.toFixed(2) + ' USD');
-          set('m-v-balance-sub', 'Prepaid credits remaining');
-        } else if (billing.configured) {
-          set('m-v-balance', '·');
-          set('m-v-balance-sub', 'Post-paid account · no balance to show');
-        } else {
-          set('m-v-balance', '·');
-          set('m-v-balance-sub', 'Set ANTHROPIC_ADMIN_API_KEY to enable');
-        }
-        set('m-v-last', 'Last verdict ' + fmtTs(d.verdicts.last_generated_at));
+        set('m-v-last', fmtTs(d.verdicts.last_generated_at));
 
         // Stripe / refunds / misc
         set('m-stripe-total', d.stripe.total_events_dedupe.toLocaleString());

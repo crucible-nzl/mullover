@@ -1,44 +1,46 @@
 /**
  * Live Anthropic billing fetch · talks to the Admin API to get the
- * organization's actual spend and credit balance.
+ * organization's actual settled spend.
  *
  * Requires an Admin API key in env (separate from the regular
  * ANTHROPIC_API_KEY · format `sk-ant-admin-...`). Get one from
  * console.anthropic.com → Settings → Admin Keys.
  *
- * If ANTHROPIC_ADMIN_API_KEY is unset, every function here resolves
- * to null and /admin overview falls back to the internal sums from
- * the verdicts + verdict_test_runs tables.
+ * Notes from the response shapes Anthropic actually returns (verified
+ * against the live API on 2026-05-22):
+ *   · /v1/organizations/cost_report  · returns paginated daily buckets,
+ *     each with a `results[]` of line items {currency, amount, model,
+ *     token_type, ...}. amount is a string. Pages link via next_page.
+ *     Reports SETTLED spend · there's typically a 2-5 day lag between
+ *     real-time API calls and the cost showing up here.
+ *   · /v1/organizations/credit_balance  · 404s on Counsel.day's account.
+ *     This endpoint is documented but not available for all org types.
+ *     We don't surface a balance card; the operator checks the console.
  *
- * Cached in-process for 5 minutes so /admin overview's 60-second
- * refresh doesn't burn an Anthropic API call every tick. Cache lives
- * for the lifetime of the Node process, which is fine · we restart
- * the systemd unit on every deploy.
+ * Cached in-process for 5 minutes so /admin overview's 60-second refresh
+ * doesn't burn an Anthropic API call every tick.
  */
 
 const ADMIN_BASE = 'https://api.anthropic.com';
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
-type CostReport = {
-  // Total spent across the billing period that the API returns
-  // (Anthropic returns last-N-days; we ask for "all-time" by passing
-  // a starting_at far in the past).
+export type CostReport = {
   total_usd: number;
-  by_model: Array<{ model: string; usd: number; input_tokens: number; output_tokens: number }>;
-  // Period boundaries reported by Anthropic.
+  // Currency is always USD on Counsel.day's account but we surface it
+  // anyway in case Anthropic ever returns a multi-currency total.
+  currency: string;
+  // First settled day → last settled day in the data returned.
   starting_at: string;
   ending_at: string;
-};
-
-type BalanceReport = {
-  // Prepaid credit balance remaining on the account. May be null if
-  // the org is on post-paid billing.
-  balance_usd: number | null;
+  // Total number of pages we walked · operator can see when the API is
+  // slow to pull a full history.
+  pages_walked: number;
+  // Inform the admin UI that there's typically a 2-5 day settling lag.
+  note: string;
 };
 
 interface CacheEntry<T> { value: T | null; ts: number; }
 const costCache: CacheEntry<CostReport> = { value: null, ts: 0 };
-const balanceCache: CacheEntry<BalanceReport> = { value: null, ts: 0 };
 
 function adminKey(): string | null {
   const k = process.env.ANTHROPIC_ADMIN_API_KEY;
@@ -71,98 +73,87 @@ async function adminFetch<T = unknown>(path: string, params?: Record<string, str
   }
 }
 
+type CostBucket = {
+  starting_at: string;
+  ending_at: string;
+  results: Array<{
+    currency?: string;
+    amount?: string;
+    model?: string | null;
+    token_type?: string | null;
+    service_tier?: string | null;
+  }>;
+};
+type CostResponse = {
+  data?: CostBucket[];
+  has_more?: boolean;
+  next_page?: string | null;
+};
+
 /**
- * All-time spend across every model. Caches for 5 minutes.
- * Returns null if the admin key is missing or the API call fails.
+ * Walks every page of cost_report from `startingAt` to today.
+ * Anthropic returns ~31 days per page, paginates via `?page=<token>`.
+ * Safety cap of 24 pages (≈ 2 years of daily buckets) so a misconfigured
+ * starting_at never makes us hammer the API.
+ */
+async function fetchAllCostPages(startingAt: string): Promise<{ buckets: CostBucket[]; pages: number }> {
+  const all: CostBucket[] = [];
+  let nextPage: string | null = null;
+  let pages = 0;
+  const PAGE_CAP = 24;
+  do {
+    const params: Record<string, string> = {
+      starting_at: startingAt,
+      bucket_width: '1d',
+      limit: '31',
+    };
+    if (nextPage) params.page = nextPage;
+    const data = await adminFetch<CostResponse>('/v1/organizations/cost_report', params);
+    if (!data || !Array.isArray(data.data)) break;
+    all.push(...data.data);
+    pages += 1;
+    nextPage = data.has_more && data.next_page ? data.next_page : null;
+  } while (nextPage && pages < PAGE_CAP);
+  return { buckets: all, pages };
+}
+
+/**
+ * Settled Anthropic spend across the entire account history. Caches
+ * for 5 minutes. Returns null if the admin key is missing or the API
+ * call fails.
  */
 export async function getAnthropicCost(): Promise<CostReport | null> {
   if (costCache.value && Date.now() - costCache.ts < CACHE_TTL_MS) return costCache.value;
 
-  // 2024-01-01 covers any reasonable "all-time" window for Counsel.day.
-  // Anthropic's cost report endpoint returns daily aggregates; we sum
-  // them on the client side.
-  type StripeStyleResponse = {
-    data: Array<{
-      starting_at: string;
-      ending_at: string;
-      results: Array<{
-        cost_type?: string;
-        currency?: string;
-        amount?: string;
-        model?: string;
-        context_window?: string;
-        token_type?: string;
-        service_tier?: string;
-        usage_type?: string;
-      }>;
-    }>;
-  };
-  const data = await adminFetch<StripeStyleResponse>('/v1/organizations/cost_report', {
-    starting_at: '2024-01-01T00:00:00Z',
-    bucket_width: '1d',
-    limit: '31',
-  });
-  if (!data || !Array.isArray(data.data)) return null;
+  // 2026-01-01 covers Counsel.day's life so far. Bump backwards if we
+  // ever need older history; the paginator handles it.
+  const { buckets, pages } = await fetchAllCostPages('2026-01-01T00:00:00Z');
+  if (buckets.length === 0 && pages === 0) return null;
 
   let total = 0;
-  const byModel: Record<string, { usd: number; input_tokens: number; output_tokens: number }> = {};
   let earliest: string | null = null;
   let latest: string | null = null;
-  for (const bucket of data.data) {
+  let currency = 'USD';
+  for (const bucket of buckets) {
     if (!earliest || bucket.starting_at < earliest) earliest = bucket.starting_at;
     if (!latest || bucket.ending_at > latest) latest = bucket.ending_at;
     for (const row of bucket.results ?? []) {
-      const usd = Number(row.amount ?? 0) || 0;
-      total += usd;
-      const model = row.model ?? 'unknown';
-      if (!byModel[model]) byModel[model] = { usd: 0, input_tokens: 0, output_tokens: 0 };
-      byModel[model].usd += usd;
-      // Token counts aren't in the cost_report payload directly. Leave 0
-      // and surface them via usage_report if the operator wants depth.
+      const amt = Number(row.amount ?? 0);
+      if (!Number.isFinite(amt)) continue;
+      total += amt;
+      if (row.currency) currency = row.currency;
     }
   }
+
   const report: CostReport = {
-    total_usd: Math.round(total * 100) / 100,
-    by_model: Object.entries(byModel)
-      .map(([model, v]) => ({ model, usd: Math.round(v.usd * 100) / 100, input_tokens: v.input_tokens, output_tokens: v.output_tokens }))
-      .sort((a, b) => b.usd - a.usd),
-    starting_at: earliest ?? '2024-01-01T00:00:00Z',
+    total_usd: Math.round(total * 10000) / 10000,
+    currency,
+    starting_at: earliest ?? '2026-01-01T00:00:00Z',
     ending_at: latest ?? new Date().toISOString(),
+    pages_walked: pages,
+    note: 'Anthropic settles cost_report data 2-5 days after the API call. Today\'s testing-area spend will appear here later in the week.',
   };
   costCache.value = report;
   costCache.ts = Date.now();
-  return report;
-}
-
-/**
- * Prepaid credit balance. Returns null on post-paid orgs or if the
- * Admin API call fails.
- */
-export async function getAnthropicBalance(): Promise<BalanceReport | null> {
-  if (balanceCache.value && Date.now() - balanceCache.ts < CACHE_TTL_MS) return balanceCache.value;
-
-  type BalanceResponse = {
-    amount?: { value?: string };
-    balance?: number;
-    currency?: string;
-  };
-  // Anthropic exposes balance under workspaces or the billing endpoint
-  // depending on plan shape · we try both, picking the first one that
-  // returns something. The current public path is:
-  //   /v1/organizations/credit_balance
-  // returning { balance: { amount, currency } }.
-  const data = await adminFetch<{ balance?: { amount?: string; currency?: string } }>(
-    '/v1/organizations/credit_balance'
-  );
-  if (!data) return null;
-  const amountStr = data.balance?.amount;
-  if (amountStr == null) {
-    balanceCache.value = { balance_usd: null };
-    balanceCache.ts = Date.now();
-    return balanceCache.value;
-  }
-  const report: BalanceReport = { balance_usd: Number(amountStr) || 0 };
-  balanceCache.value = report;
-  balanceCache.ts = Date.now();
   return report;
 }

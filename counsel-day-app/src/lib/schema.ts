@@ -287,6 +287,32 @@ export const verdictTestRuns = pgTable(
 );
 
 // ---------------------------------------------------------------------------
+// ANTHROPIC CALLS · self-tracked ledger of every messages.create() call.
+// Anthropic's Admin API has multi-hour ingestion lag; this table is the
+// single source of truth for what Counsel.day has actually spent in the
+// product (verdicts, testing area, future chatbot). All inserts go
+// through src/lib/anthropic-call.ts so no path can forget to log.
+// ---------------------------------------------------------------------------
+export const anthropicCalls = pgTable(
+  'anthropic_calls',
+  {
+    id: integer('id').primaryKey().generatedByDefaultAsIdentity(),
+    calledAt: timestamp('called_at', { withTimezone: true }).notNull().defaultNow(),
+    source: text('source').notNull(),
+    model: text('model').notNull(),
+    tokensInput: integer('tokens_input').notNull().default(0),
+    tokensOutput: integer('tokens_output').notNull().default(0),
+    costCents: integer('cost_cents').notNull().default(0),
+    decisionId: uuid('decision_id').references(() => decisions.id, { onDelete: 'set null' }),
+    testRunId: uuid('test_run_id').references(() => verdictTestRuns.id, { onDelete: 'set null' }),
+    requestId: text('request_id'),
+    durationMs: integer('duration_ms').notNull().default(0),
+    ok: boolean('ok').notNull().default(true),
+    error: text('error'),
+  }
+);
+
+// ---------------------------------------------------------------------------
 // VERDICT TIME CAPSULES · 6 / 12 / 24-month opt-in re-delivery emails.
 // One row per (decision, user, interval) triple. Cron job
 // time-capsule-deliver scans for delivered_at IS NULL AND deliver_at <= NOW().

@@ -174,11 +174,11 @@
   <div class="grid-4">
     <div class="card"><div class="label">Verdicts generated · all-time</div><div class="value skel skel-value" id="m-v-total">…</div></div>
     <div class="card"><div class="label">Verdicts · last 7 days</div><div class="value skel skel-value" id="m-v-7">…</div></div>
-    <div class="card"><div class="label">Anthropic spend · live</div><div class="value skel skel-value" id="m-v-cost">…</div><div class="sub" id="m-v-tokens"></div></div>
+    <div class="card"><div class="label">Counsel.day Anthropic spend</div><div class="value skel skel-value" id="m-v-cost">…</div><div class="sub" id="m-v-tokens"></div></div>
     <div class="card"><div class="label">Last verdict</div><div class="value skel skel-value" id="m-v-last" style="font-size: 14px; font-family: var(--font-mono); font-weight: 500;">…</div></div>
   </div>
   <p style="font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin: -4px 0 18px;">
-    <span id="m-v-billing-note">Headline = realtime spend computed from usage_report tokens &times; per-model pricing. Sub-line shows the settled total from cost_report (Anthropic-confirmed, lags 2-5 days) and our internal sum (verdicts + verdict_test_runs). 5-min in-process cache. Note: the Anthropic Admin API itself has ingestion lag &middot; today&apos;s testing-area runs may not appear here for several hours. The console at <a href="https://platform.claude.com/cost" target="_blank" rel="noopener" style="color: var(--accent);">platform.claude.com/cost</a> uses an internal data source with no public API equivalent; treat the live console figure as authoritative for the current spend.</span>
+    <span id="m-v-billing-note">Headline = the <code>anthropic_calls</code> ledger total. Every <code>messages.create()</code> the product makes (verdict cron, testing area, future chatbot) goes through <code>callAnthropic()</code> which writes a ledger row with tokens, cost, and request id. Live, no lag, scoped to in-product usage only. Does NOT include external usage on the same API key (Claude Code, ad-hoc scripts). For the org-wide total including external usage, check <a href="https://platform.claude.com/cost" target="_blank" rel="noopener" style="color: var(--accent);">platform.claude.com/cost</a> &middot; that figure has no public API equivalent so we don&apos;t mirror it. The "Anthropic API settled" figure in the sub-line is a cross-check from the Admin API (lags 2-5 days, finance-reconciled).</span>
   </p>
 
   <h2>Other</h2>
@@ -323,12 +323,12 @@
         // Verdicts
         set('m-v-total', d.verdicts.total.toLocaleString());
         set('m-v-7', d.verdicts.last_7_days.toLocaleString());
-        // Headline = realtime spend (usage_report × per-model pricing) ·
-        // matches the Anthropic console's "$X.XX spent" figure. Sub-line
-        // shows the settled-by-Anthropic number (cost_report, lags 2-5
-        // days) + tokens · gives the operator both the running total
-        // and the finance-reconciled number. Tiny amounts (< $1) format
-        // to 4 decimals so $0.0032 doesn't collapse to $0.00.
+        // Headline = the anthropic_calls ledger total · every
+        // messages.create() the product makes goes through callAnthropic()
+        // which writes a row here. This is the only number that's truly
+        // live AND scoped to Counsel.day usage. Sub-line shows Admin-API
+        // figures (settled cost_report + token-based realtime) for
+        // cross-check, and a 7-day cost so the operator can spot spikes.
         function formatUsd(v) {
           if (typeof v !== 'number' || !isFinite(v)) return '$0.00';
           var abs = Math.abs(v);
@@ -336,24 +336,21 @@
           if (abs > 0)  return '$' + v.toFixed(4);
           return '$0.00';
         }
+        var calls = d.anthropic_calls || { total_cost_usd: 0, total_calls: 0, last_7d_cost_usd: 0,
+          total_tokens_input: 0, total_tokens_output: 0, failed_calls: 0 };
         var billing = d.anthropic_billing || { configured: false, cost: null };
-        if (billing.configured && billing.cost && typeof billing.cost.realtime_usd === 'number') {
-          var c = billing.cost;
-          var totalTokens = (c.total_input_tokens || 0) + (c.total_output_tokens || 0);
-          set('m-v-cost', formatUsd(c.realtime_usd) + ' USD');
-          set('m-v-tokens',
-            'Realtime · settled ' + formatUsd(c.settled_usd) +
-            ' · ' + totalTokens.toLocaleString() + ' tokens · internal sum ' +
-            formatUsd(d.verdicts.cost_usd)
-          );
-        } else if (billing.configured && billing.cost && typeof billing.cost.total_usd === 'number') {
-          // Backward-compat: older billing shape (settled-only).
-          set('m-v-cost', formatUsd(billing.cost.total_usd) + ' USD');
-          set('m-v-tokens', 'Live (settled) · internal sum ' + formatUsd(d.verdicts.cost_usd));
-        } else {
-          set('m-v-cost', formatUsd(d.verdicts.cost_usd) + ' USD');
-          set('m-v-tokens', (d.verdicts.tokens_input + d.verdicts.tokens_output).toLocaleString() + ' tokens · internal sum (admin key not set)');
+        set('m-v-cost', formatUsd(calls.total_cost_usd) + ' USD');
+
+        var subBits = [];
+        subBits.push(calls.total_calls.toLocaleString() + ' call(s)');
+        var totalTokens = (calls.total_tokens_input || 0) + (calls.total_tokens_output || 0);
+        subBits.push(totalTokens.toLocaleString() + ' tokens');
+        subBits.push('7d ' + formatUsd(calls.last_7d_cost_usd));
+        if (calls.failed_calls > 0) subBits.push(calls.failed_calls + ' failed');
+        if (billing.configured && billing.cost && typeof billing.cost.settled_usd === 'number') {
+          subBits.push('Anthropic API settled ' + formatUsd(billing.cost.settled_usd));
         }
+        set('m-v-tokens', subBits.join(' · '));
         set('m-v-last', fmtTs(d.verdicts.last_generated_at));
 
         // Stripe / refunds / misc

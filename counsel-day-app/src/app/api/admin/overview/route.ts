@@ -309,18 +309,74 @@ export async function GET(req: Request) {
     };
   }, { sessions_active: 0, sessions_expired: 0, saved_contacts: 0, consent_log_total: 0 });
 
-  // Live Anthropic billing · authoritative spend direct from Anthropic's
-  // Admin API. Two figures: settled (cost_report, lags 2-5 days) AND
-  // realtime-estimated (usage_report × per-model pricing, matches the
-  // Anthropic console's "$X.XX spent" number). The admin card uses the
-  // realtime figure as the headline · that's what the user wants when
-  // they ask "how much have we actually spent today". Requires
-  // ANTHROPIC_ADMIN_API_KEY in env.local; returns null when unset.
-  //
-  // Credit balance is NOT surfaced · the /v1/organizations/credit_balance
-  // endpoint 404s on Counsel.day's account type. Operator checks the
-  // console at platform.claude.com/cost manually for that.
+  // Live Anthropic billing · settled (cost_report) + realtime-from-usage
+  // (usage_report × pricing) direct from Anthropic's Admin API. Both
+  // figures lag the console "$X.XX spent" by hours to days · verified
+  // 2026-05-22 the console showed $0.14 while cost_report returned
+  // $0.0032 for the same window. There is no Admin API endpoint that
+  // matches the console number (probed billing/spend_limits/etc · all
+  // 404). For the operator's running total of Counsel.day-product spend
+  // we now rely on the anthropic_calls ledger below instead.
   const anthropicCost = await getAnthropicCost();
+
+  // Anthropic calls ledger · self-tracked, true running total of every
+  // messages.create() call the product makes (verdicts cron + testing
+  // area + future chatbot, etc.). This is what the admin card headlines.
+  // Does NOT include Claude Code / external usage on the same API key
+  // by design · this table is scoped to in-product spend.
+  const anthropicCalls = await safe(async () => {
+    const rows = await db.execute<{
+      total_calls: string;
+      total_cost_cents: string;
+      total_tokens_in: string;
+      total_tokens_out: string;
+      last_called_at: string | null;
+      last_7d_cost_cents: string;
+      last_7d_calls: string;
+      ok_calls: string;
+      failed_calls: string;
+    }>(sql`
+      SELECT
+        count(*)::text                                                              AS total_calls,
+        COALESCE(SUM(cost_cents) FILTER (WHERE ok = true), 0)::text                 AS total_cost_cents,
+        COALESCE(SUM(tokens_input) FILTER (WHERE ok = true), 0)::text               AS total_tokens_in,
+        COALESCE(SUM(tokens_output) FILTER (WHERE ok = true), 0)::text              AS total_tokens_out,
+        MAX(called_at)::text                                                        AS last_called_at,
+        COALESCE(SUM(cost_cents) FILTER (
+          WHERE ok = true AND called_at > NOW() - INTERVAL '7 days'
+        ), 0)::text                                                                 AS last_7d_cost_cents,
+        count(*) FILTER (WHERE called_at > NOW() - INTERVAL '7 days')::text         AS last_7d_calls,
+        count(*) FILTER (WHERE ok = true)::text                                     AS ok_calls,
+        count(*) FILTER (WHERE ok = false)::text                                    AS failed_calls
+      FROM anthropic_calls
+    `);
+    const r = rows[0] as Record<string, string | null>;
+    const bySource = await db.execute<{ source: string; cost_cents: string; calls: string }>(sql`
+      SELECT source, COALESCE(SUM(cost_cents), 0)::text AS cost_cents, count(*)::text AS calls
+      FROM anthropic_calls WHERE ok = true
+      GROUP BY source ORDER BY SUM(cost_cents) DESC
+    `);
+    return {
+      total_calls: Number(r.total_calls),
+      total_cost_usd: Number(r.total_cost_cents) / 100,
+      total_tokens_input: Number(r.total_tokens_in),
+      total_tokens_output: Number(r.total_tokens_out),
+      last_called_at: r.last_called_at,
+      last_7d_cost_usd: Number(r.last_7d_cost_cents) / 100,
+      last_7d_calls: Number(r.last_7d_calls),
+      ok_calls: Number(r.ok_calls),
+      failed_calls: Number(r.failed_calls),
+      by_source: (Array.from(bySource) as Array<Record<string, string>>).map((s) => ({
+        source: s.source,
+        cost_usd: Number(s.cost_cents) / 100,
+        calls: Number(s.calls),
+      })),
+    };
+  }, {
+    total_calls: 0, total_cost_usd: 0, total_tokens_input: 0, total_tokens_output: 0,
+    last_called_at: null, last_7d_cost_usd: 0, last_7d_calls: 0,
+    ok_calls: 0, failed_calls: 0, by_source: [],
+  });
 
   return NextResponse.json(
     {
@@ -333,6 +389,7 @@ export async function GET(req: Request) {
         configured: anthropicCost !== null,
         cost: anthropicCost,
       },
+      anthropic_calls: anthropicCalls,
       cron_health: cronHealth,
       stripe,
       refunds,

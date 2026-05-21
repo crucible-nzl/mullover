@@ -53,7 +53,7 @@ import { z } from 'zod';
 import { db, schema } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin-auth';
 import { getAnthropic, VERDICT_MODEL, VERDICT_SYSTEM_PROMPT } from '@/lib/anthropic';
-import { calculateAnthropicCostCents } from '@/lib/anthropic-pricing';
+import { callAnthropic } from '@/lib/anthropic-call';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -206,8 +206,7 @@ export async function POST(req: Request) {
   }
 
   // ---- AI tiers · same call path as the production verdict cron ----
-  const anthropic = getAnthropic();
-  if (!anthropic) {
+  if (!getAnthropic()) {
     return NextResponse.json(
       { ok: false, message: 'ANTHROPIC_API_KEY is not set on this environment.' },
       { status: 503 }
@@ -236,23 +235,26 @@ export async function POST(req: Request) {
 
   const started = Date.now();
   try {
-    const msg = await anthropic.messages.create({
-      model: VERDICT_MODEL,
-      max_tokens: 2000,
-      system: [
-        { type: 'text', text: VERDICT_SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } },
-      ],
-      messages: [{ role: 'user', content: userPrompt }],
-    });
+    // testRunId isn't known yet (insert happens below); the back-pointer
+    // stays null on this row. source='testing_area' is enough for the
+    // admin ledger to scope it.
+    const call = await callAnthropic(
+      { source: 'testing_area' },
+      {
+        model: VERDICT_MODEL,
+        max_tokens: 2000,
+        system: [
+          { type: 'text', text: VERDICT_SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } },
+        ],
+        messages: [{ role: 'user', content: userPrompt }],
+      }
+    );
+    const msg = call.message;
     const synthesis = msg.content
       .filter((b) => b.type === 'text')
       .map((b) => (b as { text: string }).text)
       .join('\n');
-    const costCents = calculateAnthropicCostCents(
-      VERDICT_MODEL,
-      msg.usage.input_tokens,
-      msg.usage.output_tokens,
-    );
+    const costCents = call.costCents;
 
     // Persist the run so:
     //   · /admin overview can sum Anthropic spend across production + test
@@ -272,8 +274,8 @@ export async function POST(req: Request) {
         aiModel: VERDICT_MODEL,
         synthesisText: synthesis,
         promptUsed: VERDICT_SYSTEM_PROMPT,
-        tokensInput: msg.usage.input_tokens,
-        tokensOutput: msg.usage.output_tokens,
+        tokensInput: call.tokensInput,
+        tokensOutput: call.tokensOutput,
         costCents,
       }).returning({ id: schema.verdictTestRuns.id });
       testRunId = inserted[0]?.id ?? null;
@@ -292,8 +294,8 @@ export async function POST(req: Request) {
           synthesis_text: synthesis,
           prompt_used: VERDICT_SYSTEM_PROMPT,
           user_prompt: userPrompt,
-          tokens_input: msg.usage.input_tokens,
-          tokens_output: msg.usage.output_tokens,
+          tokens_input: call.tokensInput,
+          tokens_output: call.tokensOutput,
           cost_cents: costCents,
           model: VERDICT_MODEL,
         },

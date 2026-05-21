@@ -17,7 +17,7 @@ import { sql, and, eq, lt, isNull, isNotNull, inArray } from 'drizzle-orm';
 import { sendTransactional } from '../lib/email';
 import { sendPushToUser } from '../lib/push';
 import { getAnthropic, VERDICT_MODEL, VERDICT_SYSTEM_PROMPT } from '../lib/anthropic';
-import { calculateAnthropicCostCents } from '../lib/anthropic-pricing';
+import { callAnthropic } from '../lib/anthropic-call';
 import { spawn } from 'node:child_process';
 import { join } from 'node:path';
 
@@ -176,8 +176,7 @@ async function runVerdictAnalysis(input: Record<string, unknown>): Promise<Recor
 }
 
 async function verdictGenerate() {
-  const anthropic = getAnthropic();
-  if (!anthropic) {
+  if (!getAnthropic()) {
     console.warn('[cron · verdict-generate] ANTHROPIC_API_KEY not set; skipping');
     return;
   }
@@ -228,14 +227,18 @@ async function verdictGenerate() {
         votes: voteRows,
       }, null, 2);
 
-      const msg = await anthropic.messages.create({
-        model: VERDICT_MODEL,
-        max_tokens: 2000,
-        system: [
-          { type: 'text', text: VERDICT_SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } },
-        ],
-        messages: [{ role: 'user', content: userPrompt }],
-      });
+      const call = await callAnthropic(
+        { source: 'verdict_cron', decisionId: d.id },
+        {
+          model: VERDICT_MODEL,
+          max_tokens: 2000,
+          system: [
+            { type: 'text', text: VERDICT_SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } },
+          ],
+          messages: [{ role: 'user', content: userPrompt }],
+        }
+      );
+      const msg = call.message;
 
       const rawOutput = msg.content
         .filter((b) => b.type === 'text')
@@ -270,12 +273,11 @@ async function verdictGenerate() {
         synthesisText: synthesis,
         themes: (structured?.themes ?? null) as unknown,
         promptUsed: VERDICT_SYSTEM_PROMPT,
-        tokensInput: msg.usage.input_tokens,
-        tokensOutput: msg.usage.output_tokens,
-        // Cost is per-model · see lib/anthropic-pricing.ts. Previously
-        // hard-coded to Opus rates, which silently mis-reported spend
-        // as soon as VERDICT_AI_MODEL flipped to Sonnet.
-        costCents: calculateAnthropicCostCents(VERDICT_MODEL, msg.usage.input_tokens, msg.usage.output_tokens),
+        tokensInput: call.tokensInput,
+        tokensOutput: call.tokensOutput,
+        // Cost mirrors what callAnthropic just logged to anthropic_calls
+        // · single source of truth via lib/anthropic-pricing.ts.
+        costCents: call.costCents,
         analysisJson: analysis as unknown,
       });
 

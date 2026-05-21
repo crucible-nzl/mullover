@@ -178,7 +178,7 @@
     <div class="card"><div class="label">Last verdict</div><div class="value skel skel-value" id="m-v-last" style="font-size: 14px; font-family: var(--font-mono); font-weight: 500;">…</div></div>
   </div>
   <p style="font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin: -4px 0 18px;">
-    <span id="m-v-billing-note">Headline is the realtime spend · usage_report tokens &times; per-model pricing, matches the &ldquo;$X.XX spent&rdquo; figure shown at <a href="https://platform.claude.com/cost" target="_blank" rel="noopener" style="color: var(--accent);">platform.claude.com/cost</a>. The sub-line also shows the settled total from cost_report (lags 2-5 days, finance-reconciled) and our internal sum (verdicts + verdict_test_runs). 5-min cache.</span>
+    <span id="m-v-billing-note">Headline = realtime spend computed from usage_report tokens &times; per-model pricing. Sub-line shows the settled total from cost_report (Anthropic-confirmed, lags 2-5 days) and our internal sum (verdicts + verdict_test_runs). 5-min in-process cache. Note: the Anthropic Admin API itself has ingestion lag &middot; today&apos;s testing-area runs may not appear here for several hours. The console at <a href="https://platform.claude.com/cost" target="_blank" rel="noopener" style="color: var(--accent);">platform.claude.com/cost</a> uses an internal data source with no public API equivalent; treat the live console figure as authoritative for the current spend.</span>
   </p>
 
   <h2>Other</h2>

@@ -52,6 +52,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireAdmin } from '@/lib/admin-auth';
 import { getAnthropic, VERDICT_MODEL, VERDICT_SYSTEM_PROMPT } from '@/lib/anthropic';
+import { calculateAnthropicCostCents } from '@/lib/anthropic-pricing';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -97,6 +98,31 @@ function scoreToWord(avg: number): string {
   return 'NO';
 }
 
+/**
+ * Recency-weighted score. Earlier votes count less than later ones · a
+ * partner who started at lean_no and ended at lean_yes lands at lean_yes,
+ * not at the flat average. Weight grows linearly with day index so the
+ * final vote weighs ~Nx the first vote on an N-day decision.
+ *
+ * Skips are excluded from both numerator and denominator (an evening the
+ * partner didn't vote shouldn't drag either direction).
+ *
+ * This matches how the AI verdict prose reads the arc, so the displayed
+ * verdict word and the AI's framing agree instead of diverging (the bug
+ * the first test surfaced: card said NEUTRAL, prose said LEAN YES).
+ */
+function recencyWeightedScore(votes: Array<{ direction: Direction }>): number {
+  let weightedSum = 0;
+  let weightSum = 0;
+  votes.forEach((v, i) => {
+    if (v.direction === 'skip') return;
+    const weight = i + 1; // linear, 1-indexed: day 1 = 1, day 2 = 2, ...
+    weightedSum += directionScore(v.direction) * weight;
+    weightSum += weight;
+  });
+  return weightSum === 0 ? 0 : weightedSum / weightSum;
+}
+
 export async function POST(req: Request) {
   const gate = await requireAdmin(req);
   if (gate instanceof NextResponse) return gate;
@@ -115,10 +141,15 @@ export async function POST(req: Request) {
   const body = parsed.data;
 
   // ---- Per-participant numerical summary (every tier gets this) ----
+  // verdict_word is recency-weighted (the final vote weighs ~7x the
+  // first on a 7-day decision) so the displayed card aligns with how
+  // the AI prose reads the arc. The flat average is still returned in
+  // `average` for transparency · operators can see both numbers.
   const summary = body.participants.map((p) => {
     const cast = p.votes.filter((v) => v.direction !== 'skip');
     const sum = cast.reduce((acc, v) => acc + directionScore(v.direction), 0);
-    const avg = cast.length === 0 ? 0 : sum / cast.length;
+    const flatAvg = cast.length === 0 ? 0 : sum / cast.length;
+    const weighted = recencyWeightedScore(p.votes);
     const counts: Record<Direction, number> = {
       strong_yes: 0, lean_yes: 0, lean_no: 0, strong_no: 0, skip: 0,
     };
@@ -128,8 +159,9 @@ export async function POST(req: Request) {
       vote_count: cast.length,
       skip_count: counts.skip,
       counts,
-      average: Math.round(avg * 100) / 100,
-      verdict_word: scoreToWord(avg),
+      average: Math.round(flatAvg * 100) / 100,
+      weighted_average: Math.round(weighted * 100) / 100,
+      verdict_word: scoreToWord(weighted),
     };
   });
 
@@ -191,8 +223,10 @@ export async function POST(req: Request) {
       .filter((b) => b.type === 'text')
       .map((b) => (b as { text: string }).text)
       .join('\n');
-    const costCents = Math.ceil(
-      (msg.usage.input_tokens * 1500 + msg.usage.output_tokens * 7500) / 1_000_000
+    const costCents = calculateAnthropicCostCents(
+      VERDICT_MODEL,
+      msg.usage.input_tokens,
+      msg.usage.output_tokens,
     );
     return NextResponse.json(
       {

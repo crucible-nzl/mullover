@@ -17,6 +17,7 @@ import { sql, and, eq, lt, isNull, isNotNull, inArray } from 'drizzle-orm';
 import { sendTransactional } from '../lib/email';
 import { sendPushToUser } from '../lib/push';
 import { getAnthropic, VERDICT_MODEL, VERDICT_SYSTEM_PROMPT } from '../lib/anthropic';
+import { calculateAnthropicCostCents } from '../lib/anthropic-pricing';
 
 const APP_BASE_URL = process.env.APP_BASE_URL ?? 'https://counsel.day';
 
@@ -160,8 +161,10 @@ async function verdictGenerate() {
         promptUsed: VERDICT_SYSTEM_PROMPT,
         tokensInput: msg.usage.input_tokens,
         tokensOutput: msg.usage.output_tokens,
-        // Opus 4.7 pricing as of May 2026 (cents): $15/M input, $75/M output → use exact pennies
-        costCents: Math.ceil((msg.usage.input_tokens * 1500 + msg.usage.output_tokens * 7500) / 1_000_000),
+        // Cost is per-model · see lib/anthropic-pricing.ts. Previously
+        // hard-coded to Opus rates, which silently mis-reported spend
+        // as soon as VERDICT_AI_MODEL flipped to Sonnet.
+        costCents: calculateAnthropicCostCents(VERDICT_MODEL, msg.usage.input_tokens, msg.usage.output_tokens),
       });
 
       await db

@@ -395,7 +395,8 @@
           '<div>' + p.vote_count + ' votes cast · ' + p.skip_count + ' skipped</div>' +
           '<div>Strong yes: ' + p.counts.strong_yes + ' · Lean yes: ' + p.counts.lean_yes + '</div>' +
           '<div>Lean no: ' + p.counts.lean_no + ' · Strong no: ' + p.counts.strong_no + '</div>' +
-          '<div>Average score: <strong>' + p.average + '</strong></div>' +
+          '<div>Weighted (recency): <strong>' + (p.weighted_average != null ? p.weighted_average : p.average) + '</strong></div>' +
+          '<div>Flat average: ' + p.average + '</div>' +
         '</div>' +
       '</div>';
     }).join('');

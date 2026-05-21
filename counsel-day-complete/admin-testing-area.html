@@ -298,30 +298,170 @@
     renderParticipants();
   });
 
+  // Demo fixtures, one per tier. Each participant has a 7-position
+  // narrative script (lean_no -> oscillation -> lean_yes is a common
+  // shape; resolved-yes-with-dip is another; decisive-yes is a third).
+  // When the operator clicks Fill, the script is mapped across whatever
+  // duration they have selected: 1-day = the final position, 7-day =
+  // 1:1, 14-day = each position stretches across two evenings, 30-day
+  // across four. Consecutive identical notes are blanked so the record
+  // reads like real evening writing rather than a stamp.
+  //
+  // To extend coverage: add a tier key, supply a 7-step script per
+  // participant, and the fill machinery below handles the rest. Notes
+  // must follow the project em-dash ban (use ", " or " · " or ". ").
+  var DEMO_FIXTURES = {
+    solo_free: {
+      question: 'Should I close out the contract and freelance full-time next year?',
+      participants: [
+        {
+          name: 'James',
+          script: [
+            { direction: 'lean_no',    note: 'The salary is the safety net I keep coming back to.' },
+            { direction: 'lean_no',    note: 'Read three articles about freelance burnout, did not help.' },
+            { direction: 'lean_yes',   note: 'Spoke to two freelance friends, both said the first six months are the hardest.' },
+            { direction: 'lean_no',    note: 'Tax and insurance math is real.' },
+            { direction: 'lean_yes',   note: 'Lined up two clients for January at day rates I can live on.' },
+            { direction: 'lean_yes',   note: 'Six months runway feels enough.' },
+            { direction: 'strong_yes', note: 'Resigning end of week.' },
+          ],
+        },
+      ],
+    },
+    solo_paid: {
+      question: 'Should I move the wedding from June to October?',
+      participants: [
+        {
+          name: 'James',
+          script: [
+            { direction: 'lean_yes',   note: 'June is six weeks out and the venue has not confirmed.' },
+            { direction: 'strong_yes', note: 'Talked to mum, she would prefer October.' },
+            { direction: 'lean_yes',   note: 'Caterer can swap dates without a fee.' },
+            { direction: 'lean_no',    note: 'October moves it past harvest, three close friends would not come.' },
+            { direction: 'lean_yes',   note: 'Spoke to those three friends, they said October works.' },
+            { direction: 'strong_yes', note: 'Found a backup venue that holds October.' },
+            { direction: 'strong_yes', note: 'Decided. Moving it.' },
+          ],
+        },
+      ],
+    },
+    couple: {
+      question: 'Should we move to Wellington in March?',
+      participants: [
+        {
+          name: 'James',
+          script: [
+            { direction: 'lean_yes',   note: 'The job offer is real and the timing is good.' },
+            { direction: 'lean_yes',   note: '' },
+            { direction: 'strong_yes', note: 'Walked through the neighbourhood today, it felt like home.' },
+            { direction: 'lean_yes',   note: 'Cost of living math still works.' },
+            { direction: 'lean_no',    note: 'Talked to mum, harder than I expected.' },
+            { direction: 'lean_yes',   note: '' },
+            { direction: 'strong_yes', note: 'Decided I want to make the move.' },
+          ],
+        },
+        {
+          name: 'Alexandra',
+          script: [
+            { direction: 'lean_no',    note: 'I want to want this but I do not yet.' },
+            { direction: 'lean_no',    note: '' },
+            { direction: 'lean_yes',   note: 'The walk-through changed something.' },
+            { direction: 'lean_no',    note: 'Worried about leaving the studio.' },
+            { direction: 'lean_no',    note: '' },
+            { direction: 'lean_yes',   note: 'I think I can do the studio remotely for the first year.' },
+            { direction: 'lean_yes',   note: 'Ready to try.' },
+          ],
+        },
+      ],
+    },
+    family: {
+      question: 'Should we accept the offer on the Pukekohe house?',
+      participants: [
+        {
+          name: 'Alex',
+          script: [
+            { direction: 'lean_yes',   note: 'The land alone is worth what they are asking.' },
+            { direction: 'strong_yes', note: 'Walked the property at the weekend.' },
+            { direction: 'lean_yes',   note: 'Bank pre-approved at the asking number.' },
+            { direction: 'lean_yes',   note: '' },
+            { direction: 'strong_yes', note: 'Inspection came back clean.' },
+            { direction: 'strong_yes', note: '' },
+            { direction: 'strong_yes', note: 'We should put the offer in tonight.' },
+          ],
+        },
+        {
+          name: 'Jordan',
+          script: [
+            { direction: 'lean_no',    note: 'It is a long commute for me.' },
+            { direction: 'lean_no',    note: 'Train timetable, every option is over an hour.' },
+            { direction: 'lean_yes',   note: 'My team is moving to two days in office.' },
+            { direction: 'lean_no',    note: 'The schools are still an unknown.' },
+            { direction: 'lean_yes',   note: 'School visit on Friday went well.' },
+            { direction: 'lean_yes',   note: 'Met the head of department, they were warm.' },
+            { direction: 'lean_yes',   note: 'I can live with it.' },
+          ],
+        },
+        {
+          name: 'Sam',
+          script: [
+            { direction: 'strong_no',  note: 'I do not want to change schools.' },
+            { direction: 'strong_no',  note: '' },
+            { direction: 'lean_no',    note: 'Saw photos of the bedroom though.' },
+            { direction: 'lean_no',    note: '' },
+            { direction: 'lean_no',    note: 'Hate being further from town.' },
+            { direction: 'lean_yes',   note: 'Met two kids at the new school, they were ok.' },
+            { direction: 'lean_yes',   note: 'I will go if Riley goes.' },
+          ],
+        },
+        {
+          name: 'Riley',
+          script: [
+            { direction: 'lean_no',    note: 'I would miss the cousins.' },
+            { direction: 'lean_no',    note: '' },
+            { direction: 'lean_yes',   note: 'The cousins can stay over on weekends.' },
+            { direction: 'lean_yes',   note: 'Bigger garden means a trampoline.' },
+            { direction: 'lean_no',    note: 'Sam said he hates it.' },
+            { direction: 'lean_yes',   note: 'Sam said he will go if I go.' },
+            { direction: 'lean_yes',   note: 'Ok.' },
+          ],
+        },
+      ],
+    },
+  };
+
+  function scriptIndexForDay(i, dur, scriptLen) {
+    // Single-evening run: just show the closing position so the operator
+    // can sanity-check the strongest signal.
+    if (dur <= 1) return scriptLen - 1;
+    // Otherwise stretch the 7-position script across `dur` evenings.
+    // Math.round (not floor) so the boundaries fall cleanly · positions
+    // 0..scriptLen-1 each cover roughly equal slices of the duration.
+    return Math.max(0, Math.min(scriptLen - 1, Math.round((i / (dur - 1)) * (scriptLen - 1))));
+  }
+
   $('cd-fill-demo').addEventListener('click', function () {
-    $('cd-q').value = 'Should we move to Wellington in March?';
-    $('cd-tier').value = 'couple';
-    $('cd-duration').value = '7';
-    participants = [
-      { display_name: 'James', votes: [
-        { direction: 'lean_yes',  note: 'The job offer is real and the timing is good.' },
-        { direction: 'lean_yes',  note: '' },
-        { direction: 'strong_yes', note: 'Walked through the neighbourhood today, it felt like home.' },
-        { direction: 'lean_yes',  note: 'Cost of living math still works.' },
-        { direction: 'lean_no',   note: 'Talked to mum, harder than I expected.' },
-        { direction: 'lean_yes',  note: '' },
-        { direction: 'strong_yes', note: 'Decided I want to make the move.' },
-      ]},
-      { display_name: 'Alexandra', votes: [
-        { direction: 'lean_no',   note: 'I want to want this but I do not yet.' },
-        { direction: 'lean_no',   note: '' },
-        { direction: 'lean_yes',  note: 'The walk-through changed something.' },
-        { direction: 'lean_no',   note: 'Worried about leaving the studio.' },
-        { direction: 'lean_no',   note: '' },
-        { direction: 'lean_yes',  note: 'I think I can do the studio remotely for the first year.' },
-        { direction: 'lean_yes',  note: 'Ready to try.' },
-      ]},
-    ];
+    var tier = $('cd-tier').value;
+    var fixture = DEMO_FIXTURES[tier];
+    if (!fixture) { showErr('No demo fixture for tier ' + tier); return; }
+    $('cd-q').value = fixture.question;
+    var dur = durationDays();
+    participants = fixture.participants.map(function (p) {
+      var votes = [];
+      var lastCanonicalNote = null;
+      for (var i = 0; i < dur; i++) {
+        var idx = scriptIndexForDay(i, dur, p.script.length);
+        var entry = p.script[idx];
+        // De-dup consecutive notes · if two adjacent evenings would have
+        // the exact same note text (because we stretched a 7-step script
+        // across 14 or 30 days), keep the first occurrence and blank the
+        // rest so the record looks like genuine writing.
+        var note = entry.note || '';
+        if (note && note === lastCanonicalNote) note = '';
+        lastCanonicalNote = entry.note || '';
+        votes.push({ direction: entry.direction, note: note });
+      }
+      return { display_name: p.name, votes: votes };
+    });
     renderParticipants();
   });
 

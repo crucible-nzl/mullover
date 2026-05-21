@@ -170,10 +170,34 @@ export async function POST(req: Request) {
   // Per [[project_verdict_ai_tiering]]: free Solo gets numerical summary,
   // paid Solo / Couple / Family get the AI-written paragraph.
   if (body.tier === 'solo_free') {
+    // Persist a row anyway so the run shows up under /admin-verdict-logs
+    // → Testing verdicts (with cost = 0). Otherwise Solo Free runs are
+    // invisible after the page reloads.
+    let testRunId: string | null = null;
+    try {
+      const inserted = await db.insert(schema.verdictTestRuns).values({
+        triggeredByUserId: gate.userId,
+        question: body.question,
+        format: body.format,
+        durationDays: body.duration_days,
+        tier: body.tier,
+        participantsJson: body.participants as unknown,
+        aiModel: null,
+        synthesisText: null,
+        promptUsed: null,
+        tokensInput: 0,
+        tokensOutput: 0,
+        costCents: 0,
+      }).returning({ id: schema.verdictTestRuns.id });
+      testRunId = inserted[0]?.id ?? null;
+    } catch (e) {
+      console.warn('[testing-area · solo_free] failed to persist test run:', (e as Error).message);
+    }
     return NextResponse.json(
       {
         ok: true,
         mode: 'free',
+        test_run_id: testRunId,
         message: 'Solo Free tier · numerical summary only (no AI synthesis).',
         summary,
       },

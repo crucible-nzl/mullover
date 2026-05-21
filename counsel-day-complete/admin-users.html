@@ -13,22 +13,35 @@
   .toolbar input { padding: 9px 12px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); font-family: var(--font-ui); font-size: 14px; min-width: 280px; }
   .toolbar select { padding: 9px 12px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); font-family: var(--font-ui); font-size: 14px; }
   .toolbar .count { margin-left: auto; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
-  .users-tbl { table-layout: fixed; }
+  /* Stack action buttons in a kebab-style dropdown (... menu) so the
+     table fits any viewport width without horizontal scroll. The primary
+     row stays a single line; secondary actions sit behind one click. */
+  .users-tbl { width: 100%; }
   .users-tbl td { vertical-align: middle; }
-  /* Date cells must never line-wrap · keeps "22 May 8:06 am" intact rather
-     than breaking into three lines when the table is cramped. */
-  .users-tbl td.when { white-space: nowrap; font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); }
-  .users-tbl td.name { white-space: nowrap; }
-  .users-tbl col.col-email { width: 26%; }
-  .users-tbl col.col-name { width: 12%; }
-  .users-tbl col.col-plan { width: 7%; }
-  .users-tbl col.col-dec { width: 6%; text-align: center; }
-  .users-tbl col.col-when { width: 11%; }
-  .users-tbl col.col-status { width: 7%; }
-  .users-tbl col.col-actions { width: 20%; }
-  .users-tbl td.email { word-break: break-all; font-family: var(--font-mono); font-size: 11px; }
-  .users-tbl td.actions { white-space: nowrap; }
-  .users-tbl .actions button { padding: 4px 7px !important; font-size: 9.5px !important; letter-spacing: 0.04em !important; }
+  .users-tbl td.when, .users-tbl td.name { white-space: nowrap; }
+  .users-tbl td.when { font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); }
+  .users-tbl td.email { font-family: var(--font-mono); font-size: 11px; word-break: break-all; }
+  .users-tbl td.actions { white-space: nowrap; text-align: right; }
+  .users-tbl .actions-menu { position: relative; display: inline-block; }
+  .users-tbl .actions-trigger {
+    background: var(--surface); color: var(--ink); border: 1px solid var(--border);
+    padding: 5px 12px; font-family: var(--font-ui); font-size: 12px; cursor: pointer;
+  }
+  .users-tbl .actions-trigger:hover { color: var(--accent); border-color: var(--accent); }
+  .users-tbl .actions-menu .menu {
+    display: none; position: absolute; right: 0; top: calc(100% + 4px);
+    background: var(--surface); border: 1px solid var(--border); min-width: 170px;
+    z-index: 20; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  .users-tbl .actions-menu.open .menu { display: block; }
+  .users-tbl .actions-menu .menu button {
+    display: block; width: 100%; text-align: left; background: none; border: none;
+    padding: 8px 12px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--ink-soft); cursor: pointer; border-bottom: 1px solid var(--rule);
+  }
+  .users-tbl .actions-menu .menu button:last-child { border-bottom: none; }
+  .users-tbl .actions-menu .menu button:hover { background: var(--surface-2); color: var(--accent); }
+  .users-tbl .actions-menu .menu button.danger:hover { color: var(--red); }
   .users-tbl .pill { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 7px; border-radius: 2px; background: var(--surface-2); color: var(--ink-soft); }
   .users-tbl .pill.admin { background: var(--accent-soft); color: var(--accent); }
   .users-tbl .pill.deleted { background: #fee2e2; color: var(--red); }
@@ -84,16 +97,6 @@
   </div>
 
   <table class="tbl users-tbl">
-    <colgroup>
-      <col class="col-email">
-      <col class="col-name">
-      <col class="col-plan">
-      <col class="col-dec">
-      <col class="col-when">
-      <col class="col-when">
-      <col class="col-status">
-      <col class="col-actions">
-    </colgroup>
     <thead><tr>
       <th>Email</th>
       <th>Name</th>
@@ -187,7 +190,7 @@
             '<td class="when">' + fmtTs(u.last_active_at) + '</td>' +
             '<td class="when">' + fmtTs(u.created_at) + '</td>' +
             '<td>' + pills.join(' ') + '</td>' +
-            '<td class="actions"><div class="actions">' + actions.join('') + '</div></td>' +
+            '<td class="actions"><div class="actions-menu"><button type="button" class="actions-trigger" data-menu-trigger>Actions ▾</button><div class="menu">' + actions.join('') + '</div></div></td>' +
           '</tr>';
         }).join('');
         $('u-rows').innerHTML = rows || '<tr><td colspan="8" style="padding: 18px; color: var(--muted);">No users match.</td></tr>';
@@ -216,7 +219,25 @@
   $('u-next').addEventListener('click', function () { state.offset += state.limit; load(); });
 
   // Action delegation
+  // Close any open kebab menu on outside clicks · single global listener.
+  document.addEventListener('click', function (e) {
+    document.querySelectorAll('.users-tbl .actions-menu.open').forEach(function (m) {
+      if (!m.contains(e.target)) m.classList.remove('open');
+    });
+  });
+
   $('u-rows').addEventListener('click', function (e) {
+    // Kebab toggle · stop propagation so the document handler above
+    // doesn't immediately close the menu we just opened.
+    var trigger = e.target.closest('[data-menu-trigger]');
+    if (trigger) {
+      e.stopPropagation();
+      var menu = trigger.closest('.actions-menu');
+      var wasOpen = menu.classList.contains('open');
+      document.querySelectorAll('.users-tbl .actions-menu.open').forEach(function (m) { m.classList.remove('open'); });
+      if (!wasOpen) menu.classList.add('open');
+      return;
+    }
     var actBtn = e.target.closest('button[data-act]');
     var drillBtn = e.target.closest('button[data-drill]');
     if (actBtn) {

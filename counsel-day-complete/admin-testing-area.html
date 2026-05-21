@@ -121,17 +121,20 @@
     </div>
   </div>
 
-  <div class="ta-actions">
+  <div class="ta-actions" style="flex-wrap: wrap;">
     <label style="display: inline-flex; gap: 8px; align-items: center; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);">
       Preset
       <select id="cd-preset" style="font-family: var(--font-ui); font-size: 13px; padding: 8px 11px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); min-width: 280px;">
         <option value="">Choose a classic question…</option>
       </select>
     </label>
-    <button type="button" id="cd-fill-demo" class="btn btn-load">Fill with current preset</button>
+    <button type="button" id="cd-fill-demo" class="btn btn-load" title="Re-applies the current tier's default fixture · useful after you change duration">Reset to default fixture</button>
     <button type="button" id="cd-add-participant" class="btn btn-load">+ Add participant</button>
     <span class="ta-status" id="cd-status"></span>
   </div>
+  <p style="font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin: -10px 0 18px;">
+    Picking a preset auto-fills the form. The "Reset to default fixture" button regenerates the current tier's stock fixture (handy if you changed duration or wiped participants).
+  </p>
 
   <!-- Participant rows · populated by JS -->
   <div id="cd-participants"></div>

@@ -78,21 +78,51 @@ function main() {
   const entries = walk(ROOT);
   entries.sort((a, b) => a.url.localeCompare(b.url));
 
+  // Per-URL changefreq + priority improves crawl signal for Google.
+  // Page bucket → priority + changefreq. Anything not listed falls
+  // back to ("monthly", 0.6).
+  const PAGE_TIERS: Array<{ match: RegExp; freq: string; priority: string }> = [
+    { match: /^https:\/\/counsel\.day\/?$/,            freq: 'weekly',  priority: '1.0' },
+    { match: /\/pricing$/,                              freq: 'weekly',  priority: '0.95' },
+    { match: /\/(method|verdict|why-time|how-it-works|the-experience|use-cases|durations|family)$/, freq: 'monthly', priority: '0.9' },
+    { match: /\/(faq|help|about|status|security)$/,    freq: 'monthly', priority: '0.8' },
+    { match: /\/(privacy|terms|cookies|sub-processors|refunds)$/, freq: 'monthly', priority: '0.4' },
+    { match: /\/changelog$/,                            freq: 'weekly',  priority: '0.5' },
+    { match: /\/journal\//,                             freq: 'yearly',  priority: '0.7' },
+  ];
+  function tierFor(url: string): { freq: string; priority: string } {
+    for (const t of PAGE_TIERS) if (t.match.test(url)) return { freq: t.freq, priority: t.priority };
+    return { freq: 'monthly', priority: '0.6' };
+  }
+
   const xml = [
     '<?xml version="1.0" encoding="UTF-8"?>',
-    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap-0.9">',
-    ...entries.map((e) => [
-      '  <url>',
-      `    <loc>${escape(e.url)}</loc>`,
-      `    <lastmod>${e.mtime.toISOString().slice(0, 10)}</lastmod>`,
-      '  </url>',
-    ].join('\n')),
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ...entries.map((e) => {
+      const t = tierFor(e.url);
+      return [
+        '  <url>',
+        `    <loc>${escape(e.url)}</loc>`,
+        `    <lastmod>${e.mtime.toISOString().slice(0, 10)}</lastmod>`,
+        `    <changefreq>${t.freq}</changefreq>`,
+        `    <priority>${t.priority}</priority>`,
+        '  </url>',
+      ].join('\n');
+    }),
     '</urlset>',
     '',
   ].join('\n');
 
   const outPath = join(ROOT, 'sitemap.xml');
-  writeFileSync(outPath, xml, 'utf-8');
+  try {
+    writeFileSync(outPath, xml, 'utf-8');
+  } catch (err) {
+    // Loud failure · the trigger endpoint captures stderr so the admin
+    // sees the exact reason (typically EACCES if /var/www/counsel.day
+    // is owned by root). Falls out as exit code 1.
+    console.error(`[sitemap] failed to write ${outPath}: ${(err as Error).message}`);
+    process.exit(1);
+  }
   const ms = Date.now() - start;
   console.log(`[sitemap] wrote ${entries.length} urls to ${outPath} in ${ms}ms`);
 }

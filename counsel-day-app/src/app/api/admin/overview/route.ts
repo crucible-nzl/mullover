@@ -179,18 +179,25 @@ export async function GET(req: Request) {
     const testTokensIn = Number(r.test_tokens_in);
     const testTokensOut = Number(r.test_tokens_out);
     const testCost = Number(r.test_cost_cents);
+    // Manual offset · captures Anthropic spend incurred before commit
+    // 82307a9 added persistence to /admin-testing-area. Set
+    // CD_ANTHROPIC_HISTORICAL_OFFSET_CENTS in /etc/counsel-day-app/env.local
+    // to whatever number Anthropic's billing console shows that isn't
+    // in verdicts or verdict_test_runs yet.
+    const historicalOffsetCents = Number(process.env.CD_ANTHROPIC_HISTORICAL_OFFSET_CENTS || 0) || 0;
     return {
       total: Number(r.total),
       last_7_days: Number(r.last_7),
       tokens_input: prodTokensIn + testTokensIn,
       tokens_output: prodTokensOut + testTokensOut,
-      cost_usd: (prodCost + testCost) / 100,
+      cost_usd: (prodCost + testCost + historicalOffsetCents) / 100,
       // Split for the operator to see where the spend is going.
       production: { count: Number(r.total), tokens_input: prodTokensIn, tokens_output: prodTokensOut, cost_usd: prodCost / 100 },
       testing:    { count: Number(r.test_total), tokens_input: testTokensIn, tokens_output: testTokensOut, cost_usd: testCost / 100 },
+      historical_offset_usd: historicalOffsetCents / 100,
       last_generated_at: r.last_generated,
     };
-  }, { total: 0, last_7_days: 0, tokens_input: 0, tokens_output: 0, cost_usd: 0, production: { count: 0, tokens_input: 0, tokens_output: 0, cost_usd: 0 }, testing: { count: 0, tokens_input: 0, tokens_output: 0, cost_usd: 0 }, last_generated_at: null });
+  }, { total: 0, last_7_days: 0, tokens_input: 0, tokens_output: 0, cost_usd: 0, production: { count: 0, tokens_input: 0, tokens_output: 0, cost_usd: 0 }, testing: { count: 0, tokens_input: 0, tokens_output: 0, cost_usd: 0 }, historical_offset_usd: 0, last_generated_at: null });
 
   // ---- Cron health · derived from audit_log + table activity ----
   const cronHealth = await safe(async () => {

@@ -13,6 +13,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { sql } from 'drizzle-orm';
+import { APP_VERSION } from '@/lib/version';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -27,7 +28,7 @@ export async function GET() {
         ok: true,
         db: 'ok',
         db_ms: dbMs,
-        version: process.env.npm_package_version ?? 'unknown',
+        version: APP_VERSION,
         node: process.version,
         started_at: new Date().toISOString(),
       },

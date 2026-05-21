@@ -123,21 +123,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <a class="skip-link" href="#main-content">Skip to main content</a>
 
+<!-- CD:PARTIAL:nav-app -->
 <nav class="nav-bar" aria-label="Primary site navigation">
   <div class="nav-inner">
     <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
     <div class="nav-links">
       <a href="decisions.html">Your decisions</a>
-      <a href="vote-today.html" class="active">Tonight's vote</a>
+      <a href="vote-today.html">Tonight's vote</a>
       <a href="compose.html">Compose</a>
       <a href="account.html">Account</a>
       <a href="help.html">Help</a>
     </div>
     <div class="nav-cta">
-      <a href="account.html" class="btn-text">James G.</a>
+      <a href="account.html" class="btn-text" id="cd-nav-name">Account</a>
     </div>
   </div>
 </nav>
+<!-- /CD:PARTIAL:nav-app -->
 
 <main id="main-content">
   <div class="app-shell">
@@ -221,6 +223,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </main>
 
+<!-- CD:PARTIAL:colophon -->
 <footer class="colophon">
   <div class="colophon-inner">
     <div class="colophon-top">
@@ -240,7 +243,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <h3 class="colophon-col-h">The product</h3>
         <a href="method.html">The method</a>
         <a href="why-time.html">Why time</a>
-          <a href="verdict.html">A real verdict</a>
+        <a href="verdict.html">A real verdict</a>
       </div>
       <div class="colophon-col">
         <h5>Support</h5>
@@ -258,10 +261,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
     </div>
     <div class="colophon-bottom">
-      <div>© 2026 Counsel.day · USD pricing worldwide</div>
+      <div>&copy; 2026 Counsel.day &middot; USD pricing worldwide</div>
     </div>
   </div>
 </footer>
+<!-- /CD:PARTIAL:colophon -->
 
 <a class="go-to-top" id="go-to-top" href="#top" aria-label="Go to top of page">
   <svg viewBox="0 0 24 24" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
@@ -318,6 +322,9 @@ function sealVote() {
   .then(function (res) {
     if (!res) return;
     if (res.status === 200) {
+      if (window.CounselDayPWA && typeof window.CounselDayPWA.markEngaged === 'function') {
+        window.CounselDayPWA.markEngaged();
+      }
       alert('Vote sealed. See you tomorrow evening.');
       window.location.href = '/decisions.html';
     } else {

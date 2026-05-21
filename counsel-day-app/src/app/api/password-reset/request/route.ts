@@ -79,6 +79,17 @@ export async function POST(req: Request) {
       textContent: text,
       htmlContent: html,
     });
+
+    await db.insert(schema.auditLog).values({
+      actorUserId: user.id,
+      action: 'auth.password_reset_requested',
+      targetType: 'user',
+      targetId: user.id,
+      metadata: {
+        ip: req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? null,
+        user_agent: req.headers.get('user-agent') ?? null,
+      },
+    }).catch(() => {});
   }
 
   return NextResponse.json({ ok: true, message: 'If that email is on file, a reset link is on its way.' }, { status: 200 });

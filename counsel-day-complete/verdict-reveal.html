@@ -138,19 +138,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <a class="skip-link" href="#main-content">Skip to main content</a>
 
+<!-- CD:PARTIAL:nav-app -->
 <nav class="nav-bar" aria-label="Primary site navigation">
   <div class="nav-inner">
     <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
     <div class="nav-links">
       <a href="decisions.html">Your decisions</a>
+      <a href="vote-today.html">Tonight's vote</a>
+      <a href="compose.html">Compose</a>
+      <a href="account.html">Account</a>
       <a href="help.html">Help</a>
     </div>
     <div class="nav-cta">
-      <a href="account.html" class="btn-text">Your account</a>
-      <a href="billing.html" class="btn-text">Billing</a>
+      <a href="account.html" class="btn-text" id="cd-nav-name">Account</a>
     </div>
   </div>
 </nav>
+<!-- /CD:PARTIAL:nav-app -->
 
 <main id="main-content">
 
@@ -289,66 +293,49 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- ============================================================ -->
 <!-- COLOPHON                                                     -->
 <!-- ============================================================ -->
+<!-- CD:PARTIAL:colophon -->
 <footer class="colophon">
   <div class="colophon-inner">
     <div class="colophon-top">
       <div>
         <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
-        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Each evening, you cast one private vote on the same question, for a duration you set, with every vote sealed in the database until the final day. When the verdict opens, you see where you converged, where you diverged, the themes underneath your own words, and one specific next conversation. The deciding stays with you; the structure is ours. Worldwide, priced in USD.</p>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Each evening, you cast one private vote on the same question, for a duration you set, with every vote sealed in the database until the final day. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The app</h5>
+        <a href="decisions.html">Your decisions</a>
+        <a href="vote-today.html">Tonight's vote</a>
+        <a href="compose.html">Compose</a>
+        <a href="account.html">Your account</a>
+        <a href="billing.html">Billing</a>
       </div>
       <div class="colophon-col">
         <h3 class="colophon-col-h">The product</h3>
-        <a href="how-it-works.html">How it works</a>
-        <a href="the-experience.html">The experience</a>
-        <a href="use-cases.html">Use cases</a>
-        <a href="durations.html">Durations</a>
-        <a href="what-youll-see.html">What you will see</a>
-        <a href="specimen.html">A specimen</a>
-        <a href="verdict.html">A real verdict</a>
-        <a href="why-time.html">Why time</a>
         <a href="method.html">The method</a>
-        <a href="distinction.html">The distinction</a>
-        <a href="family.html">For families</a>
-        <a href="compare.html">Compare</a>
-        <a href="pricing.html">Plans &amp; pricing</a>
-        <a href="signup.html">Start free</a>
+        <a href="why-time.html">Why time</a>
+        <a href="verdict.html">A real verdict</a>
       </div>
       <div class="colophon-col">
-        <h3 class="colophon-col-h">For practitioners</h3>
-        <a href="therapists.html">For therapists</a>
-        <a href="counsellors.html">For counsellors</a>
-        <a href="engineering/index.html">Engineering</a>
-      </div>
-      <div class="colophon-col">
-        <h3 class="colophon-col-h">The company</h3>
-          <a href="about/james-graham.html">James Graham · founder</a>
+        <h5>Support</h5>
         <a href="help.html">Help</a>
         <a href="correspondence.html">Correspondence</a>
         <a href="contact.html">Contact</a>
-        <a href="security.html">Security</a>
-        <a href="accessibility.html">Accessibility</a>
-        <a href="press.html">Press</a>
-        <a href="status.html">Status</a>
-        <a href="changelog.html">Changelog</a>
-        <a href="journal/">The Journal</a>
         <a href="faq.html">FAQ</a>
-        <a href="account.html">Your account</a>
-        <a href="mailto:press@counsel.day">Press</a>
+        <a href="status.html">Status</a>
       </div>
       <div class="colophon-col">
         <h3 class="colophon-col-h">The fine print</h3>
         <a href="privacy.html">Privacy</a>
         <a href="terms.html">Terms</a>
-        <a href="cookies.html">Cookies</a>
-        <a href="sub-processors.html">Sub-processors</a>
         <a href="refunds.html">Refunds</a>
       </div>
     </div>
     <div class="colophon-bottom">
-      <div>© 2026 Counsel.day · USD pricing worldwide</div>
+      <div>&copy; 2026 Counsel.day &middot; USD pricing worldwide</div>
     </div>
   </div>
 </footer>
+<!-- /CD:PARTIAL:colophon -->
 
 <a class="go-to-top" id="go-to-top" href="#top" aria-label="Go to top of page">
   <svg viewBox="0 0 24 24" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
@@ -453,6 +440,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     if (btn.disabled) return;
     btn.setAttribute('aria-expanded', 'true');
     btn.disabled = true;
+    if (window.CounselDayPWA && typeof window.CounselDayPWA.markEngaged === 'function') {
+      window.CounselDayPWA.markEngaged();
+    }
     if (prefersReducedMotion) {
       sealed.classList.add('is-hidden');
       revealed.classList.add('is-open');

@@ -15,6 +15,11 @@ REMOTE_PATH="/opt/counsel-day-app"
 
 cd "$(dirname "$0")/.."
 
+# Stamp the current git short-sha so /api/health can report which build
+# is live. Falls back to "unknown" if not in a git checkout.
+GIT_REV=$(git rev-parse --short HEAD 2>/dev/null || echo unknown)
+echo "[deploy] 0/5 · build tag CD_GIT_REV=${GIT_REV}"
+
 echo "[deploy] 1/5 · typecheck (skipped if local node_modules missing)"
 if [ -d node_modules ]; then
   npx tsc --noEmit
@@ -36,6 +41,9 @@ echo "[deploy] 3/5 · npm install + build on server"
 ssh -i "${SSH_KEY}" "${SSH_TARGET}" "
   set -e
   cd ${REMOTE_PATH}
+  # Stamp the current git short-sha into .git-rev so /api/health can
+  # report it at runtime. Read by src/lib/version.ts at module load.
+  echo '${GIT_REV}' > ${REMOTE_PATH}/.git-rev
   # Regenerate the lockfile whenever package.json is newer (or no lockfile
   # exists). Skipping this would let 'npm ci' fail with ERESOLVE on every
   # dep bump because the pinned lockfile won't match the new package.json.

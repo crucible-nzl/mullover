@@ -72,6 +72,17 @@ export async function POST(req: Request) {
   // Wipe all sessions for the user. They will need to sign in again.
   await db.delete(schema.sessions).where(eq(schema.sessions.userId, tk.userId));
 
+  await db.insert(schema.auditLog).values({
+    actorUserId: tk.userId,
+    action: 'auth.password_reset_consumed',
+    targetType: 'user',
+    targetId: tk.userId,
+    metadata: {
+      ip: req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? null,
+      user_agent: req.headers.get('user-agent') ?? null,
+    },
+  }).catch(() => {});
+
   return NextResponse.json(
     { ok: true, message: 'Password updated. Please sign in with the new password.' },
     { status: 200 }

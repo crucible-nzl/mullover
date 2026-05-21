@@ -213,5 +213,17 @@ export async function POST(req: Request) {
     console.warn('[signup] consent log insert failed (non-fatal)', err);
   }
 
+  await db.insert(schema.auditLog).values({
+    actorUserId: userId,
+    action: 'auth.signup',
+    targetType: 'user',
+    targetId: userId,
+    metadata: {
+      ip: req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? null,
+      user_agent: req.headers.get('user-agent') ?? null,
+      marketing_consent: input.marketing_consent,
+    },
+  }).catch(() => {});
+
   return NextResponse.json({ ok: true, message: 'Your verification link has been sent to your inbox.' }, { status: 200 });
 }

@@ -107,14 +107,21 @@
     // No deferredInstall · the browser hasn't decided this PWA is
     // installable yet, OR the user dismissed an earlier prompt, OR
     // the browser doesn't support installs at all (Firefox, Safari).
-    // Give visible feedback rather than failing silently.
+    // Give visible feedback rather than failing silently. Detect
+    // platform so the hint is actionable.
     if (!deferredInstall) {
       var ua = navigator.userAgent || '';
       var isIos = /iPhone|iPad|iPod/i.test(ua) && /Safari/.test(ua) && !/CriOS|FxiOS/.test(ua);
+      var isAndroid = /Android/i.test(ua);
+      var isChromeMobile = /Chrome/i.test(ua) && /Mobile/i.test(ua);
       if (isIos) {
         setInstallFeedback(btn, 'On iOS: tap the Share icon, then "Add to Home Screen".');
+      } else if (isAndroid && isChromeMobile) {
+        setInstallFeedback(btn, 'On Android Chrome: tap the ⋮ menu (top right), then "Install app" or "Add to Home screen". Chrome unlocks in-page install after you have spent ~30 seconds on the site.');
+      } else if (isAndroid) {
+        setInstallFeedback(btn, 'On Android: open this page in Chrome, then tap the ⋮ menu → "Install app". Some browsers (Samsung Internet, Firefox) don\'t support PWA install.');
       } else {
-        setInstallFeedback(btn, 'Install isn\'t available yet on this device · the browser hasn\'t verified the app, or you\'ve already installed/dismissed it. Try reloading in a few minutes, or use the browser menu (⋮) → "Install app".');
+        setInstallFeedback(btn, 'Install isn\'t available yet on this browser · use the browser menu (⋮) → "Install app", or try again after some site engagement.');
       }
       return;
     }

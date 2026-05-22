@@ -37,16 +37,26 @@ const signinSchema = z.object({
 });
 
 export async function POST(req: Request) {
+  // FIXME(dev-bypass · re-enable before launch · ticket pending):
+  // DEV_BYPASS_AUTH_EMAIL is a TEMPORARY testing affordance · when set
+  // in env.local to a single lowercased email, that address skips:
+  //   (a) IP + email rate limits on /api/signin
+  //   (b) the magic-link round-trip · sign-in without a password
+  //       creates a session immediately
+  // It does NOT skip password verification or MFA. To re-enable
+  // production behaviour, remove the env var and `sudo systemctl
+  // restart counsel-day-app`. Every bypass invocation is audit-logged
+  // (action='auth.dev_bypass.signin') so we can see it was used.
+  const bypassEmail = (process.env.DEV_BYPASS_AUTH_EMAIL ?? '').trim().toLowerCase();
+
   // Rate-limit by IP BEFORE we parse anything · cheapest possible
   // bail-out for abuse traffic. Per docs/SECURITY_PENTEST_2026-05-20
   // recommendation: 10 attempts per IP per hour catches email-bomb
   // flooding without trapping NATed households on a bad day.
+  // Bypass: we don't know the email yet, so we can't skip IP-limit
+  // based on it. We defer the IP check until after we parse, then
+  // skip both checks if the bypass email matches.
   const ip = getClientIp(req);
-  const ipCheck = await checkRateLimit(`signin-ip:${ip}`, 10, 3600);
-  if (!ipCheck.allowed) {
-    void trackAuthFailure('signin-rate-limit', ip, { reason: 'ip_bucket', limit: 10 });
-    return rateLimitResponse(ipCheck, 'Too many sign-in attempts from this network. Please wait and try again.');
-  }
 
   // Parse body (multipart, urlencoded, or JSON)
   let raw: Record<string, unknown>;
@@ -67,18 +77,27 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, message: 'Please enter a valid email address.' }, { status: 422 });
   }
   const { email, password } = parsed.data;
+  const isBypass = bypassEmail && email === bypassEmail;
 
-  // Per-email rate limit · 5/hour. Catches a targeted attack where
-  // the abuser rotates IPs but always uses the same victim email.
-  // Keyed by the lowercased email so all variants of capitalisation
-  // share the bucket.
-  const emailCheck = await checkRateLimit(`signin-email:${email}`, 5, 3600);
-  if (!emailCheck.allowed) {
-    void trackAuthFailure('signin-rate-limit', `email:${email}`, { reason: 'email_bucket', limit: 5 });
-    // Return the same generic message · don't disclose that this is
-    // an email-specific limit (which would confirm the email exists
-    // or is being targeted).
-    return rateLimitResponse(emailCheck, 'Too many sign-in attempts. Please wait and try again.');
+  if (!isBypass) {
+    const ipCheck = await checkRateLimit(`signin-ip:${ip}`, 10, 3600);
+    if (!ipCheck.allowed) {
+      void trackAuthFailure('signin-rate-limit', ip, { reason: 'ip_bucket', limit: 10 });
+      return rateLimitResponse(ipCheck, 'Too many sign-in attempts from this network. Please wait and try again.');
+    }
+
+    // Per-email rate limit · 5/hour. Catches a targeted attack where
+    // the abuser rotates IPs but always uses the same victim email.
+    // Keyed by the lowercased email so all variants of capitalisation
+    // share the bucket.
+    const emailCheck = await checkRateLimit(`signin-email:${email}`, 5, 3600);
+    if (!emailCheck.allowed) {
+      void trackAuthFailure('signin-rate-limit', `email:${email}`, { reason: 'email_bucket', limit: 5 });
+      // Return the same generic message · don't disclose that this is
+      // an email-specific limit (which would confirm the email exists
+      // or is being targeted).
+      return rateLimitResponse(emailCheck, 'Too many sign-in attempts. Please wait and try again.');
+    }
   }
 
   // Look up user · case-insensitive. Soft-deleted accounts cannot sign in
@@ -146,6 +165,27 @@ export async function POST(req: Request) {
   // ---- Path B · Magic link (no password supplied, or user has no password set) ----
   // We always return the same "check your inbox" response, regardless of
   // whether the user exists. No enumeration.
+  //
+  // FIXME(dev-bypass): when DEV_BYPASS_AUTH_EMAIL matches, skip the
+  // magic-link round-trip and create a session immediately. ONLY
+  // applies to the single bypass email; every other address still
+  // goes through the inbox check. Remove the env var to restore
+  // production behaviour.
+  if (isBypass && user) {
+    const ctx = ctxFromHeaders(req.headers);
+    const session = await createSession(user.id, ctx);
+    await db.insert(schema.auditLog).values({
+      actorUserId: user.id,
+      action: 'auth.dev_bypass.signin',
+      targetType: 'user',
+      targetId: user.id,
+      metadata: { ip, user_agent: ctx.userAgent ?? null, note: 'DEV_BYPASS_AUTH_EMAIL active · magic-link skipped' },
+    }).catch(() => {});
+    const res = NextResponse.json({ ok: true, redirect: '/account', dev_bypass: true }, { status: 200 });
+    res.headers.set('set-cookie', buildSessionCookie(session.id, session.expiresAt));
+    return res;
+  }
+
   if (user) {
     const token = newToken();
     const expiresAt = new Date(Date.now() + VERIFICATION_TTL_MS);

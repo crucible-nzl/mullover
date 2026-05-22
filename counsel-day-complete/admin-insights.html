@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin &middot; Insights &middot; Counsel.day</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f7f9fc">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin-shell.css">
+<style>
+  .ins-section { margin-bottom: 32px; }
+  .ins-section h2 { font-family: var(--font-ui); font-size: 18px; margin: 0 0 4px; color: var(--ink); }
+  .ins-section .desc { font-family: var(--font-ui); font-size: 13px; color: var(--muted); margin: 0 0 14px; }
+  .ins-card { background: var(--surface); border: 1px solid var(--border); padding: 18px 22px; }
+
+  .ins-funnel-row { display: grid; grid-template-columns: 220px 1fr 80px; gap: 14px; align-items: center; margin-bottom: 10px; font-family: var(--font-ui); font-size: 13px; }
+  .ins-funnel-row .label { color: var(--ink); font-weight: 500; }
+  .ins-funnel-row .bar-wrap { background: var(--surface-2); height: 28px; position: relative; overflow: hidden; }
+  .ins-funnel-row .bar { background: var(--accent); height: 100%; transition: width 600ms ease; }
+  .ins-funnel-row .count { font-family: var(--font-mono); font-size: 12px; color: var(--ink); text-align: right; }
+  .ins-funnel-row .pct { font-family: var(--font-mono); font-size: 10px; color: var(--muted); margin-left: 8px; }
+  .ins-funnel-drop { font-family: var(--font-mono); font-size: 10px; color: var(--wine, #722F37); letter-spacing: 0.06em; padding-left: 234px; margin: 4px 0 4px; }
+
+  /* Heatmap · 7 rows (Mon-Sun) x 24 cols (0-23). Cells are square-ish. */
+  .ins-heatmap { display: inline-block; }
+  .ins-heatmap .row { display: flex; align-items: center; gap: 4px; margin-bottom: 2px; }
+  .ins-heatmap .row-label { width: 36px; font-family: var(--font-mono); font-size: 10px; color: var(--muted); text-align: right; letter-spacing: 0.06em; }
+  .ins-heatmap .cell { width: 24px; height: 24px; border: 1px solid #fff; display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 9px; color: rgba(0,0,0,0.6); cursor: default; }
+  .ins-heatmap .col-labels { display: flex; gap: 4px; margin-left: 40px; margin-bottom: 4px; font-family: var(--font-mono); font-size: 9px; color: var(--muted); }
+  .ins-heatmap .col-labels span { width: 24px; text-align: center; }
+
+  .ins-cohort { display: inline-block; }
+  .ins-cohort .row { display: flex; align-items: center; gap: 4px; margin-bottom: 3px; }
+  .ins-cohort .row-label { width: 100px; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+  .ins-cohort .cell { width: 56px; height: 26px; border: 1px solid #fff; display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 11px; color: var(--ink); }
+  .ins-cohort .col-labels { display: flex; gap: 4px; margin-left: 104px; margin-bottom: 4px; font-family: var(--font-mono); font-size: 10px; color: var(--muted); letter-spacing: 0.06em; }
+  .ins-cohort .col-labels span { width: 56px; text-align: center; }
+
+  .ins-legend { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 10px; color: var(--muted); margin-top: 10px; }
+  .ins-legend .swatch { display: inline-block; width: 18px; height: 12px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">counsel<span class="tld">.day</span> &middot; admin</div>
+  <div class="meta">
+    <a href="/account.html">&larr; User-facing site</a>
+    <span id="adm-identity">&hellip;</span>
+    <a href="#" id="adm-logout">Log out</a>
+  </div>
+</div>
+<nav class="adm-subnav" aria-label="Admin sections">
+  <a href="/admin.html">Overview</a>
+  <a href="/admin-users.html">Users</a>
+  <a href="/admin-products.html">Products</a>
+  <a href="/admin-growth.html">Growth</a>
+  <a href="/admin-engagement.html">Engagement</a>
+  <a href="/admin-insights.html" class="active">Insights</a>
+  <a href="/admin-traffic.html">Traffic</a>
+  <a href="/admin-finance.html">Finance</a>
+  <a href="/admin-verdict-logs.html">Verdict logs</a>
+  <a href="/admin-audit-log.html">Audit log</a>
+  <a href="/admin-chatbot-queries.html">Chatbot</a>
+  <a href="/admin-prompt-editor.html">Prompts</a>
+  <a href="/admin-database.html">Database</a>
+  <a href="/admin-testing-area.html">Testing</a>
+</nav>
+
+<div class="shell">
+  <h1>Insights</h1>
+  <p class="lede">Activation funnel, vote-time heatmap, and cohort retention. All three computed live from the database; no caching. Use this page to spot where the funnel leaks, when to schedule the evening-prompt cron, and whether new cohorts are returning.</p>
+  <div id="adm-error" class="status-banner is-error" style="display:none;"></div>
+
+  <section class="ins-section">
+    <h2>Activation funnel</h2>
+    <p class="desc">Six stages from sign-up to a second decision. The bar widths are absolute counts; the percentages between rows are stage-to-stage conversion.</p>
+    <div class="ins-card" id="ins-funnel"></div>
+  </section>
+
+  <section class="ins-section">
+    <h2>Vote-time heatmap</h2>
+    <p class="desc">Votes cast in the last 90 days, bucketed by day-of-week and hour-of-day (UTC). Darker means more votes in that bucket. Use it to tune the evening-prompt cron schedule.</p>
+    <div class="ins-card" id="ins-heatmap"></div>
+  </section>
+
+  <section class="ins-section">
+    <h2>Cohort retention</h2>
+    <p class="desc">Users grouped by signup month. Each row shows how many of that cohort voted in each subsequent month. Colour intensity is % of the cohort still active.</p>
+    <div class="ins-card" id="ins-cohort"></div>
+  </section>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  // ---- Identity ----
+  fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) {
+    if (d && d.ok && d.user) document.getElementById('adm-identity').textContent = d.user.email + ' · admin';
+  }).catch(function () {});
+  document.getElementById('adm-logout').addEventListener('click', function (e) {
+    e.preventDefault();
+    fetch('/api/signout', { method: 'POST', credentials: 'include' }).finally(function () { window.location.href = '/'; });
+  });
+
+  function fmtNum(n) { return Number(n).toLocaleString(); }
+  function pct(num, den) { return den > 0 ? Math.round((num / den) * 1000) / 10 : 0; }
+
+  // Colour ramps · linear interp from a pale wine to deep wine.
+  function rampWine(t) {
+    // t in 0..1 · returns rgb string
+    t = Math.max(0, Math.min(1, t));
+    var r = Math.round(244 + (114 - 244) * t);
+    var g = Math.round(230 + ( 47 - 230) * t);
+    var b = Math.round(232 + ( 55 - 232) * t);
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+  }
+
+  function renderFunnel(host, funnel) {
+    var c = funnel.counts;
+    var stages = funnel.nodes;
+    var top = c[stages[0].id] || 1; // signed_up · denominator for bar width
+    var html = '';
+    stages.forEach(function (s, i) {
+      var n = c[s.id] || 0;
+      var w = (n / top) * 100;
+      var p = pct(n, top);
+      html += '<div class="ins-funnel-row">' +
+                '<div class="label">' + s.label + '</div>' +
+                '<div class="bar-wrap"><div class="bar" style="width: ' + w + '%;"></div></div>' +
+                '<div class="count">' + fmtNum(n) + '<span class="pct">' + p + '%</span></div>' +
+              '</div>';
+      if (i < stages.length - 1) {
+        var next = c[stages[i + 1].id] || 0;
+        var conv = pct(next, n);
+        var drop = n - next;
+        html += '<div class="ins-funnel-drop">&darr; ' + conv + '% advance &middot; ' + fmtNum(drop) + ' drop off</div>';
+      }
+    });
+    host.innerHTML = html;
+  }
+
+  function renderHeatmap(host, data) {
+    var days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    var hours = Array.from({ length: 24 }, function (_, i) { return i; });
+    var max = data.max || 1;
+    var html = '<div class="ins-heatmap">';
+    html += '<div class="col-labels">' + hours.map(function (h) {
+      return '<span>' + (h % 6 === 0 ? String(h).padStart(2, '0') : '·') + '</span>';
+    }).join('') + '</div>';
+    days.forEach(function (label, d) {
+      html += '<div class="row"><span class="row-label">' + label + '</span>';
+      hours.forEach(function (h) {
+        var v = (data.matrix[d] && data.matrix[d][h]) || 0;
+        var t = v / max;
+        var bg = v === 0 ? '#f5f5f5' : rampWine(t);
+        var text = v > 0 ? v : '';
+        html += '<span class="cell" style="background:' + bg + ';" title="' + label + ' ' + String(h).padStart(2, '0') + ':00 UTC · ' + v + ' vote(s)">' + text + '</span>';
+      });
+      html += '</div>';
+    });
+    html += '<div class="ins-legend">';
+    html += '<span class="swatch" style="background:#f5f5f5;"></span> 0';
+    html += '<span class="swatch" style="background:' + rampWine(0.3) + ';"></span> low';
+    html += '<span class="swatch" style="background:' + rampWine(0.7) + ';"></span> high';
+    html += '<span class="swatch" style="background:' + rampWine(1) + ';"></span> peak (' + max + ')';
+    html += '</div>';
+    html += '</div>';
+    host.innerHTML = html;
+  }
+
+  function renderCohort(host, cohort) {
+    if (!cohort.sizes || cohort.sizes.length === 0) {
+      host.innerHTML = '<p style="color: var(--muted); font-family: var(--font-mono); font-size: 11px;">No cohort data yet · need at least one user with a recent signup.</p>';
+      return;
+    }
+    // Build a sizeMap and an activityMap[cohort][monthsSince] = users
+    var sizeMap = {};
+    cohort.sizes.forEach(function (r) { sizeMap[r.cohort_month] = r.size; });
+    var activityMap = {};
+    cohort.activity.forEach(function (r) {
+      var k = r.cohort_month;
+      if (!activityMap[k]) activityMap[k] = {};
+      activityMap[k][r.months_since] = r.users;
+    });
+    var months = cohort.sizes.map(function (r) { return r.cohort_month; }).sort();
+    var maxMonths = 12; // 0..11
+
+    var html = '<div class="ins-cohort">';
+    html += '<div class="col-labels">';
+    for (var m = 0; m < maxMonths; m++) {
+      html += '<span>M' + m + '</span>';
+    }
+    html += '</div>';
+    months.forEach(function (cm) {
+      var size = sizeMap[cm] || 0;
+      var label = cm.slice(0, 7); // YYYY-MM
+      html += '<div class="row"><span class="row-label">' + label + ' &middot; ' + size + '</span>';
+      for (var m = 0; m < maxMonths; m++) {
+        var v = (activityMap[cm] && activityMap[cm][m]) || 0;
+        var ret = size > 0 ? v / size : 0;
+        var bg = (v === 0) ? '#f5f5f5' : rampWine(Math.min(1, ret));
+        var pctTxt = size > 0 && v > 0 ? Math.round(ret * 100) + '%' : '';
+        html += '<span class="cell" style="background:' + bg + ';" title="' + v + ' of ' + size + ' (' + pctTxt + ') active month ' + m + '">' + pctTxt + '</span>';
+      }
+      html += '</div>';
+    });
+    html += '<div class="ins-legend">M0 = signup month · M1 = next month · &hellip;</div>';
+    html += '</div>';
+    host.innerHTML = html;
+  }
+
+  fetch('/api/admin/insights', { credentials: 'include' })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d || !d.ok) {
+        document.getElementById('adm-error').style.display = 'block';
+        document.getElementById('adm-error').textContent = (d && d.message) || 'Failed to load insights';
+        return;
+      }
+      renderFunnel(document.getElementById('ins-funnel'), d.funnel);
+      renderHeatmap(document.getElementById('ins-heatmap'), d.vote_heatmap);
+      renderCohort(document.getElementById('ins-cohort'), d.cohort);
+    });
+})();
+</script>
+</body>
+</html>

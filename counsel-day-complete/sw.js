@@ -28,7 +28,7 @@
  * encrypted in transit but bugs happen).
  */
 
-const CACHE_VERSION = 'cd-shell-v2';
+const CACHE_VERSION = 'cd-shell-v3';
 const SHELL_PATHS = [
   '/offline.html',
   '/styles-i8.css',
@@ -38,9 +38,28 @@ const SHELL_PATHS = [
   '/icon-512.png',
 ];
 
+// Cache each path independently · cache.addAll() rejects the entire
+// install when a single path 404s, which marks the SW redundant
+// (seen 2026-05-22 · pre-v3 SW was failing on every page load,
+// preventing Chrome from firing beforeinstallprompt cleanly). With
+// allSettled, a single broken path just gets logged; the SW still
+// activates and the rest of the shell is cached.
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_VERSION).then((cache) => cache.addAll(SHELL_PATHS)).then(() => self.skipWaiting())
+    caches.open(CACHE_VERSION).then((cache) =>
+      Promise.allSettled(SHELL_PATHS.map((path) =>
+        fetch(path, { cache: 'reload' }).then((res) => {
+          if (!res.ok) throw new Error(path + ' returned ' + res.status);
+          return cache.put(path, res);
+        })
+      )).then((results) => {
+        results.forEach((r, i) => {
+          if (r.status === 'rejected') {
+            console.warn('[sw] failed to precache ' + SHELL_PATHS[i] + ':', r.reason && r.reason.message);
+          }
+        });
+      })
+    ).then(() => self.skipWaiting())
   );
 });
 

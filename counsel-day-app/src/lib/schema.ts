@@ -334,6 +334,28 @@ export const chatbotQueries = pgTable(
 );
 
 // ---------------------------------------------------------------------------
+// VERDICT SHARES · tokenised public share links for paid verdicts. Owner
+// generates a token via /api/verdict-report/share, sends the URL to the
+// recipient, who reads /share.html?token=<token> without an account.
+// ---------------------------------------------------------------------------
+export const verdictShares = pgTable(
+  'verdict_shares',
+  {
+    id: integer('id').primaryKey().generatedByDefaultAsIdentity(),
+    decisionId: uuid('decision_id').notNull().references(() => decisions.id, { onDelete: 'cascade' }),
+    ownerUserId: uuid('owner_user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    token: text('token').notNull(),
+    allowPartnerNames: boolean('allow_partner_names').notNull().default(true),
+    allowAnalysis: boolean('allow_analysis').notNull().default(false),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    revokedAt: timestamp('revoked_at', { withTimezone: true }),
+    expiresAt: timestamp('expires_at', { withTimezone: true }),
+    viewCount: integer('view_count').notNull().default(0),
+    lastViewedAt: timestamp('last_viewed_at', { withTimezone: true }),
+  }
+);
+
+// ---------------------------------------------------------------------------
 // VERDICT TIME CAPSULES · 6 / 12 / 24-month opt-in re-delivery emails.
 // One row per (decision, user, interval) triple. Cron job
 // time-capsule-deliver scans for delivered_at IS NULL AND deliver_at <= NOW().

@@ -126,6 +126,48 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 #rpt-sections { display: none; }
 #rpt-sections.is-ready { display: block; }
 #rpt-loading { padding: 80px 30px; text-align: center; color: var(--muted); font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; }
+
+.rpt-actions { display: flex; }
+.rpt-action-btn:hover { opacity: 0.88; }
+
+/* Share modal · simple overlay with a URL + copy button + revoke link. */
+.share-modal { position: fixed; inset: 0; z-index: 9999; background: rgba(10,10,10,0.6); display: flex; align-items: center; justify-content: center; padding: 20px; }
+.share-modal .panel { background: #fff; border: 1px solid var(--ink); padding: 28px 30px 22px; max-width: 540px; width: 100%; max-height: 86vh; overflow-y: auto; position: relative; }
+.share-modal .close { position: absolute; top: 8px; right: 12px; background: transparent; border: none; cursor: pointer; font-size: 26px; color: var(--muted); padding: 4px 8px; }
+.share-modal .eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.18em; color: var(--wine); margin-bottom: 10px; }
+.share-modal h3 { font-family: var(--font-display); font-size: 22px; font-weight: 500; margin: 0 0 14px; }
+.share-modal h3 .ital { font-style: italic; color: var(--wine); }
+.share-modal .body { font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: var(--ink-soft); }
+.share-modal .body strong { color: var(--ink); font-weight: 500; }
+.share-modal .url-row { display: flex; gap: 0; margin: 14px 0; }
+.share-modal .url-row input { flex: 1; font-family: var(--font-mono); font-size: 12px; padding: 10px 12px; border: 1px solid var(--ink); background: var(--paper-deep); color: var(--ink); border-radius: 0; }
+.share-modal .url-row button { font-family: var(--font-ui); font-size: 13px; padding: 10px 16px; background: var(--ink); color: var(--paper); border: 1px solid var(--ink); cursor: pointer; border-radius: 0; }
+.share-modal .opts { margin: 12px 0; font-family: var(--font-body); font-size: 13px; }
+.share-modal .opts label { display: block; margin: 6px 0; cursor: pointer; }
+.share-modal .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+.share-modal .actions button { font-family: var(--font-ui); font-size: 13px; font-weight: 500; padding: 10px 18px; cursor: pointer; border-radius: 0; }
+.share-modal .actions .create { background: var(--wine); color: var(--paper); border: 1px solid var(--wine); }
+.share-modal .actions .revoke { background: var(--paper); color: var(--wine); border: 1px solid var(--wine); }
+.share-modal .status { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--muted); margin-top: 10px; min-height: 12px; }
+.share-modal .status.ok { color: var(--wine); }
+
+/* Print stylesheet · when the user clicks Download PDF we call
+   window.print(), and these rules hide the chrome so the printed
+   page is a clean verdict layout. */
+@media print {
+  nav.nav-bar, footer.colophon, .rpt-actions, .go-to-top, #cd-push-banner, #cd-install-modal,
+  #panel-traj canvas, #panel-wordcloud, #panel-capsules, #panel-multi,
+  .panel#panel-traj, .panel#panel-wordcloud, .panel#panel-capsules,
+  .panel#panel-sentiment, .panel#panel-vocab, .multi-teaser { display: none !important; }
+  body, html { background: #fff !important; color: #000 !important; }
+  .rpt-head { border-bottom: 2px solid #000 !important; padding: 16px 0 12px !important; }
+  .rpt-body { padding: 12px 0 !important; max-width: none !important; }
+  .panel { border: 1px solid #ccc !important; padding: 16px !important; margin-bottom: 12px !important; page-break-inside: avoid; }
+  .panel-title { font-size: 18px !important; }
+  .synth-prose { font-size: 13pt !important; }
+  a { color: #000 !important; text-decoration: none !important; }
+  @page { margin: 18mm 16mm; }
+}
 </style>
 </head>
 <body>
@@ -159,6 +201,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       <div class="rpt-eyebrow" id="rpt-fileref">Loading record &hellip;</div>
       <h1 class="rpt-question" id="rpt-question">Loading the verdict <span class="ital">report.</span></h1>
       <div class="rpt-meta" id="rpt-meta">&nbsp;</div>
+      <div class="rpt-actions" id="rpt-actions" style="display: none; margin-top: 18px; gap: 12px; flex-wrap: wrap;">
+        <button type="button" class="rpt-action-btn" id="rpt-print-btn" style="font-family: var(--font-ui); font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; padding: 10px 18px; background: var(--paper); color: var(--ink); border: 1px solid var(--ink); cursor: pointer; border-radius: 0;">Download PDF</button>
+        <button type="button" class="rpt-action-btn" id="rpt-share-btn" style="font-family: var(--font-ui); font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; padding: 10px 18px; background: var(--wine); color: var(--paper); border: 1px solid var(--wine); cursor: pointer; border-radius: 0;">Share verdict</button>
+      </div>
     </div>
   </header>
 
@@ -388,6 +434,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       // ---- Ready · render the full report ----
       el('rpt-loading').style.display = 'none';
       el('rpt-sections').classList.add('is-ready');
+      var actionsRow = el('rpt-actions');
+      if (actionsRow) actionsRow.style.display = 'flex';
 
       var d = body.decision || {};
       var v = body.verdict || {};
@@ -729,6 +777,118 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     update();
     top.addEventListener('click', function (e) { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
   })();
+
+  // ---- Download PDF · uses the browser's print-to-PDF flow ----
+  // The @media print stylesheet hides nav, footer, action buttons,
+  // charts, and the multi-decision teaser, leaving a clean A4 layout
+  // of the synthesis + themes + key quotes. Cheaper than running
+  // Puppeteer server-side; consistent across browsers; users get to
+  // save AS PDF or print to physical paper from the same dialog.
+  var printBtn = document.getElementById('rpt-print-btn');
+  if (printBtn) printBtn.addEventListener('click', function () { window.print(); });
+
+  // ---- Share verdict modal ----
+  var shareBtn = document.getElementById('rpt-share-btn');
+  if (shareBtn) shareBtn.addEventListener('click', openShareModal);
+
+  function openShareModal() {
+    var existing = document.querySelector('.share-modal');
+    if (existing) { existing.remove(); }
+    var modal = document.createElement('div');
+    modal.className = 'share-modal';
+    modal.innerHTML =
+      '<div class="panel">' +
+        '<button type="button" class="close" aria-label="Close">&times;</button>' +
+        '<div class="eyebrow">SHARE VERDICT</div>' +
+        '<h3>Send this verdict to <span class="ital">someone.</span></h3>' +
+        '<p class="body">A long-random URL · the recipient sees the prose verdict, the question, and the verdict date. They do NOT see notes, votes, or the analysis panels. Revoke any time.</p>' +
+        '<div class="opts">' +
+          '<label><input type="checkbox" id="share-allow-names" checked> Include partner first names</label>' +
+          '<label><input type="checkbox" id="share-allow-analysis"> Include theme names (no quotes)</label>' +
+        '</div>' +
+        '<div class="actions">' +
+          '<button type="button" class="create" id="share-create">Create share link</button>' +
+        '</div>' +
+        '<div class="url-row" id="share-url-row" style="display: none;">' +
+          '<input type="text" id="share-url" readonly>' +
+          '<button type="button" id="share-copy">Copy</button>' +
+        '</div>' +
+        '<div class="actions" id="share-revoke-row" style="display: none;">' +
+          '<button type="button" class="revoke" id="share-revoke">Revoke this link</button>' +
+        '</div>' +
+        '<div class="status" id="share-status"></div>' +
+      '</div>';
+    document.body.appendChild(modal);
+    modal.addEventListener('click', function (e) { if (e.target === modal) modal.remove(); });
+    modal.querySelector('.close').addEventListener('click', function () { modal.remove(); });
+
+    var currentToken = null;
+
+    modal.querySelector('#share-create').addEventListener('click', function () {
+      var btn = modal.querySelector('#share-create');
+      btn.disabled = true; btn.textContent = 'Creating' + String.fromCharCode(0x2026);
+      var allowNames = modal.querySelector('#share-allow-names').checked;
+      var allowAnalysis = modal.querySelector('#share-allow-analysis').checked;
+      fetch('/api/verdict-report/share', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ decision_id: id, allow_partner_names: allowNames, allow_analysis: allowAnalysis }),
+      }).then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+        .then(function (res) {
+          btn.disabled = false; btn.textContent = 'Create another link';
+          if (res.status !== 200 || !res.body.ok) {
+            modal.querySelector('#share-status').textContent = (res.body && res.body.message) || 'Failed';
+            return;
+          }
+          currentToken = res.body.token;
+          var input = modal.querySelector('#share-url');
+          input.value = res.body.url;
+          modal.querySelector('#share-url-row').style.display = 'flex';
+          modal.querySelector('#share-revoke-row').style.display = 'flex';
+          var status = modal.querySelector('#share-status');
+          status.textContent = 'Link ready · valid until you revoke.';
+          status.classList.add('ok');
+          input.select();
+        }).catch(function () {
+          btn.disabled = false; btn.textContent = 'Create share link';
+          modal.querySelector('#share-status').textContent = 'Network error.';
+        });
+    });
+
+    modal.querySelector('#share-copy').addEventListener('click', function () {
+      var input = modal.querySelector('#share-url');
+      input.select();
+      try {
+        navigator.clipboard.writeText(input.value).then(function () {
+          modal.querySelector('#share-status').textContent = 'Copied to clipboard.';
+        });
+      } catch (e) {
+        document.execCommand && document.execCommand('copy');
+      }
+    });
+
+    modal.querySelector('#share-revoke').addEventListener('click', function () {
+      if (!currentToken) return;
+      var btn = modal.querySelector('#share-revoke');
+      btn.disabled = true; btn.textContent = 'Revoking' + String.fromCharCode(0x2026);
+      fetch('/api/verdict-report/share?token=' + encodeURIComponent(currentToken), {
+        method: 'DELETE',
+        credentials: 'include',
+      }).then(function (r) {
+        if (r.ok) {
+          modal.querySelector('#share-url-row').style.display = 'none';
+          modal.querySelector('#share-revoke-row').style.display = 'none';
+          modal.querySelector('#share-status').textContent = 'Revoked · the link will no longer load.';
+          currentToken = null;
+          btn.disabled = false; btn.textContent = 'Revoke this link';
+          modal.querySelector('#share-create').textContent = 'Create share link';
+        } else {
+          btn.disabled = false; btn.textContent = 'Revoke this link';
+        }
+      });
+    });
+  }
 })();
 </script>
 <script src="pwa.js" defer></script>

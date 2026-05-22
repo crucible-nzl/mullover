@@ -27,7 +27,9 @@ import { checkRateLimit, rateLimitResponse, getClientIp } from '@/lib/rate-limit
 import { callAnthropic } from '@/lib/anthropic-call';
 import { getAnthropic } from '@/lib/anthropic';
 import { db, schema } from '@/lib/db';
+import { sql } from 'drizzle-orm';
 import { CHATBOT_KB } from '@/lib/chatbot-knowledge';
+import { recaptchaConfigured, recaptchaSiteKey, verifyRecaptchaToken } from '@/lib/recaptcha';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -55,6 +57,11 @@ SCOPE · what you refuse
 - Relationship, parenting, family, friendship advice.
 - Mental health, therapy, medical, legal, financial recommendations.
 - Anything outside Counsel.day product knowledge.
+
+IMPORTANT DISTINCTION · scope questions vs personal-decision questions
+Questions about what Counsel.day IS NOT (e.g. "does this replace therapy?", "is this couples counselling?", "is the AI making the decision for me?", "are you a real person?") are FACTUAL SCOPE QUESTIONS, not personal-decision questions. Answer them clearly from KB section 12. Do NOT use the personal-decision refusal sentence for these · the user is asking what the product is, not asking for advice.
+
+A useful test: if the user is asking ABOUT Counsel.day or ABOUT you (the bot), it is a scope question · answer it. If the user is asking you to advise them on something happening in their actual life, it is a personal-decision question · refuse with the fixed sentence.
 
 When you refuse, say (exactly, do not paraphrase, do not soften):
 "I only answer questions about how Counsel.day works. For your actual decision, the product is the answer · open a sealed vote and let time do the work."
@@ -94,8 +101,52 @@ export async function POST(req: Request) {
   const ipHourly = await checkRateLimit(`chatbot-ip-hour:${ip}`, 90, 3600);
   if (!ipHourly.allowed) return rateLimitResponse(ipHourly);
 
-  let body: { history?: unknown; message?: unknown } = {};
+  let body: { history?: unknown; message?: unknown; recaptcha_token?: unknown } = {};
   try { body = await req.json(); } catch { /* keep empty · validation below */ }
+
+  // Burst gate · counts SUCCESSFUL turns in the last 10 minutes for
+  // this user. Once at the burst cap, the next call returns 429 with
+  // recaptcha_required:true so the browser can render a v2 widget.
+  // A valid recaptcha_token in the request resets the burst counter
+  // for this user (via the synthetic reset key) before the regular
+  // burst check fires.
+  const BURST_LIMIT = 5;
+  const BURST_WINDOW_S = 600;
+  const recaptchaToken = typeof body.recaptcha_token === 'string' ? body.recaptcha_token.trim() : '';
+  if (recaptchaToken && recaptchaConfigured()) {
+    const ok = await verifyRecaptchaToken(recaptchaToken, ip);
+    if (!ok) {
+      return NextResponse.json(
+        { ok: false, message: 'reCAPTCHA verification failed. Please try again.', recaptcha_required: true, recaptcha_site_key: recaptchaSiteKey() },
+        { status: 400, headers: { 'cache-control': 'private, no-store' } }
+      );
+    }
+    // Verified · clear the burst counter so the user can continue.
+    await db.execute(sql`
+      DELETE FROM rate_limits WHERE key = ${`chatbot-burst-user:${session.userId}`}
+    `).catch(() => {});
+  }
+  const burst = await checkRateLimit(`chatbot-burst-user:${session.userId}`, BURST_LIMIT, BURST_WINDOW_S);
+  if (!burst.allowed) {
+    if (recaptchaConfigured()) {
+      return NextResponse.json(
+        {
+          ok: false,
+          message: 'Quick check · prove you\'re human to keep chatting.',
+          recaptcha_required: true,
+          recaptcha_site_key: recaptchaSiteKey(),
+          retry_after_seconds: burst.retryAfterSeconds,
+        },
+        { status: 429, headers: { 'cache-control': 'private, no-store', 'retry-after': String(burst.retryAfterSeconds) } }
+      );
+    }
+    // reCAPTCHA not configured · fall back to a hard wait window
+    // rather than blocking forever. Tell the user how long.
+    return rateLimitResponse(
+      burst,
+      `You've sent ${BURST_LIMIT} messages in quick succession. Please wait ${Math.ceil(burst.retryAfterSeconds / 60)} minute(s) before continuing, or email support@counsel.day.`,
+    );
+  }
 
   const message = String(body.message ?? '').trim();
   if (!message) {

@@ -40,21 +40,27 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <link rel="stylesheet" href="/fonts/fonts.css">
 <link rel="stylesheet" href="styles-i8.css">
 <style>
-.hp-head { padding: 36px 32px 24px; border-bottom: 1px solid var(--rule); background: var(--paper); }
-.hp-head-inner { max-width: 880px; margin: 0 auto; }
-.hp-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine); margin-bottom: 14px; }
-.hp-title { font-family: var(--font-display); font-size: clamp(28px, 3.4vw, 40px); font-weight: 500; line-height: 1.2; color: var(--ink); margin: 0 0 12px; }
+.hp-head { padding: 18px 32px 14px; border-bottom: 1px solid var(--rule); background: var(--paper); }
+.hp-head-inner { max-width: 1280px; margin: 0 auto; }
+.hp-eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine); margin-bottom: 6px; }
+.hp-title { font-family: var(--font-display); font-size: clamp(22px, 2.4vw, 28px); font-weight: 500; line-height: 1.2; color: var(--ink); margin: 0 0 4px; }
 .hp-title .ital { font-style: italic; color: var(--wine); }
-.hp-lede { font-family: var(--font-display); font-style: italic; font-size: 18px; line-height: 1.5; color: var(--ink-soft); max-width: 700px; margin: 0; }
+.hp-lede { font-family: var(--font-display); font-style: italic; font-size: 14px; line-height: 1.4; color: var(--ink-soft); max-width: 920px; margin: 0; }
 
-.hp-body { max-width: 880px; margin: 0 auto; padding: 24px 32px 60px; }
-.hp-rules { border: 1px solid var(--rule); padding: 16px 20px; background: var(--paper-deep); margin-bottom: 24px; font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: var(--ink-soft); }
-.hp-rules strong { color: var(--ink); font-weight: 500; }
-.hp-rules ul { margin: 8px 0 0 18px; padding: 0; }
-.hp-rules li { margin-bottom: 4px; }
+/* Two-column above the fold: chat on the left, rules sidebar on the right.
+   On narrow viewports the rules collapse below the chat. Vertical padding
+   eliminated so the chat window starts immediately under the header. */
+.hp-body { max-width: 1280px; margin: 0 auto; padding: 14px 32px 18px; display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 18px; align-items: start; }
+@media (max-width: 900px) { .hp-body { grid-template-columns: 1fr; } }
 
-.hp-window { border: 1px solid var(--ink); background: var(--paper); display: flex; flex-direction: column; height: 60vh; min-height: 420px; }
-.hp-transcript { flex: 1 1 auto; overflow-y: auto; padding: 20px 24px; }
+.hp-rules { border: 1px solid var(--rule); padding: 14px 18px; background: var(--paper-deep); margin: 0; font-family: var(--font-body); font-size: 13px; line-height: 1.5; color: var(--ink-soft); }
+.hp-rules strong { color: var(--ink); font-weight: 500; display: block; margin-top: 8px; }
+.hp-rules strong:first-child { margin-top: 0; }
+.hp-rules ul { margin: 6px 0 0 16px; padding: 0; }
+.hp-rules li { margin-bottom: 3px; }
+
+.hp-window { border: 1px solid var(--ink); background: var(--paper); display: flex; flex-direction: column; height: calc(100vh - 240px); min-height: 380px; max-height: 640px; }
+.hp-transcript { flex: 1 1 auto; overflow-y: auto; padding: 18px 22px; }
 .hp-msg { margin-bottom: 18px; max-width: 88%; }
 .hp-msg.user { margin-left: auto; text-align: left; }
 .hp-msg.assistant { margin-right: auto; }
@@ -79,6 +85,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 .hp-status { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-top: 12px; min-height: 14px; }
 .hp-status.err { color: var(--wine); }
+
+.hp-captcha { display: none; margin-top: 14px; padding: 14px 18px; border: 1px solid var(--wine); background: var(--wine-soft); }
+.hp-captcha.is-on { display: block; }
+.hp-captcha-title { font-family: var(--font-display); font-size: 16px; font-weight: 500; color: var(--ink); margin: 0 0 8px; }
+.hp-captcha-body { font-family: var(--font-body); font-size: 14px; line-height: 1.5; color: var(--ink-soft); margin: 0 0 12px; }
+#hp-recaptcha { display: inline-block; }
 </style>
 </head>
 <body>
@@ -117,35 +129,44 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   <div class="hp-body">
 
-    <div class="hp-rules">
+    <div>
+      <div class="hp-window" aria-label="Helper bot transcript">
+        <div class="hp-transcript" id="hp-transcript" aria-live="polite">
+          <div class="hp-msg system">
+            <div class="hp-msg-role">Helper</div>
+            <div class="hp-msg-bubble">Ask anything about how Counsel.day works. I keep the answers short. For anything I don&apos;t know, I&apos;ll point you at <a href="mailto:support@counsel.day">support@counsel.day</a>.</div>
+          </div>
+        </div>
+        <form class="hp-form" id="hp-form">
+          <textarea class="hp-input" id="hp-input" name="message" placeholder="Ask about pricing, durations, billing, refunds &hellip;" maxlength="2000" required></textarea>
+          <button type="submit" class="hp-send" id="hp-send">Ask</button>
+        </form>
+      </div>
+
+      <div class="hp-captcha" id="hp-captcha" aria-live="polite">
+        <p class="hp-captcha-title">Quick check &middot; prove you&apos;re human</p>
+        <p class="hp-captcha-body">You&apos;ve sent five messages in a short window. Tick the box below to keep going.</p>
+        <div id="hp-recaptcha"></div>
+      </div>
+
+      <div class="hp-escalate" id="hp-escalate">
+        Need a human? <a href="mailto:support@counsel.day?subject=Helper%20question">Email support@counsel.day</a> &middot; one business day reply, faster if it&apos;s a billing issue.
+      </div>
+
+      <div class="hp-status" id="hp-status">&nbsp;</div>
+    </div>
+
+    <aside class="hp-rules" aria-label="What the helper bot covers">
       <strong>What the bot answers</strong>
       <ul>
         <li>How sealed votes, durations, and verdicts work.</li>
         <li>Pricing across Solo Free, Solo Paid, Couple, Family. All USD.</li>
         <li>Account, billing, MFA, password, refunds, GDPR data export.</li>
-        <li>Technical issues &middot; verdict missing, can&apos;t sign in, vote not saving.</li>
+        <li>Technical issues &middot; verdict missing, can&apos;t sign in.</li>
       </ul>
-      <strong>What it refuses</strong> &middot; personal decisions, relationship advice, mental-health questions. Those belong inside the product itself, or with a qualified professional. The bot will escalate to <a href="mailto:support@counsel.day">support@counsel.day</a> when it doesn&apos;t know.
-    </div>
-
-    <div class="hp-window" aria-label="Helper bot transcript">
-      <div class="hp-transcript" id="hp-transcript" aria-live="polite">
-        <div class="hp-msg system">
-          <div class="hp-msg-role">Helper</div>
-          <div class="hp-msg-bubble">Ask anything about how Counsel.day works. I keep the answers short. For anything I don&apos;t know, I&apos;ll point you at <a href="mailto:support@counsel.day">support@counsel.day</a>.</div>
-        </div>
-      </div>
-      <form class="hp-form" id="hp-form">
-        <textarea class="hp-input" id="hp-input" name="message" placeholder="Ask about pricing, durations, billing, refunds &hellip;" maxlength="2000" required></textarea>
-        <button type="submit" class="hp-send" id="hp-send">Ask</button>
-      </form>
-    </div>
-
-    <div class="hp-escalate" id="hp-escalate">
-      Need a human? <a href="mailto:support@counsel.day?subject=Helper%20question">Email support@counsel.day</a> &middot; one business day reply, faster if it&apos;s a billing issue.
-    </div>
-
-    <div class="hp-status" id="hp-status">&nbsp;</div>
+      <strong>What it refuses</strong>
+      <p style="margin: 4px 0 0;">Personal decisions, relationship advice, mental-health questions. Those belong inside the product itself, or with a qualified professional. The bot escalates to <a href="mailto:support@counsel.day">support@counsel.day</a> when it doesn&apos;t know.</p>
+    </aside>
 
   </div>
 
@@ -199,7 +220,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   var send = document.getElementById('hp-send');
   var statusEl = document.getElementById('hp-status');
   var escalateEl = document.getElementById('hp-escalate');
+  var captchaEl = document.getElementById('hp-captcha');
   var history = [];
+  var pendingMessage = null;       // message awaiting captcha
+  var recaptchaWidgetId = null;    // grecaptcha widget handle
+  var recaptchaSiteKey = null;
+  var recaptchaScriptLoaded = false;
 
   function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
   function status(text, isErr) { statusEl.textContent = text || ''; statusEl.classList.toggle('err', !!isErr); }
@@ -226,21 +252,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); }
   });
 
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var text = String(input.value || '').trim();
-    if (!text) return;
-    input.value = '';
+  function postMessage(text, recaptchaToken) {
     send.disabled = true;
     status('Asking the helper bot…');
-    appendMsg('user', text);
-    history.push({ role: 'user', content: text });
-
+    var payload = { message: text, history: history.slice(-12) };
+    if (recaptchaToken) payload.recaptcha_token = recaptchaToken;
     fetch('/api/chatbot/message', {
       method: 'POST',
       credentials: 'include',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ message: text, history: history.slice(-12) }),
+      body: JSON.stringify(payload),
     })
       .then(function (r) {
         if (r.status === 401) { window.location.href = '/signin?next=' + encodeURIComponent('/helper.html'); return null; }
@@ -249,6 +270,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       .then(function (res) {
         send.disabled = false;
         if (!res) return;
+        if (res.status === 429 && res.body && res.body.recaptcha_required) {
+          pendingMessage = text;
+          // Roll back the optimistic user-bubble so we don't double-append
+          // once the captcha clears and we replay.
+          history.pop();
+          showCaptcha(res.body.recaptcha_site_key);
+          status('Solve the check to keep chatting.', true);
+          return;
+        }
         if (res.status === 429) {
           status((res.body && res.body.message) || 'Rate limit hit. Try again later.', true);
           return;
@@ -259,6 +289,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           status('Failed', true);
           return;
         }
+        // Successful turn · hide any captcha that was previously shown
+        // (verification cleared the burst counter on the server).
+        if (captchaEl.classList.contains('is-on')) captchaEl.classList.remove('is-on');
         appendMsg('assistant', res.body.reply || '');
         history.push({ role: 'assistant', content: res.body.reply || '' });
         if (res.body.escalate) escalateEl.classList.add('is-on');
@@ -270,7 +303,60 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         appendMsg('system', 'Network error. Please try again.');
         status('Network error', true);
       });
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var text = String(input.value || '').trim();
+    if (!text) return;
+    input.value = '';
+    appendMsg('user', text);
+    history.push({ role: 'user', content: text });
+    postMessage(text, null);
   });
+
+  // ---- reCAPTCHA wiring ----
+  // The server returns recaptcha_site_key on the burst-gate 429. We
+  // lazy-load the Google script the first time we need it, render the
+  // v2 widget, and on solve replay the user's last message with the
+  // token attached. Server verifies, resets the burst counter, returns
+  // the reply.
+  function showCaptcha(siteKey) {
+    if (!siteKey) {
+      status('Burst limit hit · please wait a few minutes.', true);
+      return;
+    }
+    recaptchaSiteKey = siteKey;
+    captchaEl.classList.add('is-on');
+    if (recaptchaScriptLoaded) {
+      renderRecaptcha();
+      return;
+    }
+    var s = document.createElement('script');
+    s.src = 'https://www.google.com/recaptcha/api.js?onload=hpRecaptchaReady&render=explicit';
+    s.async = true; s.defer = true;
+    window.hpRecaptchaReady = renderRecaptcha;
+    document.head.appendChild(s);
+    recaptchaScriptLoaded = true;
+  }
+  function renderRecaptcha() {
+    if (!window.grecaptcha || !recaptchaSiteKey) return;
+    if (recaptchaWidgetId != null) { window.grecaptcha.reset(recaptchaWidgetId); return; }
+    recaptchaWidgetId = window.grecaptcha.render('hp-recaptcha', {
+      sitekey: recaptchaSiteKey,
+      callback: function (token) {
+        if (!pendingMessage) return;
+        var msg = pendingMessage;
+        pendingMessage = null;
+        // Re-append the user message we rolled back when the gate fired.
+        history.push({ role: 'user', content: msg });
+        postMessage(msg, token);
+      },
+      'expired-callback': function () {
+        status('Captcha expired · solve it again.', true);
+      },
+    });
+  }
 })();
 </script>
 <script src="pwa.js" defer></script>

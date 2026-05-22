@@ -118,7 +118,7 @@ a:hover { color: var(--wine-deep); }
   color: var(--wine);
 }
 .nav-links {
-  display: flex; flex-wrap: wrap; gap: 24px;
+  display: flex; flex-wrap: nowrap; gap: 24px;
   font-family: var(--font-ui);
   font-size: 15px;
   font-weight: 400;
@@ -129,13 +129,16 @@ a:hover { color: var(--wine-deep); }
   padding: 4px 0;
   border-bottom: 1px solid transparent;
   transition: border-color 120ms ease, color 120ms ease;
+  white-space: nowrap;
 }
 .nav-links a:hover,
 .nav-links a.active { color: var(--wine); border-bottom-color: var(--wine); }
 .nav-cta {
   display: flex; align-items: center; gap: 18px;
   font-family: var(--font-ui); font-size: 15px;
+  flex-shrink: 0;
 }
+.nav-cta a { white-space: nowrap; }
 .nav-cta .btn-text {
   color: var(--ink-soft); text-decoration: none; border-bottom: none;
 }
@@ -161,13 +164,22 @@ a:hover { color: var(--wine-deep); }
 .nav-bar.menu-open .nav-toggle-bar:nth-child(2) { opacity: 0; }
 .nav-bar.menu-open .nav-toggle-bar:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
 
-/* Tighten link spacing on mid-wide viewports (1024-1199) before the hamburger
-   takes over, so 9-item navs (e.g. vote.html) don't wrap. */
-@media (max-width: 1199px) and (min-width: 1024px) {
-  .nav-links { gap: 16px; font-size: 14px; }
-  .nav-inner { gap: 22px; padding: 16px 24px; }
-  .nav-cta { gap: 12px; font-size: 14px; }
+/* Tighten link spacing across the wider mid-range too. The public nav
+   (8 links + signed-in 3 right-side items) needs ~1400px to fit at full
+   font; the 1280px nav-inner cap was forcing labels to wrap. Now we
+   compress font/gaps progressively from 1399 down to the 1024 hamburger
+   threshold so the row stays single-line on every common desktop. */
+@media (max-width: 1399px) and (min-width: 1200px) {
+  .nav-links { gap: 18px; font-size: 14px; }
+  .nav-inner { gap: 24px; padding: 16px 24px; }
+  .nav-cta { gap: 14px; font-size: 14px; }
   .nav-cta .btn { padding: 12px 20px; font-size: 14px; }
+}
+@media (max-width: 1199px) and (min-width: 1024px) {
+  .nav-links { gap: 14px; font-size: 13px; }
+  .nav-inner { gap: 20px; padding: 16px 22px; }
+  .nav-cta { gap: 12px; font-size: 13px; }
+  .nav-cta .btn { padding: 10px 16px; font-size: 13px; }
 }
 /* Below 1024px, switch to the hamburger pattern (was 900px). */
 @media (max-width: 1023px) {

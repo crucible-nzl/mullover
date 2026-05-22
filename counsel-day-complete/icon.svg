@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Source SVG for PWA icon raster generation. 1024x1024 so output at
+     192 and 512 stays crisp. Maskable variant adds a 10% safe-area
+     margin via the icon generator script · do not bake the margin in
+     here. Colour palette: paper #ffffff, ink #0a0a0a, wine #722F37. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <rect width="1024" height="1024" fill="#ffffff"/>
+  <text x="120" y="780" font-family="Newsreader, Georgia, 'Times New Roman', serif"
+        font-size="900" font-weight="500" fill="#0a0a0a" letter-spacing="-30">C</text>
+  <circle cx="850" cy="700" r="80" fill="#722F37"/>
+</svg>

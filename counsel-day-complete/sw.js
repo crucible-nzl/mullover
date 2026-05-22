@@ -28,7 +28,7 @@
  * encrypted in transit but bugs happen).
  */
 
-const CACHE_VERSION = 'cd-shell-v1';
+const CACHE_VERSION = 'cd-shell-v2';
 const SHELL_PATHS = [
   '/offline.html',
   '/styles-i8.css',

@@ -1,7 +1,7 @@
 {
   "name": "Counsel.day",
   "short_name": "Counsel.day",
-  "description": "A decision tool for couples and families, for the questions a single conversation cannot resolve.",
+  "description": "A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

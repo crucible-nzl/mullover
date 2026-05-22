@@ -91,6 +91,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 .hp-captcha-title { font-family: var(--font-display); font-size: 16px; font-weight: 500; color: var(--ink); margin: 0 0 8px; }
 .hp-captcha-body { font-family: var(--font-body); font-size: 14px; line-height: 1.5; color: var(--ink-soft); margin: 0 0 12px; }
 #hp-recaptcha { display: inline-block; }
+
+.hp-empty { padding: 20px 22px; }
+.hp-empty-title { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin: 0 0 10px; }
+.hp-empty-lede { font-family: var(--font-body); font-style: italic; font-size: 14px; line-height: 1.5; color: var(--ink-soft); margin: 0 0 16px; }
+.hp-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.hp-chip { font-family: var(--font-ui); font-size: 13px; line-height: 1.2; padding: 8px 14px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink); cursor: pointer; transition: border-color 120ms ease, background 120ms ease; text-align: left; }
+.hp-chip:hover { border-color: var(--wine); background: var(--wine-soft); }
+.hp-chip.is-hidden { display: none; }
 </style>
 </head>
 <body>
@@ -132,9 +140,19 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <div>
       <div class="hp-window" aria-label="Helper bot transcript">
         <div class="hp-transcript" id="hp-transcript" aria-live="polite">
-          <div class="hp-msg system">
-            <div class="hp-msg-role">Helper</div>
-            <div class="hp-msg-bubble">Ask anything about how Counsel.day works. I keep the answers short. For anything I don&apos;t know, I&apos;ll point you at <a href="mailto:support@counsel.day">support@counsel.day</a>.</div>
+          <div class="hp-empty" id="hp-empty">
+            <p class="hp-empty-title">Start here</p>
+            <p class="hp-empty-lede">Tap a question to ask it &middot; or type your own. Answers stay in this window; nothing is saved across sessions.</p>
+            <div class="hp-chips" id="hp-chips">
+              <button type="button" class="hp-chip" data-q="How much does the Couple tier cost?">How much does Couple cost?</button>
+              <button type="button" class="hp-chip" data-q="How long can a decision run?">How long can a decision run?</button>
+              <button type="button" class="hp-chip" data-q="When does my verdict arrive?">When does my verdict arrive?</button>
+              <button type="button" class="hp-chip" data-q="Does this replace therapy?">Does this replace therapy?</button>
+              <button type="button" class="hp-chip" data-q="Can I refund a decision?">Can I refund a decision?</button>
+              <button type="button" class="hp-chip" data-q="How do I delete my account?">How do I delete my account?</button>
+              <button type="button" class="hp-chip" data-q="What's the difference between Solo Free and Solo Paid?">Solo Free vs Solo Paid?</button>
+              <button type="button" class="hp-chip" data-q="Can the other participant see my votes before unseal?">Can my partner see my votes?</button>
+            </div>
           </div>
         </div>
         <form class="hp-form" id="hp-form">
@@ -230,6 +248,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
   function status(text, isErr) { statusEl.textContent = text || ''; statusEl.classList.toggle('err', !!isErr); }
   function appendMsg(role, content) {
+    // First real message · hide the empty-state chips block so the
+    // transcript reads as a clean conversation from here on.
+    var empty = document.getElementById('hp-empty');
+    if (empty && !empty.classList.contains('is-hidden')) {
+      empty.classList.add('is-hidden');
+      empty.style.display = 'none';
+    }
     var wrap = document.createElement('div');
     wrap.className = 'hp-msg ' + role;
     wrap.innerHTML =
@@ -238,6 +263,17 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     transcript.appendChild(wrap);
     transcript.scrollTop = transcript.scrollHeight;
   }
+
+  // Suggested-question chips · clicking one fills the input and submits.
+  // Listener delegated so the chips can be re-rendered in future without
+  // re-binding.
+  document.getElementById('hp-chips').addEventListener('click', function (e) {
+    var chip = e.target.closest('.hp-chip');
+    if (!chip) return;
+    var q = chip.getAttribute('data-q') || chip.textContent.trim();
+    input.value = q;
+    form.requestSubmit();
+  });
   function linkify(html) {
     // Promote mailto: and https: URLs to anchors after escape · safe
     // because the regex matches against already-escaped text. Use a

@@ -313,6 +313,27 @@ export const anthropicCalls = pgTable(
 );
 
 // ---------------------------------------------------------------------------
+// CHATBOT QUERIES · captures every user → helper-bot turn for KB tuning.
+// Cost metadata lives in anthropic_calls; this table stores the actual
+// prompt + reply text. Linked by anthropic_call_id for cross-pivot.
+// ---------------------------------------------------------------------------
+export const chatbotQueries = pgTable(
+  'chatbot_queries',
+  {
+    id: integer('id').primaryKey().generatedByDefaultAsIdentity(),
+    askedAt: timestamp('asked_at', { withTimezone: true }).notNull().defaultNow(),
+    userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
+    question: text('question').notNull(),
+    reply: text('reply').notNull(),
+    escalated: boolean('escalated').notNull().default(false),
+    tokensInput: integer('tokens_input').notNull().default(0),
+    tokensOutput: integer('tokens_output').notNull().default(0),
+    durationMs: integer('duration_ms').notNull().default(0),
+    anthropicCallId: integer('anthropic_call_id').references(() => anthropicCalls.id, { onDelete: 'set null' }),
+  }
+);
+
+// ---------------------------------------------------------------------------
 // VERDICT TIME CAPSULES · 6 / 12 / 24-month opt-in re-delivery emails.
 // One row per (decision, user, interval) triple. Cron job
 // time-capsule-deliver scans for delivered_at IS NULL AND deliver_at <= NOW().

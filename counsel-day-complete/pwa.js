@@ -86,16 +86,58 @@
     if (shouldReveal()) revealInstallButtons();
   });
 
+  // Helper · show inline feedback next to the install button. The
+  // page's #cd-install-fallback span exists on account.html; on
+  // pages without it we fall back to alert() so the click is never
+  // truly silent.
+  function setInstallFeedback(btn, text) {
+    var span = document.getElementById('cd-install-fallback');
+    if (span) {
+      span.textContent = text;
+      span.style.color = 'var(--wine)';
+    } else if (btn) {
+      btn.title = text;
+    }
+  }
+
   document.addEventListener('click', function (e) {
     var btn = e.target.closest && e.target.closest('[data-cd-install]');
     if (!btn) return;
-    if (!deferredInstall) return;
+
+    // No deferredInstall · the browser hasn't decided this PWA is
+    // installable yet, OR the user dismissed an earlier prompt, OR
+    // the browser doesn't support installs at all (Firefox, Safari).
+    // Give visible feedback rather than failing silently.
+    if (!deferredInstall) {
+      var ua = navigator.userAgent || '';
+      var isIos = /iPhone|iPad|iPod/i.test(ua) && /Safari/.test(ua) && !/CriOS|FxiOS/.test(ua);
+      if (isIos) {
+        setInstallFeedback(btn, 'On iOS: tap the Share icon, then "Add to Home Screen".');
+      } else {
+        setInstallFeedback(btn, 'Install isn\'t available yet on this device · the browser hasn\'t verified the app, or you\'ve already installed/dismissed it. Try reloading in a few minutes, or use the browser menu (⋮) → "Install app".');
+      }
+      return;
+    }
+
     btn.disabled = true;
-    deferredInstall.prompt();
-    deferredInstall.userChoice.finally(function () {
-      deferredInstall = null;
-      btn.hidden = true;
-    });
+    setInstallFeedback(btn, 'Opening install prompt' + String.fromCharCode(0x2026));
+    try {
+      deferredInstall.prompt();
+      deferredInstall.userChoice.then(function (choice) {
+        if (choice && choice.outcome === 'accepted') {
+          setInstallFeedback(btn, 'Installed · check your home screen.');
+          btn.hidden = true;
+        } else {
+          setInstallFeedback(btn, 'Install dismissed · you can use the browser menu later if you change your mind.');
+          btn.disabled = false;
+        }
+      }).finally(function () {
+        deferredInstall = null;
+      });
+    } catch (err) {
+      setInstallFeedback(btn, 'Could not open the install prompt · please reload.');
+      btn.disabled = false;
+    }
   });
 
   // Exposed for app surfaces to call on success of a real interaction.

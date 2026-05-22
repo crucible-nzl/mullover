@@ -448,7 +448,9 @@ function saveDraft() {
 
 (function () {
   updateEndDate();
-  /* Pre-select tier from ?tier=<sku> when arriving from /pricing. */
+  /* Pre-select tier from ?tier=<sku> when arriving from /pricing.
+     Pre-fill question from ?question=<text> when arriving from
+     /templates or /welcome. Both params are independent. */
   try {
     var params = new URLSearchParams(window.location.search);
     var t = params.get('tier');
@@ -461,6 +463,14 @@ function saveDraft() {
           label.classList.add('selected');
           radio.checked = true;
         }
+      }
+    }
+    var q = params.get('question');
+    if (q) {
+      var qInput = document.getElementById('q-input');
+      if (qInput) {
+        qInput.value = q.slice(0, 240);
+        if (typeof updatePreview === 'function') updatePreview();
       }
     }
   } catch (_) {}

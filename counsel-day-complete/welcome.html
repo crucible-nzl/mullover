@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':'denied','ad_user_data':'denied','ad_personalization':'denied',
+    'analytics_storage':'denied','functionality_storage':'denied',
+    'personalization_storage':'denied','security_storage':'granted','wait_for_update':500
+  });
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', { 'ad_storage':'denied','ad_user_data':'denied','ad_personalization':'denied','analytics_storage':'denied' });
+  }
+</script>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', { 'anonymize_ip': true, 'allow_google_signals': false, 'allow_ad_personalization_signals': false });
+</script>
+
+<title>Welcome &middot; Counsel.day</title>
+<meta name="description" content="Welcome to Counsel.day. Three short steps to your first decision: how it works, pick a starter question, set your evening prompt time.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="canonical" href="https://counsel.day/welcome">
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="styles-i8.css">
+<style>
+.wc-shell { max-width: 880px; margin: 0 auto; padding: 36px 32px 60px; }
+.wc-stepper { display: flex; gap: 8px; margin-bottom: 24px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); align-items: center; }
+.wc-stepper .dot { width: 10px; height: 10px; border: 1px solid var(--rule); background: var(--paper); display: inline-block; }
+.wc-stepper .dot.is-active { background: var(--wine); border-color: var(--wine); }
+.wc-stepper .dot.is-done { background: var(--ink); border-color: var(--ink); }
+.wc-stepper .label { margin-left: 4px; }
+.wc-stepper .sep { width: 24px; height: 1px; background: var(--rule); }
+
+.wc-step { display: none; }
+.wc-step.is-current { display: block; }
+
+.wc-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine); margin-bottom: 12px; }
+.wc-title { font-family: var(--font-display); font-size: clamp(28px, 3.4vw, 42px); font-weight: 500; line-height: 1.18; color: var(--ink); margin: 0 0 16px; }
+.wc-title .ital { font-style: italic; color: var(--wine); }
+.wc-body { font-family: var(--font-body); font-size: 17px; line-height: 1.6; color: var(--ink); margin: 0 0 20px; }
+.wc-body strong { color: var(--ink); font-weight: 500; }
+
+.wc-explain { display: grid; grid-template-columns: 1fr; gap: 14px; margin: 22px 0 30px; }
+.wc-explain-row { border: 1px solid var(--rule); padding: 16px 20px; background: var(--paper); }
+.wc-explain-row .num { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine); margin-bottom: 6px; }
+.wc-explain-row .h { font-family: var(--font-display); font-size: 19px; font-weight: 500; margin: 0 0 6px; }
+.wc-explain-row .h .ital { font-style: italic; color: var(--wine); }
+.wc-explain-row .p { font-family: var(--font-body); font-size: 15px; line-height: 1.55; color: var(--ink-soft); margin: 0; }
+
+.wc-cat { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+.wc-catbtn { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; padding: 6px 12px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink-soft); cursor: pointer; }
+.wc-catbtn.is-active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.wc-catbtn:hover:not(.is-active) { border-color: var(--wine); color: var(--wine); }
+
+.wc-qs { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; max-height: 360px; overflow-y: auto; padding: 2px; border: 1px solid var(--rule); padding: 12px; background: var(--paper-deep); }
+.wc-q { padding: 14px 16px; border: 1px solid var(--rule); background: var(--paper); cursor: pointer; font-family: var(--font-display); font-size: 16px; font-weight: 500; line-height: 1.3; color: var(--ink); text-align: left; transition: border-color 120ms ease; }
+.wc-q:hover { border-color: var(--wine); }
+.wc-q.is-selected { border-color: var(--wine); background: var(--wine-soft); }
+
+.wc-custom { margin-top: 16px; }
+.wc-custom label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 6px; }
+.wc-custom input { width: 100%; box-sizing: border-box; padding: 12px 14px; font-family: var(--font-body); font-size: 16px; border: 1px solid var(--ink); background: var(--paper); border-radius: 0; }
+.wc-custom input:focus { outline: none; border-color: var(--wine); }
+
+.wc-time-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; }
+.wc-timebtn { padding: 12px 8px; border: 1px solid var(--rule); background: var(--paper); cursor: pointer; font-family: var(--font-mono); font-size: 13px; color: var(--ink); }
+.wc-timebtn:hover { border-color: var(--wine); }
+.wc-timebtn.is-selected { background: var(--wine); color: var(--paper); border-color: var(--wine); }
+
+.wc-actions { display: flex; gap: 14px; align-items: center; margin-top: 30px; }
+.wc-btn { font-family: var(--font-ui); font-size: 14px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; padding: 14px 26px; background: var(--wine); color: var(--paper); border: 1px solid var(--wine); cursor: pointer; border-radius: 0; text-decoration: none; display: inline-block; }
+.wc-btn:hover { background: var(--wine-deep); }
+.wc-btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+.wc-skip { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); text-decoration: none; border-bottom: 1px solid transparent; padding-bottom: 1px; }
+.wc-skip:hover { color: var(--wine); border-bottom-color: var(--wine); }
+</style>
+</head>
+<body>
+
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<!-- CD:PARTIAL:nav-app -->
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="decisions.html">Your decisions</a>
+      <a href="vote-today.html">Tonight's vote</a>
+      <a href="compose.html">Compose</a>
+      <a href="account.html">Account</a>
+      <a href="help.html">Help</a>
+    </div>
+    <div class="nav-cta">
+      <a href="account.html" class="btn-text">Account</a>
+    </div>
+  </div>
+</nav>
+<!-- /CD:PARTIAL:nav-app -->
+
+<main id="main-content">
+  <div class="wc-shell">
+
+    <nav class="wc-stepper" aria-label="Welcome progress">
+      <span class="dot is-active" data-step="1"></span><span class="label">Step 1 &middot; how it works</span>
+      <span class="sep"></span>
+      <span class="dot" data-step="2"></span><span class="label">Step 2 &middot; your question</span>
+      <span class="sep"></span>
+      <span class="dot" data-step="3"></span><span class="label">Step 3 &middot; evening time</span>
+    </nav>
+
+    <!-- STEP 1 · how it works -->
+    <section class="wc-step is-current" id="wc-step-1" aria-labelledby="wc-step-1-title">
+      <div class="wc-eyebrow">Welcome to Counsel.day</div>
+      <h1 class="wc-title" id="wc-step-1-title">Decide slowly, <span class="ital">well.</span></h1>
+      <p class="wc-body">Counsel.day is not a chat app. It is a sealed-vote tool for decisions you don&apos;t want to settle in one evening. Three things to know before you write your first question:</p>
+
+      <div class="wc-explain">
+        <div class="wc-explain-row">
+          <div class="num">01</div>
+          <p class="h">One vote per <span class="ital">evening.</span></p>
+          <p class="p">Each evening at the time you choose, we ask you the same question and store your answer (plus an optional note) in the database. You vote alone. No one else sees your votes until the unseal moment.</p>
+        </div>
+        <div class="wc-explain-row">
+          <div class="num">02</div>
+          <p class="h">A duration <span class="ital">you set.</span></p>
+          <p class="p">7 to 365 days. Most decisions run 14 or 30. The point is not to pick fast; the point is to let your view of the question move over time, and see where it lands.</p>
+        </div>
+        <div class="wc-explain-row">
+          <div class="num">03</div>
+          <p class="h">A verdict, on the final <span class="ital">evening.</span></p>
+          <p class="p">When the duration ends, both records open at the same minute. You see the daily trajectory, the themes that recurred, and an AI synthesis paragraph that observes the record without taking sides.</p>
+        </div>
+      </div>
+
+      <div class="wc-actions">
+        <button type="button" class="wc-btn" onclick="goStep(2)">Pick your first question</button>
+        <a class="wc-skip" href="account.html">Skip for now</a>
+      </div>
+    </section>
+
+    <!-- STEP 2 · question -->
+    <section class="wc-step" id="wc-step-2" aria-labelledby="wc-step-2-title">
+      <div class="wc-eyebrow">Step 2 of 3 &middot; Your question</div>
+      <h2 class="wc-title" id="wc-step-2-title">What deserves more than one <span class="ital">evening?</span></h2>
+      <p class="wc-body">Pick a starter or write your own. You can edit every word in the composer.</p>
+
+      <div class="wc-cat" id="wc-cat" role="tablist" aria-label="Category">
+        <button type="button" class="wc-catbtn is-active" data-cat="all">All</button>
+        <button type="button" class="wc-catbtn" data-cat="career">Career</button>
+        <button type="button" class="wc-catbtn" data-cat="family">Family</button>
+        <button type="button" class="wc-catbtn" data-cat="move">Move or stay</button>
+        <button type="button" class="wc-catbtn" data-cat="purchase">Big purchase</button>
+        <button type="button" class="wc-catbtn" data-cat="relationship">Relationship</button>
+        <button type="button" class="wc-catbtn" data-cat="health">Health</button>
+      </div>
+
+      <div class="wc-qs" id="wc-qs"></div>
+
+      <div class="wc-custom">
+        <label for="wc-custom-input">Or write your own</label>
+        <input id="wc-custom-input" type="text" placeholder="Should we &hellip;" maxlength="240">
+      </div>
+
+      <div class="wc-actions">
+        <button type="button" class="wc-btn" id="wc-step2-next" disabled onclick="goStep(3)">Set evening time</button>
+        <a class="wc-skip" href="compose.html">Skip to composer</a>
+      </div>
+    </section>
+
+    <!-- STEP 3 · prompt time -->
+    <section class="wc-step" id="wc-step-3" aria-labelledby="wc-step-3-title">
+      <div class="wc-eyebrow">Step 3 of 3 &middot; Evening time</div>
+      <h2 class="wc-title" id="wc-step-3-title">When should we ask you to <span class="ital">vote?</span></h2>
+      <p class="wc-body">Pick a time that fits your evening. We will email or notify you on this device each day at this local time. You can change it later in account settings.</p>
+
+      <div class="wc-time-grid" id="wc-time-grid"></div>
+
+      <div class="wc-actions">
+        <button type="button" class="wc-btn" id="wc-finish" disabled>Compose my first decision</button>
+        <a class="wc-skip" href="compose.html">Skip</a>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- CD:PARTIAL:colophon -->
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The app</h5>
+        <a href="decisions.html">Your decisions</a>
+        <a href="compose.html">Compose</a>
+        <a href="account.html">Your account</a>
+      </div>
+      <div class="colophon-col">
+        <h5>Support</h5>
+        <a href="help.html">Help</a>
+        <a href="helper.html">Helper bot</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>&copy; 2026 Counsel.day &middot; USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+<!-- /CD:PARTIAL:colophon -->
+
+<script>
+(function () {
+  'use strict';
+
+  // ---- Template data · same list as templates.html ----
+  var TEMPLATES = [
+    { cat: 'career', q: 'Should I take the new job?' },
+    { cat: 'career', q: 'Should I leave my current role?' },
+    { cat: 'career', q: 'Should we start the business together?' },
+    { cat: 'career', q: 'Should I ask for the promotion?' },
+    { cat: 'career', q: 'Should I go back to study?' },
+    { cat: 'family', q: 'Should we have another child?' },
+    { cat: 'family', q: 'Should we send the kids to the new school?' },
+    { cat: 'family', q: 'Should we ask my parents to move closer?' },
+    { cat: 'move', q: 'Should we move to the city?' },
+    { cat: 'move', q: 'Should we move out of the city?' },
+    { cat: 'move', q: 'Should we take the overseas posting?' },
+    { cat: 'move', q: 'Should we stay in the rental for another year?' },
+    { cat: 'purchase', q: 'Should we buy this house?' },
+    { cat: 'purchase', q: 'Should we renovate or sell?' },
+    { cat: 'purchase', q: 'Should we replace the car this year?' },
+    { cat: 'purchase', q: 'Should we book the long-haul holiday?' },
+    { cat: 'relationship', q: 'Should we move in together?' },
+    { cat: 'relationship', q: 'Should we set a wedding date?' },
+    { cat: 'relationship', q: 'Should we try couples counselling?' },
+    { cat: 'health', q: 'Should I commit to the new fitness plan?' },
+    { cat: 'health', q: 'Should we cut back on alcohol for a season?' },
+    { cat: 'health', q: 'Should I see a therapist this year?' },
+    { cat: 'health', q: 'Should we get the dog?' },
+  ];
+
+  // ---- State ----
+  var state = { step: 1, cat: 'all', question: '', time: '19:00' };
+
+  // ---- Step nav ----
+  window.goStep = function (n) {
+    state.step = n;
+    document.querySelectorAll('.wc-step').forEach(function (s) { s.classList.remove('is-current'); });
+    var el = document.getElementById('wc-step-' + n);
+    if (el) el.classList.add('is-current');
+    var dots = document.querySelectorAll('.wc-stepper .dot');
+    dots.forEach(function (d, i) {
+      d.classList.remove('is-active', 'is-done');
+      var ix = i + 1;
+      if (ix < n) d.classList.add('is-done');
+      else if (ix === n) d.classList.add('is-active');
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // ---- Step 2 · question picker ----
+  var qsEl = document.getElementById('wc-qs');
+  var catEl = document.getElementById('wc-cat');
+  var customInput = document.getElementById('wc-custom-input');
+  var step2Next = document.getElementById('wc-step2-next');
+
+  function renderQs() {
+    var rows = state.cat === 'all' ? TEMPLATES : TEMPLATES.filter(function (t) { return t.cat === state.cat; });
+    qsEl.innerHTML = rows.map(function (t) {
+      var sel = (state.question === t.q) ? ' is-selected' : '';
+      return '<button type="button" class="wc-q' + sel + '" data-q="' + t.q.replace(/"/g, '&quot;') + '">' + t.q + '</button>';
+    }).join('');
+  }
+
+  catEl.addEventListener('click', function (e) {
+    var b = e.target.closest('.wc-catbtn');
+    if (!b) return;
+    state.cat = b.getAttribute('data-cat');
+    catEl.querySelectorAll('.wc-catbtn').forEach(function (c) { c.classList.remove('is-active'); });
+    b.classList.add('is-active');
+    renderQs();
+  });
+
+  qsEl.addEventListener('click', function (e) {
+    var b = e.target.closest('.wc-q');
+    if (!b) return;
+    state.question = b.getAttribute('data-q');
+    customInput.value = '';
+    renderQs();
+    step2Next.disabled = !state.question;
+  });
+
+  customInput.addEventListener('input', function () {
+    var v = customInput.value.trim();
+    state.question = v;
+    qsEl.querySelectorAll('.wc-q.is-selected').forEach(function (q) { q.classList.remove('is-selected'); });
+    step2Next.disabled = v.length === 0;
+  });
+
+  renderQs();
+
+  // ---- Step 3 · time picker ----
+  var times = ['17:00','17:30','18:00','18:30','19:00','19:30','20:00','20:30','21:00','21:30','22:00'];
+  var timeGrid = document.getElementById('wc-time-grid');
+  timeGrid.innerHTML = times.map(function (t) {
+    var sel = (state.time === t) ? ' is-selected' : '';
+    return '<button type="button" class="wc-timebtn' + sel + '" data-time="' + t + '">' + t + '</button>';
+  }).join('');
+  var finishBtn = document.getElementById('wc-finish');
+  finishBtn.disabled = false;
+
+  timeGrid.addEventListener('click', function (e) {
+    var b = e.target.closest('.wc-timebtn');
+    if (!b) return;
+    state.time = b.getAttribute('data-time');
+    timeGrid.querySelectorAll('.wc-timebtn').forEach(function (t) { t.classList.remove('is-selected'); });
+    b.classList.add('is-selected');
+  });
+
+  finishBtn.addEventListener('click', function () {
+    var params = new URLSearchParams();
+    if (state.question) params.set('question', state.question);
+    if (state.time) params.set('prompt_time', state.time);
+    window.location.href = 'compose.html?' + params.toString();
+  });
+})();
+</script>
+<script src="pwa.js" defer></script>
+<script src="ga4.js" defer></script>
+</body>
+</html>

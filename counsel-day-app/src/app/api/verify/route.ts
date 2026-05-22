@@ -60,6 +60,18 @@ export async function GET(req: Request) {
     .set({ consumedAt: new Date() })
     .where(eq(schema.emailVerificationTokens.token, token));
 
+  // Check whether this is the user's FIRST verification (they just signed
+  // up and clicked the verify link) vs a returning sign-in via magic-link.
+  // First-timers land on /welcome for the three-step onboarding;
+  // returning users go straight to /account. The check has to happen
+  // BEFORE the set below or the value is always non-null.
+  const userRows = await db
+    .select({ verifiedAt: schema.users.emailVerifiedAt })
+    .from(schema.users)
+    .where(eq(schema.users.id, userId))
+    .limit(1);
+  const isFirstVerify = !userRows[0]?.verifiedAt;
+
   // Set users.email_verified_at if not already set.
   await db
     .update(schema.users)
@@ -71,7 +83,11 @@ export async function GET(req: Request) {
   const session = await createSession(userId, ctx);
   const cookie = buildSessionCookie(session.id, session.expiresAt);
 
-  const res = NextResponse.redirect(`${BASE}/account?welcome=1`, { status: 302 });
+  // First-time verifiers see /welcome (three-step onboarding +
+  // question templates). Returning users (magic-link sign-in) go
+  // straight to /account.
+  const dest = isFirstVerify ? '/welcome.html' : '/account?welcome=1';
+  const res = NextResponse.redirect(`${BASE}${dest}`, { status: 302 });
   res.headers.set('set-cookie', cookie);
   return res;
 }

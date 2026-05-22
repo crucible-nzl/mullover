@@ -41,5 +41,11 @@
   },
   "engines": {
     "node": ">=20.0.0"
+  },
+  "//overrides_notes": "Surgical security overrides for transitive vulnerabilities. Each traced via 'npm ls <pkg>' before pinning. Fixed: postcss (next 15.5.x bundled an old 8.4.31 with the </style> XSS · forced 8.5.10+), uuid (gaxios + @sentry/webpack-plugin pulled in 9.0.1 with v3/v5/v6 buffer bounds bug · forced 11.1.1+), esbuild at the top level. Remaining 4 vulns are all the same root cause: drizzle-kit transitively depends on the abandoned @esbuild-kit/core-utils which pins esbuild to ~0.18. Nested override can't reach it. GHSA-67mh-4wv8-2f99 affects esbuild's --serve dev-server only · we NEVER run it (drizzle-kit uses esbuild for one-shot TS->JS compilation of migration files; tsx for db:migrate; no dev-server code path is reachable). Risk accepted until drizzle-kit migrates off @esbuild-kit upstream. See docs/SECURITY_HARDENING.md.",
+  "overrides": {
+    "esbuild": "^0.25.0",
+    "postcss": "^8.5.10",
+    "uuid": "^11.1.1"
   }
 }

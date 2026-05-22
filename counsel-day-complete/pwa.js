@@ -100,29 +100,159 @@
     }
   }
 
+  // Install-instructions modal · shown when the in-page install
+  // button is clicked but beforeinstallprompt hasn't fired yet (very
+  // common on Android Chrome before the engagement budget tips over,
+  // and always on iOS Safari which has no install event at all). A
+  // text hint pointing at the browser menu is too weak; this modal
+  // shows the user exactly where the menu is, with a visual cue.
+  function buildInstallModal(platform) {
+    var wrap = document.createElement('div');
+    wrap.id = 'cd-install-modal';
+    wrap.setAttribute('role', 'dialog');
+    wrap.setAttribute('aria-modal', 'true');
+    wrap.setAttribute('aria-labelledby', 'cd-install-modal-title');
+    wrap.style.cssText = [
+      'position: fixed', 'inset: 0', 'z-index: 9999',
+      'background: rgba(10,10,10,0.6)',
+      'display: flex', 'align-items: center', 'justify-content: center',
+      'padding: 20px', 'box-sizing: border-box',
+      'font-family: var(--font-body, system-ui, sans-serif)',
+    ].join('; ');
+
+    // ---- panel ----
+    var panel = document.createElement('div');
+    panel.style.cssText = [
+      'background: #ffffff', 'max-width: 480px', 'width: 100%',
+      'border: 1px solid #0a0a0a', 'padding: 28px 26px 24px',
+      'position: relative', 'max-height: 90vh', 'overflow-y: auto',
+    ].join('; ');
+
+    // ---- close X ----
+    var closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.setAttribute('aria-label', 'Close install instructions');
+    closeBtn.textContent = '×';
+    closeBtn.style.cssText = [
+      'position: absolute', 'top: 8px', 'right: 12px',
+      'background: transparent', 'border: none', 'cursor: pointer',
+      'font-size: 28px', 'line-height: 1', 'color: #6b635a',
+      'padding: 4px 8px',
+    ].join('; ');
+    closeBtn.addEventListener('click', function () { closeInstallModal(); });
+    panel.appendChild(closeBtn);
+
+    // ---- eyebrow + title ----
+    var eyebrow = document.createElement('div');
+    eyebrow.textContent = 'INSTALL COUNSEL.DAY';
+    eyebrow.style.cssText = 'font-family: var(--font-mono, monospace); font-size: 11px; letter-spacing: 0.18em; color: #722F37; margin-bottom: 10px;';
+    panel.appendChild(eyebrow);
+
+    var title = document.createElement('h2');
+    title.id = 'cd-install-modal-title';
+    title.style.cssText = 'font-family: var(--font-display, Georgia, serif); font-size: 24px; font-weight: 500; line-height: 1.22; margin: 0 0 18px; color: #0a0a0a;';
+
+    var body = document.createElement('div');
+    body.style.cssText = 'font-family: var(--font-body, Georgia, serif); font-size: 15px; line-height: 1.55; color: #3a3530;';
+
+    if (platform === 'ios') {
+      title.innerHTML = 'Add to your <span style="font-style: italic; color: #722F37;">home screen.</span>';
+      body.innerHTML =
+        '<ol style="padding-left: 22px; margin: 0 0 16px;">' +
+          '<li style="margin-bottom: 10px;">Tap the <strong>Share</strong> icon at the bottom of Safari ' +
+            '<span style="display: inline-block; vertical-align: -2px; margin: 0 2px;">' +
+            '<svg width="18" height="22" viewBox="0 0 18 22" fill="none" stroke="#722F37" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+            '<path d="M9 1v14"/><path d="M4 6l5-5 5 5"/><path d="M2 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/>' +
+            '</svg></span>' +
+          '</li>' +
+          '<li style="margin-bottom: 10px;">Scroll down and tap <strong>Add to Home Screen</strong>.</li>' +
+          '<li>Tap <strong>Add</strong> in the top-right of the dialog.</li>' +
+        '</ol>' +
+        '<p style="margin: 0; font-style: italic; color: #6b635a; font-size: 13px;">Counsel.day will appear on your home screen as a regular app icon.</p>';
+    } else if (platform === 'android') {
+      title.innerHTML = 'Add to your <span style="font-style: italic; color: #722F37;">home screen.</span>';
+      body.innerHTML =
+        '<div style="display: flex; gap: 16px; align-items: flex-start; margin-bottom: 16px;">' +
+          '<div style="flex: 0 0 64px; height: 110px; border: 2px solid #0a0a0a; padding: 6px 4px; position: relative; background: #fafaf8;">' +
+            '<div style="position: absolute; top: 6px; right: 4px; display: flex; flex-direction: column; gap: 3px;">' +
+              '<span style="display: block; width: 4px; height: 4px; background: #722F37; border-radius: 50%;"></span>' +
+              '<span style="display: block; width: 4px; height: 4px; background: #722F37; border-radius: 50%;"></span>' +
+              '<span style="display: block; width: 4px; height: 4px; background: #722F37; border-radius: 50%;"></span>' +
+            '</div>' +
+            '<div style="position: absolute; bottom: 8px; left: 8px; right: 8px; height: 4px; background: #e8e6e1;"></div>' +
+            '<div style="position: absolute; bottom: 20px; left: 8px; width: 24px; height: 4px; background: #e8e6e1;"></div>' +
+            '<div style="position: absolute; bottom: 32px; left: 8px; right: 8px; height: 4px; background: #e8e6e1;"></div>' +
+          '</div>' +
+          '<ol style="padding-left: 22px; margin: 0; flex: 1;">' +
+            '<li style="margin-bottom: 8px;">Tap the <strong>three-dot menu</strong> in the top-right of Chrome.</li>' +
+            '<li style="margin-bottom: 8px;">Tap <strong>Install app</strong> (or <strong>Add to Home screen</strong> on older versions).</li>' +
+            '<li>Tap <strong>Install</strong> to confirm.</li>' +
+          '</ol>' +
+        '</div>' +
+        '<p style="margin: 0; font-style: italic; color: #6b635a; font-size: 13px;">If the menu doesn\'t show those options yet, browse the site for a minute and try again. Chrome unlocks installation once it has seen enough engagement.</p>';
+    } else {
+      title.innerHTML = 'Install on your <span style="font-style: italic; color: #722F37;">desktop.</span>';
+      body.innerHTML =
+        '<ol style="padding-left: 22px; margin: 0 0 16px;">' +
+          '<li style="margin-bottom: 10px;">Look at the right end of your browser\'s URL bar for a small install icon (it looks like a monitor with an arrow).</li>' +
+          '<li style="margin-bottom: 10px;">If you don\'t see one, open the browser menu (⋮ or hamburger icon) and look for <strong>Install Counsel.day</strong>.</li>' +
+          '<li>Confirm the dialog · the app opens in its own window.</li>' +
+        '</ol>' +
+        '<p style="margin: 0; font-style: italic; color: #6b635a; font-size: 13px;">Chrome, Edge, and Brave all support PWA install. Firefox and Safari on desktop do not.</p>';
+    }
+
+    panel.appendChild(title);
+    panel.appendChild(body);
+
+    // ---- footer button ----
+    var ok = document.createElement('button');
+    ok.type = 'button';
+    ok.textContent = 'Got it';
+    ok.style.cssText = [
+      'margin-top: 20px',
+      'font-family: var(--font-ui, system-ui, sans-serif)', 'font-size: 14px', 'font-weight: 500',
+      'letter-spacing: 0.08em', 'text-transform: uppercase',
+      'padding: 12px 22px', 'background: #722F37', 'color: #ffffff',
+      'border: 1px solid #722F37', 'cursor: pointer', 'border-radius: 0',
+    ].join('; ');
+    ok.addEventListener('click', function () { closeInstallModal(); });
+    panel.appendChild(ok);
+
+    wrap.appendChild(panel);
+    wrap.addEventListener('click', function (e) { if (e.target === wrap) closeInstallModal(); });
+    return wrap;
+  }
+
+  function showInstallModal(platform) {
+    closeInstallModal();
+    var modal = buildInstallModal(platform);
+    document.body.appendChild(modal);
+    // Trap focus on the close button so Esc/Enter behave sensibly.
+    var firstBtn = modal.querySelector('button');
+    if (firstBtn && firstBtn.focus) firstBtn.focus();
+    document.addEventListener('keydown', escHandler);
+  }
+  function closeInstallModal() {
+    var el = document.getElementById('cd-install-modal');
+    if (el && el.parentNode) el.parentNode.removeChild(el);
+    document.removeEventListener('keydown', escHandler);
+  }
+  function escHandler(e) { if (e.key === 'Escape') closeInstallModal(); }
+
   document.addEventListener('click', function (e) {
     var btn = e.target.closest && e.target.closest('[data-cd-install]');
     if (!btn) return;
 
     // No deferredInstall · the browser hasn't decided this PWA is
-    // installable yet, OR the user dismissed an earlier prompt, OR
-    // the browser doesn't support installs at all (Firefox, Safari).
-    // Give visible feedback rather than failing silently. Detect
-    // platform so the hint is actionable.
+    // installable yet (Android Chrome engagement gate), OR the user
+    // dismissed an earlier prompt, OR the browser doesn't support
+    // installs at all (Firefox, Safari). Show a proper modal with a
+    // visual cue rather than just a text hint.
     if (!deferredInstall) {
       var ua = navigator.userAgent || '';
       var isIos = /iPhone|iPad|iPod/i.test(ua) && /Safari/.test(ua) && !/CriOS|FxiOS/.test(ua);
       var isAndroid = /Android/i.test(ua);
-      var isChromeMobile = /Chrome/i.test(ua) && /Mobile/i.test(ua);
-      if (isIos) {
-        setInstallFeedback(btn, 'On iOS: tap the Share icon, then "Add to Home Screen".');
-      } else if (isAndroid && isChromeMobile) {
-        setInstallFeedback(btn, 'On Android Chrome: tap the ⋮ menu (top right), then "Install app" or "Add to Home screen". Chrome unlocks in-page install after you have spent ~30 seconds on the site.');
-      } else if (isAndroid) {
-        setInstallFeedback(btn, 'On Android: open this page in Chrome, then tap the ⋮ menu → "Install app". Some browsers (Samsung Internet, Firefox) don\'t support PWA install.');
-      } else {
-        setInstallFeedback(btn, 'Install isn\'t available yet on this browser · use the browser menu (⋮) → "Install app", or try again after some site engagement.');
-      }
+      showInstallModal(isIos ? 'ios' : (isAndroid ? 'android' : 'desktop'));
       return;
     }
 

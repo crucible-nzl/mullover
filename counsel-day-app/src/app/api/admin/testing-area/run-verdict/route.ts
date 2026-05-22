@@ -54,6 +54,7 @@ import { db, schema } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin-auth';
 import { getAnthropic, VERDICT_MODEL, VERDICT_SYSTEM_PROMPT } from '@/lib/anthropic';
 import { callAnthropic } from '@/lib/anthropic-call';
+import { resolvePrompt } from '@/lib/prompts';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -238,13 +239,14 @@ export async function POST(req: Request) {
     // testRunId isn't known yet (insert happens below); the back-pointer
     // stays null on this row. source='testing_area' is enough for the
     // admin ledger to scope it.
+    const verdictSystemPrompt = await resolvePrompt('verdict_synthesis', VERDICT_SYSTEM_PROMPT);
     const call = await callAnthropic(
       { source: 'testing_area' },
       {
         model: VERDICT_MODEL,
         max_tokens: 2000,
         system: [
-          { type: 'text', text: VERDICT_SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } },
+          { type: 'text', text: verdictSystemPrompt, cache_control: { type: 'ephemeral' } },
         ],
         messages: [{ role: 'user', content: userPrompt }],
       }
@@ -273,7 +275,7 @@ export async function POST(req: Request) {
         participantsJson: body.participants as unknown,
         aiModel: VERDICT_MODEL,
         synthesisText: synthesis,
-        promptUsed: VERDICT_SYSTEM_PROMPT,
+        promptUsed: verdictSystemPrompt,
         tokensInput: call.tokensInput,
         tokensOutput: call.tokensOutput,
         costCents,
@@ -292,7 +294,7 @@ export async function POST(req: Request) {
         summary,
         verdict: {
           synthesis_text: synthesis,
-          prompt_used: VERDICT_SYSTEM_PROMPT,
+          prompt_used: verdictSystemPrompt,
           user_prompt: userPrompt,
           tokens_input: call.tokensInput,
           tokens_output: call.tokensOutput,

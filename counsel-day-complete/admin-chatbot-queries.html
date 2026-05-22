@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin &middot; Chatbot queries &middot; Counsel.day</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f7f9fc">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin-shell.css">
+<style>
+  .cq-controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; padding: 14px 18px; background: var(--surface); border: 1px solid var(--border); }
+  .cq-controls label { display: inline-flex; gap: 8px; align-items: center; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .cq-controls input[type="text"] { font-family: var(--font-mono); font-size: 12px; padding: 6px 10px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); min-width: 220px; }
+  .cq-controls select { font-family: var(--font-ui); font-size: 13px; padding: 6px 10px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); }
+  .cq-controls .btn { background: var(--accent); color: var(--surface); border: none; padding: 7px 14px; font-family: var(--font-ui); font-size: 13px; font-weight: 500; cursor: pointer; }
+  .cq-controls .count { font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-left: auto; }
+
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 22px; }
+  @media (max-width: 900px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+  .card { background: var(--surface); border: 1px solid var(--border); padding: 16px 18px; }
+  .card .label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .card .value { font-family: var(--font-display, Georgia); font-size: 26px; font-weight: 500; color: var(--ink); line-height: 1; }
+  .card .sub { font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+  .cq-table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); font-family: var(--font-ui); font-size: 13px; table-layout: fixed; }
+  .cq-table thead th { background: var(--surface-2); padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--rule); font-weight: 600; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .cq-table tbody td { padding: 12px; border-bottom: 1px solid var(--rule); vertical-align: top; word-wrap: break-word; }
+  .cq-table .when { white-space: nowrap; color: var(--ink-soft); font-family: var(--font-mono); font-size: 11px; width: 130px; }
+  .cq-table .q { font-weight: 500; color: var(--ink); margin-bottom: 6px; }
+  .cq-table .r { color: var(--ink-soft); font-size: 12.5px; line-height: 1.45; }
+  .cq-table .meta { font-family: var(--font-mono); font-size: 10px; color: var(--muted); margin-top: 8px; letter-spacing: 0.04em; }
+  .cq-table .escalated { color: var(--wine, #722F37); font-weight: 600; }
+  .cq-table tr.is-escalated td { background: #fbf2f4; }
+
+  .cq-load-more { display: block; margin: 18px auto 0; background: var(--surface); border: 1px solid var(--rule); color: var(--ink); padding: 9px 22px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; }
+  .cq-load-more:hover { background: var(--surface-2); }
+  .cq-load-more[disabled] { opacity: 0.5; cursor: not-allowed; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">counsel<span class="tld">.day</span> &middot; admin</div>
+  <div class="meta">
+    <a href="/account.html">&larr; User-facing site</a>
+    <span id="adm-identity">&hellip;</span>
+    <a href="#" id="adm-logout">Log out</a>
+  </div>
+</div>
+<nav class="adm-subnav" aria-label="Admin sections">
+  <a href="/admin.html">Overview</a>
+  <a href="/admin-users.html">Users</a>
+  <a href="/admin-products.html">Products</a>
+  <a href="/admin-growth.html">Growth</a>
+  <a href="/admin-engagement.html">Engagement</a>
+  <a href="/admin-traffic.html">Traffic</a>
+  <a href="/admin-finance.html">Finance</a>
+  <a href="/admin-verdict-logs.html">Verdict logs</a>
+  <a href="/admin-audit-log.html">Audit log</a>
+  <a href="/admin-chatbot-queries.html" class="active">Chatbot</a>
+  <a href="/admin-database.html">Database</a>
+  <a href="/admin-testing-area.html">Testing area</a>
+</nav>
+
+<div class="shell">
+  <h1>Chatbot queries</h1>
+  <p class="lede">Every user turn against /api/chatbot/message. Filter by escalated-only to surface knowledge-base gaps · those are turns the bot didn&apos;t know the answer to. Update <code>lib/chatbot-knowledge.ts</code> when a question recurs.</p>
+  <div id="adm-error" class="status-banner is-error" style="display:none;"></div>
+
+  <div class="grid-4">
+    <div class="card"><div class="label">Total turns</div><div class="value" id="m-total">&middot;</div><div class="sub">all-time</div></div>
+    <div class="card"><div class="label">Last 7 days</div><div class="value" id="m-7d">&middot;</div><div class="sub" id="m-7d-sub">recent volume</div></div>
+    <div class="card"><div class="label">Escalation rate</div><div class="value" id="m-esc-rate">&middot;</div><div class="sub" id="m-esc-sub">KB-gap signal</div></div>
+    <div class="card"><div class="label">Avg tokens / turn</div><div class="value" id="m-avg-tok">&middot;</div><div class="sub">prompt + reply</div></div>
+  </div>
+
+  <div class="cq-controls">
+    <label>
+      <select id="cq-filter">
+        <option value="all">All turns</option>
+        <option value="escalated">Escalated only (KB gaps)</option>
+        <option value="not-escalated">Answered only</option>
+      </select>
+    </label>
+    <label>Search question
+      <input type="text" id="cq-search" placeholder="e.g. refund">
+    </label>
+    <button type="button" class="btn" id="cq-apply">Apply</button>
+    <span class="count" id="cq-count">&hellip;</span>
+  </div>
+
+  <div style="overflow-x: auto;">
+    <table class="cq-table">
+      <thead>
+        <tr>
+          <th>When</th>
+          <th>Question &middot; Reply</th>
+        </tr>
+      </thead>
+      <tbody id="cq-tbody">
+        <tr><td colspan="2" style="padding: 30px; text-align: center; color: var(--muted);">Loading&hellip;</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <button type="button" class="cq-load-more" id="cq-load-more" style="display: none;">Load more</button>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  // ---- Identity ----
+  fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) {
+    if (d && d.ok && d.user) document.getElementById('adm-identity').textContent = d.user.email + ' · admin';
+  }).catch(function () {});
+  document.getElementById('adm-logout').addEventListener('click', function (e) {
+    e.preventDefault();
+    fetch('/api/signout', { method: 'POST', credentials: 'include' }).finally(function () { window.location.href = '/'; });
+  });
+
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+  function fmtTs(s) { if (!s) return '·'; try { return new Date(s).toLocaleString(); } catch (e) { return s; } }
+
+  var tbody = document.getElementById('cq-tbody');
+  var loadMore = document.getElementById('cq-load-more');
+  var countEl = document.getElementById('cq-count');
+  var cursor = null;
+  var totalLoaded = 0;
+
+  function buildUrl(extra) {
+    var p = new URLSearchParams();
+    p.set('limit', '50');
+    var filter = document.getElementById('cq-filter').value;
+    if (filter === 'escalated') p.set('escalated', 'true');
+    if (filter === 'not-escalated') p.set('escalated', 'false');
+    var q = document.getElementById('cq-search').value.trim();
+    if (q) p.set('q', q);
+    if (extra && extra.before) p.set('before', String(extra.before));
+    return '/api/admin/chatbot-queries?' + p.toString();
+  }
+
+  function rowHtml(r) {
+    return '<tr' + (r.escalated ? ' class="is-escalated"' : '') + '>' +
+      '<td class="when">' + escapeHtml(fmtTs(r.askedAt)) + '</td>' +
+      '<td>' +
+        '<div class="q">' + escapeHtml(r.question) + '</div>' +
+        '<div class="r">' + escapeHtml(r.reply) + '</div>' +
+        '<div class="meta">' +
+          (r.escalated ? '<span class="escalated">ESCALATED &middot; </span>' : '') +
+          (r.tokensInput + r.tokensOutput) + ' tokens &middot; ' + r.durationMs + 'ms' +
+        '</div>' +
+      '</td>' +
+    '</tr>';
+  }
+
+  function setSummary(s) {
+    document.getElementById('m-total').textContent = s.total.toLocaleString();
+    document.getElementById('m-7d').textContent = s.last_7_days != null ? s.last_7_days.toLocaleString() : (s.last_7d || 0).toLocaleString();
+    document.getElementById('m-7d-sub').textContent = (s.last_7d || 0) + ' turns this week';
+    var rate = (s.escalation_rate * 100).toFixed(1);
+    document.getElementById('m-esc-rate').textContent = rate + '%';
+    document.getElementById('m-esc-sub').textContent = s.escalated_total + ' all-time · ' + s.escalated_7d + ' this week';
+    document.getElementById('m-avg-tok').textContent = s.avg_tokens_per_turn.toLocaleString();
+  }
+
+  function load(reset) {
+    if (reset) { cursor = null; totalLoaded = 0; tbody.innerHTML = '<tr><td colspan="2" style="padding: 24px; text-align: center; color: var(--muted);">Loading…</td></tr>'; }
+    fetch(buildUrl(cursor ? { before: cursor } : {}), { credentials: 'include' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.ok) {
+          tbody.innerHTML = '<tr><td colspan="2" style="padding: 30px; text-align: center; color: var(--wine, #722F37);">' + escapeHtml(d && d.message || 'Failed to load') + '</td></tr>';
+          return;
+        }
+        if (reset) {
+          tbody.innerHTML = '';
+          setSummary(d.summary);
+        }
+        if (d.rows.length === 0 && totalLoaded === 0) {
+          tbody.innerHTML = '<tr><td colspan="2" style="padding: 30px; text-align: center; color: var(--muted);">No turns match the filter.</td></tr>';
+          loadMore.style.display = 'none';
+          countEl.textContent = '0 turns';
+          return;
+        }
+        tbody.insertAdjacentHTML('beforeend', d.rows.map(rowHtml).join(''));
+        totalLoaded += d.rows.length;
+        countEl.textContent = totalLoaded + ' turn(s)' + (d.next_cursor ? ' · more available' : '');
+        cursor = d.next_cursor;
+        loadMore.style.display = cursor ? 'block' : 'none';
+      })
+      .catch(function () {
+        tbody.innerHTML = '<tr><td colspan="2" style="padding: 30px; text-align: center; color: var(--wine, #722F37);">Network error.</td></tr>';
+      });
+  }
+
+  document.getElementById('cq-apply').addEventListener('click', function () { load(true); });
+  document.getElementById('cq-filter').addEventListener('change', function () { load(true); });
+  document.getElementById('cq-search').addEventListener('keydown', function (e) { if (e.key === 'Enter') load(true); });
+  loadMore.addEventListener('click', function () { load(false); });
+  load(true);
+})();
+</script>
+</body>
+</html>

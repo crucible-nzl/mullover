@@ -18,6 +18,7 @@ import { sendTransactional } from '../lib/email';
 import { sendPushToUser } from '../lib/push';
 import { getAnthropic, VERDICT_MODEL, VERDICT_SYSTEM_PROMPT } from '../lib/anthropic';
 import { callAnthropic } from '../lib/anthropic-call';
+import { resolvePrompt } from '../lib/prompts';
 import { spawn } from 'node:child_process';
 import { join } from 'node:path';
 
@@ -227,13 +228,17 @@ async function verdictGenerate() {
         votes: voteRows,
       }, null, 2);
 
+      // Resolve the active verdict system prompt · DB-stored if the
+      // operator has saved an override via /admin-prompt-editor, else
+      // falls back to the in-code constant. 5-min cache via lib/prompts.
+      const verdictSystemPrompt = await resolvePrompt('verdict_synthesis', VERDICT_SYSTEM_PROMPT);
       const call = await callAnthropic(
         { source: 'verdict_cron', decisionId: d.id },
         {
           model: VERDICT_MODEL,
           max_tokens: 2000,
           system: [
-            { type: 'text', text: VERDICT_SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } },
+            { type: 'text', text: verdictSystemPrompt, cache_control: { type: 'ephemeral' } },
           ],
           messages: [{ role: 'user', content: userPrompt }],
         }
@@ -272,7 +277,7 @@ async function verdictGenerate() {
         aiModel: VERDICT_MODEL,
         synthesisText: synthesis,
         themes: (structured?.themes ?? null) as unknown,
-        promptUsed: VERDICT_SYSTEM_PROMPT,
+        promptUsed: verdictSystemPrompt,
         tokensInput: call.tokensInput,
         tokensOutput: call.tokensOutput,
         // Cost mirrors what callAnthropic just logged to anthropic_calls

@@ -334,6 +334,25 @@ export const chatbotQueries = pgTable(
 );
 
 // ---------------------------------------------------------------------------
+// PROMPTS · versioned AI system prompts. Reads via lib/prompts.ts with a
+// 5-min in-memory cache. New versions are saved from /admin-prompt-editor
+// without a code deploy.
+// ---------------------------------------------------------------------------
+export const prompts = pgTable(
+  'prompts',
+  {
+    id: integer('id').primaryKey().generatedByDefaultAsIdentity(),
+    kind: text('kind').notNull(),
+    version: integer('version').notNull(),
+    text: text('text').notNull(),
+    notes: text('notes'),
+    createdBy: uuid('created_by').references(() => users.id, { onDelete: 'set null' }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    isActive: boolean('is_active').notNull().default(false),
+  }
+);
+
+// ---------------------------------------------------------------------------
 // VERDICT SHARES · tokenised public share links for paid verdicts. Owner
 // generates a token via /api/verdict-report/share, sends the URL to the
 // recipient, who reads /share.html?token=<token> without an account.

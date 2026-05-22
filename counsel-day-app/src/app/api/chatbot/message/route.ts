@@ -29,6 +29,7 @@ import { getAnthropic } from '@/lib/anthropic';
 import { db, schema } from '@/lib/db';
 import { sql } from 'drizzle-orm';
 import { CHATBOT_KB } from '@/lib/chatbot-knowledge';
+import { resolvePrompt } from '@/lib/prompts';
 import { recaptchaConfigured, recaptchaSiteKey, verifyRecaptchaToken } from '@/lib/recaptcha';
 
 export const dynamic = 'force-dynamic';
@@ -192,7 +193,11 @@ export async function POST(req: Request) {
         // KB read is effectively free within any 5-minute window of
         // active traffic, which covers normal usage patterns.
         system: [
-          { type: 'text', text: CHATBOT_SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } },
+          // Resolve from DB if the operator has saved an override via
+          // /admin-prompt-editor; otherwise the in-code constant. The
+          // KB itself stays in code · it's structural product copy that
+          // changes in lockstep with page edits.
+          { type: 'text', text: await resolvePrompt('chatbot_system', CHATBOT_SYSTEM_PROMPT), cache_control: { type: 'ephemeral' } },
           { type: 'text', text: CHATBOT_KB, cache_control: { type: 'ephemeral' } },
         ],
         messages: [

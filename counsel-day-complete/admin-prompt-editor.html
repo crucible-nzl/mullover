@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin &middot; Prompt editor &middot; Counsel.day</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f7f9fc">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin-shell.css">
+<style>
+  .pe-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+  .pe-tabs button { background: var(--surface); color: var(--ink-soft); border: 1px solid var(--rule); padding: 8px 16px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; cursor: pointer; }
+  .pe-tabs button.active { background: var(--accent); color: var(--surface); border-color: var(--accent); }
+
+  .pe-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 18px; }
+  @media (max-width: 1000px) { .pe-grid { grid-template-columns: 1fr; } }
+
+  .pe-editor { background: var(--surface); border: 1px solid var(--border); padding: 16px 18px; }
+  .pe-editor h3 { margin: 0 0 12px; font-family: var(--font-ui); font-size: 16px; color: var(--ink); }
+  .pe-editor textarea { width: 100%; min-height: 540px; box-sizing: border-box; font-family: var(--font-mono); font-size: 12px; line-height: 1.55; padding: 12px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); resize: vertical; }
+  .pe-editor .meta { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 10px 0; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+  .pe-editor .notes { width: 100%; padding: 8px 10px; border: 1px solid var(--rule); background: var(--surface); font-family: var(--font-ui); font-size: 13px; box-sizing: border-box; margin-bottom: 10px; }
+  .pe-editor .actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .pe-editor .btn-save { background: var(--accent); color: var(--surface); border: none; padding: 9px 22px; font-family: var(--font-ui); font-size: 13px; font-weight: 500; cursor: pointer; }
+  .pe-editor .btn-save:hover { filter: brightness(1.1); }
+  .pe-editor .btn-reset { background: var(--surface); color: var(--ink-soft); border: 1px solid var(--rule); padding: 9px 16px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; cursor: pointer; }
+  .pe-editor .status { font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-left: 8px; }
+  .pe-editor .status.ok { color: var(--success, #2e7d32); }
+  .pe-editor .status.err { color: var(--wine, #722F37); }
+
+  .pe-versions { background: var(--surface); border: 1px solid var(--border); padding: 16px 18px; overflow-y: auto; max-height: 700px; }
+  .pe-versions h3 { margin: 0 0 12px; font-family: var(--font-ui); font-size: 16px; color: var(--ink); }
+  .pe-version { border-bottom: 1px solid var(--rule); padding: 12px 0; }
+  .pe-version:last-child { border-bottom: none; }
+  .pe-version .head { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+  .pe-version .head .v { font-weight: 600; color: var(--ink); font-size: 13px; }
+  .pe-version .head .active { background: var(--accent-soft); color: var(--accent); padding: 2px 8px; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; }
+  .pe-version .preview { font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); line-height: 1.4; max-height: 60px; overflow: hidden; }
+  .pe-version .row-actions { display: flex; gap: 8px; margin-top: 8px; }
+  .pe-version .row-actions button { background: var(--surface); color: var(--ink-soft); border: 1px solid var(--rule); padding: 4px 10px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; cursor: pointer; }
+  .pe-version .row-actions button:hover { border-color: var(--accent); color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">counsel<span class="tld">.day</span> &middot; admin</div>
+  <div class="meta">
+    <a href="/account.html">&larr; User-facing site</a>
+    <span id="adm-identity">&hellip;</span>
+    <a href="#" id="adm-logout">Log out</a>
+  </div>
+</div>
+<nav class="adm-subnav" aria-label="Admin sections">
+  <a href="/admin.html">Overview</a>
+  <a href="/admin-users.html">Users</a>
+  <a href="/admin-products.html">Products</a>
+  <a href="/admin-growth.html">Growth</a>
+  <a href="/admin-engagement.html">Engagement</a>
+  <a href="/admin-traffic.html">Traffic</a>
+  <a href="/admin-finance.html">Finance</a>
+  <a href="/admin-verdict-logs.html">Verdict logs</a>
+  <a href="/admin-audit-log.html">Audit log</a>
+  <a href="/admin-chatbot-queries.html">Chatbot</a>
+  <a href="/admin-prompt-editor.html" class="active">Prompts</a>
+  <a href="/admin-database.html">Database</a>
+  <a href="/admin-testing-area.html">Testing</a>
+</nav>
+
+<div class="shell">
+  <h1>Prompt editor</h1>
+  <p class="lede">Edit the verdict synthesis prompt or the chatbot system prompt without a code deploy. Every Save creates a new version and activates it; previously-active versions are kept for rollback. Changes take effect within 5 minutes of save (or instantly after the next process restart).</p>
+  <div id="adm-error" class="status-banner is-error" style="display:none;"></div>
+
+  <div class="pe-tabs" role="tablist">
+    <button type="button" class="active" data-kind="verdict_synthesis">Verdict synthesis</button>
+    <button type="button" data-kind="chatbot_system">Chatbot system</button>
+  </div>
+
+  <div class="pe-grid">
+
+    <section class="pe-editor">
+      <h3 id="pe-editor-title">Verdict synthesis prompt</h3>
+      <div class="meta">
+        <span>Active version: <strong id="pe-active-version">&middot;</strong></span>
+        <span>Source: <strong id="pe-source">&middot;</strong></span>
+      </div>
+      <input type="text" class="notes" id="pe-notes" placeholder="Change notes (e.g. 'Tightened no-em-dash rule')" maxlength="280">
+      <textarea id="pe-text" spellcheck="false"></textarea>
+      <div class="actions" style="margin-top: 10px;">
+        <button type="button" class="btn-save" id="pe-save">Save + activate</button>
+        <button type="button" class="btn-reset" id="pe-reset-default">Load in-code default</button>
+        <span class="status" id="pe-status">&nbsp;</span>
+      </div>
+    </section>
+
+    <aside class="pe-versions">
+      <h3>Version history</h3>
+      <div id="pe-versions-list">
+        <p style="color: var(--muted); font-family: var(--font-mono); font-size: 11px;">Loading&hellip;</p>
+      </div>
+    </aside>
+
+  </div>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+  // ---- Identity ----
+  fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) {
+    if (d && d.ok && d.user) document.getElementById('adm-identity').textContent = d.user.email + ' · admin';
+  }).catch(function () {});
+  document.getElementById('adm-logout').addEventListener('click', function (e) {
+    e.preventDefault();
+    fetch('/api/signout', { method: 'POST', credentials: 'include' }).finally(function () { window.location.href = '/'; });
+  });
+
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+  function fmtTs(s) { if (!s) return '·'; try { return new Date(s).toLocaleString(); } catch (e) { return s; } }
+
+  var currentKind = 'verdict_synthesis';
+  var codeDefault = '';
+
+  var tabs = document.querySelectorAll('.pe-tabs button');
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () {
+      tabs.forEach(function (b) { b.classList.remove('active'); });
+      t.classList.add('active');
+      currentKind = t.getAttribute('data-kind');
+      var title = currentKind === 'verdict_synthesis' ? 'Verdict synthesis prompt' : 'Chatbot system prompt';
+      document.getElementById('pe-editor-title').textContent = title;
+      load();
+    });
+  });
+
+  function setStatus(text, cls) {
+    var el = document.getElementById('pe-status');
+    el.textContent = text;
+    el.className = 'status' + (cls ? ' ' + cls : '');
+  }
+
+  function load() {
+    setStatus('Loading…');
+    fetch('/api/admin/prompts?kind=' + encodeURIComponent(currentKind), { credentials: 'include' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.ok) { setStatus(d && d.message || 'Failed', 'err'); return; }
+        codeDefault = d.code_default || '';
+        var versions = d.versions || [];
+        var active = versions.find(function (v) { return v.isActive; });
+        if (active) {
+          document.getElementById('pe-text').value = active.text;
+          document.getElementById('pe-active-version').textContent = 'v' + active.version;
+          document.getElementById('pe-source').textContent = 'DB · saved ' + fmtTs(active.createdAt);
+        } else {
+          document.getElementById('pe-text').value = codeDefault;
+          document.getElementById('pe-active-version').textContent = 'in-code default';
+          document.getElementById('pe-source').textContent = 'compiled constant';
+        }
+        document.getElementById('pe-notes').value = '';
+        renderVersions(versions);
+        setStatus('');
+      });
+  }
+
+  function renderVersions(versions) {
+    var host = document.getElementById('pe-versions-list');
+    if (versions.length === 0) {
+      host.innerHTML = '<p style="color: var(--muted); font-family: var(--font-mono); font-size: 11px;">No saved versions yet. The in-code default is in use.</p>';
+      return;
+    }
+    host.innerHTML = versions.map(function (v) {
+      var preview = v.text.slice(0, 200).replace(/\s+/g, ' ') + (v.text.length > 200 ? '…' : '');
+      return '<div class="pe-version">' +
+               '<div class="head">' +
+                 '<span><span class="v">v' + v.version + '</span> · ' + fmtTs(v.createdAt) + '</span>' +
+                 (v.isActive ? '<span class="active">Active</span>' : '') +
+               '</div>' +
+               (v.notes ? '<div style="font-family: var(--font-ui); font-size: 12px; color: var(--ink); margin-bottom: 6px;">' + escapeHtml(v.notes) + '</div>' : '') +
+               '<div class="preview">' + escapeHtml(preview) + '</div>' +
+               (!v.isActive ? '<div class="row-actions"><button type="button" data-act="activate" data-id="' + v.id + '">Activate</button><button type="button" data-act="load" data-id="' + v.id + '" data-text="' + escapeHtml(v.text) + '">Load into editor</button></div>' : '') +
+             '</div>';
+    }).join('');
+    host.querySelectorAll('button[data-act="activate"]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var id = Number(b.getAttribute('data-id'));
+        activate(id);
+      });
+    });
+    host.querySelectorAll('button[data-act="load"]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var id = Number(b.getAttribute('data-id'));
+        var v = versions.find(function (x) { return x.id === id; });
+        if (v) {
+          document.getElementById('pe-text').value = v.text;
+          document.getElementById('pe-notes').value = 'Restored from v' + v.version;
+          setStatus('Loaded v' + v.version + ' into editor (not yet saved)', 'ok');
+        }
+      });
+    });
+  }
+
+  function activate(versionId) {
+    setStatus('Activating…');
+    fetch('/api/admin/prompts', {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ kind: currentKind, version_id: versionId }),
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      if (d && d.ok) { setStatus('Activated. Live within 5 minutes.', 'ok'); load(); }
+      else { setStatus((d && d.message) || 'Failed', 'err'); }
+    });
+  }
+
+  document.getElementById('pe-save').addEventListener('click', function () {
+    var text = document.getElementById('pe-text').value;
+    var notes = document.getElementById('pe-notes').value;
+    if (text.trim().length < 50) { setStatus('Prompt must be at least 50 chars.', 'err'); return; }
+    setStatus('Saving…');
+    fetch('/api/admin/prompts', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ kind: currentKind, text: text, notes: notes }),
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      if (d && d.ok) { setStatus('Saved as v' + d.version + ' and activated.', 'ok'); load(); }
+      else { setStatus((d && d.message) || 'Failed', 'err'); }
+    });
+  });
+
+  document.getElementById('pe-reset-default').addEventListener('click', function () {
+    if (codeDefault) {
+      document.getElementById('pe-text').value = codeDefault;
+      setStatus('In-code default loaded into editor (not yet saved)', 'ok');
+    } else {
+      setStatus('No in-code default available for this kind.', 'err');
+    }
+  });
+
+  load();
+})();
+</script>
+</body>
+</html>

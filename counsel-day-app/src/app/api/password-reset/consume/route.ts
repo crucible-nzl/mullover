@@ -13,6 +13,8 @@ import { z } from 'zod';
 import { db, schema } from '@/lib/db';
 import { hashPassword } from '@/lib/auth';
 import { eq, and, isNull } from 'drizzle-orm';
+import { notifySecurityEvent } from '@/lib/security-notify';
+import { getClientIp } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -82,6 +84,13 @@ export async function POST(req: Request) {
       user_agent: req.headers.get('user-agent') ?? null,
     },
   }).catch(() => {});
+
+  void notifySecurityEvent({
+    userId: tk.userId,
+    event: 'password.changed',
+    ip: getClientIp(req),
+    userAgent: req.headers.get('user-agent'),
+  });
 
   return NextResponse.json(
     { ok: true, message: 'Password updated. Please sign in with the new password.' },

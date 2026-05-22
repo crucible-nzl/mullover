@@ -394,7 +394,7 @@ a:hover { color: var(--wine-deep); }
   border-bottom: 1px solid var(--rule);
 }
 @media (max-width: 720px) {
-  .hero { padding: 18px 20px 30px; }
+  .hero { padding: 14px 18px 22px; }
 }
 .hero-inner { max-width: 1500px; margin: 0 auto; }
 .hero-kicker {
@@ -474,6 +474,27 @@ a:hover { color: var(--wine-deep); }
   margin-top: 28px;
 }
 .hero-reassure strong { color: var(--wine); font-weight: 500; }
+
+/* Mobile-first tightening · everything above eased so the CTA lands
+   higher on the fold. Tested against 375x667 (iPhone SE) which is the
+   smallest device we care about. */
+@media (max-width: 720px) {
+  .hero-kicker { font-size: 11px; letter-spacing: 0.14em; margin-bottom: 10px; }
+  .hero-headline { font-size: 28px; line-height: 1.12; margin: 0 0 12px; }
+  .hero-subhead { font-size: 15px; line-height: 1.4; margin: 0 auto 18px; }
+  .hero-figure { margin: 0 auto 18px; max-width: 100%; }
+  /* The trajectory chart is dense at small sizes · cap its height so it
+     never dominates the fold. Aspect-ratio preserved by SVG viewBox. */
+  .hero-figure svg { max-height: 110px; }
+  .hero-body { font-size: 16px; line-height: 1.55; margin: 0 auto 20px; }
+  .hero-cta { flex-direction: column; gap: 12px; margin-top: 4px; }
+  /* Full-width buttons on mobile · 48px+ touch target per Material/HIG. */
+  .hero-cta .btn, .hero-cta .btn-large, .hero-cta a.btn-ghost, .hero-cta a:not(.btn-text) {
+    display: block; width: 100%; max-width: 320px; box-sizing: border-box;
+    padding: 16px 22px; font-size: 15px;
+  }
+  .hero-reassure { font-size: 11px; letter-spacing: 0.12em; margin-top: 16px; }
+}
 
 /* ---------- HOOK BAND (Tuesday / Thursday) ---------- */
 .hook-band {

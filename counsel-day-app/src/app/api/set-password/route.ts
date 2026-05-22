@@ -17,6 +17,8 @@ import { db, schema } from '@/lib/db';
 import { hashPassword, verifyPassword } from '@/lib/auth';
 import { readSession, readSessionCookie } from '@/lib/sessions';
 import { eq, ne, and } from 'drizzle-orm';
+import { notifySecurityEvent } from '@/lib/security-notify';
+import { getClientIp } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -85,6 +87,14 @@ export async function POST(req: Request) {
       .delete(schema.sessions)
       .where(and(eq(schema.sessions.userId, userId), ne(schema.sessions.id, sessionId)));
   }
+
+  // ---- security notification email · catches takeover in real time ----
+  void notifySecurityEvent({
+    userId,
+    event: existingHash ? 'password.changed' : 'password.set_first_time',
+    ip: getClientIp(req),
+    userAgent: req.headers.get('user-agent'),
+  });
 
   return NextResponse.json({ ok: true, message: 'Password updated.' }, { status: 200 });
 }

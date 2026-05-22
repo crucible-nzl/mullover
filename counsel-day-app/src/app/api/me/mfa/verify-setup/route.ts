@@ -18,6 +18,8 @@ import { db, schema } from '@/lib/db';
 import { readSession, readSessionCookie } from '@/lib/sessions';
 import { verifyTotpCode } from '@/lib/mfa';
 import { eq, sql } from 'drizzle-orm';
+import { notifySecurityEvent } from '@/lib/security-notify';
+import { getClientIp } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -68,6 +70,13 @@ export async function POST(req: Request) {
     targetType: 'user',
     targetId: session.userId,
   }).catch(() => {});
+
+  void notifySecurityEvent({
+    userId: session.userId,
+    event: 'mfa.enrolled',
+    ip: getClientIp(req),
+    userAgent: req.headers.get('user-agent'),
+  });
 
   return NextResponse.json({ ok: true, message: 'Two-factor authentication is now enabled.' });
 }

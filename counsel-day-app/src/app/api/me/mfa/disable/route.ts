@@ -17,6 +17,8 @@ import { db, schema } from '@/lib/db';
 import { readSession, readSessionCookie } from '@/lib/sessions';
 import { verifyTotpCode, verifyRecoveryCode } from '@/lib/mfa';
 import { eq } from 'drizzle-orm';
+import { notifySecurityEvent } from '@/lib/security-notify';
+import { getClientIp } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -67,6 +69,13 @@ export async function POST(req: Request) {
     targetId: session.userId,
     metadata: { used_recovery_code: recoveryConsumedIdx !== -1 },
   }).catch(() => {});
+
+  void notifySecurityEvent({
+    userId: session.userId,
+    event: 'mfa.disabled',
+    ip: getClientIp(req),
+    userAgent: req.headers.get('user-agent'),
+  });
 
   return NextResponse.json({ ok: true, message: 'Two-factor authentication has been disabled.' });
 }

@@ -286,13 +286,16 @@ async function verdictGenerate() {
         .set({ status: 'completed', updatedAt: new Date() })
         .where(eq(schema.decisions.id, d.id));
 
-      // Email each participant that their verdict is ready
-      const participantEmails = await db.execute(sql`
-        SELECT u.email, u.first_name FROM participants p
+      // Email + push each participant that their verdict is ready.
+      // We pull user_id too so the push helper can target subscriptions.
+      // Email is the always-on channel; push is a bonus when the user
+      // has installed the PWA and granted notification permission.
+      const participantNotify = await db.execute(sql`
+        SELECT u.id AS user_id, u.email, u.first_name FROM participants p
         JOIN users u ON u.id = p.user_id
         WHERE p.decision_id = ${d.id} AND p.user_id IS NOT NULL
       `);
-      for (const p of participantEmails as unknown as Array<{ email: string; first_name: string | null }>) {
+      for (const p of participantNotify as unknown as Array<{ user_id: string; email: string; first_name: string | null }>) {
         const greeting = p.first_name ? `Hi ${p.first_name},` : 'Hi,';
         const url = `${APP_BASE_URL}/verdict-reveal?decision=${d.id}`;
         await sendTransactional({
@@ -301,8 +304,28 @@ async function verdictGenerate() {
           textContent: `${greeting}\n\nYour decision has reached day ${d.durationDays}. Both verdicts are now open:\n\n${url}\n\n· Counsel.day`,
           htmlContent: `<p>${greeting}</p><p>Your decision has reached day ${d.durationDays}. Both verdicts are now open:</p><p><a href="${url}" style="color: #722F37;">${url}</a></p><p>· Counsel.day</p>`,
         });
+        // Push fires alongside email · no-op if VAPID not configured
+        // or the user hasn't subscribed any device. Audit-log only when
+        // the helper actually sent something so the admin can see
+        // delivery stats without false positives.
+        const pushRes = await sendPushToUser(p.user_id, {
+          title: 'Your verdict is ready',
+          body: 'Day ' + d.durationDays + ' has arrived. Open the sealed record.',
+          url: '/verdict-reveal.html?id=' + d.id,
+          tag: 'verdict-' + d.id,
+          requireInteraction: false,
+        }).catch(() => ({ sent: 0, removed: 0 } as { sent: number; removed: number }));
+        if (pushRes.sent > 0) {
+          await db.insert(schema.auditLog).values({
+            actorUserId: p.user_id,
+            action: 'push.sent',
+            targetType: 'decision',
+            targetId: d.id,
+            metadata: { kind: 'verdict_ready', endpoints: pushRes.sent, removed: pushRes.removed ?? 0 },
+          }).catch(() => {});
+        }
       }
-      console.log(`[cron · verdict-generate] decision ${d.id}: verdict written, participants emailed`);
+      console.log(`[cron · verdict-generate] decision ${d.id}: verdict written, participants emailed + pushed`);
     } catch (err) {
       console.error(`[cron · verdict-generate] decision ${d.id} failed:`, err);
       // Flip back to 'active' so the next cron run retries it

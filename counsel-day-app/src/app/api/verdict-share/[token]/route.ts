@@ -25,11 +25,22 @@
 import { NextResponse } from 'next/server';
 import { db, schema } from '@/lib/db';
 import { eq, and, isNull, sql, gt } from 'drizzle-orm';
+import { checkRateLimit, getClientIp, rateLimitResponse } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 export async function GET(req: Request, ctx: { params: Promise<{ token: string }> }) {
+  // Public endpoint · cap requests at 60/min/IP. 190-bit token entropy
+  // makes brute force mathematically infeasible, but a per-IP cap closes
+  // the abuse vector for someone scraping leaked tokens at speed AND
+  // limits any DoS surface against a viral share URL.
+  const ip = getClientIp(req);
+  const rl = await checkRateLimit(`share-ip:${ip}`, 60, 60);
+  if (!rl.allowed) {
+    return rateLimitResponse(rl, 'Too many requests. Please slow down.');
+  }
+
   const { token } = await ctx.params;
   if (!token || token.length < 16 || token.length > 200) {
     return NextResponse.json({ ok: false, message: 'Not found.' }, { status: 404 });

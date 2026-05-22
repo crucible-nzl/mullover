@@ -540,22 +540,31 @@ async function inviteReminder() {
  * billing context the IRD might request).
  */
 async function auditPrune() {
-  const general = await db.execute(sql`
-    DELETE FROM audit_log
-    WHERE created_at < NOW() - INTERVAL '24 months'
-      AND action NOT LIKE 'refund.%'
-      AND action <> 'user.hard_delete_purged'
-    RETURNING id
-  `);
-  const financial = await db.execute(sql`
-    DELETE FROM audit_log
-    WHERE created_at < NOW() - INTERVAL '7 years'
-      AND (action LIKE 'refund.%' OR action = 'user.hard_delete_purged')
-    RETURNING id
-  `);
-  const gCount = (general as unknown as Array<unknown>).length;
-  const fCount = (financial as unknown as Array<unknown>).length;
-  console.log(`[cron · audit-prune] removed ${gCount} general + ${fCount} financial audit_log rows`);
+  // Migration 0017 installed an append-only trigger on audit_log that
+  // blocks DELETE unless the session variable app.audit_prune_session
+  // is set to 'on'. Wrap both deletes in a single transaction so the
+  // setting is scoped to this cron's writes only · once the txn commits
+  // the setting goes away and the trigger resumes blocking deletes
+  // from anywhere else.
+  await db.transaction(async (tx) => {
+    await tx.execute(sql`SET LOCAL app.audit_prune_session = 'on'`);
+    const general = await tx.execute(sql`
+      DELETE FROM audit_log
+      WHERE created_at < NOW() - INTERVAL '24 months'
+        AND action NOT LIKE 'refund.%'
+        AND action <> 'user.hard_delete_purged'
+      RETURNING id
+    `);
+    const financial = await tx.execute(sql`
+      DELETE FROM audit_log
+      WHERE created_at < NOW() - INTERVAL '7 years'
+        AND (action LIKE 'refund.%' OR action = 'user.hard_delete_purged')
+      RETURNING id
+    `);
+    const gCount = (general as unknown as Array<unknown>).length;
+    const fCount = (financial as unknown as Array<unknown>).length;
+    console.log(`[cron · audit-prune] removed ${gCount} general + ${fCount} financial audit_log rows`);
+  });
 }
 
 /**
@@ -701,6 +710,99 @@ async function runWithHeartbeat<T>(job: string, fn: () => Promise<T>): Promise<T
   }
 }
 
+/**
+ * Weekly ops digest · runs Sunday evening per locked-settings ("Weekly
+ * Sunday-evening ops digest by email"). Aggregates the last 7 days
+ * of platform activity and emails the operator at OPS_DIGEST_EMAIL
+ * (defaults to admin@counsel.day). Cheap query · just COUNT()s
+ * against indexed columns.
+ */
+async function weeklyDigest() {
+  const opsEmail = process.env.OPS_DIGEST_EMAIL ?? 'admin@counsel.day';
+
+  type DigestRow = {
+    signups: string; verified: string;
+    decisions_new: string; decisions_completed: string;
+    verdicts_generated: string; verdicts_tokens: string; verdicts_cost_cents: string;
+    chatbot_turns: string; chatbot_escalated: string;
+    push_sent: string;
+    refund_requested: string; refund_processed: string;
+    cron_failed: string;
+    active_sessions: string;
+  };
+  const rows = await db.execute<DigestRow>(sql`
+    SELECT
+      (SELECT count(*)::text FROM users WHERE created_at > NOW() - INTERVAL '7 days') AS signups,
+      (SELECT count(*)::text FROM users WHERE email_verified_at > NOW() - INTERVAL '7 days') AS verified,
+      (SELECT count(*)::text FROM decisions WHERE created_at > NOW() - INTERVAL '7 days') AS decisions_new,
+      (SELECT count(*)::text FROM decisions WHERE status = 'completed' AND updated_at > NOW() - INTERVAL '7 days') AS decisions_completed,
+      (SELECT count(*)::text FROM verdicts WHERE generated_at > NOW() - INTERVAL '7 days') AS verdicts_generated,
+      (SELECT COALESCE(SUM(tokens_input + tokens_output), 0)::text FROM verdicts WHERE generated_at > NOW() - INTERVAL '7 days') AS verdicts_tokens,
+      (SELECT COALESCE(SUM(cost_cents), 0)::text FROM anthropic_calls WHERE called_at > NOW() - INTERVAL '7 days' AND ok = true) AS verdicts_cost_cents,
+      (SELECT count(*)::text FROM chatbot_queries WHERE asked_at > NOW() - INTERVAL '7 days') AS chatbot_turns,
+      (SELECT count(*)::text FROM chatbot_queries WHERE asked_at > NOW() - INTERVAL '7 days' AND escalated = true) AS chatbot_escalated,
+      (SELECT count(*)::text FROM audit_log WHERE created_at > NOW() - INTERVAL '7 days' AND action = 'push.sent') AS push_sent,
+      (SELECT count(*)::text FROM audit_log WHERE created_at > NOW() - INTERVAL '7 days' AND action = 'refund.requested') AS refund_requested,
+      (SELECT count(*)::text FROM audit_log WHERE created_at > NOW() - INTERVAL '7 days' AND action = 'refund.processed') AS refund_processed,
+      (SELECT count(*)::text FROM audit_log WHERE created_at > NOW() - INTERVAL '7 days' AND action LIKE 'cron.%.failed') AS cron_failed,
+      (SELECT count(*)::text FROM sessions WHERE expires_at > NOW()) AS active_sessions
+  `);
+  const r = rows[0] as DigestRow;
+
+  const costUsd = (Number(r.verdicts_cost_cents) / 100).toFixed(2);
+  const escRate = Number(r.chatbot_turns) > 0
+    ? ((Number(r.chatbot_escalated) / Number(r.chatbot_turns)) * 100).toFixed(1) + '%'
+    : 'n/a';
+  const weekEnding = new Date().toLocaleDateString('en-NZ', { day: '2-digit', month: 'short', year: 'numeric' });
+
+  const text = [
+    'Counsel.day · weekly ops digest',
+    'Week ending ' + weekEnding,
+    '',
+    '· Signups: ' + r.signups + ' (' + r.verified + ' verified)',
+    '· Decisions started: ' + r.decisions_new,
+    '· Decisions completed: ' + r.decisions_completed,
+    '· Verdicts generated: ' + r.verdicts_generated,
+    '· Anthropic spend (ledger): $' + costUsd + ' USD across ' + r.verdicts_tokens + ' tokens',
+    '· Chatbot turns: ' + r.chatbot_turns + ' (' + escRate + ' escalated to support)',
+    '· Push notifications sent: ' + r.push_sent,
+    '· Refund requests: ' + r.refund_requested + ' new, ' + r.refund_processed + ' processed',
+    '· Cron failures: ' + r.cron_failed + (Number(r.cron_failed) > 0 ? ' (CHECK /admin-audit-log.html)' : ''),
+    '· Active sessions: ' + r.active_sessions,
+    '',
+    'Full detail · https://counsel.day/admin.html',
+    '',
+    '· Counsel.day',
+  ].join('\n');
+  const html = `
+    <h2 style="font-family: Newsreader, Georgia, serif; color: #0a0a0a;">Counsel.day &middot; <em style="color: #722F37;">weekly ops digest</em></h2>
+    <p style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #6b635a;">Week ending ${weekEnding}</p>
+    <table style="font-family: Georgia, serif; border-collapse: collapse; width: 100%; max-width: 540px;">
+      <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e8e6e1;">Signups</td><td style="padding: 8px 12px; border-bottom: 1px solid #e8e6e1; text-align: right;"><strong>${r.signups}</strong> (${r.verified} verified)</td></tr>
+      <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e8e6e1;">Decisions started</td><td style="padding: 8px 12px; border-bottom: 1px solid #e8e6e1; text-align: right;"><strong>${r.decisions_new}</strong></td></tr>
+      <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e8e6e1;">Decisions completed</td><td style="padding: 8px 12px; border-bottom: 1px solid #e8e6e1; text-align: right;"><strong>${r.decisions_completed}</strong></td></tr>
+      <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e8e6e1;">Verdicts generated</td><td style="padding: 8px 12px; border-bottom: 1px solid #e8e6e1; text-align: right;"><strong>${r.verdicts_generated}</strong></td></tr>
+      <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e8e6e1;">Anthropic spend</td><td style="padding: 8px 12px; border-bottom: 1px solid #e8e6e1; text-align: right;"><strong>$${costUsd} USD</strong></td></tr>
+      <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e8e6e1;">Chatbot turns</td><td style="padding: 8px 12px; border-bottom: 1px solid #e8e6e1; text-align: right;"><strong>${r.chatbot_turns}</strong> &middot; ${escRate} escalated</td></tr>
+      <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e8e6e1;">Push notifications sent</td><td style="padding: 8px 12px; border-bottom: 1px solid #e8e6e1; text-align: right;"><strong>${r.push_sent}</strong></td></tr>
+      <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e8e6e1;">Refunds</td><td style="padding: 8px 12px; border-bottom: 1px solid #e8e6e1; text-align: right;"><strong>${r.refund_requested}</strong> new &middot; ${r.refund_processed} processed</td></tr>
+      <tr><td style="padding: 8px 12px; border-bottom: 1px solid #e8e6e1; color: ${Number(r.cron_failed) > 0 ? '#722F37' : '#0a0a0a'};">Cron failures</td><td style="padding: 8px 12px; border-bottom: 1px solid #e8e6e1; text-align: right; color: ${Number(r.cron_failed) > 0 ? '#722F37' : '#0a0a0a'};"><strong>${r.cron_failed}</strong></td></tr>
+      <tr><td style="padding: 8px 12px;">Active sessions</td><td style="padding: 8px 12px; text-align: right;"><strong>${r.active_sessions}</strong></td></tr>
+    </table>
+    <p style="font-family: Georgia, serif; margin-top: 18px;">Full detail: <a href="https://counsel.day/admin.html" style="color: #722F37;">counsel.day/admin.html</a></p>
+    <p style="font-family: 'Geist Mono', monospace; font-size: 11px; color: #6b635a; margin-top: 24px;">&middot; Counsel.day</p>
+  `.trim();
+
+  await sendTransactional({
+    to: { email: opsEmail, name: 'Counsel.day operator' },
+    subject: 'Counsel.day · weekly ops digest · ' + weekEnding,
+    textContent: text,
+    htmlContent: html,
+  });
+
+  console.log('[cron · weekly-digest] sent to ' + opsEmail);
+}
+
 async function main() {
   const job = process.argv[2];
   switch (job) {
@@ -712,8 +814,9 @@ async function main() {
     case 'hard-delete-purge':    return runWithHeartbeat(job, hardDeletePurge);
     case 'audit-prune':          return runWithHeartbeat(job, auditPrune);
     case 'time-capsule-deliver': return runWithHeartbeat(job, timeCapsuleDeliver);
+    case 'weekly-digest':        return runWithHeartbeat(job, weeklyDigest);
     default:
-      console.error(`Unknown job: ${job}. Valid: evening-prompt, verdict-generate, session-purge, invite-expiry, invite-reminder, hard-delete-purge, audit-prune, time-capsule-deliver`);
+      console.error(`Unknown job: ${job}. Valid: evening-prompt, verdict-generate, session-purge, invite-expiry, invite-reminder, hard-delete-purge, audit-prune, time-capsule-deliver, weekly-digest`);
       process.exit(2);
   }
 }

@@ -254,6 +254,22 @@
       <button class="btn btn-secondary" data-cron="sitemap">Run now</button>
       <div class="out" data-cron-out="sitemap"></div>
     </div>
+    <div class="cron-cell">
+      <div class="name">weekly-digest</div>
+      <div class="desc">Sunday-evening ops summary · emails OPS_DIGEST_EMAIL with 7-day signups, verdicts, AI spend, push, refunds, cron failures.</div>
+      <button class="btn btn-secondary" data-cron="weekly-digest">Run now</button>
+      <div class="out" data-cron-out="weekly-digest"></div>
+    </div>
+  </div>
+
+  <!-- CSV data exports -->
+  <h2>Data exports</h2>
+  <p class="lede" style="margin-bottom: 12px;">CSV download of any of the four core tables. Filter by date range via the URL: <code>?since=YYYY-MM-DD&amp;until=YYYY-MM-DD</code>. Default cap is 10,000 rows; pass <code>?limit=0</code> for unbounded. Every export writes an <code>admin.export.csv</code> row to the audit log.</p>
+  <div class="grid-4">
+    <div class="card"><div class="label">Users</div><div class="value" style="font-size: 14px; font-family: var(--font-mono); font-weight: 500;"><a href="/api/admin/export/users" style="color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent);">Download CSV</a></div><div class="sub">id, email, name, admin, verified, plan, consent, created, deleted</div></div>
+    <div class="card"><div class="label">Decisions</div><div class="value" style="font-size: 14px; font-family: var(--font-mono); font-weight: 500;"><a href="/api/admin/export/decisions" style="color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent);">Download CSV</a></div><div class="sub">id, owner, question, format, tier, status, dates</div></div>
+    <div class="card"><div class="label">Verdicts</div><div class="value" style="font-size: 14px; font-family: var(--font-mono); font-weight: 500;"><a href="/api/admin/export/verdicts" style="color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent);">Download CSV</a></div><div class="sub">id, decision, question, model, tokens, cost, generated</div></div>
+    <div class="card"><div class="label">Audit log</div><div class="value" style="font-size: 14px; font-family: var(--font-mono); font-weight: 500;"><a href="/api/admin/export/audit_log" style="color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent);">Download CSV</a></div><div class="sub">id, created, actor, action, target, metadata</div></div>
   </div>
 
   <!-- Audit log -->

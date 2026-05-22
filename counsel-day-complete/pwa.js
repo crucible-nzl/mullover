@@ -286,6 +286,32 @@
     visitCount: function () { return readNum(VISIT_KEY); },
   };
 
+  // ---------- 2b · Auto-request push permission after PWA install ----------
+  // The user just deliberately installed the app · highest-intent
+  // moment they'll ever have. Push without notification permission is
+  // useless; ask immediately so the experience is "install -> notify".
+  // Delayed 2s so the install dialog has cleared and the new window/
+  // tab has settled. Wrapped in a guard so we only ask once per
+  // browser even if appinstalled fires twice (some Chrome versions
+  // double-fire on Android).
+  var PUSH_AUTO_ASKED_KEY = 'cd-push-auto-asked';
+  function autoAskPushAfterInstall() {
+    try {
+      if (window.localStorage.getItem(PUSH_AUTO_ASKED_KEY) === '1') return;
+      window.localStorage.setItem(PUSH_AUTO_ASKED_KEY, '1');
+    } catch (e) { /* private mode · proceed anyway */ }
+    setTimeout(function () {
+      if (!window.CounselDayPush || !window.CounselDayPush.enable) return;
+      // Notification.permission could already be 'denied' from a
+      // previous decision · don't re-prompt then (would no-op anyway).
+      if (typeof Notification === 'undefined' || Notification.permission === 'denied') return;
+      window.CounselDayPush.enable().catch(function (err) {
+        console.warn('[cd-pwa] auto-ask push after install failed:', err && err.message);
+      });
+    }, 2000);
+  }
+  window.addEventListener('appinstalled', autoAskPushAfterInstall);
+
   // ---------- 3 · Push subscription helpers ----------
   function urlBase64ToUint8Array(base64) {
     var padding = '='.repeat((4 - base64.length % 4) % 4);
@@ -375,4 +401,122 @@
     enable: enablePush,
     disable: disablePush,
   };
+
+  // ---------- 4 · Persistent push opt-in banner ----------
+  // Pattern C: any signed-in page shows a calm top banner asking the
+  // user to enable push, until they've decided either way. The
+  // browser permission dialog is once-and-done; this banner lets us
+  // ask repeatedly without burning the OS-level decision.
+  //
+  // Banner conditions (ALL must be true for it to appear):
+  //   · Notification API + PushManager + ServiceWorker all supported
+  //   · Notification.permission === 'default' (no prior allow/deny)
+  //   · localStorage cd-push-decided !== '1'
+  //   · /api/auth-check returns 200 (user is signed in)
+  //   · no existing #cd-push-banner already in the DOM
+  //
+  // Decided=1 is written when the user clicks Enable (regardless of
+  // outcome) OR clicks Not now. Banner never returns once flagged.
+
+  var PUSH_DECIDED_KEY = 'cd-push-decided';
+
+  function pushBannerSupported() {
+    return typeof Notification !== 'undefined'
+      && 'PushManager' in window
+      && 'serviceWorker' in navigator
+      && Notification.permission === 'default';
+  }
+  function pushBannerDecided() {
+    try { return window.localStorage.getItem(PUSH_DECIDED_KEY) === '1'; }
+    catch (e) { return false; }
+  }
+  function setPushBannerDecided() {
+    try { window.localStorage.setItem(PUSH_DECIDED_KEY, '1'); } catch (e) {}
+  }
+
+  function renderPushBanner() {
+    if (document.getElementById('cd-push-banner')) return;
+    var bar = document.createElement('div');
+    bar.id = 'cd-push-banner';
+    bar.setAttribute('role', 'region');
+    bar.setAttribute('aria-label', 'Enable phone notifications for Counsel.day');
+    bar.style.cssText = [
+      'position: sticky', 'top: 0', 'z-index: 40',
+      'background: #f4e6e8', 'border-bottom: 1px solid #722F37',
+      'padding: 10px 18px', 'display: flex', 'align-items: center',
+      'gap: 14px', 'flex-wrap: wrap',
+      'font-family: var(--font-body, Georgia, serif)', 'font-size: 14px', 'color: #0a0a0a',
+    ].join('; ');
+
+    var icon = document.createElement('span');
+    icon.setAttribute('aria-hidden', 'true');
+    icon.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#722F37" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>';
+    bar.appendChild(icon);
+
+    var text = document.createElement('span');
+    text.style.cssText = 'flex: 1 1 200px; line-height: 1.45;';
+    text.innerHTML = 'Get tonight\'s vote and verdict reveal as a phone notification, not just email.';
+    bar.appendChild(text);
+
+    var enable = document.createElement('button');
+    enable.type = 'button';
+    enable.textContent = 'Enable';
+    enable.style.cssText = [
+      'font-family: var(--font-ui, system-ui)', 'font-size: 13px', 'font-weight: 500',
+      'letter-spacing: 0.06em', 'text-transform: uppercase',
+      'padding: 8px 16px', 'background: #722F37', 'color: #ffffff',
+      'border: 1px solid #722F37', 'cursor: pointer', 'border-radius: 0',
+    ].join('; ');
+    enable.addEventListener('click', function () {
+      enable.disabled = true; enable.textContent = 'Enabling' + String.fromCharCode(0x2026);
+      setPushBannerDecided();
+      enablePush().then(function () {
+        text.textContent = 'Enabled · you\'ll get the evening prompt and verdict reveal as a phone notification.';
+        enable.style.display = 'none';
+        notNow.textContent = 'Close';
+      }).catch(function (err) {
+        text.textContent = 'Could not enable: ' + ((err && err.message) || 'permission declined') + ' · you can re-enable from /account.html.';
+        enable.style.display = 'none';
+        notNow.textContent = 'Close';
+      });
+    });
+    bar.appendChild(enable);
+
+    var notNow = document.createElement('button');
+    notNow.type = 'button';
+    notNow.textContent = 'Not now';
+    notNow.style.cssText = [
+      'font-family: var(--font-ui, system-ui)', 'font-size: 13px',
+      'padding: 8px 14px', 'background: transparent', 'color: #3a3530',
+      'border: 1px solid #e8e6e1', 'cursor: pointer', 'border-radius: 0',
+    ].join('; ');
+    notNow.addEventListener('click', function () {
+      setPushBannerDecided();
+      if (bar.parentNode) bar.parentNode.removeChild(bar);
+    });
+    bar.appendChild(notNow);
+
+    // Insert as the first child of body so it sits above the nav.
+    if (document.body && document.body.firstChild) {
+      document.body.insertBefore(bar, document.body.firstChild);
+    } else if (document.body) {
+      document.body.appendChild(bar);
+    }
+  }
+
+  function maybeShowPushBanner() {
+    if (!pushBannerSupported() || pushBannerDecided()) return;
+    // Auth check · only signed-in pages show the banner. Cheap call ·
+    // ga4.js already makes the same request to decorate nav; this is
+    // a parallel fetch that the browser usually serves from HTTP cache.
+    fetch('/api/auth-check', { credentials: 'include' }).then(function (r) {
+      if (r.ok) renderPushBanner();
+    }).catch(function () { /* network error · skip silently */ });
+  }
+  // Defer until after page paint so the banner doesn't slow LCP.
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    setTimeout(maybeShowPushBanner, 600);
+  } else {
+    window.addEventListener('DOMContentLoaded', function () { setTimeout(maybeShowPushBanner, 600); });
+  }
 })();

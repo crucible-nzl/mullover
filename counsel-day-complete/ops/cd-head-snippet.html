@@ -4,6 +4,10 @@
 <!-- This block is injected into every public HTML <head> by             -->
 <!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
 
+<!-- Preconnect to GA endpoints · saves ~100ms first-load handshake -->
+<link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+<link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
+
 <!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
 <script>
   window.dataLayer = window.dataLayer || [];

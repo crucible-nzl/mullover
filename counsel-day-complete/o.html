@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Counsel.day</title>
+<!--
+  /o.html · A/B rotator for the /offer-* family of landing pages.
+
+  Ads should link to counsel.day/o (or counsel.day/o?v=X to force).
+  This page is invisible: it chooses a variant, records the choice
+  in GA4, and 0-ms redirects to /offer-{variant}.html. The chosen
+  variant sticks via a 30-day cookie so a returning visitor sees
+  the same page they did first time (preserves conversion attribution).
+
+  ?v=X overrides everything · used by ads with a specific variant
+  baked into the destination URL (e.g. UTM-tagged Meta campaigns).
+
+  ?reset=1 clears the cookie and re-rolls (for testing).
+
+  Weights live in the VARIANTS array below. Set a weight to 0 to
+  retire a variant without removing the file.
+-->
+<style>
+  html, body { background:#fff; color:#0a0a0a; font: 14px/1.4 system-ui, sans-serif; margin:0; }
+  .center { position: fixed; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; }
+  a { color: #722F37; }
+</style>
+</head>
+<body>
+
+<div class="center">
+  <noscript>
+    <p>JavaScript is required to continue.<br>
+    <a href="/offer-e.html">Continue to Counsel.day &rarr;</a></p>
+  </noscript>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // === Variants registry · weights are integer proportions ===
+  // Sum of weights == 100 by convention but any positive total works.
+  // Setting weight to 0 retires a variant without removing the file.
+  var VARIANTS = [
+    { id: 'a',           file: '/offer-a.html',           weight: 10 },
+    { id: 'b',           file: '/offer-b.html',           weight: 0  }, // retired
+    { id: 'c',           file: '/offer-c.html',           weight: 10 },
+    { id: 'd',           file: '/offer-d.html',           weight: 10 },
+    { id: 'e',           file: '/offer-e.html',           weight: 25 },
+    { id: 'e2',          file: '/offer-e2.html',          weight: 25 },
+    { id: 'f',           file: '/offer-f.html',           weight: 10 },
+    { id: 'g',           file: '/offer-g.html',           weight: 10 }
+    // Platform-specific (e-facebook etc.) are NOT in the rotator ·
+    // they're served directly to ads with a fixed variant baked in.
+  ];
+
+  var COOKIE = 'cd_ab_variant';
+  var COOKIE_DAYS = 30;
+  var QS = new URLSearchParams(location.search);
+
+  function setCookie(name, value, days) {
+    var d = new Date(); d.setTime(d.getTime() + days * 864e5);
+    document.cookie = name + '=' + encodeURIComponent(value)
+      + '; expires=' + d.toUTCString()
+      + '; path=/; SameSite=Lax' + (location.protocol === 'https:' ? '; Secure' : '');
+  }
+
+  function getCookie(name) {
+    var m = document.cookie.match(new RegExp('(?:^|;\\s*)' + name + '=([^;]+)'));
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+
+  function findVariant(id) {
+    for (var i = 0; i < VARIANTS.length; i++) {
+      if (VARIANTS[i].id === id) return VARIANTS[i];
+    }
+    return null;
+  }
+
+  function pickWeighted() {
+    var total = 0;
+    for (var i = 0; i < VARIANTS.length; i++) total += VARIANTS[i].weight;
+    if (total <= 0) return VARIANTS[0]; // safety fallback
+    var roll = Math.random() * total;
+    var acc = 0;
+    for (var j = 0; j < VARIANTS.length; j++) {
+      acc += VARIANTS[j].weight;
+      if (roll < acc) return VARIANTS[j];
+    }
+    return VARIANTS[VARIANTS.length - 1];
+  }
+
+  // Hard reset via ?reset=1
+  if (QS.get('reset') === '1') {
+    document.cookie = COOKIE + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+  }
+
+  // Forced variant via ?v=X (used by ads with variant in the URL)
+  var forced = QS.get('v');
+  var chosen = null;
+  if (forced) {
+    chosen = findVariant(forced.toLowerCase());
+  }
+
+  // Sticky returning visitor
+  if (!chosen) {
+    var prior = getCookie(COOKIE);
+    if (prior) chosen = findVariant(prior);
+  }
+
+  // Otherwise roll
+  if (!chosen) chosen = pickWeighted();
+
+  // Persist the choice
+  setCookie(COOKIE, chosen.id, COOKIE_DAYS);
+
+  // Fire a GA4 event so the assignment is visible in reports even
+  // before the user hits the destination page. Will queue if gtag
+  // isn't loaded yet (dataLayer push is the underlying mechanism).
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: 'ab_assigned',
+    ab_variant: chosen.id,
+    ab_forced: !!forced,
+    ab_source: location.search.includes('utm_source') ? QS.get('utm_source') : null
+  });
+
+  // Preserve UTM + click-id params on the destination URL so the
+  // conversion event on the offer page still has full attribution.
+  var preserve = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','gclid','fbclid','ttclid','msclkid'];
+  var pass = new URLSearchParams();
+  for (var k = 0; k < preserve.length; k++) {
+    var v = QS.get(preserve[k]);
+    if (v) pass.set(preserve[k], v);
+  }
+  var dest = chosen.file + (pass.toString() ? '?' + pass.toString() : '');
+
+  // location.replace so the back button skips this rotator
+  location.replace(dest);
+})();
+</script>
+
+</body>
+</html>

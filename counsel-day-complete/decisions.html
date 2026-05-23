@@ -351,6 +351,7 @@ function applyFilter(btn) {
     return d.toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
   }
   function statusPill(d) {
+    if (d.status === 'pending_payment') return '<span class="status-pill pending" style="background:#f4e6e8;color:#722F37;border-color:#722F37;">Awaiting payment</span>';
     if (d.status === 'pending_invites') return '<span class="status-pill pending">Pending invites</span>';
     if (d.status === 'active') return '<span class="status-pill sealed">Sealed</span>';
     if (d.status === 'sealed') return '<span class="status-pill sealed">Sealed</span>';
@@ -359,6 +360,14 @@ function applyFilter(btn) {
     if (d.status === 'refunded') return '<span class="status-pill pending">Refunded</span>';
     if (d.status === 'cancelled') return '<span class="status-pill pending">Cancelled</span>';
     return '<span class="status-pill">' + esc(d.status) + '</span>';
+  }
+  function completePaymentBtn(d) {
+    if (d.status !== 'pending_payment') return '';
+    /* Inline button so the user can finish a checkout they started.
+       Stops propagation so the row click doesn't navigate. */
+    return ' <button type="button" class="btn-text" style="margin-left:8px;font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#fff;background:var(--wine);border:none;padding:5px 10px;cursor:pointer;" '
+      + 'onclick="event.stopPropagation();completePayment(\'' + esc(d.id) + '\',\'' + esc(d.tier) + '\');return false;">'
+      + 'Complete payment</button>';
   }
   function tierLabel(t) {
     if (t === 'solo_free' || t === 'solo_paid') return 'Solo';
@@ -378,13 +387,36 @@ function applyFilter(btn) {
     return '<tr data-status="' + esc(d.status) + '" onclick="window.location=\'' + dest + '\'">' +
       '<td class="file-ref">' + ref + '</td>' +
       '<td class="q">' + esc(d.question) + '</td>' +
-      '<td class="status">' + statusPill(d) + '</td>' +
+      '<td class="status">' + statusPill(d) + completePaymentBtn(d) + '</td>' +
       '<td class="dates">' + dates + '</td>' +
       '<td class="duration">' + dur + '</td>' +
       '<td class="remaining">' + remaining + '</td>' +
       '<td class="partner">' + partner + '</td>' +
     '</tr>';
   }
+
+  /* Called from the inline button in the status cell. Reuses the same
+     /api/checkout/create endpoint as the compose flow; the endpoint
+     re-validates the user owns the decision and that it is still in
+     pending_payment, so this is safe to expose. */
+  window.completePayment = function (decisionId, tier) {
+    if (!tier || tier === 'solo_free') return;
+    fetch('/api/checkout/create', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ sku: tier, decision_id: decisionId })
+    })
+    .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+    .then(function (chk) {
+      if (chk.status === 200 && chk.body && chk.body.url) {
+        window.location.href = chk.body.url;
+      } else {
+        alert((chk.body && chk.body.message) || 'Could not start checkout. Try again or contact support.');
+      }
+    })
+    .catch(function () { alert('Network error. Please try again.'); });
+  };
   var current = [];
 
   function sortList(mode) {

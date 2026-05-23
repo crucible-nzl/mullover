@@ -100,7 +100,49 @@ export async function POST(req: Request) {
       .where(eq(schema.users.id, user.id));
   }
 
+  // ---- decision sanity check ----
+  // If a decision_id is supplied, verify it belongs to this user and is
+  // in the right pre-payment state. Stops a malicious client from passing
+  // someone else's decision_id and triggering a charge attributed to it.
+  if (decision_id) {
+    const decisionRows = await db
+      .select({
+        id: schema.decisions.id,
+        ownerUserId: schema.decisions.ownerUserId,
+        tier: schema.decisions.tier,
+        status: schema.decisions.status,
+      })
+      .from(schema.decisions)
+      .where(eq(schema.decisions.id, decision_id))
+      .limit(1);
+    if (decisionRows.length === 0) {
+      return NextResponse.json({ ok: false, message: 'Decision not found.' }, { status: 404 });
+    }
+    const d = decisionRows[0];
+    if (d.ownerUserId !== user.id) {
+      return NextResponse.json({ ok: false, message: 'You can only pay for your own decisions.' }, { status: 403 });
+    }
+    if (d.tier !== sku && sku !== 'consumer_annual') {
+      return NextResponse.json(
+        { ok: false, message: `SKU ${sku} does not match the decision's tier (${d.tier}). Refresh and try again.` },
+        { status: 422 }
+      );
+    }
+    if (d.status !== 'pending_payment') {
+      return NextResponse.json(
+        { ok: false, message: `This decision is already in '${d.status}'. No further payment is needed.` },
+        { status: 409 }
+      );
+    }
+  }
+
   // ---- create session ----
+  // Card vaulting: setup_future_usage: 'off_session' attaches the
+  // payment method to the Stripe Customer so future per-decision charges
+  // can be made without re-collecting card data. The card data itself
+  // never touches our server · Stripe holds it in their PCI-DSS vault.
+  // The Customer Portal (linked from /account.html) lets the user view,
+  // add, or remove saved cards.
   const checkout = await stripe.checkout.sessions.create({
     mode: modeForSku(sku as Sku),
     customer: customerId,
@@ -110,6 +152,18 @@ export async function POST(req: Request) {
     /* Tax collection is OFF until counsel.day is GST-registered. Re-enable
        once a tax registration is added in the Stripe dashboard. */
     automatic_tax: { enabled: false },
+    /* Save the card for future per-decision charges. Only meaningful on
+       'payment' mode (subscriptions vault automatically). */
+    ...(modeForSku(sku as Sku) === 'payment' ? {
+      payment_intent_data: {
+        setup_future_usage: 'off_session' as const,
+        metadata: {
+          user_id: user.id,
+          decision_id: decision_id ?? '',
+          sku,
+        },
+      },
+    } : {}),
     metadata: {
       user_id: user.id,
       sku,
@@ -117,7 +171,24 @@ export async function POST(req: Request) {
     },
     client_reference_id: user.id,
     allow_promotion_codes: true,
+    /* Lock the customer field on the hosted checkout so a phished
+       link can't be re-aimed at a different Stripe customer. */
+    customer_update: { address: 'auto', name: 'auto' },
   });
+
+  // Audit-log the checkout creation so we can reconcile if Stripe
+  // and our DB diverge later.
+  await db.insert(schema.auditLog).values({
+    action: 'checkout.created',
+    actorUserId: user.id,
+    targetType: 'decision',
+    targetId: decision_id ?? null,
+    metadata: {
+      sku,
+      checkout_session_id: checkout.id,
+      mode: modeForSku(sku as Sku),
+    },
+  }).catch(() => { /* never block checkout on audit error */ });
 
   return NextResponse.json({ ok: true, url: checkout.url }, { status: 200 });
 }

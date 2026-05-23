@@ -63,6 +63,25 @@ export async function POST(req: Request) {
   }
   const part = partRows[0];
 
+  // Payment-first gate (defense in depth · should be unreachable because
+  // compose deliberately holds invite emails until the webhook fires, but
+  // a leaked / brute-forced token must still be refused for an unpaid
+  // decision).
+  const decisionPaymentRows = await db
+    .select({ status: schema.decisions.status })
+    .from(schema.decisions)
+    .where(eq(schema.decisions.id, part.decisionId))
+    .limit(1);
+  if (decisionPaymentRows.length === 0) {
+    return NextResponse.json({ ok: false, message: 'Decision not found.' }, { status: 404 });
+  }
+  if (decisionPaymentRows[0].status === 'pending_payment') {
+    return NextResponse.json(
+      { ok: false, message: 'This decision has not been paid for yet. The owner needs to complete payment before invites can be accepted.' },
+      { status: 402 }
+    );
+  }
+
   const userRows = await db
     .select({ email: schema.users.email })
     .from(schema.users)

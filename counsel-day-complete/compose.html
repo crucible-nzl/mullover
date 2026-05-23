@@ -382,7 +382,11 @@ function fileDecision(e) {
     duration_days: dur,
     tier: tier,
   };
-  if ((tier === 'couple' || tier === 'family') && partnerEmail) {
+  /* Send partner email regardless of selected tier · the backend
+     auto-upgrades Solo → Couple/Family when a partner is supplied,
+     and returns the effective tier in res.body.tier. This is the
+     "invite implies paid decision" mechanic the user asked for. */
+  if (partnerEmail) {
     body.participants = [{ display_name: partnerEmail.split('@')[0], invite_email: partnerEmail }];
   }
 
@@ -414,12 +418,34 @@ function fileDecision(e) {
       window.CounselDayPWA.markEngaged();
     }
     if (res.body.checkout_required) {
+      /* Tier may have been auto-upgraded server-side (e.g. user picked
+         Solo Free but added a partner email → backend returns
+         tier='couple', upgraded_from='solo_free'). Use the effective
+         tier for the checkout SKU, and show a confirmation prompt if
+         the price changed so the user is not surprised by the charge. */
+      var effectiveTier = res.body.tier || tier;
+      if (res.body.upgraded_from && res.body.upgraded_from !== effectiveTier) {
+        var priceMap = { 'solo_paid': '$9.99 USD', 'couple': '$25 USD', 'family': '$40 USD' };
+        var newPrice = priceMap[effectiveTier] || 'paid';
+        var tierLabel = effectiveTier === 'couple' ? 'Couple' : effectiveTier === 'family' ? 'Family' : 'paid';
+        var confirmed = window.confirm(
+          'Adding a partner upgraded this to a ' + tierLabel + ' decision (' + newPrice + ').\n\n' +
+          'Continue to Stripe checkout?\n\n' +
+          'Choosing Cancel keeps the decision saved but unpaid. You can complete payment later from Your decisions.'
+        );
+        if (!confirmed) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalLabel;
+          window.location.href = '/decisions.html?just_filed=' + encodeURIComponent(res.body.decision_id) + '&pending_payment=1';
+          return;
+        }
+      }
       submitBtn.textContent = 'Opening checkout' + String.fromCharCode(0x2026);
       return fetch('/api/checkout/create', {
         method: 'POST',
         credentials: 'include',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ sku: tier, decision_id: res.body.decision_id })
+        body: JSON.stringify({ sku: effectiveTier, decision_id: res.body.decision_id })
       })
       .then(function (r2) { return r2.json().then(function (j) { return { status: r2.status, body: j }; }); })
       .then(function (chk) {
@@ -428,8 +454,8 @@ function fileDecision(e) {
         } else {
           submitBtn.disabled = false;
           submitBtn.textContent = originalLabel;
-          alert((chk.body && chk.body.message) || 'Decision filed but checkout failed. Find it on Your decisions.');
-          window.location.href = '/decisions.html';
+          alert((chk.body && chk.body.message) || 'Decision filed but checkout failed. Find it on Your decisions and complete payment from there.');
+          window.location.href = '/decisions.html?just_filed=' + encodeURIComponent(res.body.decision_id) + '&pending_payment=1';
         }
       });
     } else {

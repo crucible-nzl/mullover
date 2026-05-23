@@ -138,6 +138,7 @@ export const decisions = pgTable(
     unsealsAt: timestamp('unseals_at', { withTimezone: true }),
     stripePaymentIntentId: text('stripe_payment_intent_id'),
     amountPaidCents: integer('amount_paid_cents').notNull().default(0),
+    paidAt: timestamp('paid_at', { withTimezone: true }),
     refundedAt: timestamp('refunded_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
@@ -155,7 +156,7 @@ export const decisions = pgTable(
     ),
     statusCheck: check(
       'decisions_status_check',
-      sql`${t.status} IN ('pending_invites', 'active', 'sealed', 'verdict_generating', 'completed', 'cancelled', 'refunded')`
+      sql`${t.status} IN ('pending_payment', 'pending_invites', 'active', 'sealed', 'verdict_generating', 'completed', 'cancelled', 'refunded')`
     ),
     durationCheck: check(
       'decisions_duration_check',

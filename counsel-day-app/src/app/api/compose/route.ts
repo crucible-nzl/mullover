@@ -1,21 +1,35 @@
 /**
  * POST /api/compose
- *   question       (10-280 chars · the actual question being decided)
+ *   question       (10-280 chars)
  *   format         ('yes_no' | 'strong_lean' | 'a_b')
- *   duration_days  (7-365, capped at tier max)
+ *   duration_days  (7-365)
  *   tier           ('solo_free' | 'solo_paid' | 'couple' | 'family')
- *   participants   ('James' or [{display_name, invite_email}] for couple/family)
+ *   participants   ([{display_name, invite_email}] for couple/family)
  *
- * Requires an active session. Creates a decision in the 'pending_invites'
- * state, plus one participant row per voter. For solo_free / solo_paid,
- * the owner is the single participant and the row immediately becomes
- * 'active' with starts_at = NOW(), unseals_at = NOW() + duration_days.
+ * PAYMENT-FIRST GATE (2026-05-24 rewrite).
  *
- * For couple/family, the decision sits in 'pending_invites' until either
- * (a) all invited participants have accepted, OR (b) Stripe checkout
- * completes (for paid SKUs · the webhook flips status to 'active').
+ * Status flow on insert:
+ *   solo_free                              → 'active'           (runs immediately)
+ *   solo_paid / couple / family            → 'pending_payment'  (no invites sent)
  *
- * Returns: { ok: true, decision_id, checkout_required }
+ * For paid tiers, this endpoint NEVER sends invite emails. The Stripe
+ * checkout-complete webhook is what flips 'pending_payment' →
+ * 'pending_invites' AND fires the invite emails. This guarantees no
+ * partner ever receives an email for a decision the owner has not paid
+ * for, and no decision can be activated by partner-acceptance until
+ * the webhook has confirmed payment.
+ *
+ * AUTO-UPGRADE TIER. If participants are supplied with a Solo tier,
+ * the tier is upgraded silently to Couple (2 participants total) or
+ * Family (3-6). The returned `tier` field reflects the effective tier
+ * so the frontend can show the correct price before redirecting to
+ * checkout. This means a Solo user who adds a partner WILL be charged
+ * Couple pricing, but the frontend is responsible for previewing that
+ * price before submit · the API is the defense-in-depth.
+ *
+ * Returns:
+ *   { ok: true, decision_id, tier: <effective>, checkout_required, status,
+ *     upgraded_from: <original-tier-if-upgraded> | null }
  */
 
 import { NextResponse } from 'next/server';
@@ -23,13 +37,10 @@ import { z } from 'zod';
 import { db, schema } from '@/lib/db';
 import { readSession, readSessionCookie } from '@/lib/sessions';
 import { newToken } from '@/lib/tokens';
-import { sendTransactional, buildInviteEmail } from '@/lib/email';
 import { eq, sql } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
-
-const BASE = process.env.APP_BASE_URL ?? 'https://counsel.day';
 
 const participantSchema = z.object({
   display_name: z.string().trim().min(1).max(80),
@@ -45,14 +56,48 @@ const composeSchema = z.object({
   participants: z.array(participantSchema).optional(),
 });
 
-function expectedParticipantCount(tier: string): { min: number; max: number } {
+type Tier = 'solo_free' | 'solo_paid' | 'couple' | 'family';
+
+function maxParticipants(tier: Tier): number {
   switch (tier) {
     case 'solo_free':
-    case 'solo_paid': return { min: 1, max: 1 };
-    case 'couple':    return { min: 2, max: 2 };
-    case 'family':    return { min: 3, max: 6 };
-    default:          return { min: 1, max: 1 };
+    case 'solo_paid': return 1;
+    case 'couple':    return 2;
+    case 'family':    return 6;
   }
+}
+
+/**
+ * Auto-upgrade tier based on participant count. Any non-solo tier with
+ * the wrong count is rejected (we don't silently downgrade · that would
+ * surprise the user). Solo + participants gets upgraded to couple/family.
+ */
+function resolveTier(requested: Tier, totalParticipants: number): { tier: Tier; upgradedFrom: Tier | null; error: string | null } {
+  if (totalParticipants < 1) return { tier: requested, upgradedFrom: null, error: 'You must have at least one participant.' };
+  if (totalParticipants > 6) return { tier: requested, upgradedFrom: null, error: 'A decision can have at most six participants.' };
+
+  if (totalParticipants === 1) {
+    if (requested === 'couple' || requested === 'family') {
+      return { tier: requested, upgradedFrom: null, error: 'Couple and Family tiers need additional participants. Add at least one partner email.' };
+    }
+    return { tier: requested, upgradedFrom: null, error: null };
+  }
+
+  if (totalParticipants === 2) {
+    if (requested === 'solo_free' || requested === 'solo_paid') {
+      return { tier: 'couple', upgradedFrom: requested, error: null };
+    }
+    if (requested === 'family') {
+      return { tier: requested, upgradedFrom: null, error: 'Family tier needs three or more participants.' };
+    }
+    return { tier: 'couple', upgradedFrom: null, error: null };
+  }
+
+  // 3-6 participants
+  if (requested === 'solo_free' || requested === 'solo_paid' || requested === 'couple') {
+    return { tier: 'family', upgradedFrom: requested, error: null };
+  }
+  return { tier: 'family', upgradedFrom: null, error: null };
 }
 
 export async function POST(req: Request) {
@@ -83,37 +128,41 @@ export async function POST(req: Request) {
   }
   const input = parsed.data;
 
-  // ---- participant arithmetic ----
-  const { min, max } = expectedParticipantCount(input.tier);
+  // ---- tier resolution (auto-upgrade) ----
   const partners = input.participants ?? [];
-  const totalParticipants = 1 + partners.length; // owner counts
-  if (totalParticipants < min || totalParticipants > max) {
-    return NextResponse.json(
-      { ok: false, message: `Tier ${input.tier} requires between ${min} and ${max} participants. You sent ${totalParticipants}.` },
-      { status: 422 }
-    );
+  const totalParticipants = 1 + partners.length; // owner counts as 1
+  const { tier, upgradedFrom, error } = resolveTier(input.tier, totalParticipants);
+  if (error) {
+    return NextResponse.json({ ok: false, message: error }, { status: 422 });
+  }
+  if (totalParticipants > maxParticipants(tier)) {
+    return NextResponse.json({ ok: false, message: `Tier ${tier} accepts at most ${maxParticipants(tier)} participants.` }, { status: 422 });
   }
 
-  // ---- look up owner display name from user record if not supplied ----
+  // ---- look up owner display name ----
   const userRows = await db
     .select({ firstName: schema.users.firstName, email: schema.users.email })
     .from(schema.users)
     .where(eq(schema.users.id, session.userId))
     .limit(1);
-  const ownerName = input.owner_display_name ?? userRows[0]?.firstName ?? 'Owner';
+  if (userRows.length === 0) {
+    return NextResponse.json({ ok: false, message: 'Account not found.' }, { status: 404 });
+  }
+  const ownerName = input.owner_display_name ?? userRows[0].firstName ?? 'Owner';
 
-  // ---- insert decision ----
-  const isSolo = input.tier === 'solo_free' || input.tier === 'solo_paid';
-  const isFree = input.tier === 'solo_free';
-  const initialStatus = isFree
-    ? 'active'
-    : isSolo
-      ? 'pending_invites' // paid solo waits for checkout
-      : 'pending_invites'; // couple/family wait for invites + checkout
+  // ---- payment classification ----
+  const isFree = tier === 'solo_free';
+  const isPaid = !isFree;
 
+  // ---- status on insert ----
+  // FREE: active immediately. PAID: pending_payment until webhook clears.
+  // Note: we still create the participant rows + invite tokens up front,
+  // but the email send is deferred until the webhook fires for paid tiers.
+  const initialStatus = isFree ? 'active' : 'pending_payment';
   const startsAt = isFree ? new Date() : null;
   const unsealsAt = isFree ? new Date(Date.now() + input.duration_days * 24 * 60 * 60 * 1000) : null;
 
+  // ---- insert decision ----
   const insertedDecision = await db
     .insert(schema.decisions)
     .values({
@@ -121,17 +170,15 @@ export async function POST(req: Request) {
       question: input.question,
       format: input.format,
       durationDays: input.duration_days,
-      tier: input.tier,
+      tier,
       status: initialStatus,
       startsAt,
       unsealsAt,
     })
     .returning({ id: schema.decisions.id });
-
   const decisionId = insertedDecision[0].id;
 
-  // ---- insert participants ----
-  // owner is position 1, partners are 2..n
+  // ---- insert participants (tokens generated for email-bound invites) ----
   const participantRows: typeof schema.participants.$inferInsert[] = [
     {
       decisionId,
@@ -152,73 +199,74 @@ export async function POST(req: Request) {
   }
   await db.insert(schema.participants).values(participantRows);
 
-  // ---- auto-save invited partners to the user's saved_contacts ----
-  // So the next time they compose a Couple/Family decision they can
-  // quick-pick from a list instead of retyping every email. Upsert
-  // keyed on (user_id, LOWER(email)) bumps the last_invited_at and
-  // count when the same person is invited again.
-  const contactRows = participantRows
-    .slice(1)
-    .filter((p) => p.inviteEmail)
-    .map((p) => ({
-      userId: session.userId,
-      displayName: p.displayName,
-      email: p.inviteEmail as string,
-      relationship: (input.tier === 'couple' ? 'partner' : input.tier === 'family' ? 'family' : 'other') as
-        'partner' | 'family' | 'other',
-      lastInvitedAt: new Date(),
-      inviteCount: 1,
-    }));
-  if (contactRows.length > 0) {
-    for (const c of contactRows) {
-      await db
-        .insert(schema.savedContacts)
-        .values(c)
-        .onConflictDoUpdate({
-          target: [schema.savedContacts.userId, schema.savedContacts.email],
-          set: {
-            displayName: c.displayName,
-            lastInvitedAt: c.lastInvitedAt,
-            inviteCount: sql`${schema.savedContacts.inviteCount} + 1`,
-            updatedAt: new Date(),
-          },
-        })
-        .catch(() => { /* best-effort · contact-save must never break compose */ });
-    }
+  // ---- auto-save invited partners to saved_contacts (free tiers only) ----
+  // For paid tiers, defer this until the payment clears so we don't pollute
+  // contacts with people who were never actually invited.
+  if (isFree) {
+    await persistContacts(session.userId, participantRows.slice(1), tier);
   }
 
-  // ---- send invite emails (best-effort, never blocks the response) ----
-  // We don't await inside the loop: a slow or failing Brevo call must not
-  // hold up the compose flow. Failures are logged inside sendTransactional.
-  const inviteRows = participantRows.slice(1).filter((p) => p.inviteEmail && p.inviteToken);
-  if (inviteRows.length > 0) {
-    const sends = inviteRows.map((p) => {
-      const inviteUrl = `${BASE}/invite?token=${encodeURIComponent(p.inviteToken as string)}`;
-      const { text, html } = buildInviteEmail({
-        ownerName: ownerName,
-        displayName: p.displayName,
-        question: input.question,
-        inviteUrl,
-      });
-      return sendTransactional({
-        to: { email: p.inviteEmail as string, name: p.displayName },
-        subject: `${ownerName} invited you to a Counsel.day decision`,
-        textContent: text,
-        htmlContent: html,
-      });
-    });
-    // fire-and-await as a batch so 429 / 5xx surface in the server log
-    await Promise.allSettled(sends);
-  }
+  // ---- audit + log ----
+  await db.insert(schema.auditLog).values({
+    action: 'decision.created',
+    actorUserId: session.userId,
+    targetType: 'decision',
+    targetId: decisionId,
+    metadata: {
+      tier,
+      upgraded_from: upgradedFrom,
+      participants: totalParticipants,
+      status: initialStatus,
+    },
+  }).catch(() => { /* never fail compose on audit error */ });
 
+  // ---- response ----
+  // Free: success, redirect to /decisions.
+  // Paid: success + checkout_required true; the frontend follows up with
+  // POST /api/checkout/create to get the Stripe URL. The webhook is what
+  // actually moves status forward and fires invites.
   return NextResponse.json(
     {
       ok: true,
       decision_id: decisionId,
-      checkout_required: !isFree,
+      tier,
+      checkout_required: isPaid,
       status: initialStatus,
-      invites_sent: inviteRows.length,
+      upgraded_from: upgradedFrom,
     },
     { status: 200 }
   );
+}
+
+async function persistContacts(
+  userId: string,
+  partners: typeof schema.participants.$inferInsert[],
+  tier: Tier
+) {
+  const rows = partners
+    .filter((p) => p.inviteEmail)
+    .map((p) => ({
+      userId,
+      displayName: p.displayName,
+      email: p.inviteEmail as string,
+      relationship: (tier === 'couple' ? 'partner' : tier === 'family' ? 'family' : 'other') as
+        'partner' | 'family' | 'other',
+      lastInvitedAt: new Date(),
+      inviteCount: 1,
+    }));
+  for (const c of rows) {
+    await db
+      .insert(schema.savedContacts)
+      .values(c)
+      .onConflictDoUpdate({
+        target: [schema.savedContacts.userId, schema.savedContacts.email],
+        set: {
+          displayName: c.displayName,
+          lastInvitedAt: c.lastInvitedAt,
+          inviteCount: sql`${schema.savedContacts.inviteCount} + 1`,
+          updatedAt: new Date(),
+        },
+      })
+      .catch(() => { /* contact-save must never break compose */ });
+  }
 }

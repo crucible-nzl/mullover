@@ -11,7 +11,11 @@
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/lib/migrate.ts",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "smoke": "node scripts/smoke-test.mjs",
+    "perf": "node scripts/perf-audit.mjs",
+    "a11y": "node scripts/a11y-audit.mjs",
+    "audit:all": "node scripts/smoke-test.mjs && node scripts/perf-audit.mjs && node scripts/a11y-audit.mjs"
   },
   "dependencies": {
     "next": "15.5.18",

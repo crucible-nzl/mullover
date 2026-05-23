@@ -9,6 +9,10 @@
 <!-- This block is injected into every public HTML <head> by             -->
 <!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
 
+
+<!-- Preconnect to GA endpoints -->
+<link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+<link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
 <!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -255,9 +259,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     wrap.innerHTML =
       '<div class="form-eyebrow">Step 2 of 2</div>' +
       '<h2 class="form-title">Two-factor <span class="ital">code.</span></h2>' +
-      '<p class="form-lede">Enter the 6-digit code from your authenticator app. If you have lost your device, use a recovery code instead.</p>' +
+      '<p id="cd-mfa-lede" class="form-lede">Enter the 6-digit code from your authenticator app. If you have lost your device, use a recovery code instead.</p>' +
       '<div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 18px;">' +
-        '<input type="text" id="cd-mfa-code" inputmode="numeric" autocomplete="one-time-code" maxlength="14" placeholder="123456" style="font-family: var(--font-mono); font-size: 18px; padding: 10px 12px; border: 1px solid var(--ink); background: var(--paper); width: 160px;">' +
+        '<input type="text" id="cd-mfa-code" aria-labelledby="cd-mfa-lede" inputmode="numeric" autocomplete="one-time-code" maxlength="14" placeholder="123456" style="font-family: var(--font-mono); font-size: 18px; padding: 10px 12px; border: 1px solid var(--ink); background: var(--paper); width: 160px;">' +
         '<button type="button" id="cd-mfa-go" class="btn">Verify</button>' +
       '</div>' +
       '<div id="cd-mfa-err" style="display:none; padding: 12px 14px; margin-top: 14px; background: #fdecea; border-left: 3px solid #c0392b; color: #6b1e16; font-family: var(--font-body); font-size: 14px;"></div>';

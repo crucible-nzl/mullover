@@ -12,6 +12,14 @@
 import * as Sentry from '@sentry/nextjs';
 
 export async function register() {
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    const bypass = (process.env.DEV_BYPASS_AUTH_EMAIL ?? '').trim();
+    if (bypass) {
+      const banner = '='.repeat(72);
+      console.warn(`\n${banner}\nLAUNCH-BLOCKER · DEV_BYPASS_AUTH_EMAIL is set to "${bypass}".\nThis account skips rate-limits AND the magic-link round-trip.\nUnset the env var and restart before going to public launch.\n${banner}\n`);
+    }
+  }
+
   const dsn = process.env.SENTRY_DSN;
   if (!dsn) return;
 

@@ -260,6 +260,12 @@
       <button class="btn btn-secondary" data-cron="weekly-digest">Run now</button>
       <div class="out" data-cron-out="weekly-digest"></div>
     </div>
+    <div class="cron-cell">
+      <div class="name">security-audit</div>
+      <div class="desc">Daily npm audit + classify findings. Critical + high trigger an email to OPS_DIGEST_EMAIL with paste-ready fix instructions. <a href="/admin-security.html" style="color: var(--accent);">View dashboard</a>.</div>
+      <button class="btn btn-secondary" data-cron="security-audit">Run now</button>
+      <div class="out" data-cron-out="security-audit"></div>
+    </div>
   </div>
 
   <!-- CSV data exports -->

@@ -19,6 +19,7 @@ import { sendPushToUser } from '../lib/push';
 import { getAnthropic, VERDICT_MODEL, VERDICT_SYSTEM_PROMPT } from '../lib/anthropic';
 import { callAnthropic } from '../lib/anthropic-call';
 import { resolvePrompt } from '../lib/prompts';
+import { runSecurityAudit, type AuditSnapshot } from '../lib/security-audit';
 import { spawn } from 'node:child_process';
 import { join } from 'node:path';
 
@@ -803,6 +804,138 @@ async function weeklyDigest() {
   console.log('[cron · weekly-digest] sent to ' + opsEmail);
 }
 
+/**
+ * Daily security-audit · runs `npm audit --json` against the live
+ * install, classifies findings, persists a snapshot to disk, and
+ * emails the operator when critical/high vulnerabilities appear or
+ * the totals change vs the previous snapshot.
+ *
+ * Auto-application policy (per James 2026-05-23): for semver-safe
+ * fixes (patch/minor + transitive-overridable), the email contains
+ * a ready-to-paste package.json overrides block. The cron does NOT
+ * mutate the server's working tree · /opt/counsel-day-app is a
+ * tar-deploy target, not a git checkout, so any change would be
+ * blown away on next deploy. James applies in his local repo.
+ *
+ * Breaking-fix paths (major version bumps) email-only with the
+ * advisory URL · human review required.
+ */
+async function securityAudit() {
+  const opsEmail = process.env.OPS_DIGEST_EMAIL ?? 'admin@counsel.day';
+  let snapshot: AuditSnapshot;
+  try {
+    snapshot = await runSecurityAudit();
+  } catch (err) {
+    // npm audit failure · email the operator with the error so the
+    // silent-failure window is short.
+    await sendTransactional({
+      to: { email: opsEmail, name: 'Counsel.day operator' },
+      subject: 'Counsel.day · security audit FAILED to run',
+      textContent: 'The daily security-audit cron failed:\n\n' + (err as Error).message + '\n\nCheck journalctl on the box.',
+      htmlContent: '<p>The daily security-audit cron failed:</p><pre style="font-family: monospace; background: #fafaf8; padding: 12px; border-left: 3px solid #722F37;">' + escapeHtml((err as Error).message) + '</pre><p>Check journalctl on the box.</p>',
+    }).catch(() => {});
+    throw err;
+  }
+
+  const { totals, findings, proposal, totalDependencies, generatedAt } = snapshot;
+  const critical = totals.critical;
+  const high = totals.high;
+  const moderate = totals.moderate;
+
+  console.log('[cron · security-audit] ' + critical + ' critical, ' + high + ' high, ' + moderate + ' moderate across ' + totalDependencies + ' deps');
+
+  // Quiet mode · if there are zero critical/high findings, we don't
+  // email (just persist the snapshot and let the dashboard show it).
+  // This avoids inbox fatigue when the project is healthy.
+  if (critical === 0 && high === 0) {
+    return;
+  }
+
+  // Build the email · severity headline first, instructions block
+  // verbatim from the proposal builder, list of breaking items as
+  // a follow-up section.
+  const headline = (critical > 0 ? critical + ' critical · ' : '')
+    + (high > 0 ? high + ' high' : '')
+    + (moderate > 0 ? ' · ' + moderate + ' moderate (no email when only moderate)' : '');
+
+  const lines = [
+    'Counsel.day · daily security-audit',
+    'Run at ' + new Date(generatedAt).toLocaleString('en-NZ'),
+    '',
+    'Severity totals: ' + headline,
+    'Total dependencies scanned: ' + totalDependencies,
+    '',
+    '== Findings (' + findings.length + ') ==',
+    ...findings.slice(0, 25).map((f) => '  · ' + f.severity.toUpperCase() + ' · ' + f.package + ' · ' + f.title + (f.advisoryUrl ? '\n      ' + f.advisoryUrl : '')),
+    findings.length > 25 ? '  ... ' + (findings.length - 25) + ' more · see /admin-security.html' : '',
+    '',
+    proposal.instructions,
+    '',
+    '== How to apply ==',
+    'View full snapshot: https://counsel.day/admin-security.html',
+    'Local fix: cd counsel-day-app && (edit overrides) && rm -f package-lock.json && npm install && git commit -am "deps · security fixes" && git push',
+    '',
+    '· Counsel.day',
+  ].filter((s) => s !== undefined);
+  const text = lines.join('\n');
+
+  // Build inline HTML email · severity-coloured headline, monospaced
+  // instructions block (the operator copy-pastes the overrides), each
+  // finding as a row with the advisory link.
+  const findingsHtml = findings.map((f) => {
+    const sevColor = f.severity === 'critical' || f.severity === 'high' ? '#722F37' : (f.severity === 'moderate' ? '#3a3530' : '#6b635a');
+    return '<tr>'
+      + '<td style="padding: 6px 10px; border-bottom: 1px solid #e8e6e1; color:' + sevColor + '; font-family: Geist Mono, monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;">' + f.severity + '</td>'
+      + '<td style="padding: 6px 10px; border-bottom: 1px solid #e8e6e1; font-family: Geist Mono, monospace; font-size: 12px;">' + f.package + '</td>'
+      + '<td style="padding: 6px 10px; border-bottom: 1px solid #e8e6e1; font-family: Georgia, serif; font-size: 13px; color: #3a3530;">' + escapeHtml(f.title) + (f.advisoryUrl ? '<br><a href="' + f.advisoryUrl + '" style="color: #722F37; font-size: 11px;">' + f.advisoryUrl + '</a>' : '') + '</td>'
+      + '<td style="padding: 6px 10px; border-bottom: 1px solid #e8e6e1; font-family: Geist Mono, monospace; font-size: 11px; color: ' + (f.classification === 'breaking' ? '#722F37' : '#3a3530') + ';">' + f.classification + '</td>'
+      + '</tr>';
+  }).join('');
+
+  const html = `
+    <h2 style="font-family: Newsreader, Georgia, serif; color: #0a0a0a; margin: 0 0 4px;">Counsel.day &middot; <em style="color: #722F37;">daily security audit</em></h2>
+    <p style="font-family: 'Geist Mono', monospace; font-size: 11px; color: #6b635a; margin: 0 0 18px;">${new Date(generatedAt).toLocaleString('en-NZ')} &middot; ${totalDependencies} dependencies scanned</p>
+    <p style="font-family: Georgia, serif; font-size: 16px; margin: 0 0 14px;"><strong style="color: ${critical > 0 ? '#722F37' : '#0a0a0a'};">${critical} critical</strong>, <strong>${high} high</strong>, ${moderate} moderate</p>
+    <table style="font-family: Georgia, serif; border-collapse: collapse; width: 100%; max-width: 720px; margin-bottom: 20px;">
+      <thead><tr style="background: #fafaf8;">
+        <th style="text-align: left; padding: 8px 10px; border-bottom: 2px solid #0a0a0a; font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;">Severity</th>
+        <th style="text-align: left; padding: 8px 10px; border-bottom: 2px solid #0a0a0a; font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;">Package</th>
+        <th style="text-align: left; padding: 8px 10px; border-bottom: 2px solid #0a0a0a; font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;">Advisory</th>
+        <th style="text-align: left; padding: 8px 10px; border-bottom: 2px solid #0a0a0a; font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;">Action</th>
+      </tr></thead>
+      <tbody>${findingsHtml}</tbody>
+    </table>
+    <div style="font-family: 'Geist Mono', monospace; font-size: 12px; line-height: 1.55; background: #fafaf8; border-left: 3px solid #722F37; padding: 14px 16px; white-space: pre-wrap;">${escapeHtml(proposal.instructions)}</div>
+    <p style="font-family: Georgia, serif; margin-top: 18px;">Full snapshot: <a href="https://counsel.day/admin-security.html" style="color: #722F37;">counsel.day/admin-security.html</a></p>
+    <p style="font-family: 'Geist Mono', monospace; font-size: 11px; color: #6b635a; margin-top: 24px;">&middot; Counsel.day</p>
+  `.trim();
+
+  await sendTransactional({
+    to: { email: opsEmail, name: 'Counsel.day operator' },
+    subject: 'Counsel.day · security audit · ' + critical + ' critical, ' + high + ' high',
+    textContent: text,
+    htmlContent: html,
+  });
+
+  // Audit-log the run so /admin-audit-log.html surfaces it.
+  await db.insert(schema.auditLog).values({
+    action: 'cron.security_audit.alert',
+    targetType: 'cron',
+    metadata: {
+      critical, high, moderate,
+      auto_applicable: proposal.autoApplicableCount,
+      breaking: proposal.breakingCount,
+    },
+  }).catch(() => {});
+
+  console.log('[cron · security-audit] alert email sent to ' + opsEmail);
+}
+
+// Minimal HTML escape · used inside the security-audit email builder.
+function escapeHtml(s: string): string {
+  return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
+}
+
 async function main() {
   const job = process.argv[2];
   switch (job) {
@@ -815,8 +948,9 @@ async function main() {
     case 'audit-prune':          return runWithHeartbeat(job, auditPrune);
     case 'time-capsule-deliver': return runWithHeartbeat(job, timeCapsuleDeliver);
     case 'weekly-digest':        return runWithHeartbeat(job, weeklyDigest);
+    case 'security-audit':       return runWithHeartbeat(job, securityAudit);
     default:
-      console.error(`Unknown job: ${job}. Valid: evening-prompt, verdict-generate, session-purge, invite-expiry, invite-reminder, hard-delete-purge, audit-prune, time-capsule-deliver, weekly-digest`);
+      console.error(`Unknown job: ${job}. Valid: evening-prompt, verdict-generate, session-purge, invite-expiry, invite-reminder, hard-delete-purge, audit-prune, time-capsule-deliver, weekly-digest, security-audit`);
       process.exit(2);
   }
 }

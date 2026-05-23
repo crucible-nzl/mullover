@@ -38,6 +38,7 @@ const jobSchema = z.object({
     'pg-dump',
     'sitemap',
     'weekly-digest',
+    'security-audit',
   ]),
 });
 
@@ -58,6 +59,7 @@ const jobCommand: Record<string, { cmd: string; args: string[]; cwd?: string }> 
   'sitemap':           { cmd: 'npx', args: ['tsx', 'src/jobs/sitemap.ts'],                   cwd: '/opt/counsel-day-app' },
   'pg-dump':           { cmd: 'npx', args: ['tsx', 'src/jobs/pg-dump.ts'],                   cwd: '/opt/counsel-day-app' },
   'weekly-digest':     { cmd: 'npx', args: ['tsx', 'src/jobs/cron.ts', 'weekly-digest'],     cwd: '/opt/counsel-day-app' },
+  'security-audit':    { cmd: 'npx', args: ['tsx', 'src/jobs/cron.ts', 'security-audit'],    cwd: '/opt/counsel-day-app' },
 };
 
 function runOnce(cmd: string, args: string[], cwd: string | undefined, timeoutMs: number): Promise<{ exitCode: number; stdout: string; stderr: string }> {

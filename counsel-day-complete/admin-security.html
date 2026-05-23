@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin &middot; Security audit &middot; Counsel.day</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f7f9fc">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin-shell.css">
+<style>
+  .sec-tile-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 22px; }
+  @media (max-width: 900px) { .sec-tile-row { grid-template-columns: repeat(2, 1fr); } }
+  .sec-tile { background: var(--surface); border: 1px solid var(--border); padding: 16px 18px; text-align: left; }
+  .sec-tile .label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .sec-tile .value { font-family: var(--font-display, Georgia); font-size: 30px; font-weight: 500; line-height: 1; color: var(--ink); }
+  .sec-tile .sub { font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-top: 6px; }
+  .sec-tile.critical .value { color: #722F37; }
+  .sec-tile.high .value { color: #722F37; }
+  .sec-tile.moderate .value { color: #b86a40; }
+
+  .sec-meta { display: flex; gap: 18px; flex-wrap: wrap; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); margin-bottom: 18px; font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); }
+  .sec-meta strong { color: var(--ink); }
+
+  .sec-section { background: var(--surface); border: 1px solid var(--border); margin-bottom: 22px; }
+  .sec-section-head { padding: 12px 16px; border-bottom: 1px solid var(--rule); font-family: var(--font-ui); font-size: 13px; font-weight: 600; color: var(--ink); }
+  .sec-section-body { padding: 12px 16px; }
+  .sec-section-body pre { background: var(--surface-2, #f7f7f5); padding: 12px 14px; border-left: 3px solid #722F37; font-family: var(--font-mono); font-size: 12px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; margin: 0; color: var(--ink); }
+
+  table.sec-tbl { width: 100%; border-collapse: collapse; font-family: var(--font-ui); font-size: 13px; }
+  table.sec-tbl th { background: var(--surface-2, #f7f7f5); text-align: left; padding: 8px 12px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--rule); font-weight: 600; }
+  table.sec-tbl td { padding: 10px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  table.sec-tbl tr:last-child td { border-bottom: none; }
+  .sev { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; padding: 3px 8px; }
+  .sev.critical, .sev.high { background: #fbf2f4; color: #722F37; }
+  .sev.moderate { background: #fbf4ee; color: #b86a40; }
+  .sev.low, .sev.info { background: #f5f5f3; color: #6b635a; }
+  .cls { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; color: var(--ink); padding: 3px 6px; background: var(--surface-2, #f7f7f5); border: 1px solid var(--rule); }
+  .cls.safe-override, .cls.safe-upgrade { color: #2e7d32; border-color: #2e7d32; }
+  .cls.breaking { color: #722F37; border-color: #722F37; }
+  .cls.unfixable { color: #6b635a; }
+  .pkg { font-family: var(--font-mono); font-weight: 500; color: var(--ink); }
+  .title { font-family: var(--font-body, Georgia); font-size: 13px; color: var(--ink-soft); }
+  .advisory a { color: var(--accent, #722F37); font-size: 11px; }
+
+  .sec-run-btn { background: var(--accent); color: var(--surface); border: none; padding: 9px 18px; font-family: var(--font-ui); font-size: 12px; font-weight: 500; cursor: pointer; letter-spacing: 0.04em; }
+  .sec-run-btn:hover { filter: brightness(1.1); }
+  .sec-run-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">counsel<span class="tld">.day</span> &middot; admin</div>
+  <div class="meta">
+    <a href="/account.html">&larr; User-facing site</a>
+    <span id="adm-identity">&hellip;</span>
+    <a href="#" id="adm-logout">Log out</a>
+  </div>
+</div>
+<nav class="adm-subnav" aria-label="Admin sections">
+  <a href="/admin.html">Overview</a>
+  <a href="/admin-users.html">Users</a>
+  <a href="/admin-products.html">Products</a>
+  <a href="/admin-growth.html">Growth</a>
+  <a href="/admin-engagement.html">Engagement</a>
+  <a href="/admin-insights.html">Insights</a>
+  <a href="/admin-traffic.html">Traffic</a>
+  <a href="/admin-finance.html">Finance</a>
+  <a href="/admin-verdict-logs.html">Verdict logs</a>
+  <a href="/admin-audit-log.html">Audit log</a>
+  <a href="/admin-chatbot-queries.html">Chatbot</a>
+  <a href="/admin-prompt-editor.html">Prompts</a>
+  <a href="/admin-security.html" class="active">Security</a>
+  <a href="/admin-database.html">Database</a>
+</nav>
+
+<div class="shell">
+  <h1>Security audit</h1>
+  <p class="lede">Daily <code>npm audit</code> run against /opt/counsel-day-app. Snapshot persisted to /var/log/counsel-day. Critical + high findings trigger an email to OPS_DIGEST_EMAIL on every run. Use the Run now button to refresh on demand.</p>
+  <div id="adm-error" class="status-banner is-error" style="display:none;"></div>
+
+  <div id="sec-empty" style="display: none; padding: 30px; text-align: center; color: var(--muted); font-family: var(--font-body, Georgia);">
+    <p>No security-audit snapshot yet. Click <strong>Run now</strong> below to perform the first scan.</p>
+  </div>
+
+  <div id="sec-loaded" style="display: none;">
+
+    <div class="sec-meta">
+      <div>Last run: <strong id="sec-when">&hellip;</strong></div>
+      <div>Dependencies scanned: <strong id="sec-deps">&hellip;</strong></div>
+      <div>Total findings: <strong id="sec-total">&hellip;</strong></div>
+      <button type="button" class="sec-run-btn" id="sec-run">Run now</button>
+      <span id="sec-run-status" style="font-family: var(--font-mono); font-size: 11px; color: var(--muted);"></span>
+    </div>
+
+    <div class="sec-tile-row">
+      <div class="sec-tile critical"><div class="label">Critical</div><div class="value" id="sec-critical">&middot;</div><div class="sub">immediate attention</div></div>
+      <div class="sec-tile high"><div class="label">High</div><div class="value" id="sec-high">&middot;</div><div class="sub">email alert sent</div></div>
+      <div class="sec-tile moderate"><div class="label">Moderate</div><div class="value" id="sec-moderate">&middot;</div><div class="sub">logged, no alert</div></div>
+      <div class="sec-tile"><div class="label">Low</div><div class="value" id="sec-low">&middot;</div><div class="sub">silent</div></div>
+      <div class="sec-tile"><div class="label">Info</div><div class="value" id="sec-info">&middot;</div><div class="sub">silent</div></div>
+    </div>
+
+    <div class="sec-section">
+      <div class="sec-section-head">Proposed fix · paste into package.json overrides</div>
+      <div class="sec-section-body">
+        <pre id="sec-instructions">&hellip;</pre>
+      </div>
+    </div>
+
+    <div class="sec-section">
+      <div class="sec-section-head">All findings (sorted by severity)</div>
+      <div class="sec-section-body" style="padding: 0;">
+        <table class="sec-tbl">
+          <thead>
+            <tr>
+              <th style="width: 90px;">Severity</th>
+              <th style="width: 240px;">Package</th>
+              <th>Advisory</th>
+              <th style="width: 130px;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="sec-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+  fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) {
+    if (d && d.ok && d.user) document.getElementById('adm-identity').textContent = d.user.email + ' · admin';
+  }).catch(function () {});
+  document.getElementById('adm-logout').addEventListener('click', function (e) {
+    e.preventDefault();
+    fetch('/api/signout', { method: 'POST', credentials: 'include' }).finally(function () { window.location.href = '/'; });
+  });
+
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+  function fmtTs(s) { if (!s) return '·'; try { return new Date(s).toLocaleString(); } catch (e) { return s; } }
+
+  function render(snap) {
+    if (!snap) {
+      document.getElementById('sec-empty').style.display = 'block';
+      return;
+    }
+    document.getElementById('sec-loaded').style.display = 'block';
+    document.getElementById('sec-when').textContent = fmtTs(snap.generatedAt);
+    document.getElementById('sec-deps').textContent = snap.totalDependencies.toLocaleString();
+    document.getElementById('sec-total').textContent = snap.findings.length.toLocaleString();
+    document.getElementById('sec-critical').textContent = snap.totals.critical;
+    document.getElementById('sec-high').textContent = snap.totals.high;
+    document.getElementById('sec-moderate').textContent = snap.totals.moderate;
+    document.getElementById('sec-low').textContent = snap.totals.low;
+    document.getElementById('sec-info').textContent = snap.totals.info;
+    document.getElementById('sec-instructions').textContent = snap.proposal.instructions || 'No fixes available.';
+
+    var tbody = document.getElementById('sec-tbody');
+    if (snap.findings.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="padding: 30px; text-align: center; color: var(--muted); font-family: var(--font-body, Georgia);">No vulnerabilities detected at last run. <strong style="color: #2e7d32;">All clean.</strong></td></tr>';
+      return;
+    }
+    tbody.innerHTML = snap.findings.map(function (f) {
+      return '<tr>' +
+        '<td><span class="sev ' + f.severity + '">' + f.severity + '</span></td>' +
+        '<td><span class="pkg">' + escapeHtml(f.package) + '</span>' + (f.fixAvailable ? '<div style="font-family: monospace; font-size: 10px; color: #6b635a; margin-top: 4px;">fix &rarr; ' + escapeHtml(f.fixAvailable.version) + (f.fixAvailable.isSemVerMajor ? ' (major)' : '') + '</div>' : '') + '</td>' +
+        '<td><span class="title">' + escapeHtml(f.title) + '</span>' + (f.advisoryUrl ? '<div class="advisory" style="margin-top: 4px;"><a href="' + f.advisoryUrl + '" target="_blank" rel="noopener">' + escapeHtml(f.advisoryUrl) + '</a></div>' : '') + '</td>' +
+        '<td><span class="cls ' + f.classification + '">' + f.classification + '</span></td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  function load() {
+    fetch('/api/admin/security-audit', { credentials: 'include' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.ok) {
+          document.getElementById('adm-error').style.display = 'block';
+          document.getElementById('adm-error').textContent = (d && d.message) || 'Failed to load.';
+          return;
+        }
+        render(d.snapshot);
+      });
+  }
+
+  document.getElementById('sec-run').addEventListener('click', function () {
+    var btn = document.getElementById('sec-run');
+    var status = document.getElementById('sec-run-status');
+    btn.disabled = true;
+    status.textContent = 'Running npm audit…';
+    fetch('/api/admin/cron/trigger', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ job: 'security-audit' }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        btn.disabled = false;
+        status.textContent = d && d.ok ? 'Done · reloading snapshot…' : ((d && d.message) || 'Run failed.');
+        if (d && d.ok) setTimeout(load, 1500);
+      })
+      .catch(function () {
+        btn.disabled = false;
+        status.textContent = 'Network error.';
+      });
+  });
+
+  load();
+})();
+</script>
+</body>
+</html>

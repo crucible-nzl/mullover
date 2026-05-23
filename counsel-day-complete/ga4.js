@@ -200,6 +200,26 @@
      calls store cookies or send cookieless pings.
      ============================================================ */
 
+  /* AB variant attachment.
+     If the visitor came through /o.html, that rotator dropped a
+     `cd_ab_variant` cookie. Surface the assigned variant as both a
+     gtag default param (so every subsequent event carries it) and a
+     custom dimension in GA4. Register `ab_variant` as a custom dim
+     in the GA4 UI to slice conversions by landing-page variant. */
+  (function () {
+    try {
+      var m = document.cookie.match(/(?:^|;\s*)cd_ab_variant=([^;]+)/);
+      if (!m) return;
+      var v = decodeURIComponent(m[1]).slice(0, 24); // defensive
+      if (!/^[a-z0-9_-]+$/i.test(v)) return;
+      gtag('set', { ab_variant: v });
+      // Also fire a one-shot ab_seen on first page of the visit, so
+      // there's always at least one event carrying the variant even
+      // for visitors who bounce before any auto-event fires.
+      gtag('event', 'ab_seen', { ab_variant: v });
+    } catch (e) { /* swallow · analytics never blocks UX */ }
+  })();
+
   function track(name, params) {
     try { gtag('event', name, params || {}); } catch (e) { /* swallow */ }
   }

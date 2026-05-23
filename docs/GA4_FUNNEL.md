@@ -87,3 +87,43 @@ window.dataLayer
 Should return an array of arguments arrays. Each event the script fires (manually or otherwise) pushes a row. The placeholder mode also logs `[ga4 placeholder] <event-name> <params>` to the console.
 
 For end-to-end verification once a real measurement ID is set: GA4 → Configure → DebugView, then open the site from a browser tab. Each event listed above should appear in DebugView in the order described.
+
+---
+
+## A/B testing for offer variants
+
+The `/o.html` rotator is the entry point for paid traffic. It picks one of the offer-variant landing pages (`/offer-a.html` through `/offer-g.html`, `/offer-e2.html`) by weighted random, drops a sticky 30-day cookie (`cd_ab_variant`), and 0-ms redirects the visitor to the chosen page.
+
+### URL contract
+
+| URL | Behaviour |
+|-----|-----------|
+| `https://counsel.day/o` | Rotates by weight defined in `o.html`; sticky on return visits |
+| `https://counsel.day/o?v=e2` | Forces variant `e2`; still sets the sticky cookie |
+| `https://counsel.day/o?reset=1` | Clears the cookie, then rolls fresh |
+| `https://counsel.day/offer-e-facebook.html` | Direct hit · platform-specific page, NOT in the rotator |
+
+UTM and click-id parameters (`utm_*`, `gclid`, `fbclid`, `ttclid`, `msclkid`) are preserved across the redirect so the destination page gets full attribution.
+
+### Events
+
+| Event | Fires when | Parameters |
+|-------|------------|------------|
+| `ab_assigned` | Rotator picks (or honours) a variant | `ab_variant`, `ab_forced`, `ab_source` |
+| `ab_seen` | First page-load after the cookie is in place (any page that loads `ga4.js`) | `ab_variant` |
+
+Every other event in the session ALSO carries `ab_variant` as a default param, because `ga4.js` calls `gtag('set', { ab_variant: ... })` on load.
+
+### One-time GA4 UI setup
+
+1. **Admin → Custom Definitions → Custom Dimensions** · create `ab_variant` scoped to Event, event parameter name `ab_variant`. Save.
+2. (Optional) Create a second custom dim `ab_source` for the rotator's UTM-source attribution.
+3. **Explore → Free form** · add `ab_variant` as a row, `Conversions` as a column, slice by event-name filter. Compare conversion rates per variant.
+
+### Retiring or weighting variants
+
+Edit the `VARIANTS` array in `counsel-day-complete/o.html`. Set `weight: 0` to retire without removing the page (preserves existing direct links). Weights are integer proportions, not percentages · they don't need to sum to 100.
+
+### Platform-specific variants
+
+The `offer-e-facebook.html`, `-instagram.html`, `-google.html`, `-tiktok.html` pages are NOT in the rotator. They are direct-hit landing pages with platform-specific copy + pixel wiring, served to ads from that platform with a fixed destination URL. Their `ab_variant` will be the cookie value from any prior rotator visit, OR absent if the visitor came in cold.

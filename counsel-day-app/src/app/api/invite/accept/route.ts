@@ -76,6 +76,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, message: 'Decision not found.' }, { status: 404 });
   }
   if (decisionPaymentRows[0].status === 'pending_payment') {
+    // Audit so the admin can see invites being attempted on unpaid
+    // decisions (signal of either UX confusion or an attempted
+    // bypass)
+    await db.insert(schema.auditLog).values({
+      action: 'invite.refused_pending_payment',
+      actorUserId: session.userId,
+      targetType: 'participant',
+      targetId: part.participantId,
+      metadata: { decision_id: part.decisionId },
+    }).catch(() => {});
     return NextResponse.json(
       { ok: false, message: 'This decision has not been paid for yet. The owner needs to complete payment before invites can be accepted.' },
       { status: 402 }
@@ -105,6 +115,16 @@ export async function POST(req: Request) {
     .update(schema.participants)
     .set({ userId: session.userId, inviteAcceptedAt: new Date() })
     .where(eq(schema.participants.id, part.participantId));
+
+  // Audit-log the acceptance · pairs with invite.sent + invite.clicked
+  // to form the funnel an operator can reconstruct from audit_log alone.
+  await db.insert(schema.auditLog).values({
+    action: 'invite.accepted',
+    actorUserId: session.userId,
+    targetType: 'participant',
+    targetId: part.participantId,
+    metadata: { decision_id: part.decisionId },
+  }).catch(() => { /* audit must never break the accept flow */ });
 
   // If this was the last outstanding invite, flip the decision to active
   const pendingRows = await db

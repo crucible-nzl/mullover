@@ -61,11 +61,19 @@ export async function POST(req: Request) {
     return NextResponse.json({ received: true, deduped: true }, { status: 200 });
   }
 
-  // Audit every accepted (first-time) event for later reconciliation
+  // Audit every accepted (first-time) event for later reconciliation.
+  // For checkout.session.completed we also capture pricing breakdown
+  // (subtotal, discount, total, payment status, coupon/promotion id)
+  // so that 100%-off promo-code use is fully traceable · the bare
+  // amount_total=0 case otherwise looks identical to a free Solo.
   await db.insert(schema.auditLog).values({
     action: `stripe.${event.type}`,
     targetType: 'stripe_event',
-    metadata: { id: event.id, livemode: event.livemode },
+    metadata: {
+      id: event.id,
+      livemode: event.livemode,
+      ...(event.type === 'checkout.session.completed' ? extractCheckoutBreakdown(event.data.object as Stripe.Checkout.Session) : {}),
+    },
   }).catch(() => { /* don't fail webhook on audit error */ });
 
   try {
@@ -76,6 +84,11 @@ export async function POST(req: Request) {
         const sku = s.metadata?.sku;
         const decisionId = s.metadata?.decision_id;
         const paymentIntentId = typeof s.payment_intent === 'string' ? s.payment_intent : null;
+        // 100%-off coupons: payment_status === 'no_payment_required',
+        // amount_total === 0, payment_intent === null. The status flow
+        // still needs to advance · the user "paid" zero dollars but
+        // the decision should activate exactly as a normal paid one.
+        const isFreeViaCoupon = (s.payment_status === 'no_payment_required') || ((s.amount_total ?? 0) === 0 && !paymentIntentId);
         if (userId && decisionId) {
           // Look up current state so we know what the post-payment status
           // should be. Paid Solo → 'active'. Paid couple/family with
@@ -147,6 +160,22 @@ export async function POST(req: Request) {
                 updatedAt: now,
               })
               .where(eq(schema.decisions.id, decisionId));
+
+            // Dedicated audit row for 100%-off coupon use so the
+            // admin can distinguish promo-comped decisions from
+            // genuine Solo Free in any cohort report later.
+            if (isFreeViaCoupon) {
+              await db.insert(schema.auditLog).values({
+                action: 'decision.paid_via_coupon',
+                actorUserId: userId,
+                targetType: 'decision',
+                targetId: decisionId,
+                metadata: {
+                  sku,
+                  ...extractCheckoutBreakdown(s),
+                },
+              }).catch(() => { /* never fail webhook on audit error */ });
+            }
 
             // Send the deferred invite emails ONLY if we just transitioned
             // out of pending_payment into pending_invites. Don't fire if
@@ -221,6 +250,42 @@ export async function POST(req: Request) {
   }
 
   return NextResponse.json({ received: true }, { status: 200 });
+}
+
+/**
+ * Pull pricing breakdown + coupon details out of a checkout session.
+ * Used by the audit_log entry so 100%-off promo redemptions are
+ * traceable later. Stripe attaches discounts to either
+ * `total_details.breakdown.discounts` (line-level) or to
+ * `s.discounts` (session-level) depending on how the discount was
+ * created · we surface both.
+ *
+ * Returns metadata-only · safe to JSON-serialise into audit_log.
+ */
+function extractCheckoutBreakdown(s: Stripe.Checkout.Session) {
+  // Session.discounts is on the API but the stripe-node 17.x types
+  // don't expose it directly; cast through unknown.
+  type SessionDiscount = { coupon?: string | { id: string } | null; promotion_code?: string | { id: string } | null };
+  const rawSessionDiscounts = ((s as unknown as { discounts?: SessionDiscount[] }).discounts) ?? [];
+  const sessionDiscounts = rawSessionDiscounts.map((d) => ({
+    coupon: typeof d.coupon === 'string' ? d.coupon : d.coupon?.id ?? null,
+    promotion_code: typeof d.promotion_code === 'string' ? d.promotion_code : d.promotion_code?.id ?? null,
+  }));
+  const lineDiscounts = (s.total_details?.breakdown?.discounts ?? []).map((d) => ({
+    amount: d.amount,
+    discount_coupon: typeof d.discount?.coupon === 'string' ? d.discount.coupon : d.discount?.coupon?.id ?? null,
+    discount_promotion_code: typeof d.discount?.promotion_code === 'string' ? d.discount.promotion_code : d.discount?.promotion_code?.id ?? null,
+  }));
+  return {
+    payment_status: s.payment_status,
+    amount_subtotal: s.amount_subtotal ?? null,
+    amount_total: s.amount_total ?? null,
+    amount_discount: s.total_details?.amount_discount ?? 0,
+    currency: s.currency ?? null,
+    session_discounts: sessionDiscounts.length > 0 ? sessionDiscounts : null,
+    line_discounts: lineDiscounts.length > 0 ? lineDiscounts : null,
+    free_via_coupon: (s.payment_status === 'no_payment_required') || ((s.amount_total ?? 0) === 0 && !s.payment_intent),
+  };
 }
 
 /**

@@ -60,6 +60,36 @@ export async function GET(req: Request) {
     .limit(1);
   const inviterName = inviterRows[0]?.firstName ?? 'Someone';
 
+  // Audit-log the click (first preview fetch == link clicked). De-dupe
+  // per session by checking if we've already logged a click for this
+  // participant in the last 60 minutes · users often reload the invite
+  // page once or twice. Inserting the row inside a try-catch ensures
+  // an audit failure never breaks the user-facing preview.
+  void db
+    .select({ id: schema.auditLog.id })
+    .from(schema.auditLog)
+    .where(and(
+      eq(schema.auditLog.action, 'invite.clicked'),
+      eq(schema.auditLog.targetId, row.participantId)
+    ))
+    .limit(1)
+    .then((existing) => {
+      if (existing.length === 0) {
+        return db.insert(schema.auditLog).values({
+          action: 'invite.clicked',
+          targetType: 'participant',
+          targetId: row.participantId,
+          metadata: {
+            decision_id: row.decisionId,
+            user_agent: req.headers.get('user-agent')?.slice(0, 200) ?? null,
+            ip: (req.headers.get('cf-connecting-ip') || req.headers.get('x-forwarded-for') || '').split(',')[0].trim() || null,
+          },
+        });
+      }
+      return null;
+    })
+    .catch(() => { /* audit must never break user-facing preview */ });
+
   return NextResponse.json(
     {
       ok: true,

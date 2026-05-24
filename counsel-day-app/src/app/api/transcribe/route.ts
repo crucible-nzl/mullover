@@ -35,6 +35,7 @@
 import { NextResponse } from 'next/server';
 import { readSession, readSessionCookie } from '@/lib/sessions';
 import { checkRateLimit, getClientIp, rateLimitResponse } from '@/lib/rate-limit';
+import { sendTransactional } from '@/lib/email';
 import { db, schema } from '@/lib/db';
 import { eq, and, gte, sql } from 'drizzle-orm';
 
@@ -44,6 +45,17 @@ export const runtime = 'nodejs';
 const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
 const MAX_SECONDS_PER_CLIP = 30;
 const DAILY_QUOTA_SECONDS = 30; // per (user, decision, UTC day)
+
+// Whisper price · $0.006 per minute, rounded to the nearest second.
+const WHISPER_USD_PER_MINUTE = 0.006;
+const WHISPER_USD_PER_SECOND = WHISPER_USD_PER_MINUTE / 60;
+
+// Org-wide daily spend cap on Whisper. Overrideable via env. Default
+// $5/day = ~14 hours of transcription = thousands of voter-nights ·
+// generous for steady-state but firm enough to limit abuse blast radius.
+const WHISPER_DAILY_BUDGET_USD = Number(process.env.WHISPER_DAILY_BUDGET_USD ?? '5');
+// Fraction of the cap at which to fire ONE warning email per UTC day.
+const WHISPER_WARN_AT = Number(process.env.WHISPER_WARN_AT ?? '0.8');
 
 const ALLOWED_MIME = new Set([
   'audio/webm',
@@ -80,6 +92,20 @@ export async function POST(req: Request) {
   const ipCheck = await checkRateLimit(`transcribe-ip:${ip}`, 600, 3600);
   if (!ipCheck.allowed) {
     return rateLimitResponse(ipCheck, 'Too many transcription requests from this network.');
+  }
+
+  // ---- org-wide Whisper daily budget cap ----
+  // Stops a runaway / abuse loop from draining the OpenAI account
+  // even if per-user rate-limits are exhausted in parallel.
+  if (WHISPER_DAILY_BUDGET_USD > 0) {
+    const spentToday = await spentDollarsToday();
+    if (spentToday >= WHISPER_DAILY_BUDGET_USD) {
+      console.warn(`[transcribe] daily budget reached · spent=$${spentToday.toFixed(2)} cap=$${WHISPER_DAILY_BUDGET_USD}`);
+      return NextResponse.json(
+        { ok: false, message: 'Voice transcription is temporarily unavailable. Type the note instead.' },
+        { status: 503 }
+      );
+    }
   }
 
   // ---- content-length cap (cheap pre-parse bail) ----
@@ -258,6 +284,10 @@ export async function POST(req: Request) {
     await audit(session.userId, null, audio.size, elapsedMs, durationSec, 'ok_no_decision', null);
   }
 
+  // Fire-and-forget warning email if today's spend just crossed the
+  // threshold for the first time. Doesn't block the response.
+  void maybeWarnBudgetCrossed();
+
   return NextResponse.json(
     {
       ok: true,
@@ -322,4 +352,91 @@ async function audit(
       },
     })
     .catch(() => { /* never fail transcribe on audit error */ });
+}
+
+/**
+ * Sum the actual USD spent on Whisper today across the whole org.
+ * Reads from audit_log.metadata.seconds for successful transcribe
+ * rows and multiplies by the per-second rate. Slightly stale under
+ * concurrent load (race-free counter would need a transaction lock)
+ * but the overshoot is bounded at ~$0.10 per request, acceptable for
+ * a $5 cap.
+ */
+async function spentDollarsToday(): Promise<number> {
+  const startOfDayUtc = new Date();
+  startOfDayUtc.setUTCHours(0, 0, 0, 0);
+
+  const rows = await db
+    .select({
+      seconds: sql<number>`COALESCE(SUM((metadata->>'seconds')::numeric), 0)::numeric`,
+    })
+    .from(schema.auditLog)
+    .where(and(
+      eq(schema.auditLog.action, 'transcribe.whisper'),
+      gte(schema.auditLog.createdAt, startOfDayUtc)
+    ));
+  const seconds = Number(rows[0]?.seconds ?? 0);
+  return seconds * WHISPER_USD_PER_SECOND;
+}
+
+/**
+ * Send ONE warning email per UTC day when today's spend crosses the
+ * configured fraction of the daily cap. De-duped by inserting a
+ * sentinel audit_log row (action='transcribe.budget_warning_sent')
+ * the first time it fires today; subsequent calls see the row and
+ * short-circuit. Email goes to OPS_DIGEST_EMAIL.
+ */
+async function maybeWarnBudgetCrossed() {
+  if (WHISPER_DAILY_BUDGET_USD <= 0 || WHISPER_WARN_AT <= 0) return;
+  const opsEmail = process.env.OPS_DIGEST_EMAIL;
+  if (!opsEmail) return;
+
+  const threshold = WHISPER_DAILY_BUDGET_USD * WHISPER_WARN_AT;
+  const spent = await spentDollarsToday();
+  if (spent < threshold) return;
+
+  const startOfDayUtc = new Date();
+  startOfDayUtc.setUTCHours(0, 0, 0, 0);
+
+  // Have we already sent the warning today?
+  const existing = await db
+    .select({ id: schema.auditLog.id })
+    .from(schema.auditLog)
+    .where(and(
+      eq(schema.auditLog.action, 'transcribe.budget_warning_sent'),
+      gte(schema.auditLog.createdAt, startOfDayUtc)
+    ))
+    .limit(1);
+  if (existing.length > 0) return;
+
+  // Insert the sentinel FIRST so concurrent requests don't all send.
+  // If the email later fails, the warning is suppressed for the day
+  // (acceptable · this is a heads-up, not a critical signal).
+  try {
+    await db.insert(schema.auditLog).values({
+      action: 'transcribe.budget_warning_sent',
+      targetType: 'budget',
+      metadata: { spent_usd: spent, cap_usd: WHISPER_DAILY_BUDGET_USD, threshold_usd: threshold },
+    });
+  } catch {
+    return; // race: another request beat us to it
+  }
+
+  const pct = Math.round((spent / WHISPER_DAILY_BUDGET_USD) * 100);
+  const html = `<p>Counsel.day Whisper transcription spend today is <strong>$${spent.toFixed(2)} USD</strong> ` +
+    `(<strong>${pct}%</strong> of the $${WHISPER_DAILY_BUDGET_USD.toFixed(2)} daily cap).</p>` +
+    `<p>The cap will refuse further transcription requests at 100%. ` +
+    `If this is steady-state traffic, raise <code>WHISPER_DAILY_BUDGET_USD</code> in env.local. ` +
+    `If it looks like abuse, check audit_log for the noisy users:</p>` +
+    `<pre>SELECT actor_user_id, COUNT(*), SUM((metadata-&gt;&gt;'seconds')::numeric)
+FROM audit_log WHERE action='transcribe.whisper' AND created_at &gt;= date_trunc('day', NOW())
+GROUP BY actor_user_id ORDER BY 3 DESC LIMIT 10;</pre>`;
+  const text = `Counsel.day Whisper spend today: $${spent.toFixed(2)} USD (${pct}% of $${WHISPER_DAILY_BUDGET_USD.toFixed(2)} cap). Cap will refuse further requests at 100%.`;
+
+  void sendTransactional({
+    to: { email: opsEmail, name: 'Counsel.day ops' },
+    subject: `[Counsel.day] Whisper spend at ${pct}% of daily cap`,
+    textContent: text,
+    htmlContent: html,
+  }).catch((err) => console.error('[transcribe] budget warning email failed', (err as Error).message));
 }

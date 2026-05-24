@@ -429,5 +429,16 @@ function sealVote() {
 </script>
 <script src="pwa.js" defer></script>
 <script src="ga4.js" defer></script>
+<script src="voice-input.js" defer></script>
+<script>
+  /* Voice-to-text widget for tonight's note. Tries browser-native
+     SpeechRecognition first; falls back to server-side Whisper on
+     browsers without it (Firefox, some mobile). */
+  window.addEventListener('DOMContentLoaded', function () {
+    if (window.CounselDayVoice) {
+      window.CounselDayVoice.attach('#note-text', { label: 'Speak the note' });
+    }
+  });
+</script>
 </body>
 </html>

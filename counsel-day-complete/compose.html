@@ -613,5 +613,16 @@ function saveDraft() {
 </script>
 <script src="pwa.js" defer></script>
 <script src="ga4.js" defer></script>
+<script src="voice-input.js" defer></script>
+<script>
+  /* Voice-to-text on the question field. Lower-leverage than the
+     daily-vote note (one-shot per decision) but the same widget,
+     attached the same way. */
+  window.addEventListener('DOMContentLoaded', function () {
+    if (window.CounselDayVoice) {
+      window.CounselDayVoice.attach('#q-input', { label: 'Speak the question' });
+    }
+  });
+</script>
 </body>
 </html>

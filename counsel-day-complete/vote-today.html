@@ -379,6 +379,14 @@ function sealVote() {
       if (!d || !d.ok) return;
       CD_VOTE_STATE.decisionId = d.decision.id;
       CD_VOTE_STATE.alreadyVoted = !!d.voted_today;
+      // Voice widget needs the decision id to enforce the 30s daily quota
+      // and tier gate server-side. Disable on Solo Free decisions.
+      if (window.__cdVoiceHandle) {
+        window.__cdVoiceHandle.setDecisionId(d.decision.id);
+        if (d.decision.tier === 'solo_free') {
+          window.__cdVoiceHandle.setDisabled(true, 'Voice transcription is a paid-tier benefit');
+        }
+      }
       var revealLabel = (d.decision.duration_days - (d.decision.day_number || 1)) + ' EVENINGS REMAINING · REVEAL ' + fmtRevealDate(d.decision.unseals_at);
       set('cd-vote-dayref', 'DAY ' + (d.decision.day_number || 1) + ' OF ' + d.decision.duration_days);
       set('cd-vote-datestamp', fmtDate(new Date()));
@@ -433,10 +441,12 @@ function sealVote() {
 <script>
   /* Voice-to-text widget for tonight's note. Tries browser-native
      SpeechRecognition first; falls back to server-side Whisper on
-     browsers without it (Firefox, some mobile). */
+     browsers without it (Firefox, some mobile). The decision_id is
+     attached after vote-today's bootstrap fetch resolves · server
+     uses it to enforce the 30s/day quota and refuse Solo Free. */
   window.addEventListener('DOMContentLoaded', function () {
     if (window.CounselDayVoice) {
-      window.CounselDayVoice.attach('#note-text', { label: 'Speak the note' });
+      window.__cdVoiceHandle = window.CounselDayVoice.attach('#note-text', { label: 'Speak the note' });
     }
   });
 </script>

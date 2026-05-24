@@ -1,41 +1,50 @@
 /**
- * POST /api/transcribe   multipart/form-data: audio=<File>
+ * POST /api/transcribe   multipart/form-data: audio=<File>, decision_id=<uuid?>
  *
- * Whisper-API fallback used by the voice-input widget on
- * /vote-today.html, /compose.html, /verdict-reveal.html. Browsers
- * that support `window.SpeechRecognition` transcribe client-side at
- * zero cost; this endpoint serves the rest.
+ * Whisper-API fallback for the voice-input widget on /vote-today.html,
+ * /compose.html, /verdict-reveal.html. Browsers that support
+ * `window.SpeechRecognition` transcribe client-side at zero cost; this
+ * endpoint serves the rest.
  *
- * Privacy posture (also noted in /privacy.html):
+ * Gates (in order):
+ *   1. auth required (readSession)
+ *   2. OPENAI_API_KEY present (else 503 · widget tells user to type)
+ *   3. rate-limit · 60/hr per user · 600/hr per IP
+ *   4. content-length and MIME pre-checks
+ *   5. TIER GATE · if decision_id supplied, the decision must exist,
+ *      the user must be a participant or the owner, and the tier must
+ *      NOT be 'solo_free' (voice is a paid-tier benefit)
+ *   6. QUOTA · cumulative transcribed seconds today for (user, decision)
+ *      must remain under 30s (one 30s clip, or several shorter ones)
+ *   7. Whisper called with response_format=verbose_json so we get the
+ *      authoritative audio duration back from OpenAI (rather than
+ *      guessing from byte count, which Opus VBR makes unreliable)
+ *
+ * Privacy posture (also reflected in /privacy.html):
  *   · Audio is forwarded to OpenAI's Whisper API with the standard
- *     API terms · OpenAI does NOT train on data submitted through the
- *     paid API (March 2023 policy).
- *   · We do NOT persist the audio on our server. It's read into
- *     memory, sent to OpenAI, and discarded with the request.
- *   · We do NOT persist the transcript either. It's returned to the
- *     browser; whether the user keeps it (paste-into-note) is their
- *     call. The audit log captures duration + ms only, never bytes.
- *
- * Defenses:
- *   · auth required (readSession)
- *   · rate-limit 60/hr per user · 600/hr per IP
- *   · 60-second max audio length (enforced both client-side and via
- *     content-length cap of 5 MB · Opus/WebM at 32 kbps is ~240 KB
- *     per 60s)
- *   · only accepts audio/webm, audio/mp4, audio/mpeg content types
- *   · 503 when OPENAI_API_KEY is unset (graceful · widget falls back
- *     to a "voice unavailable, type instead" message)
+ *     paid-API terms · OpenAI does NOT train on data submitted through
+ *     the API (their published policy).
+ *   · We never persist the audio. The request reads bytes into memory,
+ *     forwards them, and discards them.
+ *   · We never persist the transcript on the server. It's returned to
+ *     the browser; whether the user pastes it into a note is their call.
+ *   · The audit log captures duration in milliseconds only · never
+ *     bytes, never transcript content.
  */
 
 import { NextResponse } from 'next/server';
 import { readSession, readSessionCookie } from '@/lib/sessions';
 import { checkRateLimit, getClientIp, rateLimitResponse } from '@/lib/rate-limit';
 import { db, schema } from '@/lib/db';
+import { eq, and, gte, sql } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
+const MAX_SECONDS_PER_CLIP = 30;
+const DAILY_QUOTA_SECONDS = 30; // per (user, decision, UTC day)
+
 const ALLOWED_MIME = new Set([
   'audio/webm',
   'audio/webm;codecs=opus',
@@ -77,7 +86,7 @@ export async function POST(req: Request) {
   const contentLength = Number(req.headers.get('content-length') ?? '0');
   if (contentLength > 0 && contentLength > MAX_BYTES) {
     return NextResponse.json(
-      { ok: false, message: 'Audio too large. Keep it under 60 seconds.' },
+      { ok: false, message: 'Audio too large. Keep it under 30 seconds.' },
       { status: 413 }
     );
   }
@@ -95,17 +104,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, message: 'No audio file provided.' }, { status: 400 });
   }
   if (audio.size > MAX_BYTES) {
-    return NextResponse.json(
-      { ok: false, message: 'Audio too large. Keep it under 60 seconds.' },
-      { status: 413 }
-    );
+    return NextResponse.json({ ok: false, message: 'Audio too large. Keep it under 30 seconds.' }, { status: 413 });
   }
   if (audio.size === 0) {
     return NextResponse.json({ ok: false, message: 'Empty audio file.' }, { status: 400 });
   }
 
-  // Content-type allowlist · loose match because browsers tack on codec
-  // parameters (e.g. 'audio/webm;codecs=opus').
+  // Content-type allowlist
   const mime = (audio.type || '').toLowerCase().split(';')[0].trim();
   const mimeWithParams = (audio.type || '').toLowerCase();
   if (!ALLOWED_MIME.has(mime) && !ALLOWED_MIME.has(mimeWithParams)) {
@@ -115,16 +120,74 @@ export async function POST(req: Request) {
     );
   }
 
-  // ---- forward to OpenAI Whisper ----
-  // Pass the file straight through without buffering twice. The
-  // OpenAI endpoint expects a multipart 'file' field; we rebuild the
-  // FormData rather than proxying because we want to control which
-  // params reach OpenAI (no language hint, no prompt, no temperature).
+  // ---- decision context (optional) ----
+  const decisionIdRaw = fd.get('decision_id');
+  const decisionId = typeof decisionIdRaw === 'string' && decisionIdRaw.length > 0 ? decisionIdRaw : null;
+
+  // ---- TIER GATE ----
+  // If the caller scoped this transcription to a decision, enforce the
+  // tier rule (Solo Free is blocked) and check the daily quota. If no
+  // decision_id was supplied (e.g. /compose.html where the decision
+  // does not yet exist), skip the gate · the user has already chosen
+  // a tier in the compose form and the front-end disables the mic when
+  // 'solo_free' is selected. We trust that signal here.
+  if (decisionId) {
+    const dRows = await db
+      .select({
+        id: schema.decisions.id,
+        tier: schema.decisions.tier,
+        ownerUserId: schema.decisions.ownerUserId,
+      })
+      .from(schema.decisions)
+      .where(eq(schema.decisions.id, decisionId))
+      .limit(1);
+    if (dRows.length === 0) {
+      return NextResponse.json({ ok: false, message: 'Decision not found.' }, { status: 404 });
+    }
+    const decision = dRows[0];
+
+    // User must be the owner or a participant
+    const isOwner = decision.ownerUserId === session.userId;
+    if (!isOwner) {
+      const partRows = await db
+        .select({ id: schema.participants.id })
+        .from(schema.participants)
+        .where(and(
+          eq(schema.participants.decisionId, decisionId),
+          eq(schema.participants.userId, session.userId)
+        ))
+        .limit(1);
+      if (partRows.length === 0) {
+        return NextResponse.json({ ok: false, message: 'You are not a participant in this decision.' }, { status: 403 });
+      }
+    }
+
+    // Tier gate · voice is a paid-tier benefit
+    if (decision.tier === 'solo_free') {
+      return NextResponse.json(
+        { ok: false, message: 'Voice transcription is available on paid decisions (Solo, Couple, Family, Consumer Annual).' },
+        { status: 402 }
+      );
+    }
+
+    // Daily quota · sum the seconds already used today by THIS user on
+    // THIS decision. Stored in audit_log metadata.ms field by the audit
+    // helper below.
+    const used = await usedSecondsToday(session.userId, decisionId);
+    if (used >= DAILY_QUOTA_SECONDS) {
+      return NextResponse.json(
+        { ok: false, message: `You have used your ${DAILY_QUOTA_SECONDS}s of voice transcription for this decision today. Resets at 00:00 UTC.` },
+        { status: 429 }
+      );
+    }
+  }
+
+  // ---- forward to OpenAI Whisper (verbose_json for authoritative duration) ----
   const startedAt = Date.now();
   const upstreamFd = new FormData();
   upstreamFd.append('file', audio, audio.name || 'audio.webm');
   upstreamFd.append('model', 'whisper-1');
-  upstreamFd.append('response_format', 'text');
+  upstreamFd.append('response_format', 'verbose_json');
 
   let upstreamResp: Response;
   try {
@@ -146,27 +209,100 @@ export async function POST(req: Request) {
   if (!upstreamResp.ok) {
     const body = await upstreamResp.text().catch(() => '');
     console.warn('[transcribe] OpenAI returned', upstreamResp.status, body.slice(0, 200));
-    await audit(session.userId, audio.size, elapsedMs, 'upstream_error', upstreamResp.status);
+    await audit(session.userId, decisionId, audio.size, elapsedMs, 0, 'upstream_error', upstreamResp.status);
     return NextResponse.json(
       { ok: false, message: 'Transcription failed. Try again or type the note.' },
       { status: 502 }
     );
   }
 
-  const transcript = (await upstreamResp.text()).trim();
-  await audit(session.userId, audio.size, elapsedMs, 'ok', null);
+  // verbose_json shape: { text, duration, segments: [...], ... }
+  let parsed: { text?: string; duration?: number };
+  try {
+    parsed = await upstreamResp.json();
+  } catch {
+    return NextResponse.json(
+      { ok: false, message: 'Transcription returned malformed response.' },
+      { status: 502 }
+    );
+  }
 
-  return NextResponse.json({ ok: true, transcript }, { status: 200 });
+  const transcript = (parsed.text || '').trim();
+  const durationSec = typeof parsed.duration === 'number' && parsed.duration > 0 ? parsed.duration : 0;
+
+  // If OpenAI says the clip is longer than the per-clip cap, refuse to
+  // bill it AND refuse to count it. The client should have stopped at
+  // 30s, but a determined client could submit longer audio.
+  if (durationSec > MAX_SECONDS_PER_CLIP + 2) {
+    await audit(session.userId, decisionId, audio.size, elapsedMs, durationSec, 'over_clip_cap', null);
+    return NextResponse.json(
+      { ok: false, message: `Recording too long (${Math.round(durationSec)}s). Maximum is ${MAX_SECONDS_PER_CLIP}s per clip.` },
+      { status: 413 }
+    );
+  }
+
+  // If this clip pushes the daily total OVER the cap, accept the
+  // transcript (we already paid Whisper for it) but flag the user.
+  // Next attempt today will be blocked by the gate at the top.
+  if (decisionId) {
+    const usedAfter = (await usedSecondsToday(session.userId, decisionId)) + durationSec;
+    if (usedAfter > DAILY_QUOTA_SECONDS + 5) {
+      // Audit but still return the transcript so the user gets the
+      // text they recorded · denying it after charging would be
+      // hostile.
+      await audit(session.userId, decisionId, audio.size, elapsedMs, durationSec, 'over_daily_cap_post', null);
+    } else {
+      await audit(session.userId, decisionId, audio.size, elapsedMs, durationSec, 'ok', null);
+    }
+  } else {
+    await audit(session.userId, null, audio.size, elapsedMs, durationSec, 'ok_no_decision', null);
+  }
+
+  return NextResponse.json(
+    {
+      ok: true,
+      transcript,
+      duration_seconds: Math.round(durationSec * 10) / 10,
+      ...(decisionId ? { quota: { used_today: await usedSecondsToday(session.userId, decisionId), limit: DAILY_QUOTA_SECONDS } } : {}),
+    },
+    { status: 200 }
+  );
 }
 
 /**
- * Audit log entry · captures METADATA only, never bytes or transcript.
- * Used to spot abuse patterns and reconcile OpenAI billing.
+ * Sum the transcribed seconds used TODAY by user on a specific
+ * decision. Reads from audit_log.metadata.seconds for rows with
+ * action='transcribe.whisper' and the matching target_id.
+ *
+ * Why audit_log not a dedicated counter table: keeps the schema
+ * smaller and the audit_log is already authoritative for billing
+ * reconciliation. The query is cheap because audit_log has indices
+ * on (action, created_at) and the daily window is small.
  */
+async function usedSecondsToday(userId: string, decisionId: string): Promise<number> {
+  const startOfDayUtc = new Date();
+  startOfDayUtc.setUTCHours(0, 0, 0, 0);
+
+  const rows = await db
+    .select({
+      total: sql<number>`COALESCE(SUM((metadata->>'seconds')::numeric), 0)::numeric`,
+    })
+    .from(schema.auditLog)
+    .where(and(
+      eq(schema.auditLog.action, 'transcribe.whisper'),
+      eq(schema.auditLog.actorUserId, userId),
+      eq(schema.auditLog.targetId, decisionId),
+      gte(schema.auditLog.createdAt, startOfDayUtc)
+    ));
+  return Number(rows[0]?.total ?? 0);
+}
+
 async function audit(
   userId: string,
+  decisionId: string | null,
   audioBytes: number,
   elapsedMs: number,
+  durationSec: number,
   outcome: string,
   upstreamStatus: number | null
 ) {
@@ -175,10 +311,12 @@ async function audit(
     .values({
       action: 'transcribe.whisper',
       actorUserId: userId,
-      targetType: 'audio',
+      targetType: decisionId ? 'decision' : 'audio',
+      targetId: decisionId,
       metadata: {
         bytes: audioBytes,
         ms: elapsedMs,
+        seconds: Math.round(durationSec * 100) / 100,
         outcome,
         upstream_status: upstreamStatus,
       },

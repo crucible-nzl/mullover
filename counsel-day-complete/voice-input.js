@@ -24,7 +24,7 @@
   'use strict';
 
   var ENDPOINT = '/api/transcribe';
-  var MAX_RECORD_MS = 60 * 1000; // 60s ceiling matches the server cap
+  var MAX_RECORD_MS = 30 * 1000; // 30s ceiling matches the server cap
   var RECORD_MIME_CANDIDATES = [
     'audio/webm;codecs=opus',
     'audio/webm',
@@ -114,7 +114,7 @@
       btn.style.color = '#fff';
       btn.style.borderColor = 'var(--wine, #722F37)';
       btn.querySelector('.cd-vi-text').textContent = 'Stop';
-      status.textContent = 'Recording …';
+      status.textContent = 'Recording … 30s max';
       status.style.color = 'var(--wine, #722F37)';
     } else {
       btn.classList.remove('cd-vi-recording');
@@ -122,6 +122,30 @@
       btn.style.color = 'var(--ink, #0a0a0a)';
       btn.style.borderColor = 'var(--ink, #0a0a0a)';
       btn.querySelector('.cd-vi-text').textContent = btn.dataset.label || 'Dictate';
+    }
+  }
+
+  /* Disabled state · greyed-out button + tooltip. Used by compose.html
+     when the user selects Solo Free (which is not entitled to voice).
+     Setting disabled=false restores the regular look. */
+  function setDisabled(btn, status, disabled, reason) {
+    if (disabled) {
+      btn.disabled = true;
+      btn.style.background = 'var(--paper-deep, #fafaf8)';
+      btn.style.color = 'var(--subtle, #9b9286)';
+      btn.style.borderColor = 'var(--rule, #e8e6e1)';
+      btn.style.cursor = 'not-allowed';
+      btn.title = reason || 'Voice transcription is a paid-tier feature';
+      status.textContent = reason || 'Available on paid tiers';
+      status.style.color = 'var(--subtle, #9b9286)';
+    } else {
+      btn.disabled = false;
+      btn.style.background = 'var(--paper, #fff)';
+      btn.style.color = 'var(--ink, #0a0a0a)';
+      btn.style.borderColor = 'var(--ink, #0a0a0a)';
+      btn.style.cursor = 'pointer';
+      btn.title = '';
+      status.textContent = '';
     }
   }
 
@@ -200,7 +224,7 @@
     }
   }
 
-  function startWithWhisper(field, btn, status, onDone) {
+  function startWithWhisper(field, btn, status, decisionId, onDone) {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       status.textContent = 'Voice input is not supported in this browser. Type the note.';
       status.style.color = 'var(--wine, #722F37)';
@@ -242,12 +266,18 @@
           status.style.color = 'var(--muted, #6b635a)';
           var fd = new FormData();
           fd.append('audio', blob, 'note.' + (mime.indexOf('mp4') >= 0 ? 'm4a' : 'webm'));
+          if (decisionId) fd.append('decision_id', decisionId);
           fetch(ENDPOINT, { method: 'POST', credentials: 'include', body: fd })
             .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
             .then(function (res) {
               if (res.status === 200 && res.body && res.body.ok) {
                 appendToField(field, res.body.transcript || '');
-                status.textContent = 'Transcribed. Edit before sealing.';
+                var quotaSuffix = '';
+                if (res.body.quota) {
+                  var remaining = Math.max(0, res.body.quota.limit - res.body.quota.used_today);
+                  quotaSuffix = ' (' + Math.round(remaining) + 's left today)';
+                }
+                status.textContent = 'Transcribed. Edit before sealing.' + quotaSuffix;
                 status.style.color = 'var(--muted, #6b635a)';
               } else {
                 status.textContent = (res.body && res.body.message) || 'Transcription failed. Type the note.';
@@ -302,6 +332,18 @@
       if (field.parentNode && field.parentNode.tagName === 'LABEL') anchor = field.parentNode;
       anchor.parentNode.insertBefore(built.wrap, anchor);
 
+      // decisionId may be supplied at attach-time (vote-today) or set
+      // later via the returned handle (e.g. once the user has filed a
+      // decision). The widget passes it on every Whisper request so the
+      // server can enforce the tier gate + daily quota.
+      var decisionId = opts.decisionId || null;
+
+      // If the page wants this widget disabled from the start (e.g.
+      // compose.html when Solo Free is the current tier), honour it.
+      if (opts.disabled) {
+        setDisabled(built.btn, built.status, true, opts.disabledReason);
+      }
+
       var activeHandle = null;
 
       function stopActive() {
@@ -312,6 +354,7 @@
       }
 
       built.btn.addEventListener('click', function () {
+        if (built.btn.disabled) return;
         if (activeHandle) {
           stopActive();
           return;
@@ -327,14 +370,18 @@
             // SR failed mid-flight · fall back to Whisper
             activeHandle = null;
             built.status.textContent = 'Switching to server transcription …';
-            activeHandle = startWithWhisper(field, built.btn, built.status, function () { activeHandle = null; });
+            activeHandle = startWithWhisper(field, built.btn, built.status, decisionId, function () { activeHandle = null; });
           });
         } else {
-          activeHandle = startWithWhisper(field, built.btn, built.status, function () { activeHandle = null; });
+          activeHandle = startWithWhisper(field, built.btn, built.status, decisionId, function () { activeHandle = null; });
         }
       });
 
-      return { stop: stopActive };
+      return {
+        stop: stopActive,
+        setDecisionId: function (id) { decisionId = id || null; },
+        setDisabled: function (disabled, reason) { setDisabled(built.btn, built.status, !!disabled, reason); },
+      };
     }
   };
 

@@ -330,6 +330,16 @@ function selectTier(el) {
   el.classList.add('selected');
   var radio = el.querySelector('input[type="radio"]');
   if (radio) radio.checked = true;
+  /* Voice transcription is a paid-tier benefit. Disable the mic on
+     Solo Free; re-enable for solo_paid / couple / family. */
+  if (window.__cdVoiceHandle && typeof window.__cdVoiceHandle.setDisabled === 'function') {
+    var t = el.dataset.tier;
+    if (t === 'solo_free') {
+      window.__cdVoiceHandle.setDisabled(true, 'Voice transcription is a paid-tier benefit');
+    } else {
+      window.__cdVoiceHandle.setDisabled(false);
+    }
+  }
 }
 
 function updatePreview() {
@@ -615,12 +625,16 @@ function saveDraft() {
 <script src="ga4.js" defer></script>
 <script src="voice-input.js" defer></script>
 <script>
-  /* Voice-to-text on the question field. Lower-leverage than the
-     daily-vote note (one-shot per decision) but the same widget,
-     attached the same way. */
+  /* Voice-to-text on the question field. Starts disabled because the
+     form opens with Solo Free pre-selected · selectTier() re-enables
+     when the user picks a paid tier. */
   window.addEventListener('DOMContentLoaded', function () {
     if (window.CounselDayVoice) {
-      window.CounselDayVoice.attach('#q-input', { label: 'Speak the question' });
+      window.__cdVoiceHandle = window.CounselDayVoice.attach('#q-input', {
+        label: 'Speak the question',
+        disabled: true,
+        disabledReason: 'Voice transcription is a paid-tier benefit'
+      });
     }
   });
 </script>

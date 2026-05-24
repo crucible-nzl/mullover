@@ -125,6 +125,10 @@ jobs:
           ssh -i ~/.ssh/id_ed25519 "$SSH_USER@$SSH_HOST" "
             set -e
             cd /opt/counsel-day-app
+            # Record the deployed git sha so /api/health (lib/version.ts)
+            # reports what is actually running. Without this, GHA deploys
+            # would leave the file stale at whatever deploy.sh last wrote.
+            echo '${{ github.sha }}' | cut -c1-7 > /opt/counsel-day-app/.git-rev
             if [ ! -f package-lock.json ] || [ package.json -nt package-lock.json ]; then
               rm -f package-lock.json
               npm install

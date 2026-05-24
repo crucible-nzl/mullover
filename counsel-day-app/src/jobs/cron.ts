@@ -20,6 +20,7 @@ import { getAnthropic, VERDICT_MODEL, VERDICT_SYSTEM_PROMPT } from '../lib/anthr
 import { callAnthropic } from '../lib/anthropic-call';
 import { resolvePrompt } from '../lib/prompts';
 import { runSecurityAudit, type AuditSnapshot } from '../lib/security-audit';
+import { narrateVerdict } from '../lib/tts';
 import { spawn } from 'node:child_process';
 import { join } from 'node:path';
 
@@ -273,7 +274,7 @@ async function verdictGenerate() {
         next_conversation_prompt: null,
       });
 
-      await db.insert(schema.verdicts).values({
+      const inserted = await db.insert(schema.verdicts).values({
         decisionId: d.id,
         aiModel: VERDICT_MODEL,
         synthesisText: synthesis,
@@ -285,12 +286,34 @@ async function verdictGenerate() {
         // · single source of truth via lib/anthropic-pricing.ts.
         costCents: call.costCents,
         analysisJson: analysis as unknown,
-      });
+      }).returning({ id: schema.verdicts.id });
+      const verdictId = inserted[0]?.id;
 
       await db
         .update(schema.decisions)
         .set({ status: 'completed', updatedAt: new Date() })
         .where(eq(schema.decisions.id, d.id));
+
+      // Best-effort TTS narration. Failure here does NOT block verdict
+      // delivery · the verdict-reveal page falls back to text-only
+      // when tts_audio_url is null. The verdictTts() backfill cron
+      // (runs hourly) will retry missing audio.
+      if (verdictId && synthesis) {
+        try {
+          const tts = await narrateVerdict(synthesis, verdictId);
+          if (tts.ok) {
+            await db
+              .update(schema.verdicts)
+              .set({ ttsAudioUrl: tts.publicUrl, ttsCostCents: tts.costCents, ttsGeneratedAt: new Date() })
+              .where(eq(schema.verdicts.id, verdictId));
+            console.log(`[cron · verdict-generate] decision ${d.id}: TTS ok (${tts.bytes}b, $${(tts.costCents/100).toFixed(3)})`);
+          } else {
+            console.warn(`[cron · verdict-generate] decision ${d.id}: TTS skipped: ${tts.reason}`);
+          }
+        } catch (err) {
+          console.error(`[cron · verdict-generate] decision ${d.id}: TTS threw:`, (err as Error).message);
+        }
+      }
 
       // Email + push each participant that their verdict is ready.
       // We pull user_id too so the push helper can target subscriptions.
@@ -338,6 +361,57 @@ async function verdictGenerate() {
       await db.update(schema.decisions).set({ status: 'active', updatedAt: new Date() }).where(eq(schema.decisions.id, d.id));
     }
   }
+}
+
+/**
+ * Backfill TTS narration for any verdict that has synthesis text but
+ * no tts_audio_url yet. Catches verdicts where the inline TTS call in
+ * verdictGenerate failed (OpenAI hiccup, budget cap, missing key) AND
+ * historical verdicts created before TTS shipped.
+ *
+ * Limit per run: 25 verdicts so a budget runaway can be caught within
+ * a single hour (at ~$0.09 per verdict, max $2.25/run). Schedule
+ * hourly in cron.
+ */
+async function verdictTts() {
+  const rows = await db
+    .select({ id: schema.verdicts.id, synthesisText: schema.verdicts.synthesisText })
+    .from(schema.verdicts)
+    .where(and(
+      isNull(schema.verdicts.ttsAudioUrl),
+      isNotNull(schema.verdicts.synthesisText)
+    ))
+    .limit(25);
+
+  if (rows.length === 0) {
+    console.log('[cron · verdict-tts] no verdicts need backfill');
+    return;
+  }
+
+  let ok = 0;
+  let failed = 0;
+  for (const v of rows) {
+    if (!v.synthesisText) continue;
+    try {
+      const res = await narrateVerdict(v.synthesisText, v.id);
+      if (res.ok) {
+        await db
+          .update(schema.verdicts)
+          .set({ ttsAudioUrl: res.publicUrl, ttsCostCents: res.costCents, ttsGeneratedAt: new Date() })
+          .where(eq(schema.verdicts.id, v.id));
+        ok += 1;
+      } else {
+        console.warn(`[cron · verdict-tts] verdict ${v.id}: ${res.reason}`);
+        failed += 1;
+        // If we hit the budget cap, stop the loop · no point hammering
+        if (res.reason.includes('budget')) break;
+      }
+    } catch (err) {
+      console.error(`[cron · verdict-tts] verdict ${v.id} threw:`, (err as Error).message);
+      failed += 1;
+    }
+  }
+  console.log(`[cron · verdict-tts] backfilled ${ok}/${rows.length} verdicts (${failed} failed)`);
 }
 
 async function sessionPurge() {
@@ -949,6 +1023,7 @@ async function main() {
     case 'time-capsule-deliver': return runWithHeartbeat(job, timeCapsuleDeliver);
     case 'weekly-digest':        return runWithHeartbeat(job, weeklyDigest);
     case 'security-audit':       return runWithHeartbeat(job, securityAudit);
+    case 'verdict-tts':          return runWithHeartbeat(job, verdictTts);
     default:
       console.error(`Unknown job: ${job}. Valid: evening-prompt, verdict-generate, session-purge, invite-expiry, invite-reminder, hard-delete-purge, audit-prune, time-capsule-deliver, weekly-digest, security-audit`);
       process.exit(2);

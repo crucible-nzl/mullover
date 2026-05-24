@@ -252,6 +252,12 @@ export const verdicts = pgTable(
     // cron-time and stored frozen. Shape documented in
     // db/migrations/0011_verdict_analysis_and_time_capsules.sql.
     analysisJson: jsonb('analysis_json'),
+    // TTS narration · written by verdictTts() in cron.ts after the
+    // synthesis is generated. Audio served by Caddy from
+    // /var/www/counsel.day/verdicts/<id>.mp3.
+    ttsAudioUrl: text('tts_audio_url'),
+    ttsCostCents: integer('tts_cost_cents'),
+    ttsGeneratedAt: timestamp('tts_generated_at', { withTimezone: true }),
   },
   (t) => ({
     decisionUnique: uniqueIndex('verdicts_decision_unique').on(t.decisionId),

@@ -104,6 +104,10 @@ export async function GET(req: Request) {
       perParticipantSummary: schema.verdicts.perParticipantSummary,
       themes: schema.verdicts.themes,
       nextConversationPrompt: schema.verdicts.nextConversationPrompt,
+      // TTS narration (optional · null when the cron hasn't generated
+      // audio yet, when the verdict is solo_free / Python-summary-only,
+      // or when OpenAI was unreachable at generation time).
+      ttsAudioUrl: schema.verdicts.ttsAudioUrl,
     })
     .from(schema.verdicts)
     .where(eq(schema.verdicts.decisionId, id))
@@ -142,7 +146,14 @@ export async function GET(req: Request) {
         unseals_at: decision.unsealsAt,
       },
       participants,
-      verdict: verdictRows[0],
+      verdict: {
+        ...verdictRows[0],
+        // The HTML reads snake_case keys; mirror them so both work.
+        // Tolerate both shapes long-term · don't break clients in either case.
+        synthesis_text: verdictRows[0].synthesisText,
+        next_conversation_prompt: verdictRows[0].nextConversationPrompt,
+        tts_audio_url: verdictRows[0].ttsAudioUrl,
+      },
       votes,
     },
     { status: 200, headers: { 'cache-control': 'private, no-store' } }

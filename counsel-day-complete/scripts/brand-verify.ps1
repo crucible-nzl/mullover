@@ -69,14 +69,19 @@ $allFiles = if (Test-Path -PathType Leaf $root) {
 } else {
   Get-ChildItem -Path $root -Recurse -Include *.html, *.css `
     | Where-Object {
-        $_.FullName -notlike '*\fonts\*' -and
-        $_.FullName -notlike '*\admin*'  -and
-        $_.FullName -notlike '*og-image-generator*' -and
-        $_.FullName -notlike '*\node_modules\*' -and
-        $_.FullName -notlike '*\dist\*' -and
-        $_.FullName -notlike '*\.git\*' -and
-        $_.FullName -notlike '*\ops\*' -and
-        $_.FullName -notlike '*\partials\*' -and
+        # Normalise path separators so the excludes work on both
+        # Windows (\) and Linux (/) · the latter is what the GitHub
+        # Actions runner uses, and the previous Windows-only patterns
+        # let partials/ and ops/ leak into the scope on CI.
+        $p = $_.FullName.Replace('\','/')
+        $p -notlike '*/fonts/*' -and
+        $p -notlike '*/admin*'  -and
+        $p -notlike '*og-image-generator*' -and
+        $p -notlike '*/node_modules/*' -and
+        $p -notlike '*/dist/*' -and
+        $p -notlike '*/.git/*' -and
+        $p -notlike '*/ops/*' -and
+        $p -notlike '*/partials/*' -and
         $_.Name -ne 'homepage.html'
       }
 }

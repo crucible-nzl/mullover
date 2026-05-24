@@ -21,6 +21,12 @@ SNIPPET_PATH = os.path.join(ROOT, 'ops', 'cd-head-snippet.html')
 EXCLUDE_FILES = {'og-image-generator.html', 'homepage.html'}
 EXCLUDE_DIRS = {'scripts', 'ops'}
 
+# Admin surface is a carve-out per docs/BRAND.md and project_admin_stack.md ·
+# no external scripts, no GA4, no GTM. Brand-verify Check 14 enforces this.
+# Any HTML file starting with 'admin' is treated as admin and skipped.
+def is_admin_page(filename):
+    return filename.lower().startswith('admin')
+
 GTM_ID = 'GTM-PFFSDN3M'
 GA4_ID = 'G-SX20BZZP59'
 
@@ -88,6 +94,8 @@ def main():
             if fn in EXCLUDE_FILES:
                 continue
             if not fn.endswith('.html'):
+                continue
+            if is_admin_page(fn):
                 continue
             full = os.path.join(d, fn)
             r = inject_one(full, snippet)

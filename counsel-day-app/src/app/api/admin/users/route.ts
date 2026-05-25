@@ -65,6 +65,9 @@ export async function GET(req: Request) {
     deleted_at: string | null;
     decision_count: string;
     last_active_at: string | null;
+    comp_unlimited: boolean;
+    comp_reason: string | null;
+    comp_granted_at: string | null;
   };
   const rows = await db.execute<Row>(sql`
     SELECT u.id::text AS id,
@@ -75,6 +78,9 @@ export async function GET(req: Request) {
            (u.email_verified_at IS NOT NULL) AS email_verified,
            u.created_at::text AS created_at,
            u.deleted_at::text AS deleted_at,
+           u.comp_unlimited,
+           u.comp_reason,
+           u.comp_granted_at::text AS comp_granted_at,
            COALESCE((SELECT count(*) FROM decisions d WHERE d.owner_user_id = u.id), 0)::text AS decision_count,
            (SELECT MAX(s.last_active_at)::text FROM sessions s WHERE s.user_id = u.id) AS last_active_at
     FROM users u
@@ -108,6 +114,9 @@ export async function GET(req: Request) {
         deleted_at: r.deleted_at,
         decision_count: Number(r.decision_count),
         last_active_at: r.last_active_at,
+        comp_unlimited: r.comp_unlimited,
+        comp_reason: r.comp_reason,
+        comp_granted_at: r.comp_granted_at,
       })),
     },
     { headers: { 'cache-control': 'private, no-store' } }
@@ -116,7 +125,8 @@ export async function GET(req: Request) {
 
 const patchSchema = z.object({
   user_id: z.string().uuid(),
-  action: z.enum(['promote', 'demote', 'soft_delete', 'restore', 'reset_password', 'force_signout']),
+  action: z.enum(['promote', 'demote', 'soft_delete', 'restore', 'reset_password', 'force_signout', 'comp_grant', 'comp_revoke']),
+  reason: z.string().trim().min(1).max(500).optional(), // required for comp_grant
 });
 
 export async function PATCH(req: Request) {
@@ -135,7 +145,7 @@ export async function PATCH(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ ok: false, message: 'user_id (uuid) and action are required.' }, { status: 422 });
   }
-  const { user_id, action } = parsed.data;
+  const { user_id, action, reason } = parsed.data;
 
   // Lockout protection · the acting admin cannot demote or soft-delete
   // themselves. They can still promote others and restore others; if
@@ -146,7 +156,14 @@ export async function PATCH(req: Request) {
 
   // Verify the target exists
   const target = await db
-    .select({ id: schema.users.id, email: schema.users.email, isAdmin: schema.users.isAdmin, deletedAt: schema.users.deletedAt })
+    .select({
+      id: schema.users.id,
+      email: schema.users.email,
+      firstName: schema.users.firstName,
+      isAdmin: schema.users.isAdmin,
+      deletedAt: schema.users.deletedAt,
+      compUnlimited: schema.users.compUnlimited,
+    })
     .from(schema.users)
     .where(eq(schema.users.id, user_id))
     .limit(1);
@@ -188,6 +205,59 @@ export async function PATCH(req: Request) {
       textContent: `An admin triggered a password reset on your Counsel.day account.\n\nFollow this link within one hour to set a new password:\n${resetUrl}\n\nIf you did not expect this, reply to this email · we will investigate.\n\n· Counsel.day`,
       htmlContent: `<p>An admin triggered a password reset on your Counsel.day account.</p><p><a href="${resetUrl}" style="color: #722F37;">Set a new password (link valid for one hour)</a></p><p style="color: #6b7a90; font-size: 13px;">If you did not expect this, reply to this email · we will investigate.</p>`,
     }).catch(() => { /* email send failure is non-fatal; audit-log captures the trigger */ });
+  } else if (action === 'comp_grant') {
+    if (!reason) {
+      return NextResponse.json({ ok: false, message: 'reason is required when granting a comp.' }, { status: 422 });
+    }
+    if (t.compUnlimited) {
+      return NextResponse.json({ ok: false, message: `${t.email} already has comp_unlimited.` }, { status: 409 });
+    }
+    await db.update(schema.users)
+      .set({
+        compUnlimited: true,
+        compReason: reason,
+        compGrantedAt: new Date(),
+        compGrantedBy: gate.userId,
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.users.id, user_id));
+    // Notify the user that the operator has flipped the flag.
+    const { sendTransactional } = await import('@/lib/email');
+    const greeting = t.firstName ? `Hi ${t.firstName},` : 'Hi,';
+    await sendTransactional({
+      to: { email: t.email, name: t.firstName ?? undefined },
+      subject: 'Counsel.day · all your decisions are on the house',
+      textContent:
+`${greeting}
+
+The Counsel.day team has comped your account · every decision you file from now on (Solo, Couple, Family · any tier, any duration) is included at no charge. You will not see a Stripe checkout page.
+
+Reason: ${reason}
+
+This continues until we revoke it. If you have questions, reply to this email.
+
+· Counsel.day`,
+      htmlContent:
+`<p>${greeting}</p>
+<p>The Counsel.day team has comped your account &middot; every decision you file from now on (Solo, Couple, Family &middot; any tier, any duration) is included at no charge. You will not see a Stripe checkout page.</p>
+<p style="font-family: ui-monospace, monospace; font-size: 13px; padding: 12px 14px; background: #f4e6e8; border-left: 3px solid #722F37;">Reason: ${reason}</p>
+<p>This continues until we revoke it. If you have questions, reply to this email.</p>
+<p>&middot; Counsel.day</p>`,
+    }).catch(() => { /* audit captures the grant; email failure is non-fatal */ });
+  } else if (action === 'comp_revoke') {
+    if (!t.compUnlimited) {
+      return NextResponse.json({ ok: false, message: `${t.email} does not have comp_unlimited.` }, { status: 409 });
+    }
+    await db.update(schema.users)
+      .set({
+        compUnlimited: false,
+        compReason: null,
+        compGrantedAt: null,
+        compGrantedBy: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.users.id, user_id));
+    // No revoke email · the user can see plan state in /account.
   }
 
   await db.insert(schema.auditLog).values({
@@ -195,7 +265,13 @@ export async function PATCH(req: Request) {
     action: 'admin.user.' + action,
     targetType: 'user',
     targetId: user_id,
-    metadata: { target_email: t.email, prior_is_admin: t.isAdmin, prior_deleted_at: t.deletedAt },
+    metadata: {
+      target_email: t.email,
+      prior_is_admin: t.isAdmin,
+      prior_deleted_at: t.deletedAt,
+      prior_comp_unlimited: t.compUnlimited,
+      ...(action === 'comp_grant' || action === 'comp_revoke' ? { reason: reason ?? null } : {}),
+    },
   }).catch(() => {});
 
   return NextResponse.json({ ok: true, message: 'Action applied: ' + action }, { status: 200 });

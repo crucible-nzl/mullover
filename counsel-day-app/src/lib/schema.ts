@@ -40,6 +40,12 @@ export const users = pgTable(
     currentPlan: text('current_plan').notNull().default('free'),
     stripeCustomerId: text('stripe_customer_id'),
     isAdmin: boolean('is_admin').notNull().default(false),
+    // Comp flag · operator-granted "unlimited free decisions". Set by
+    // an admin via /admin-users PATCH comp_grant. See migration 0023.
+    compUnlimited: boolean('comp_unlimited').notNull().default(false),
+    compReason: text('comp_reason'),
+    compGrantedAt: timestamp('comp_granted_at', { withTimezone: true }),
+    compGrantedBy: uuid('comp_granted_by'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     deletedAt: timestamp('deleted_at', { withTimezone: true }),

@@ -37,6 +37,7 @@ import { z } from 'zod';
 import { db, schema } from '@/lib/db';
 import { readSession, readSessionCookie } from '@/lib/sessions';
 import { newToken } from '@/lib/tokens';
+import { sendInvitesForDecision } from '@/lib/invites';
 import { eq, sql } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
@@ -139,9 +140,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, message: `Tier ${tier} accepts at most ${maxParticipants(tier)} participants.` }, { status: 422 });
   }
 
-  // ---- look up owner display name ----
+  // ---- look up owner display name + comp flag ----
   const userRows = await db
-    .select({ firstName: schema.users.firstName, email: schema.users.email })
+    .select({
+      firstName: schema.users.firstName,
+      email: schema.users.email,
+      compUnlimited: schema.users.compUnlimited,
+    })
     .from(schema.users)
     .where(eq(schema.users.id, session.userId))
     .limit(1);
@@ -149,18 +154,28 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, message: 'Account not found.' }, { status: 404 });
   }
   const ownerName = input.owner_display_name ?? userRows[0].firstName ?? 'Owner';
+  const isComped = userRows[0].compUnlimited === true;
 
   // ---- payment classification ----
-  const isFree = tier === 'solo_free';
+  // A comped user skips the payment gate · their paid-tier decisions
+  // go live immediately (Solo) or wait for invites (Couple/Family).
+  // Audit-logged as decision.comped so cohort reports can exclude.
+  const isFree = tier === 'solo_free' || isComped;
   const isPaid = !isFree;
 
   // ---- status on insert ----
-  // FREE: active immediately. PAID: pending_payment until webhook clears.
-  // Note: we still create the participant rows + invite tokens up front,
-  // but the email send is deferred until the webhook fires for paid tiers.
-  const initialStatus = isFree ? 'active' : 'pending_payment';
+  // FREE (incl. comp): active for Solo · pending_invites for couple/family
+  //                    with outstanding partner invites.
+  // PAID (non-comped):   pending_payment until webhook clears.
+  const initialStatus = isFree
+    ? (tier === 'solo_free' || tier === 'solo_paid' || partners.length === 0)
+      ? 'active'
+      : 'pending_invites'
+    : 'pending_payment';
   const startsAt = isFree ? new Date() : null;
-  const unsealsAt = isFree ? new Date(Date.now() + input.duration_days * 24 * 60 * 60 * 1000) : null;
+  const unsealsAt = isFree && initialStatus === 'active'
+    ? new Date(Date.now() + input.duration_days * 24 * 60 * 60 * 1000)
+    : null;
 
   // ---- insert decision ----
   const insertedDecision = await db
@@ -206,9 +221,11 @@ export async function POST(req: Request) {
     await persistContacts(session.userId, participantRows.slice(1), tier);
   }
 
-  // ---- audit + log ----
+  // ---- audit · use a different action for comped decisions so cohort
+  //         reports can exclude them. Otherwise the row would look
+  //         identical to a normally-paid decision.
   await db.insert(schema.auditLog).values({
-    action: 'decision.created',
+    action: isComped && tier !== 'solo_free' ? 'decision.comped' : 'decision.created',
     actorUserId: session.userId,
     targetType: 'decision',
     targetId: decisionId,
@@ -217,14 +234,22 @@ export async function POST(req: Request) {
       upgraded_from: upgradedFrom,
       participants: totalParticipants,
       status: initialStatus,
+      comped: isComped && tier !== 'solo_free',
     },
   }).catch(() => { /* never fail compose on audit error */ });
 
+  // ---- send invites immediately for COMPED couple/family decisions.
+  //      Non-comped paid decisions defer invite emails until the Stripe
+  //      webhook fires; comped decisions never see Stripe, so they
+  //      need to fire now.
+  if (isComped && partners.length > 0) {
+    void sendInvitesForDecision(decisionId, input.question, session.userId, 'comped').catch(() => {});
+  }
+
   // ---- response ----
-  // Free: success, redirect to /decisions.
-  // Paid: success + checkout_required true; the frontend follows up with
-  // POST /api/checkout/create to get the Stripe URL. The webhook is what
-  // actually moves status forward and fires invites.
+  // Free / comped: success, redirect to /decisions.
+  // Paid (non-comped): success + checkout_required true; the frontend
+  // follows up with POST /api/checkout/create to get the Stripe URL.
   return NextResponse.json(
     {
       ok: true,
@@ -233,6 +258,7 @@ export async function POST(req: Request) {
       checkout_required: isPaid,
       status: initialStatus,
       upgraded_from: upgradedFrom,
+      comped: isComped && tier !== 'solo_free',
     },
     { status: 200 }
   );

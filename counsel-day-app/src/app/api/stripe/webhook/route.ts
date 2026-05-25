@@ -17,8 +17,8 @@
 import { NextResponse } from 'next/server';
 import { db, schema } from '@/lib/db';
 import { getStripe } from '@/lib/stripe';
-import { sendTransactional, buildInviteEmail } from '@/lib/email';
-import { eq, and, isNotNull, isNull, sql } from 'drizzle-orm';
+import { sendInvitesForDecision } from '@/lib/invites';
+import { eq, and, isNull, sql } from 'drizzle-orm';
 import type Stripe from 'stripe';
 
 const BASE = process.env.APP_BASE_URL ?? 'https://counsel.day';
@@ -182,7 +182,7 @@ export async function POST(req: Request) {
             // we landed at 'active' (no partners to invite) or if the
             // status was already past pending_payment (re-delivery).
             if (d.status === 'pending_payment' && nextStatus === 'pending_invites') {
-              await sendDeferredInvites(decisionId, d.question, d.ownerUserId);
+              await sendInvitesForDecision(decisionId, d.question, d.ownerUserId, 'after_payment');
             }
           }
         }
@@ -271,77 +271,7 @@ function extractCheckoutBreakdown(s: Stripe.Checkout.Session) {
   };
 }
 
-/**
- * Send the previously-held invite emails for a freshly-paid decision.
- *
- * Called from `checkout.session.completed` exactly when a decision
- * transitions from `pending_payment` → `pending_invites`. This is the
- * ONLY code path that emails invites for paid tiers · the compose
- * endpoint deliberately defers email sending until payment clears.
- *
- * Best-effort: a Brevo failure is logged but does not throw, so the
- * webhook still returns 200 and Stripe doesn't retry. Operators can
- * trigger a resend via the admin panel.
- */
-async function sendDeferredInvites(decisionId: string, question: string, ownerUserId: string) {
-  // Owner's display name for the email greeting
-  const ownerRows = await db
-    .select({ firstName: schema.users.firstName, email: schema.users.email })
-    .from(schema.users)
-    .where(eq(schema.users.id, ownerUserId))
-    .limit(1);
-  const ownerName = ownerRows[0]?.firstName ?? 'Someone';
-
-  // All participants that still need an email + have a token
-  const invites = await db
-    .select({
-      id: schema.participants.id,
-      displayName: schema.participants.displayName,
-      inviteEmail: schema.participants.inviteEmail,
-      inviteToken: schema.participants.inviteToken,
-    })
-    .from(schema.participants)
-    .where(and(
-      eq(schema.participants.decisionId, decisionId),
-      isNotNull(schema.participants.inviteEmail),
-      isNotNull(schema.participants.inviteToken),
-      isNull(schema.participants.inviteAcceptedAt)
-    ));
-
-  if (invites.length === 0) return;
-
-  const sends = invites.map(async (p) => {
-    const inviteUrl = `${BASE}/invite?token=${encodeURIComponent(p.inviteToken as string)}`;
-    const { text, html } = buildInviteEmail({
-      ownerName,
-      displayName: p.displayName,
-      question,
-      inviteUrl,
-    });
-    try {
-      await sendTransactional({
-        to: { email: p.inviteEmail as string, name: p.displayName },
-        subject: `${ownerName} invited you to a Counsel.day decision`,
-        textContent: text,
-        htmlContent: html,
-      });
-      await db.insert(schema.auditLog).values({
-        action: 'invite.sent',
-        targetType: 'participant',
-        targetId: p.id,
-        metadata: { decision_id: decisionId, after_payment: true },
-      }).catch(() => {});
-    } catch (err) {
-      console.error('[stripe webhook] invite email failed', p.inviteEmail, (err as Error).message);
-      await db.insert(schema.auditLog).values({
-        action: 'invite.send_failed',
-        targetType: 'participant',
-        targetId: p.id,
-        metadata: { decision_id: decisionId, error: (err as Error).message },
-      }).catch(() => {});
-    }
-  });
-
-  await Promise.allSettled(sends);
-}
+// sendDeferredInvites moved to src/lib/invites.ts as sendInvitesForDecision
+// so /api/compose can also invoke it for comped decisions that skip the
+// payment gate entirely.
 

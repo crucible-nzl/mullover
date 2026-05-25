@@ -67,9 +67,9 @@ export async function POST(req: Request) {
   }
   const participantId = participantRows[0].id;
 
-  // Check decision is active (not pending, not sealed, not completed)
+  // Check decision is active (not pending, not sealed, not completed, not paused)
   const decisionRows = await db
-    .select({ status: schema.decisions.status, unsealsAt: schema.decisions.unsealsAt })
+    .select({ status: schema.decisions.status, unsealsAt: schema.decisions.unsealsAt, pausedUntil: schema.decisions.pausedUntil })
     .from(schema.decisions)
     .where(eq(schema.decisions.id, decision_id))
     .limit(1);
@@ -80,6 +80,13 @@ export async function POST(req: Request) {
   if (decision.status !== 'active') {
     return NextResponse.json(
       { ok: false, message: `Decision is not accepting votes (status: ${decision.status}).` },
+      { status: 409 }
+    );
+  }
+  if (decision.pausedUntil && decision.pausedUntil.getTime() > Date.now()) {
+    const resumes = decision.pausedUntil.toISOString().slice(0, 10);
+    return NextResponse.json(
+      { ok: false, message: `This decision is paused · resumes ${resumes}.` },
       { status: 409 }
     );
   }

@@ -103,13 +103,15 @@
       <th>Email</th>
       <th>Name</th>
       <th>Plan</th>
-      <th>Decisions</th>
+      <th class="num">Decisions</th>
+      <th class="num">Spend</th>
+      <th>MFA</th>
       <th>Last active</th>
       <th>Signed up</th>
       <th>Status</th>
       <th>Actions</th>
     </tr></thead>
-    <tbody id="u-rows"><tr><td colspan="8" style="padding: 18px; color: var(--muted);">Loading…</td></tr></tbody>
+    <tbody id="u-rows"><tr><td colspan="10" style="padding: 18px; color: var(--muted);">Loading…</td></tr></tbody>
   </table>
 
   <div class="pager">
@@ -182,26 +184,37 @@
           }
           actions.push('<button data-act="reset_password" data-id="' + u.id + '" data-email="' + escapeHtml(u.email) + '">Reset pw</button>');
           actions.push('<button data-act="force_signout" data-id="' + u.id + '" data-email="' + escapeHtml(u.email) + '">Force sign-out</button>');
+          actions.push('<button data-drill="profile" data-id="' + u.id + '" data-email="' + escapeHtml(u.email) + '">Profile</button>');
           actions.push('<button data-drill="activity" data-id="' + u.id + '" data-email="' + escapeHtml(u.email) + '">Activity</button>');
           actions.push('<button data-drill="decisions" data-id="' + u.id + '" data-email="' + escapeHtml(u.email) + '">Decisions</button>');
+          if (u.stripe_customer_id) {
+            actions.push('<a href="https://dashboard.stripe.com/customers/' + encodeURIComponent(u.stripe_customer_id) + '" target="_blank" rel="noopener">Open in Stripe ↗</a>');
+          }
           if (!u.deleted_at) {
             actions.push('<button class="danger" data-act="soft_delete" data-id="' + u.id + '" data-email="' + escapeHtml(u.email) + '">Soft-delete</button>');
           } else {
             actions.push('<button data-act="restore" data-id="' + u.id + '" data-email="' + escapeHtml(u.email) + '">Restore</button>');
           }
 
+          var spend = u.spend_cents > 0 ? ('$' + (u.spend_cents / 100).toFixed(2) + ' USD') : '·';
+          var mfaCell = u.mfa_enabled
+            ? '<span class="pill" style="background:#1e7e34; color:#fff;" title="Enabled ' + fmtTs(u.mfa_last_used_at) + '">ON</span>'
+            : '<span class="pill" style="background:#eaeaea; color:#6b7280;">off</span>';
+
           return '<tr>' +
             '<td class="email">' + escapeHtml(u.email) + '</td>' +
             '<td class="name">' + escapeHtml(u.first_name || '·') + '</td>' +
             '<td><span class="pill">' + escapeHtml(u.current_plan || 'free') + '</span></td>' +
             '<td class="num">' + u.decision_count + '</td>' +
+            '<td class="num" style="font-family: var(--font-mono); font-size: 12px;">' + spend + '</td>' +
+            '<td>' + mfaCell + '</td>' +
             '<td class="when">' + fmtTs(u.last_active_at) + '</td>' +
             '<td class="when">' + fmtTs(u.created_at) + '</td>' +
             '<td>' + pills.join(' ') + '</td>' +
             '<td class="actions"><div class="actions-menu"><button type="button" class="actions-trigger" data-menu-trigger>Actions ▾</button><div class="menu">' + actions.join('') + '</div></div></td>' +
           '</tr>';
         }).join('');
-        $('u-rows').innerHTML = rows || '<tr><td colspan="8" style="padding: 18px; color: var(--muted);">No users match.</td></tr>';
+        $('u-rows').innerHTML = rows || '<tr><td colspan="10" style="padding: 18px; color: var(--muted);">No users match.</td></tr>';
 
         var from = d.total === 0 ? 0 : state.offset + 1;
         var to = Math.min(state.offset + state.limit, d.total);
@@ -287,19 +300,79 @@
     overlay.style.cssText = 'position: fixed; inset: 0; background: rgba(11,26,43,0.6); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 32px;';
     var panel = document.createElement('div');
     panel.style.cssText = 'background: var(--surface); max-width: 900px; width: 100%; max-height: 80vh; overflow-y: auto; padding: 22px 26px; border: 1px solid var(--border);';
-    panel.innerHTML = '<div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px;"><h2 style="font-family: var(--font-ui); font-size: 16px; font-weight: 600; color: var(--ink); margin: 0;">' + (kind === 'activity' ? 'Activity log' : 'Decisions') + ' · ' + escapeHtml(email) + '</h2><button type="button" id="drill-close" style="background: none; border: 1px solid var(--border); padding: 4px 10px; cursor: pointer; font-family: var(--font-mono); font-size: 11px;">Close ✕</button></div><div id="drill-body" style="font-family: var(--font-mono); font-size: 12px; color: var(--ink-soft);">Loading…</div>';
+    var heading = kind === 'activity' ? 'Activity log' : (kind === 'profile' ? 'Profile' : 'Decisions');
+    panel.innerHTML = '<div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px;"><h2 style="font-family: var(--font-ui); font-size: 16px; font-weight: 600; color: var(--ink); margin: 0;">' + heading + ' · ' + escapeHtml(email) + '</h2><button type="button" id="drill-close" style="background: none; border: 1px solid var(--border); padding: 4px 10px; cursor: pointer; font-family: var(--font-mono); font-size: 11px;">Close ✕</button></div><div id="drill-body" style="font-family: var(--font-mono); font-size: 12px; color: var(--ink-soft);">Loading…</div>';
     overlay.appendChild(panel);
     document.body.appendChild(overlay);
     document.getElementById('drill-close').addEventListener('click', function () { document.body.removeChild(overlay); });
     overlay.addEventListener('click', function (e) { if (e.target === overlay) document.body.removeChild(overlay); });
 
-    var endpoint = kind === 'activity' ? '/api/admin/users/activity?user_id=' + userId + '&limit=200' : '/api/admin/users/decisions?user_id=' + userId;
+    var endpoint = kind === 'activity'
+      ? '/api/admin/users/activity?user_id=' + userId + '&limit=200'
+      : kind === 'profile'
+        ? '/api/admin/users/profile?id=' + userId
+        : '/api/admin/users/decisions?user_id=' + userId;
     fetch(endpoint, { credentials: 'include' })
       .then(function (r) { return r.json(); })
       .then(function (d) {
         var body = document.getElementById('drill-body');
         if (!d || !d.ok) { body.textContent = 'Failed: ' + ((d && d.message) || 'unknown'); return; }
-        if (kind === 'activity') {
+        if (kind === 'profile') {
+          var p = d.profile, s = d.stats;
+          var spend = s.spend_cents > 0 ? ('$' + (s.spend_cents / 100).toFixed(2) + ' USD') : '·';
+          var stripeLink = p.stripe_customer_id
+            ? '<a href="https://dashboard.stripe.com/customers/' + encodeURIComponent(p.stripe_customer_id) + '" target="_blank" rel="noopener" style="color: var(--accent);">' + escapeHtml(p.stripe_customer_id) + ' ↗</a>'
+            : '·';
+          var compBlock = p.comp_unlimited
+            ? '<div style="margin: 12px 0; padding: 10px 12px; background: #f4e6e8; border-left: 3px solid #722F37;"><strong>COMPED</strong> · ' + escapeHtml(p.comp_reason || '') + '<br><span style="color: var(--muted);">Granted ' + fmtTs(p.comp_granted_at) + (p.comp_granted_by_email ? ' by ' + escapeHtml(p.comp_granted_by_email) : '') + '</span></div>'
+            : '';
+          var rowHtml = function (k, v) {
+            return '<div style="display: flex; gap: 16px; padding: 5px 0; border-bottom: 1px dotted var(--rule);"><span style="min-width: 180px; color: var(--muted);">' + k + '</span><span style="color: var(--ink); word-break: break-all;">' + v + '</span></div>';
+          };
+          var profHtml = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 22px;">' +
+            '<div><h3 style="font-family: var(--font-ui); font-size: 13px; margin: 0 0 10px; color: var(--ink);">Identity</h3>' +
+              rowHtml('Email', escapeHtml(p.email)) +
+              rowHtml('First name', escapeHtml(p.first_name || '·')) +
+              rowHtml('Intent', escapeHtml(p.decision_kind_intent || '·')) +
+              rowHtml('Plan', escapeHtml(p.current_plan || 'free')) +
+              rowHtml('Admin', p.is_admin ? 'yes' : 'no') +
+              rowHtml('Email verified', p.email_verified_at ? fmtTs(p.email_verified_at) : 'NO') +
+              rowHtml('Signed up', fmtTs(p.created_at)) +
+              rowHtml('Last active', fmtTs(s.last_active_at)) +
+              rowHtml('Deleted', p.deleted_at ? fmtTs(p.deleted_at) : '·') +
+            '</div>' +
+            '<div><h3 style="font-family: var(--font-ui); font-size: 13px; margin: 0 0 10px; color: var(--ink);">Security · Billing</h3>' +
+              rowHtml('MFA enabled', p.mfa_enabled ? ('yes · ' + fmtTs(p.mfa_enabled_at)) : 'no') +
+              rowHtml('MFA last used', fmtTs(p.mfa_last_used_at)) +
+              rowHtml('Stripe customer', stripeLink) +
+              rowHtml('Lifetime decisions', s.decision_count) +
+              rowHtml('Lifetime spend', spend) +
+            '</div></div>' +
+            compBlock +
+            '<h3 style="font-family: var(--font-ui); font-size: 13px; margin: 18px 0 8px; color: var(--ink);">Recent decisions · ' + d.decisions.length + '</h3>' +
+            (d.decisions.length === 0 ? '<em>None.</em>' :
+              '<table style="width: 100%; border-collapse: collapse; font-size: 11px;"><thead><tr><th style="text-align: left; padding: 5px 6px; border-bottom: 1px solid var(--rule);">Question</th><th style="padding: 5px 6px; border-bottom: 1px solid var(--rule);">Tier</th><th style="padding: 5px 6px; border-bottom: 1px solid var(--rule);">Status</th><th style="padding: 5px 6px; border-bottom: 1px solid var(--rule);">Amount</th><th style="padding: 5px 6px; border-bottom: 1px solid var(--rule);">Filed</th></tr></thead><tbody>' +
+              d.decisions.map(function (dec) {
+                var amt = dec.amount_paid_cents > 0 ? '$' + (dec.amount_paid_cents / 100).toFixed(2) : '·';
+                return '<tr><td style="padding: 4px 6px; border-bottom: 1px dotted var(--rule); max-width: 320px;">' + escapeHtml(dec.question) + '</td><td style="padding: 4px 6px; border-bottom: 1px dotted var(--rule); color: var(--accent);">' + escapeHtml(dec.tier) + '</td><td style="padding: 4px 6px; border-bottom: 1px dotted var(--rule);">' + escapeHtml(dec.status) + '</td><td style="padding: 4px 6px; border-bottom: 1px dotted var(--rule); text-align: right;">' + amt + '</td><td style="padding: 4px 6px; border-bottom: 1px dotted var(--rule); color: var(--muted);">' + new Date(dec.created_at).toLocaleDateString() + '</td></tr>';
+              }).join('') + '</tbody></table>'
+            ) +
+            '<h3 style="font-family: var(--font-ui); font-size: 13px; margin: 18px 0 8px; color: var(--ink);">Active sessions · ' + d.sessions.length + '</h3>' +
+            (d.sessions.length === 0 ? '<em>None.</em>' :
+              '<table style="width: 100%; border-collapse: collapse; font-size: 11px;"><thead><tr><th style="text-align: left; padding: 5px 6px; border-bottom: 1px solid var(--rule);">UA</th><th style="padding: 5px 6px; border-bottom: 1px solid var(--rule);">IP hash</th><th style="padding: 5px 6px; border-bottom: 1px solid var(--rule);">Last active</th><th style="padding: 5px 6px; border-bottom: 1px solid var(--rule);">MFA</th></tr></thead><tbody>' +
+              d.sessions.map(function (sess) {
+                return '<tr><td style="padding: 4px 6px; border-bottom: 1px dotted var(--rule); max-width: 280px; word-break: break-all;">' + escapeHtml((sess.user_agent || '·').slice(0, 90)) + '</td><td style="padding: 4px 6px; border-bottom: 1px dotted var(--rule); color: var(--muted);">' + escapeHtml((sess.ip_hash || '·').slice(0, 12)) + '</td><td style="padding: 4px 6px; border-bottom: 1px dotted var(--rule);">' + fmtTs(sess.last_active_at) + '</td><td style="padding: 4px 6px; border-bottom: 1px dotted var(--rule); text-align: center;">' + (sess.mfa_verified_at ? '✓' : '·') + '</td></tr>';
+              }).join('') + '</tbody></table>'
+            ) +
+            '<h3 style="font-family: var(--font-ui); font-size: 13px; margin: 18px 0 8px; color: var(--ink);">Recent audit · ' + d.audit.length + '</h3>' +
+            (d.audit.length === 0 ? '<em>None.</em>' :
+              '<table style="width: 100%; border-collapse: collapse; font-size: 11px;"><thead><tr><th style="text-align: left; padding: 5px 6px; border-bottom: 1px solid var(--rule);">When</th><th style="padding: 5px 6px; border-bottom: 1px solid var(--rule);">Direction</th><th style="padding: 5px 6px; border-bottom: 1px solid var(--rule);">Action</th><th style="padding: 5px 6px; border-bottom: 1px solid var(--rule);">Actor</th></tr></thead><tbody>' +
+              d.audit.map(function (a) {
+                return '<tr><td style="padding: 4px 6px; border-bottom: 1px dotted var(--rule); white-space: nowrap; color: var(--muted);">' + new Date(a.created_at).toLocaleString() + '</td><td style="padding: 4px 6px; border-bottom: 1px dotted var(--rule); color: ' + (a.direction === 'actor' ? 'var(--accent)' : 'var(--ink-soft)') + ';">' + a.direction + '</td><td style="padding: 4px 6px; border-bottom: 1px dotted var(--rule); color: var(--accent);">' + escapeHtml(a.action) + '</td><td style="padding: 4px 6px; border-bottom: 1px dotted var(--rule);">' + escapeHtml(a.actor_email || '·') + '</td></tr>';
+              }).join('') + '</tbody></table>'
+            );
+          body.innerHTML = profHtml;
+        } else if (kind === 'activity') {
           if (!d.events.length) { body.innerHTML = '<em>No audit-log entries for this user.</em>'; return; }
           var CATEGORY = {
             all:      function () { return true; },

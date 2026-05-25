@@ -91,8 +91,27 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   .note-field { margin: 0 0 28px; }
   .note-field-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin-bottom: 10px; display: flex; justify-content: space-between; }
   .note-field-label .right { color: var(--muted); letter-spacing: 0.12em; }
-  .note-field textarea { width: 100%; min-height: 132px; padding: 16px 18px; border: 1px solid var(--rule); background: var(--paper); font-family: var(--font-body); font-size: 16px; line-height: 1.55; color: var(--ink); resize: vertical; }
-  .note-field textarea:focus { outline: none; border-color: var(--wine); }
+  /* Mobile-first sizing · 16px font prevents iOS Safari zoom-on-focus.
+     Generous min-height on mobile (220px) so a paragraph fits without
+     scrolling; smaller on desktop where vertical space is cheaper. */
+  .note-field textarea {
+    width: 100%;
+    min-height: 220px;
+    padding: 18px 18px;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--ink);
+    resize: vertical;
+    box-sizing: border-box;
+    -webkit-appearance: none; /* prevent iOS inset shadow */
+  }
+  @media (min-width: 768px) {
+    .note-field textarea { min-height: 160px; padding: 16px 18px; line-height: 1.55; }
+  }
+  .note-field textarea:focus { outline: none; border-color: var(--wine); box-shadow: 0 0 0 2px var(--wine-soft); }
   .note-field textarea::placeholder { font-style: italic; color: var(--subtle); }
   .note-field .count { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--muted); margin-top: 8px; text-align: right; text-transform: uppercase; }
 

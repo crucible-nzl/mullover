@@ -342,7 +342,43 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div style="display: flex; gap: 12px; flex-wrap: wrap;">
         <button type="button" id="cd-owner-edit" class="btn btn-ghost" style="padding: 11px 22px; font-size: 14px;">Edit wording</button>
         <button type="button" id="cd-owner-reinvite" class="btn btn-ghost" style="padding: 11px 22px; font-size: 14px;">Resend invites</button>
+        <button type="button" id="cd-owner-pause" class="btn btn-ghost" style="padding: 11px 22px; font-size: 14px;">Pause for a few days</button>
         <button type="button" id="cd-owner-restart" class="btn-danger" style="padding: 11px 22px; font-size: 14px;">Restart this decision</button>
+        <button type="button" id="cd-owner-delete" class="btn-danger" style="padding: 11px 22px; font-size: 14px;">Delete this decision</button>
+      </div>
+
+      <!-- Pause panel · revealed by Pause button -->
+      <div id="cd-pause-panel" style="display: none; margin-top: 22px; padding: 18px 22px; background: var(--paper-deep, #fafafa); border-left: 3px solid var(--wine); max-width: 760px;">
+        <div style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine); margin-bottom: 10px;">PAUSE FOR A FEW DAYS</div>
+        <p style="font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: var(--ink-soft); margin: 0 0 12px;">Going on holiday or simply need a break? Pausing freezes nightly voting and extends the close date by the same number of days · the full voting window is preserved.</p>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <label for="cd-pause-days" style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);">PAUSE FOR</label>
+          <input id="cd-pause-days" type="number" min="1" max="90" value="14" style="font-family: var(--font-body); font-size: 16px; padding: 9px 10px; border: 1px solid var(--ink); width: 80px; text-align: right;">
+          <span style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);">DAYS</span>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
+          <button type="button" id="cd-pause-go" class="btn" style="padding: 10px 20px; font-size: 14px;">Pause this decision</button>
+          <button type="button" id="cd-pause-cancel" class="btn btn-ghost" style="padding: 10px 20px; font-size: 14px;">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Resume banner · shown when paused_until > now -->
+      <div id="cd-resume-banner" style="display: none; margin-top: 22px; padding: 16px 20px; background: var(--wine-soft); border-left: 3px solid var(--wine); max-width: 760px; font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: var(--ink);">
+        <div style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine); margin-bottom: 8px;">CURRENTLY PAUSED</div>
+        <p id="cd-resume-text" style="margin: 0 0 10px;">·</p>
+        <button type="button" id="cd-resume-go" class="btn btn-ghost" style="padding: 9px 18px; font-size: 13px;">Resume now</button>
+      </div>
+
+      <!-- Delete confirm · revealed by Delete button -->
+      <div id="cd-delete-panel" style="display: none; margin-top: 22px; padding: 18px 22px; background: #fdecea; border-left: 3px solid #c0392b; max-width: 760px;">
+        <div style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #c0392b; margin-bottom: 10px;">DELETE THIS DECISION</div>
+        <p style="font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: #6b1e16; margin: 0 0 12px;">This removes the decision from your account. If you paid for it, the record is preserved for refund processing (contact us). If it was free or unpaid, every trace is removed.</p>
+        <p style="font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: #6b1e16; margin: 0 0 12px;">Type <strong>DELETE</strong> below to confirm.</p>
+        <input id="cd-delete-confirm" type="text" autocomplete="off" style="font-family: var(--font-mono); font-size: 16px; padding: 9px 12px; border: 1px solid #c0392b; background: var(--paper); color: var(--ink); width: 100%; max-width: 220px; box-sizing: border-box;">
+        <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
+          <button type="button" id="cd-delete-go" class="btn-danger" style="padding: 10px 20px; font-size: 14px;">Delete permanently</button>
+          <button type="button" id="cd-delete-cancel" class="btn btn-ghost" style="padding: 10px 20px; font-size: 14px;">Cancel</button>
+        </div>
       </div>
 
       <!-- Edit form (revealed by Edit wording button) -->
@@ -465,14 +501,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     return { yes_no: 'Yes / No', strong_lean: 'Strong / Lean (4-band)', a_b: 'Option A / Option B' }[f] || f;
   }
   function tierLabel(t) {
-    return ({ solo_free: 'Solo · free', solo_paid: 'Solo · $9.99 USD', couple: 'Couple · $25 USD', family: 'Family · $40 USD' })[t] || t;
+    return ({ solo_free: 'Solo · free', solo_paid: 'Solo · $9.99 USD', couple: 'Couple · $15.99 USD', family: 'Family · $29.99 USD' })[t] || t;
   }
-  function statusPill(status, isUnsealed) {
+  function statusPill(status, isUnsealed, isPaused) {
     if (status === 'pending_invites') return { cls: 'awaiting', txt: 'Awaiting invites' };
     if (status === 'cancelled')       return { cls: 'returned', txt: 'Cancelled' };
     if (status === 'refunded')        return { cls: 'returned', txt: 'Refunded' };
     if (status === 'verdict_generating') return { cls: 'sealed', txt: 'Generating verdict' };
     if (status === 'completed' || isUnsealed) return { cls: 'reveal', txt: 'Verdict ready' };
+    if (isPaused) return { cls: 'awaiting', txt: 'Paused' };
     return { cls: 'sealed', txt: 'Sealed · running' };
   }
 
@@ -499,7 +536,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       }
 
       // ---- envelope ----
-      var pill = statusPill(d.status, d.is_unsealed);
+      var pill = statusPill(d.status, d.is_unsealed, d.is_paused);
       var pillEl = document.getElementById('cd-env-status');
       pillEl.className = 'status-pill ' + pill.cls;
       pillEl.textContent = pill.txt;
@@ -602,7 +639,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       }
 
       // ---- CTA card ----
-      if (d.status === 'pending_invites') {
+      if (d.is_paused) {
+        txt('cd-cta-label', 'PAUSED · RESUMES ' + fmtStamp(d.paused_until));
+        txt('cd-cta-blurb', 'Nightly voting is paused. The close date has been extended by the same number of days. Resume early from the owner controls below.');
+        var ctaP = document.querySelector('#cd-cta-card .right .btn'); if (ctaP) { ctaP.textContent = 'Resume early'; ctaP.setAttribute('href', '#cd-resume-banner'); }
+      } else if (d.status === 'pending_invites') {
         txt('cd-cta-label', 'AWAITING ' + partnerNames.length + ' INVITE' + (partnerNames.length === 1 ? '' : 'S'));
         txt('cd-cta-blurb', 'Each invitee receives an email with a one-time link. The decision becomes active when everyone has accepted.');
         var cta = document.querySelector('#cd-cta-card .right .btn'); if (cta) { cta.textContent = 'Resend invites'; cta.setAttribute('href', '#'); }
@@ -647,7 +688,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       txt('cd-spec-caption', 'SPECIMEN ONLY · NOT YOUR REAL VERDICT' + (d.unseals_at ? ' · REAL VERDICT OPENS ON ' + fmtStamp(d.unseals_at) : ''));
 
       // ---- meta panels ----
-      txt('cd-meta-status', d.is_unsealed ? 'Unsealed' : (d.status === 'pending_invites' ? 'Awaiting invites' : 'Currently sealed'));
+      txt('cd-meta-status', d.is_unsealed ? 'Unsealed' : (d.status === 'pending_invites' ? 'Awaiting invites' : (d.is_paused ? 'Paused · resumes ' + fmtStamp(d.paused_until) : 'Currently sealed')));
       txt('cd-meta-format', formatLabel(d.format));
       txt('cd-meta-duration', d.duration_days + ' days');
       txt('cd-meta-filed', fmtStamp(d.created_at));
@@ -673,6 +714,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       });
 
       // Owner-controls panel listens for this event (T7)
+      // Stitch participants onto d so the listener can find `me`.
+      d.participants = participants;
       document.dispatchEvent(new CustomEvent('cd:decision-loaded', { detail: { decision: d } }));
     })
     .catch(function (e) {
@@ -698,6 +741,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     // No editing once the verdict is generating / completed / cancelled / refunded
     if (['verdict_generating', 'completed', 'cancelled', 'refunded'].indexOf(d.status) !== -1) return;
     ownerSection.style.display = '';
+
+    // Paused state · show the resume banner with the resume date
+    if (d.is_paused && d.paused_until) {
+      var banner = document.getElementById('cd-resume-banner');
+      var txt = document.getElementById('cd-resume-text');
+      if (banner) banner.style.display = 'block';
+      if (txt) {
+        var resumes = new Date(d.paused_until);
+        var daysLeft = Math.max(1, Math.ceil((resumes.getTime() - Date.now()) / (24 * 60 * 60 * 1000)));
+        var resumesStr = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][resumes.getDay()] + ' ' +
+                         resumes.getDate() + ' ' +
+                         ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][resumes.getMonth()];
+        txt.textContent = 'Voting is paused for ' + daysLeft + ' more day' + (daysLeft === 1 ? '' : 's') +
+                          ' · resumes ' + resumesStr + '. The close date has been extended by the same amount.';
+      }
+    }
   });
 
   var msgEl = document.getElementById('cd-owner-msg');
@@ -778,6 +837,92 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       })
       .catch(function () { showMsg('error', 'Network error.'); });
   });
+
+  // Pause panel toggle
+  var pausePanel = document.getElementById('cd-pause-panel');
+  var pauseBtn = document.getElementById('cd-owner-pause');
+  if (pauseBtn) {
+    pauseBtn.addEventListener('click', function () {
+      pausePanel.style.display = pausePanel.style.display === 'none' ? 'block' : 'none';
+    });
+  }
+  var pauseCancel = document.getElementById('cd-pause-cancel');
+  if (pauseCancel) pauseCancel.addEventListener('click', function () { pausePanel.style.display = 'none'; });
+  var pauseGo = document.getElementById('cd-pause-go');
+  if (pauseGo) {
+    pauseGo.addEventListener('click', function () {
+      var daysInput = document.getElementById('cd-pause-days');
+      var days = parseInt(daysInput.value, 10);
+      if (!days || days < 1 || days > 90) { showMsg('error', 'Pick between 1 and 90 days.'); return; }
+      pauseGo.disabled = true; pauseGo.textContent = 'Pausing…';
+      fetch('/api/decision/pause', { method: 'POST', credentials: 'include', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ decision_id: decisionId, days: days }) })
+        .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+        .then(function (res) {
+          if (res.status === 200) {
+            showMsg('success', res.body.message || 'Paused.');
+            setTimeout(function () { window.location.reload(); }, 900);
+          } else {
+            showMsg('error', (res.body && res.body.message) || 'Could not pause.');
+          }
+        })
+        .catch(function () { showMsg('error', 'Network error.'); })
+        .finally(function () { pauseGo.disabled = false; pauseGo.textContent = 'Pause this decision'; });
+    });
+  }
+
+  // Resume now (banner button)
+  var resumeBtn = document.getElementById('cd-resume-go');
+  if (resumeBtn) {
+    resumeBtn.addEventListener('click', function () {
+      resumeBtn.disabled = true; resumeBtn.textContent = 'Resuming…';
+      fetch('/api/decision/pause', { method: 'POST', credentials: 'include', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ decision_id: decisionId, resume: true }) })
+        .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+        .then(function (res) {
+          if (res.status === 200) {
+            showMsg('success', 'Resumed.');
+            setTimeout(function () { window.location.reload(); }, 700);
+          } else {
+            showMsg('error', (res.body && res.body.message) || 'Could not resume.');
+          }
+        })
+        .catch(function () { showMsg('error', 'Network error.'); })
+        .finally(function () { resumeBtn.disabled = false; resumeBtn.textContent = 'Resume now'; });
+    });
+  }
+
+  // Delete panel toggle + confirm
+  var deletePanel = document.getElementById('cd-delete-panel');
+  var deleteBtn = document.getElementById('cd-owner-delete');
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', function () {
+      deletePanel.style.display = deletePanel.style.display === 'none' ? 'block' : 'none';
+      var inp = document.getElementById('cd-delete-confirm');
+      if (inp) inp.value = '';
+    });
+  }
+  var deleteCancel = document.getElementById('cd-delete-cancel');
+  if (deleteCancel) deleteCancel.addEventListener('click', function () { deletePanel.style.display = 'none'; });
+  var deleteGo = document.getElementById('cd-delete-go');
+  if (deleteGo) {
+    deleteGo.addEventListener('click', function () {
+      var inp = document.getElementById('cd-delete-confirm');
+      var confirmTxt = (inp && inp.value || '').trim();
+      if (confirmTxt !== 'DELETE') { showMsg('error', 'Type DELETE in capitals to confirm.'); return; }
+      deleteGo.disabled = true; deleteGo.textContent = 'Deleting…';
+      fetch('/api/decision/delete', { method: 'POST', credentials: 'include', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ decision_id: decisionId, confirm: 'DELETE' }) })
+        .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+        .then(function (res) {
+          if (res.status === 200) {
+            showMsg('success', res.body.message || 'Deleted.');
+            setTimeout(function () { window.location.href = '/decisions.html'; }, 1100);
+          } else {
+            showMsg('error', (res.body && res.body.message) || 'Could not delete.');
+          }
+        })
+        .catch(function () { showMsg('error', 'Network error.'); })
+        .finally(function () { deleteGo.disabled = false; deleteGo.textContent = 'Delete permanently'; });
+    });
+  }
 })();
 </script>
 <script src="pwa.js" defer></script>

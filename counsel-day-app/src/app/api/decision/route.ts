@@ -78,6 +78,8 @@ export async function GET(req: Request) {
       unsealsAt: schema.decisions.unsealsAt,
       amountPaidCents: schema.decisions.amountPaidCents,
       createdAt: schema.decisions.createdAt,
+      pausedAt: schema.decisions.pausedAt,
+      pausedUntil: schema.decisions.pausedUntil,
     })
     .from(schema.decisions)
     .where(eq(schema.decisions.id, id))
@@ -215,6 +217,9 @@ export async function GET(req: Request) {
         days_remaining: daysRemaining,
         you_voted_today: youVotedToday,
         is_unsealed: decision.unsealsAt ? decision.unsealsAt.getTime() <= Date.now() : false,
+        paused_at: decision.pausedAt,
+        paused_until: decision.pausedUntil,
+        is_paused: decision.pausedUntil ? decision.pausedUntil.getTime() > Date.now() : false,
       },
       you: { participant_id: myParticipantId, position: myPosition },
       participants: participants.map((p) => ({

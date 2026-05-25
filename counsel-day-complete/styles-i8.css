@@ -1263,3 +1263,117 @@ section { padding: 30px 32px; border-bottom: 1px solid var(--rule); }
     transition-duration: 0ms !important;
   }
 }
+
+/* ============================================================
+   MOBILE IMPROVEMENTS · 2026-05-25
+   Added after a real-device pass on Android revealed overflowing
+   tables, oversized headings, and too-generous vertical padding
+   on phones. Everything here is mobile-only (max-width: 720px)
+   so desktop is untouched.
+   ============================================================ */
+@media (max-width: 720px) {
+
+  /* ---- 1. tighten vertical padding everywhere ---- */
+  /* Section-heading rhythm on desktop is 60-80px top/bottom; that
+     wastes half a phone screen on every section. Cut by ~40%. */
+  .method-stage,
+  .method-stage-head { margin: 36px 0; }
+  .method-stage:first-child,
+  .method-page-head + .method-stage { margin-top: 18px; }
+
+  .method-page-head { padding: 18px 0 8px; }
+  .method-page-meta { gap: 10px 16px; margin-top: 14px; }
+
+  /* page-shell · the wrapper around most marketing pages */
+  .page-shell { padding: 18px 18px 24px; }
+  .method-page-inner { padding: 0 18px; }
+
+  /* hero block on index.html · tighter padding so the headline
+     and CTA both fit above the fold on a 6"-7" phone */
+  .hero { padding: 28px 18px 30px; }
+  .hero-figure { margin-bottom: 22px; }
+
+  /* CTA blocks at the bottom of marketing pages */
+  .method-cta { padding: 30px 18px; }
+  .method-cta-row { gap: 12px; }
+
+  /* ---- 2. normalise heading font-sizes on mobile ---- */
+  /* Headings on desktop go up to ~clamp(56px) which is too aggressive
+     on a 360-414px viewport. Pin to mobile-friendly sizes. */
+  h1, .method-page-title { font-size: 30px; line-height: 1.15; }
+  h2, .method-stage-title { font-size: 22px; line-height: 1.25; }
+  h3 { font-size: 18px; line-height: 1.3; }
+
+  /* Hero on homepage · keep its character but cap the size */
+  .hero h1 { font-size: 32px !important; line-height: 1.1; letter-spacing: -0.01em; }
+  .hero .hero-sub,
+  .hero p { font-size: 16px; line-height: 1.55; }
+
+  /* Lede / body sizes · 17-18px is the mobile sweet spot for
+     extended reading without being too small or too big */
+  .method-page-lede,
+  .method-stage-body p,
+  .ft-body { font-size: 16.5px; line-height: 1.6; }
+
+  /* ---- 3. tap-target minimum 44px (iOS HIG / Android Material) ---- */
+  .btn,
+  button.btn,
+  .btn-large,
+  .btn-text,
+  .btn-ghost { min-height: 44px; padding-top: 10px; padding-bottom: 10px; }
+  .nav-bar .nav-links a,
+  .nav-cta a { min-height: 44px; display: inline-flex; align-items: center; }
+
+  /* ---- 4. tables that need to wrap rather than overflow ---- */
+  /* /decisions.html · the question column was clipping on mobile.
+     Force wrap and shrink secondary columns. */
+  .ds-table { font-size: 13px; }
+  .ds-table th,
+  .ds-table td { padding: 10px 6px; }
+  .ds-table td.q,
+  .ds-table th:nth-child(2) { white-space: normal; word-break: break-word; max-width: none; }
+  .ds-table td.dates,
+  .ds-table td.duration,
+  .ds-table td.partner { font-size: 11px; }
+  /* Hide the file-ref column on phones · it's metadata, not navigation */
+  .ds-table td.file-ref,
+  .ds-table th:first-child { display: none; }
+
+  /* ---- 5. forms ---- */
+  /* iOS Safari zooms when an input < 16px is focused. Force 16px
+     globally on phones. */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="tel"],
+  input[type="number"],
+  input[type="search"],
+  input[type="url"],
+  select,
+  textarea { font-size: 16px; }
+
+  /* ---- 6. tier-grid on /pricing.html and /compose.html · stack on mobile */
+  .tier-grid { grid-template-columns: 1fr; }
+  .price-cell,
+  .editions { grid-template-columns: 1fr; }
+
+  /* ---- 7. nav · make the brand stay compact, push nav links to a
+              hamburger if the inline render doesn't already fit ---- */
+  .nav-inner { padding: 12px 16px; }
+  .nav-brand { font-size: 19px; }
+
+  /* ---- 8. footer / colophon · single column ---- */
+  .colophon-top { grid-template-columns: 1fr; gap: 22px; }
+  .colophon-col h5,
+  .colophon-col-h { margin-top: 10px; }
+
+  /* ---- 9. tighten gap above the back-to-top button ---- */
+  .go-to-top { bottom: 16px; right: 16px; }
+}
+
+/* iOS-specific safe-area inset so content doesn't sit under the
+   home-indicator bar on iPhone X+ devices. */
+@supports (padding: max(0px)) {
+  body { padding-bottom: max(0px, env(safe-area-inset-bottom)); }
+  .nav-inner { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+}

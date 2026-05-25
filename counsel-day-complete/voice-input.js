@@ -46,6 +46,21 @@
     return !!(global.SpeechRecognition || global.webkitSpeechRecognition);
   }
 
+  /* Detect mobile device. On Android Chrome `webkitSpeechRecognition`
+     reports as supported but fails silently (no onresult, no error,
+     onend with empty result) unless mic permission was pre-granted.
+     iOS Safari has similar reliability issues. The Whisper fallback
+     uses getUserMedia which triggers the standard mic-permission
+     prompt and works consistently. So: on mobile, always Whisper. */
+  function isMobile() {
+    var ua = navigator.userAgent || '';
+    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)) return true;
+    // Touch-first device with a small viewport · catches tablets in
+    // portrait, foldables, etc. that don't match the UA regex.
+    if (('ontouchstart' in window) && window.innerWidth <= 1024) return true;
+    return false;
+  }
+
   function newSR() {
     var Ctor = global.SpeechRecognition || global.webkitSpeechRecognition;
     var sr = new Ctor();
@@ -362,7 +377,11 @@
         built.status.textContent = 'Listening …';
         built.status.style.color = 'var(--muted, #6b635a)';
 
-        var preferWhisper = opts.preferWhisper === true;
+        // Mobile: skip browser SpeechRecognition (Android Chrome + iOS
+        // Safari are unreliable here · they report as supported but
+        // often fail silently). Go straight to Whisper which uses
+        // getUserMedia + the standard mic permission prompt.
+        var preferWhisper = opts.preferWhisper === true || isMobile();
         if (!preferWhisper && speechRecognitionSupported()) {
           activeHandle = startWithSpeechRecognition(field, built.btn, built.status, function () {
             activeHandle = null;

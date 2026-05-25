@@ -68,6 +68,10 @@ export async function GET(req: Request) {
     comp_unlimited: boolean;
     comp_reason: string | null;
     comp_granted_at: string | null;
+    mfa_enabled: boolean;
+    mfa_last_used_at: string | null;
+    stripe_customer_id: string | null;
+    spend_cents: string;
   };
   const rows = await db.execute<Row>(sql`
     SELECT u.id::text AS id,
@@ -81,7 +85,11 @@ export async function GET(req: Request) {
            u.comp_unlimited,
            u.comp_reason,
            u.comp_granted_at::text AS comp_granted_at,
+           u.stripe_customer_id,
+           (SELECT enabled_at IS NOT NULL FROM mfa_secrets m WHERE m.user_id = u.id) AS mfa_enabled,
+           (SELECT last_used_at::text FROM mfa_secrets m WHERE m.user_id = u.id) AS mfa_last_used_at,
            COALESCE((SELECT count(*) FROM decisions d WHERE d.owner_user_id = u.id), 0)::text AS decision_count,
+           COALESCE((SELECT SUM(amount_paid_cents) FROM decisions d WHERE d.owner_user_id = u.id AND d.amount_paid_cents > 0), 0)::text AS spend_cents,
            (SELECT MAX(s.last_active_at)::text FROM sessions s WHERE s.user_id = u.id) AS last_active_at
     FROM users u
     WHERE 1 = 1 ${search}
@@ -117,6 +125,10 @@ export async function GET(req: Request) {
         comp_unlimited: r.comp_unlimited,
         comp_reason: r.comp_reason,
         comp_granted_at: r.comp_granted_at,
+        mfa_enabled: !!r.mfa_enabled,
+        mfa_last_used_at: r.mfa_last_used_at,
+        stripe_customer_id: r.stripe_customer_id,
+        spend_cents: Number(r.spend_cents),
       })),
     },
     { headers: { 'cache-control': 'private, no-store' } }

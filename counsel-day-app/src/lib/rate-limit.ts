@@ -51,6 +51,14 @@ export type RateLimitResult = {
  * check X-Forwarded-For.
  */
 export function getClientIp(req: Request): string {
+  // CF-Connecting-IP wins when Cloudflare is in front · it carries the
+  // real visitor IP regardless of how many proxies are stacked above
+  // Caddy. Falls through to X-Real-IP (Caddy direct) then X-Forwarded-
+  // For (any other proxy) then 'unknown'. Order matters: if we read
+  // X-Forwarded-For first under Cloudflare we'd get the CF edge IP and
+  // rate-limit every visitor together.
+  const cf = req.headers.get('cf-connecting-ip')?.trim();
+  if (cf) return cf;
   const real = req.headers.get('x-real-ip')?.trim();
   if (real) return real;
   const fwd = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim();

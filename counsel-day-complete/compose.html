@@ -243,13 +243,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="tier-grid" id="cd-tier-grid" role="radiogroup" aria-label="Tier">
         <label class="tier-radio selected" onclick="selectTier(this)" data-tier="solo_free"><input type="radio" name="tier" value="solo_free" checked><div class="tier-name">Solo Free</div><div class="tier-price">$0.00 USD</div><div class="tier-help" data-base-help="First Solo decision · free · chart + your own notes only">First Solo decision · free · chart + your own notes only</div></label>
         <label class="tier-radio" onclick="selectTier(this)" data-tier="solo_paid"><input type="radio" name="tier" value="solo_paid"><div class="tier-name">Solo</div><div class="tier-price">$9.99 USD</div><div class="tier-help" data-base-help="One decision · written verdict + conversation prompt">One decision · written verdict + conversation prompt</div></label>
-        <label class="tier-radio" onclick="selectTier(this)" data-tier="couple"><input type="radio" name="tier" value="couple"><div class="tier-name">Couple</div><div class="tier-price">$25 USD</div><div class="tier-help" data-base-help="Two participants · full analysis · per decision">Two participants · full analysis · per decision</div></label>
-        <label class="tier-radio" onclick="selectTier(this)" data-tier="family"><input type="radio" name="tier" value="family"><div class="tier-name">Family</div><div class="tier-price">$40 USD</div><div class="tier-help" data-base-help="Three to six participants · per decision">Three to six participants · per decision</div></label>
-      </div>
-      <div id="cd-tier-upgrade" style="display: none; margin-top: 18px; padding: 18px 22px; background: var(--wine-soft); border-left: 3px solid var(--wine);">
-        <div style="font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin-bottom: 8px;">Upgrade for unlimited decisions</div>
-        <p style="font-family: var(--font-body); font-size: 15px; line-height: 1.55; color: var(--ink); margin: 0 0 12px;">Filing one Couple or Family decision charges you per-decision. If you'll file more than four in a year, <strong>Consumer Annual ($99 USD / year)</strong> is cheaper and includes unlimited Solo, Couple, and Family decisions.</p>
-        <a href="pricing.html#annual" class="btn-text" style="border-bottom: 1px solid var(--wine); padding-bottom: 2px;">See Consumer Annual →</a>
+        <label class="tier-radio" onclick="selectTier(this)" data-tier="couple"><input type="radio" name="tier" value="couple"><div class="tier-name">Couple</div><div class="tier-price">$15.99 USD</div><div class="tier-help" data-base-help="Two participants · full analysis · per decision">Two participants · full analysis · per decision</div></label>
+        <label class="tier-radio" onclick="selectTier(this)" data-tier="family"><input type="radio" name="tier" value="family"><div class="tier-name">Family</div><div class="tier-price">$29.99 USD</div><div class="tier-help" data-base-help="Three to six participants · per decision">Three to six participants · per decision</div></label>
       </div>
     </div>
 
@@ -435,7 +430,7 @@ function fileDecision(e) {
          the price changed so the user is not surprised by the charge. */
       var effectiveTier = res.body.tier || tier;
       if (res.body.upgraded_from && res.body.upgraded_from !== effectiveTier) {
-        var priceMap = { 'solo_paid': '$9.99 USD', 'couple': '$25 USD', 'family': '$40 USD' };
+        var priceMap = { 'solo_paid': '$9.99 USD', 'couple': '$15.99 USD', 'family': '$29.99 USD' };
         var newPrice = priceMap[effectiveTier] || 'paid';
         var tierLabel = effectiveTier === 'couple' ? 'Couple' : effectiveTier === 'family' ? 'Family' : 'paid';
         var confirmed = window.confirm(
@@ -545,18 +540,13 @@ function saveDraft() {
       var intentToTier = { solo: 'solo_paid', couple: 'couple', family: 'family', exploring: 'solo_paid' };
       var preferredTier = intentToTier[u.decision_kind_intent || 'exploring'] || 'solo_paid';
 
-      if (u.current_plan === 'consumer_annual') {
-        // ---- ANNUAL · everything is included ----
-        if (intro) intro.textContent = 'You are on Consumer Annual · every tier below is included with no per-decision charge. Pick the one that fits this decision.';
-        if (upgrade) upgrade.style.display = 'none';
-        document.querySelectorAll('#cd-tier-grid .tier-radio').forEach(function (el) {
-          var price = el.querySelector('.tier-price');
-          var help = el.querySelector('.tier-help');
-          if (price) price.textContent = 'INCLUDED';
-          if (price) price.style.color = 'var(--wine)';
-          if (help) help.textContent = (help.getAttribute('data-base-help') || help.textContent) + ' · covered by your annual plan';
-        });
-        // Switch selection to preferred tier
+      // Per-decision only · no consumer subscription. Pre-select the
+      // tier matching the user's intent (solo / couple / family) and
+      // hide Solo Free if the free decision has been used.
+      if (hasUsedFree) {
+        var freeEl = document.querySelector('#cd-tier-grid .tier-radio[data-tier="solo_free"]');
+        if (freeEl) freeEl.style.display = 'none';
+        if (intro) intro.textContent = 'You have already used your one free Solo decision. Pick a paid tier below · you will be charged at the moment of filing.';
         document.querySelectorAll('#cd-tier-grid .tier-radio').forEach(function (r) { r.classList.remove('selected'); });
         var prefEl = document.querySelector('#cd-tier-grid .tier-radio[data-tier="' + preferredTier + '"]');
         if (prefEl) {
@@ -564,24 +554,7 @@ function saveDraft() {
           var inp = prefEl.querySelector('input[type="radio"]'); if (inp) inp.checked = true;
         }
       } else {
-        // ---- FREE plan · pay per decision ----
-        if (hasUsedFree) {
-          // Hide Solo Free entirely
-          var freeEl = document.querySelector('#cd-tier-grid .tier-radio[data-tier="solo_free"]');
-          if (freeEl) freeEl.style.display = 'none';
-          if (intro) intro.textContent = 'You have already used your one free Solo decision. Pick a paid tier below · you will be charged at the moment of filing. Or subscribe to Consumer Annual for unlimited decisions across every tier.';
-          // Select preferred paid tier
-          document.querySelectorAll('#cd-tier-grid .tier-radio').forEach(function (r) { r.classList.remove('selected'); });
-          var prefEl = document.querySelector('#cd-tier-grid .tier-radio[data-tier="' + preferredTier + '"]');
-          if (prefEl) {
-            prefEl.classList.add('selected');
-            var inp = prefEl.querySelector('input[type="radio"]'); if (inp) inp.checked = true;
-          }
-        } else {
-          // First-ever decision · Solo Free is available
-          if (intro) intro.textContent = 'Your first Solo decision is free. Paid tiers are charged at the moment of filing. Subscribe to Consumer Annual for unlimited decisions across every tier.';
-        }
-        if (upgrade) upgrade.style.display = '';
+        if (intro) intro.textContent = 'Your first Solo decision is free. Paid tiers are charged at the moment of filing.';
       }
     })
     .catch(function (e) {

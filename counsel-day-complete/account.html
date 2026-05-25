@@ -607,15 +607,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       // IMPORTANT: "Active subscription" ≠ "Decision style" (above).
       //   · Decision style is a preference (how you usually decide).
       //   · Active subscription is what you've actually paid for.
-      // Most users start on "No active subscription" and pay per-decision
-      // at compose time. Only Consumer Annual is a true recurring sub.
+      // Counsel.day sells per-decision only · there is no consumer
+      // subscription. Consumer Annual was retired 2026-05-25; any
+      // legacy 'consumer_annual' value still in the DB is honoured
+      // here defensively, but new accounts never reach that state.
       var plan = u.current_plan || 'free';
       var planDef = {
-        'free':            { name: 'No active subscription',     detail: 'You pay per decision at compose time. Your first Solo decision is free; Couple is $25 USD; Family is $40 USD. Or subscribe to Consumer Annual ($99 USD/year) for unlimited decisions in any tier.', cta: 'See Consumer Annual',  renewal: 'No renewal · pay per decision at compose time', portalVisible: false },
-        'consumer_annual': { name: 'Consumer · Annual',          detail: 'Active subscription · unlimited Solo, Couple, and Family decisions on this account.',                                                  cta: 'Manage subscription',  renewal: 'Recurring · open Stripe portal to manage or cancel', portalVisible: true  },
-        // The values below should never appear in current_plan today (the
-        // webhook only writes 'consumer_annual'). Keep defensive labels
-        // in case the schema is later extended.
+        'free':            { name: 'Per-decision · no subscription', detail: 'You pay per decision at compose time. Your first Solo decision is free; Solo paid is $9.99 USD; Couple is $15.99 USD; Family is $29.99 USD.', cta: 'See pricing',         renewal: 'No renewal · pay per decision at compose time', portalVisible: false },
+        'consumer_annual': { name: 'Consumer · Annual (legacy)',     detail: 'Legacy annual subscription · honoured to the end of the paid term. New decisions are charged per-decision after that.',                          cta: 'Manage subscription', renewal: 'Recurring · open Stripe portal to manage or cancel', portalVisible: true  },
+        // The values below should never appear in current_plan today.
+        // Keep defensive labels in case the schema is later extended.
         'solo':            { name: 'Solo · paid',                detail: 'A single Solo decision paid this billing cycle.',                                                                                       cta: 'See plans',            renewal: 'One-off · no recurring charge',                      portalVisible: true  },
         'couple':          { name: 'Couple · paid',              detail: 'A single Couple decision paid this billing cycle.',                                                                                     cta: 'See plans',            renewal: 'One-off · no recurring charge',                      portalVisible: true  },
         'family':          { name: 'Family · paid',              detail: 'A single Family decision paid this billing cycle.',                                                                                     cta: 'See plans',            renewal: 'One-off · no recurring charge',                      portalVisible: true  },

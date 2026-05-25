@@ -59,7 +59,9 @@ export async function GET(req: Request) {
     return Array.from(rows).map((r) => ({ date: r.d, verified: Number(r.verified) }));
   }, []);
 
-  // MRR · current annual subscribers / 12. Pricing pinned at $99 USD/year.
+  // MRR · Consumer Annual was retired 2026-05-25; we now sell only
+  // per-decision SKUs. Returns zero defensively so the admin tile
+  // doesn't break if any legacy 'consumer_annual' row still exists.
   const mrr = await safe(async () => {
     const rows = await db.execute<{ count: string }>(sql`
       SELECT count(*)::text AS count
@@ -68,8 +70,7 @@ export async function GET(req: Request) {
         AND deleted_at IS NULL
     `);
     const subs = Number((rows[0] as { count: string }).count);
-    const cents = Math.round((subs * 9900) / 12);
-    return { active_subscribers: subs, mrr_cents: cents, arr_cents: cents * 12 };
+    return { active_subscribers: subs, mrr_cents: 0, arr_cents: 0 };
   }, { active_subscribers: 0, mrr_cents: 0, arr_cents: 0 });
 
   // Churn · users deleted OR all decisions refunded in last 30d / users 30d ago

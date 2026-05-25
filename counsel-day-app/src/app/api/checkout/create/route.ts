@@ -1,6 +1,6 @@
 /**
  * POST /api/checkout/create
- *   sku           ('solo_paid' | 'couple' | 'family' | 'consumer_annual')
+ *   sku           ('solo_paid' | 'couple' | 'family')
  *   decision_id   (optional · attached for the per-decision SKUs so the webhook can mark the right row paid)
  *
  * Requires an active session. Creates a Stripe Checkout Session and returns
@@ -25,7 +25,7 @@ export const runtime = 'nodejs';
 const BASE = process.env.APP_BASE_URL ?? 'https://counsel.day';
 
 const bodySchema = z.object({
-  sku: z.enum(['solo_paid', 'couple', 'family', 'consumer_annual']),
+  sku: z.enum(['solo_paid', 'couple', 'family']),
   decision_id: z.string().uuid().optional(),
 });
 
@@ -122,7 +122,7 @@ export async function POST(req: Request) {
     if (d.ownerUserId !== user.id) {
       return NextResponse.json({ ok: false, message: 'You can only pay for your own decisions.' }, { status: 403 });
     }
-    if (d.tier !== sku && sku !== 'consumer_annual') {
+    if (d.tier !== sku) {
       return NextResponse.json(
         { ok: false, message: `SKU ${sku} does not match the decision's tier (${d.tier}). Refresh and try again.` },
         { status: 422 }

@@ -3,7 +3,7 @@
  *
  * Financial dashboard data:
  *   · revenue_daily   [{ date, gross_cents, count }] last 90 days · from decisions table
- *   · revenue_by_tier { solo_paid, couple, family, consumer_annual } · cumulative
+ *   · revenue_by_tier { solo_paid, couple, family } · cumulative
  *   · ai_cost_daily   [{ date, cost_cents, verdicts }] last 90 days · from verdicts table
  *   · refunds         { requested_30d, processed_30d, ratio_pct }
  *   · margin          { revenue_cents, ai_cost_cents, net_cents, margin_pct }

@@ -223,8 +223,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <ul style="font-family: var(--font-body); font-size: 17px; line-height: 1.7; color: var(--ink-soft); padding-left: 22px; max-width: 760px;">
           <li>Download invoice PDFs and receipts for every charge.</li>
           <li>Update the card we charge.</li>
-          <li>See upcoming renewals (Consumer Annual subscribers).</li>
-          <li>Cancel a subscription (takes effect at the end of the current period).</li>
           <li>Update the billing email address.</li>
         </ul>
       </div>
@@ -383,23 +381,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       var u = d.user || {};
       var plan = u.current_plan || 'free';
       var planLabel = {
-        'free':            'No active subscription',
-        'consumer_annual': 'Consumer · Annual',
-        'solo':            'Solo · paid',
-        'couple':          'Couple · paid',
-        'family':          'Family · paid',
+        'free':   'Per-decision · no subscription',
+        'solo':   'Solo · paid',
+        'couple': 'Couple · paid',
+        'family': 'Family · paid',
       }[plan] || plan;
       var planSub = {
-        'free':            'Pay per decision at compose time',
-        'consumer_annual': 'Unlimited decisions in any tier',
-        'solo':            'Single Solo decision paid this billing cycle',
-        'couple':          'Single Couple decision paid this billing cycle',
-        'family':          'Single Family decision paid this billing cycle',
+        'free':   'Pay per decision at compose time',
+        'solo':   'Single Solo decision paid this billing cycle',
+        'couple': 'Single Couple decision paid this billing cycle',
+        'family': 'Single Family decision paid this billing cycle',
       }[plan] || '';
-      var modelLabel = plan === 'consumer_annual' ? 'Annual subscription' : 'Pay per decision';
-      var modelSub   = plan === 'consumer_annual'
-        ? '$99 USD / year · manage in Stripe portal'
-        : 'Solo first decision free · Solo $9.99 / Couple $25 / Family $40 USD';
+      var modelLabel = 'Pay per decision';
+      var modelSub   = 'Solo first decision free · Solo $9.99 / Couple $15.99 / Family $29.99 USD';
       set('cd-bill-plan', planLabel);
       set('cd-bill-plan-sub', planSub);
       set('cd-bill-model', modelLabel);

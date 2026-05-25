@@ -50,20 +50,16 @@ Five SKUs. Source of truth: counsel.day/pricing.
     the premium report panels (trajectory, themes, word cloud,
     sentiment, asymmetries, vocabulary overlap, key quotes).
 
-  · Couple · $25 USD per decision · two participants · charged upfront
+  · Couple · $15.99 USD per decision · two participants · charged upfront
     on the composer's card. The invitee does not pay separately.
     Includes the axis-of-disagreement synthesis and per-participant
     breakdown that a Solo verdict doesn't have.
 
-  · Family · $49 USD per decision · three to six participants · flat
+  · Family · $29.99 USD per decision · three to six participants · flat
     fee regardless of how many invitees actually accept. Charged
     upfront. Same depth of analysis as Couple, sized for multi-party.
 
-  · Consumer Annual · $99 USD per year · single SKU covering
-    unlimited Solo + Couple + Family decisions on one account for
-    twelve months. Sold de-emphasised on pricing.html beneath the
-    per-decision options · never defaulted on at checkout. Pays for
-    itself at ~4 Couple or ~2 Family decisions a year.
+  Solo paid is $9.99 USD per decision.
 
   · Practitioner Annual · $399 USD per year · sold only on
     counsel.day/therapists and counsel.day/counsellors · unlimited
@@ -71,9 +67,9 @@ Five SKUs. Source of truth: counsel.day/pricing.
     decision to the client's own email so the practitioner never
     sees client content. NOT displayed on consumer pricing surfaces.
 
-A 100-decision cap exists on annual plans to prevent abuse, not to
-penalise heavy users. Beyond 100, additional decisions in that tier
-bill at the per-decision price.
+The consumer-side product is per-decision only · we tried a Consumer
+Annual SKU and retired it on 2026-05-25. No subscription option for
+consumers today.
 
 ──────────────────────────────────────────────────────────────────
 2 · REFUNDS (live policy at counsel.day/refunds)

@@ -186,49 +186,32 @@ export async function POST(req: Request) {
             }
           }
         }
-        // Annual plan SKUs · update user's current_plan
-        if (userId && sku === 'consumer_annual') {
-          await db
-            .update(schema.users)
-            .set({ currentPlan: sku, updatedAt: new Date() })
-            .where(eq(schema.users.id, userId));
-        }
         break;
       }
+      // customer.subscription.* events retained as defensive no-ops:
+      // we no longer SELL a subscription (Consumer Annual retired
+      // 2026-05-25), but Stripe may still deliver these for any
+      // historical subscribers · accept them silently rather than
+      // returning an error that Stripe would retry.
       case 'customer.subscription.created':
-      case 'customer.subscription.updated': {
+      case 'customer.subscription.updated':
+      case 'customer.subscription.deleted': {
         const sub = event.data.object as Stripe.Subscription;
         const customer = typeof sub.customer === 'string' ? sub.customer : sub.customer.id;
-        // Look up user by stripe customer id
-        const rows = await db
-          .select({ id: schema.users.id })
-          .from(schema.users)
-          .where(eq(schema.users.stripeCustomerId, customer))
-          .limit(1);
-        if (rows.length > 0) {
-          // Active subscription → keep plan as-is from the SKU metadata
-          if (sub.status === 'canceled' || sub.status === 'unpaid') {
+        // If any user still has currentPlan set from a legacy annual
+        // subscription, drop them back to 'free' when the sub ends.
+        if (sub.status === 'canceled' || sub.status === 'unpaid' || event.type === 'customer.subscription.deleted') {
+          const rows = await db
+            .select({ id: schema.users.id })
+            .from(schema.users)
+            .where(eq(schema.users.stripeCustomerId, customer))
+            .limit(1);
+          if (rows.length > 0) {
             await db
               .update(schema.users)
               .set({ currentPlan: 'free', updatedAt: new Date() })
               .where(eq(schema.users.id, rows[0].id));
           }
-        }
-        break;
-      }
-      case 'customer.subscription.deleted': {
-        const sub = event.data.object as Stripe.Subscription;
-        const customer = typeof sub.customer === 'string' ? sub.customer : sub.customer.id;
-        const rows = await db
-          .select({ id: schema.users.id })
-          .from(schema.users)
-          .where(eq(schema.users.stripeCustomerId, customer))
-          .limit(1);
-        if (rows.length > 0) {
-          await db
-            .update(schema.users)
-            .set({ currentPlan: 'free', updatedAt: new Date() })
-            .where(eq(schema.users.id, rows[0].id));
         }
         break;
       }

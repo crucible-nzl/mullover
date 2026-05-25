@@ -191,7 +191,7 @@ export async function POST(req: Request) {
     // Tier gate · voice is a paid-tier benefit
     if (decision.tier === 'solo_free') {
       return NextResponse.json(
-        { ok: false, message: 'Voice transcription is available on paid decisions (Solo, Couple, Family, Consumer Annual).' },
+        { ok: false, message: 'Voice transcription is available on paid decisions (Solo, Couple, Family).' },
         { status: 402 }
       );
     }

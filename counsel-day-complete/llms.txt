@@ -4,7 +4,7 @@
 
 Counsel.day is not therapy, not legal or financial advice, and not a recommendation engine. The product synthesises the user's own daily votes and notes; it never tells the user what to do. James Graham (founder) is a data professional, not a clinician.
 
-The product is global, priced in USD. Per-decision SKUs (Solo $9.99, Couple $25, Family $40) and one annual subscription ($99 Consumer Annual). The first Solo decision is free.
+The product is global, priced in USD. Per-decision only: Solo $9.99 USD, Couple $15.99 USD, Family $29.99 USD. The first Solo decision is free. There is no consumer subscription.
 
 ## Core product pages
 

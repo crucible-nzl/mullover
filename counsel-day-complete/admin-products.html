@@ -202,24 +202,46 @@
             return;
           }
           var prices = res.body.prices || [];
-          var hasMismatch = prices.some(function (p) {
-            return p.error || (p.match && (!p.match.active || !p.match.amount || !p.match.currency));
-          });
-          syncMsg.textContent = hasMismatch ? 'Mismatch found · review below' : 'All ' + prices.length + ' Price IDs match (checked ' + new Date(res.body.checked_at).toLocaleTimeString() + ')';
-          syncMsg.style.color = hasMismatch ? 'var(--red)' : 'var(--green)';
+          // Only real errors block · free / retired tiers are deliberately
+          // skipped on the server side and surface as informational rows.
+          var hardErrors = prices.filter(function (p) { return p.state === 'missing' || p.state === 'error' || p.state === 'mismatch'; });
+          var checked    = prices.filter(function (p) { return p.state === 'ok'; }).length;
+          var skipped    = prices.filter(function (p) { return p.state === 'free' || p.state === 'retired'; }).length;
+          if (hardErrors.length) {
+            syncMsg.textContent = hardErrors.length + ' issue' + (hardErrors.length === 1 ? '' : 's') + ' · review below';
+            syncMsg.style.color = 'var(--red)';
+          } else {
+            syncMsg.textContent = 'All ' + checked + ' live Price ID' + (checked === 1 ? '' : 's') + ' match · ' + skipped + ' skipped (free/retired) · ' + new Date(res.body.checked_at).toLocaleTimeString();
+            syncMsg.style.color = 'var(--green)';
+          }
           var rows = prices.map(function (p) {
             var status;
-            if (p.error) { status = '<span style="color: var(--red);">ERROR · ' + escapeHtml(p.error) + '</span>'; }
-            else if (!p.match.active || !p.match.amount || !p.match.currency) {
-              var parts = [];
-              if (!p.match.active)   parts.push('active: db=' + p.db_is_active + ' / stripe=' + p.stripe_active);
-              if (!p.match.amount)   parts.push('amount: db=' + p.db_price_cents + ' / stripe=' + p.stripe_unit_amount);
-              if (!p.match.currency) parts.push('currency: db=' + p.db_currency + ' / stripe=' + p.stripe_currency);
-              status = '<span style="color: var(--yellow);">MISMATCH · ' + escapeHtml(parts.join(' · ')) + '</span>';
-            } else {
-              status = '<span style="color: var(--green);">OK · ' + escapeHtml(p.stripe_product_name || '') + '</span>';
+            switch (p.state) {
+              case 'ok':
+                status = '<span style="color: var(--green);">OK · ' + escapeHtml(p.stripe_product_name || '') + '</span>';
+                break;
+              case 'free':
+                status = '<span style="color: var(--muted);">FREE · no Stripe Price required</span>';
+                break;
+              case 'retired':
+                status = '<span style="color: var(--muted);">RETIRED · is_active = false, sync skipped</span>';
+                break;
+              case 'missing':
+                status = '<span style="color: var(--red);">MISSING · ' + escapeHtml(p.error || 'No Stripe Price ID set') + '</span>';
+                break;
+              case 'mismatch':
+                var parts = [];
+                if (p.match && !p.match.active)   parts.push('active: db=' + p.db_is_active + ' / stripe=' + p.stripe_active);
+                if (p.match && !p.match.amount)   parts.push('amount: db=' + p.db_price_cents + ' / stripe=' + p.stripe_unit_amount);
+                if (p.match && !p.match.currency) parts.push('currency: db=' + p.db_currency + ' / stripe=' + p.stripe_currency);
+                status = '<span style="color: var(--yellow);">MISMATCH · ' + escapeHtml(parts.join(' · ')) + '</span>';
+                break;
+              case 'error':
+              default:
+                status = '<span style="color: var(--red);">ERROR · ' + escapeHtml(p.error || 'unknown') + '</span>';
             }
-            return '<div style="padding: 6px 0; border-bottom: 1px solid var(--rule);"><strong>' + escapeHtml(p.key) + '</strong> · <code style="background: var(--surface-2); padding: 1px 5px;">' + escapeHtml(p.stripe_price_id || '(none)') + '</code> · ' + status + '</div>';
+            var idTxt = p.stripe_price_id ? p.stripe_price_id : (p.state === 'free' ? '(free · n/a)' : (p.state === 'retired' ? '(retired)' : '(none)'));
+            return '<div style="padding: 6px 0; border-bottom: 1px solid var(--rule);"><strong>' + escapeHtml(p.key) + '</strong> · <code style="background: var(--surface-2); padding: 1px 5px;">' + escapeHtml(idTxt) + '</code> · ' + status + '</div>';
           });
           syncOut.innerHTML = rows.join('');
           syncOut.style.display = 'block';

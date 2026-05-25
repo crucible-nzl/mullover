@@ -70,6 +70,13 @@ export async function GET(req: Request) {
     db_currency: string;
     db_is_active: boolean;
     match: { active: boolean; amount: boolean; currency: boolean } | null;
+    // 'ok'       Stripe price found, all fields match
+    // 'mismatch' Stripe price found, one of active/amount/currency differs
+    // 'free'     price_cents = 0, Stripe Price not required (skipped)
+    // 'retired'  is_active = false, no longer sold (skipped)
+    // 'missing'  paid + active tier has no stripe_price_id (true error)
+    // 'error'    Stripe lookup threw
+    state: 'ok' | 'mismatch' | 'free' | 'retired' | 'missing' | 'error';
     error: string | null;
   };
 
@@ -86,9 +93,21 @@ export async function GET(req: Request) {
       db_currency: r.currency,
       db_is_active: r.is_active,
       match: null,
+      state: 'ok',
       error: null,
     };
+    // Free tiers · checkout bypasses Stripe entirely, no Price needed.
+    if (r.price_cents === 0) {
+      base.state = 'free';
+      return base;
+    }
+    // Retired tiers · kept for historical orders, no longer sold.
+    if (!r.is_active) {
+      base.state = 'retired';
+      return base;
+    }
     if (!r.stripe_price_id) {
+      base.state = 'missing';
       base.error = 'No Stripe Price ID set';
       return base;
     }
@@ -106,7 +125,9 @@ export async function GET(req: Request) {
         amount: price.unit_amount === r.price_cents,
         currency: (price.currency || '').toLowerCase() === (r.currency || '').toLowerCase(),
       };
+      base.state = (base.match.active && base.match.amount && base.match.currency) ? 'ok' : 'mismatch';
     } catch (err) {
+      base.state = 'error';
       base.error = (err as Error).message || 'Stripe lookup failed';
     }
     return base;

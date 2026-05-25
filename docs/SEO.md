@@ -226,7 +226,7 @@ This is the snapshot of what is in place today, page by page. The
 | Item | Status | Notes |
 |---|---|---|
 | Named author bio with photo | Pass · `/about/james-graham` | Photo is a placeholder editorial SVG; replace with real photograph at `/about/james-graham-portrait.png` when available |
-| LinkedIn URL in `Person.sameAs` | Pass with placeholder · `linkedin.com/in/james-graham-counselday` | Replace placeholder with real LinkedIn URL when account is created |
+| LinkedIn URL in `Person.sameAs` | Pass · `linkedin.com/in/james-graham-nz` | Live LinkedIn account linked from /about/james-graham |
 | Author bylines link to `/about/james-graham` | Pass · editorial-standards, therapists | Extend to other long-form pages next month |
 | Editorial standards page with AI disclosure | Pass · `/editorial-standards` | Six load-bearing data promises documented |
 | Corrections policy and email | Pass · `corrections@counsel.day` (configure in Brevo before launch) |
@@ -608,10 +608,9 @@ content writing.
 - [ ] Replace the placeholder portrait SVG on `/about/james-graham`
   with a real photograph at `/about/james-graham-portrait.png`.
   Recommended 800×1000 minimum, RGB JPEG or PNG, neutral background.
-- [ ] Replace the placeholder LinkedIn URL
-  (`linkedin.com/in/james-graham-counselday`) with the real one in
-  three places: visible bio meta, `Person.sameAs` in JSON-LD,
-  related-link card.
+- [x] LinkedIn URL is live at `linkedin.com/in/james-graham-nz` in
+  all three places: visible bio meta, `Person.sameAs` in JSON-LD,
+  related-link card (replaced 2026-05-25).
 
 ### Needs an export step
 

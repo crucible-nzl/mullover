@@ -16,7 +16,7 @@
 
 BEGIN;
 
-UPDATE products SET is_active = false, updated_at = NOW() WHERE sku = 'consumer_annual';
+UPDATE products SET is_active = false, updated_at = NOW() WHERE key = 'consumer_annual';
 
 UPDATE users SET current_plan = 'free', updated_at = NOW() WHERE current_plan = 'consumer_annual';
 

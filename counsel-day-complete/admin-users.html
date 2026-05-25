@@ -54,6 +54,105 @@
   .pager { margin-top: 14px; display: flex; gap: 10px; align-items: center; }
   .pager button { font-family: var(--font-mono); font-size: 12px; padding: 7px 14px; border: 1px solid var(--border); background: var(--surface); color: var(--ink-soft); cursor: pointer; }
   .pager button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ============================================================
+     ADMIN-USERS · MOBILE · 2026-05-25
+     10 columns on a phone is hostile · stack each row as a card
+     with labelled fields. Desktop is untouched.
+     ============================================================ */
+  @media (max-width: 720px) {
+    /* Toolbar · full-width search, 16px to prevent iOS zoom */
+    .toolbar { gap: 8px; }
+    .toolbar input { min-width: 0; flex: 1 1 100%; font-size: 16px; min-height: 44px; }
+    .toolbar select { font-size: 16px; min-height: 44px; flex: 1 1 50%; }
+    .toolbar .count { width: 100%; margin-left: 0; }
+
+    /* The .tbl-scroll wrapper from admin-shell.js is irrelevant here
+       because we are stacking rows · so reset it to a plain block. */
+    .tbl-scroll { overflow: visible; }
+
+    /* Table · stack each row as a card, hide the thead */
+    .users-tbl { display: block; min-width: 0 !important; border: none; }
+    .users-tbl thead { display: none; }
+    .users-tbl tbody { display: block; }
+    .users-tbl tr {
+      display: block;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 12px 14px 14px;
+      margin-bottom: 10px;
+    }
+    .users-tbl td {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      padding: 5px 0 !important;
+      border-bottom: 1px dotted var(--rule) !important;
+      white-space: normal !important;
+      font-size: 12.5px !important;
+      text-align: right;
+    }
+    .users-tbl td:last-child { border-bottom: none !important; }
+    /* Each cell uses a data-lbl attribute on mobile, set by the row
+       template in JS. ::before places the label on the left of the row. */
+    .users-tbl td::before {
+      content: attr(data-lbl);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 500;
+      flex: 0 0 auto;
+      text-align: left;
+    }
+    /* Email · left-align as the card heading */
+    .users-tbl td.email {
+      font-size: 13px !important;
+      flex-direction: column;
+      align-items: stretch;
+      text-align: left;
+      padding-top: 0 !important;
+      word-break: break-all;
+    }
+    .users-tbl td.email::before { display: none; }
+
+    /* Actions row · button + dropdown become full-width stacked */
+    .users-tbl td.actions {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+      padding-top: 10px !important;
+    }
+    .users-tbl td.actions::before { display: none; }
+    .users-tbl .actions-menu { display: block; }
+    .users-tbl .actions-trigger { width: 100%; min-height: 44px; padding: 10px 14px; font-size: 14px; }
+    .users-tbl .actions-menu .menu {
+      position: static;
+      width: 100%;
+      box-shadow: none;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+    .users-tbl .actions-menu .menu button,
+    .users-tbl .actions-menu .menu a {
+      min-height: 44px;
+      font-size: 12px;
+      padding: 12px 14px;
+    }
+
+    /* Pager · big tap targets */
+    .pager { flex-wrap: wrap; gap: 8px; }
+    .pager button { min-height: 44px; padding: 10px 16px; font-size: 13px; flex: 1 1 40%; }
+    .pager #u-range { width: 100%; text-align: center; order: -1; }
+
+    /* Profile drill modal · usable on phones */
+    .drill-overlay { padding: 8px !important; }
+    .drill-panel { max-height: 92vh !important; padding: 14px 14px !important; }
+    .drill-panel table { font-size: 11px !important; }
+    .drill-panel td, .drill-panel th { padding: 4px 6px !important; }
+  }
 </style>
 </head>
 <body>
@@ -202,15 +301,15 @@
             : '<span class="pill" style="background:#eaeaea; color:#6b7280;">off</span>';
 
           return '<tr>' +
-            '<td class="email">' + escapeHtml(u.email) + '</td>' +
-            '<td class="name">' + escapeHtml(u.first_name || '·') + '</td>' +
-            '<td><span class="pill">' + escapeHtml(u.current_plan || 'free') + '</span></td>' +
-            '<td class="num">' + u.decision_count + '</td>' +
-            '<td class="num" style="font-family: var(--font-mono); font-size: 12px;">' + spend + '</td>' +
-            '<td>' + mfaCell + '</td>' +
-            '<td class="when">' + fmtTs(u.last_active_at) + '</td>' +
-            '<td class="when">' + fmtTs(u.created_at) + '</td>' +
-            '<td>' + pills.join(' ') + '</td>' +
+            '<td class="email" data-lbl="Email">' + escapeHtml(u.email) + '</td>' +
+            '<td class="name" data-lbl="Name">' + escapeHtml(u.first_name || '·') + '</td>' +
+            '<td data-lbl="Plan"><span class="pill">' + escapeHtml(u.current_plan || 'free') + '</span></td>' +
+            '<td class="num" data-lbl="Decisions">' + u.decision_count + '</td>' +
+            '<td class="num" data-lbl="Spend" style="font-family: var(--font-mono); font-size: 12px;">' + spend + '</td>' +
+            '<td data-lbl="MFA">' + mfaCell + '</td>' +
+            '<td class="when" data-lbl="Last active">' + fmtTs(u.last_active_at) + '</td>' +
+            '<td class="when" data-lbl="Signed up">' + fmtTs(u.created_at) + '</td>' +
+            '<td data-lbl="Status">' + pills.join(' ') + '</td>' +
             '<td class="actions"><div class="actions-menu"><button type="button" class="actions-trigger" data-menu-trigger>Actions ▾</button><div class="menu">' + actions.join('') + '</div></div></td>' +
           '</tr>';
         }).join('');
@@ -297,8 +396,10 @@
 
   function openDrill(kind, userId, email) {
     var overlay = document.createElement('div');
+    overlay.className = 'drill-overlay';
     overlay.style.cssText = 'position: fixed; inset: 0; background: rgba(11,26,43,0.6); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 32px;';
     var panel = document.createElement('div');
+    panel.className = 'drill-panel';
     panel.style.cssText = 'background: var(--surface); max-width: 900px; width: 100%; max-height: 80vh; overflow-y: auto; padding: 22px 26px; border: 1px solid var(--border);';
     var heading = kind === 'activity' ? 'Activity log' : (kind === 'profile' ? 'Profile' : 'Decisions');
     panel.innerHTML = '<div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px;"><h2 style="font-family: var(--font-ui); font-size: 16px; font-weight: 600; color: var(--ink); margin: 0;">' + heading + ' · ' + escapeHtml(email) + '</h2><button type="button" id="drill-close" style="background: none; border: 1px solid var(--border); padding: 4px 10px; cursor: pointer; font-family: var(--font-mono); font-size: 11px;">Close ✕</button></div><div id="drill-body" style="font-family: var(--font-mono); font-size: 12px; color: var(--ink-soft);">Loading…</div>';
@@ -454,5 +555,6 @@
   load();
 })();
 </script>
+<script src="/admin-shell.js" defer></script>
 </body>
 </html>

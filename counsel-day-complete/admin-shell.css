@@ -92,3 +92,104 @@ h3 { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: 
 .canvas-wrap.skel { height: 280px; }
 .tbl .skel-row td { padding: 14px; }
 .tbl .skel-row .skel { display: block; height: 14px; }
+
+/* ============================================================
+   ADMIN · MOBILE IMPROVEMENTS · 2026-05-25
+   The admin chrome is desktop-first by design (Chart.js panels,
+   dense tables, 12-link nav). These rules make every admin page
+   usable on a 360-414px phone without sacrificing the desktop
+   density. Phone breakpoint = 720px.
+   ============================================================ */
+@media (max-width: 720px) {
+
+  /* ---- 1. topbar · compact and wrap-friendly ---- */
+  .topbar {
+    padding: 10px 14px;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+  }
+  .topbar .brand { font-size: 12px; letter-spacing: 0.1em; }
+  .topbar .meta {
+    font-size: 10px;
+    gap: 10px;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  /* ---- 2. sub-nav · horizontal scroll instead of wrap, so the
+              12 sections stay on one line and the operator swipes ---- */
+  .adm-subnav {
+    padding: 6px 14px;
+    gap: 18px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+  }
+  .adm-subnav::-webkit-scrollbar { display: none; }
+  .adm-subnav a {
+    white-space: nowrap;
+    padding: 8px 0;
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* ---- 3. shell · less padding, room for content ---- */
+  .shell { padding: 16px 14px 40px; }
+
+  /* ---- 4. headings · pin to mobile-friendly sizes ---- */
+  h1 { font-size: 18px; }
+  h2 { font-size: 12px; margin: 22px 0 10px; }
+  .lede { font-size: 12.5px; margin-bottom: 16px; }
+
+  /* ---- 5. cards · single column always on phone (was 640px) ---- */
+  .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; gap: 10px; margin-bottom: 18px; }
+  .card { padding: 14px 14px; }
+  .card .value { font-size: 22px; }
+
+  /* ---- 6. chart cards · clamp height so a 3-chart page fits ---- */
+  .chart-card { padding: 14px 14px 16px; margin-bottom: 18px; }
+  .chart-card .canvas-wrap { height: 220px; }
+
+  /* ---- 7. tables · horizontal scroll. We can't add a wrapper div
+              to every existing admin page, so we make the table itself
+              scrollable on x. JS in admin-shell.js auto-wraps tables
+              in .tbl-scroll on load so thead/tbody alignment stays
+              correct (the wrapper is display:block + overflow-x:auto,
+              the table stays display:table inside). ---- */
+  .tbl-scroll {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 18px;
+  }
+  .tbl-scroll > .tbl,
+  .tbl-scroll > table.adm {
+    margin-bottom: 0;
+    min-width: 560px;
+  }
+  .tbl th, .tbl td,
+  table.adm th, table.adm td {
+    padding: 8px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .tbl th,
+  table.adm th { font-size: 10px; }
+
+  /* ---- 8. status banner · less padding ---- */
+  .status-banner { padding: 10px 12px; font-size: 12.5px; }
+
+  /* ---- 9. iOS safe-area · keep content above the home indicator ---- */
+  body { padding-bottom: env(safe-area-inset-bottom); }
+}
+
+/* Mid-size tablet · keep nav wrappable but tighten cards */
+@media (min-width: 721px) and (max-width: 1024px) {
+  .topbar, .adm-subnav { padding-left: 18px; padding-right: 18px; }
+  .shell { padding-left: 18px; padding-right: 18px; }
+}

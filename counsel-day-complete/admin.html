@@ -113,6 +113,86 @@
   .adm-subnav a { color: var(--ink-soft); border-bottom: 2px solid transparent; padding: 4px 0; }
   .adm-subnav a:hover { color: var(--accent); }
   .adm-subnav a.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* Loading skeletons (inline copy · matches admin-shell.css) */
+  @keyframes cd-skeleton-shimmer { 0% { background-position: -200px 0; } 100% { background-position: 200px 0; } }
+  .skel { background: linear-gradient(90deg, var(--surface-2) 0%, var(--rule) 50%, var(--surface-2) 100%); background-size: 400px 100%; animation: cd-skeleton-shimmer 1.2s ease-in-out infinite; color: transparent !important; border-radius: 2px; user-select: none; }
+  .skel.skel-value { display: inline-block; min-width: 60px; height: 28px; }
+
+  /* ============================================================
+     ADMIN · MOBILE IMPROVEMENTS · 2026-05-25
+     This block mirrors the same rules in admin-shell.css so the
+     overview page (which keeps its inline copy) gets the same
+     phone treatment. Phone breakpoint = 720px.
+     ============================================================ */
+  @media (max-width: 720px) {
+    .topbar { padding: 10px 14px; flex-wrap: wrap; gap: 6px 12px; }
+    .topbar .brand { font-size: 12px; letter-spacing: 0.1em; }
+    .topbar .meta { font-size: 10px; gap: 10px; flex-wrap: wrap; width: 100%; }
+
+    .adm-subnav {
+      padding: 6px 14px; gap: 18px;
+      flex-wrap: nowrap; overflow-x: auto;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+      font-size: 11px; letter-spacing: 0.06em;
+    }
+    .adm-subnav::-webkit-scrollbar { display: none; }
+    .adm-subnav a { white-space: nowrap; padding: 8px 0; min-height: 36px; display: inline-flex; align-items: center; }
+
+    .shell { padding: 16px 14px 40px; }
+
+    h1 { font-size: 18px; }
+    h2 { font-size: 12px; margin: 22px 0 10px; }
+    .lede { font-size: 12.5px; margin-bottom: 16px; }
+
+    .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; gap: 10px; margin-bottom: 18px; }
+    .card { padding: 14px 14px; }
+    .card .value { font-size: 22px; }
+
+    /* Integrations · stack each row vertically so the four-grid
+       (dot, name+cat, detail, links) doesn't squash to nothing */
+    .int-row {
+      grid-template-columns: 18px 1fr;
+      grid-template-areas:
+        "dot name"
+        "dot detail"
+        ".   links";
+      gap: 6px 12px;
+      padding: 12px 14px;
+    }
+    .int-row > .int-dot { grid-area: dot; }
+    .int-row > div:nth-child(2) { grid-area: name; }
+    .int-row > div:nth-child(3) { grid-area: detail; }
+    .int-row > div:nth-child(4) { grid-area: links; }
+    .int-row > .int-links { grid-area: links; justify-content: flex-start; }
+
+    /* Tables · horizontal scroll wrapper */
+    .adm,
+    table.adm {
+      display: block; width: 100%;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+      white-space: nowrap;
+    }
+    table.adm thead, table.adm tbody {
+      display: table; width: 100%; min-width: 560px;
+    }
+    table.adm th, table.adm td { padding: 8px 10px; font-size: 12px; }
+    table.adm th { font-size: 10px; }
+
+    /* Cron grid · already responsive (auto-fill 220px) but tighten */
+    .cron-grid { grid-template-columns: 1fr; gap: 10px; }
+    .cron-cell { padding: 12px 14px; }
+    .cron-cell .out { max-height: 320px; font-size: 11px; }
+
+    /* Buttons · 44px tap targets per HIG */
+    .btn, .btn-secondary { min-height: 44px; padding: 10px 14px; }
+
+    /* Status banner · less padding */
+    .status-banner { padding: 10px 12px; font-size: 12.5px; }
+
+    /* iOS safe-area */
+    body { padding-bottom: env(safe-area-inset-bottom); }
+  }
 </style>
 </head>
 <body>
@@ -500,5 +580,6 @@
   setInterval(function () { loadOverview(); loadIntegrations(); loadBackupStatus(); }, 60 * 1000);
 })();
 </script>
+<script src="/admin-shell.js" defer></script>
 </body>
 </html>

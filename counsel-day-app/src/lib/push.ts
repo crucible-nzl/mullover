@@ -8,7 +8,7 @@
  * Backend wires this into:
  *   · evening-prompt cron · "Tonight's vote is ready"
  *   · verdict-reveal cron · "Your verdict is open · open the record"
- *   · invite-accept     · "Alex accepted your decision invite"
+ *   · invite-accept     · "Alexandra accepted your decision invite"
  *
  * If VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY / VAPID_SUBJECT are not
  * set in env, sendPushToUser becomes a no-op (returns a result with

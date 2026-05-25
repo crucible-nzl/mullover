@@ -271,15 +271,15 @@ Counsel.day is the latter: a decision filed via the app delivers a verdict that 
 |---|---|
 | Google Play Console developer account (one-off) | $25 USD |
 | Apple Developer Program (annual, when iOS comes later) | $99 USD/yr |
-| EAS Build · Free tier covers small projects | $0 (paid tier $19/month if we exceed) |
-| Expo Push · Free, unlimited | $0 |
-| FCM (Firebase, backup option) · Free tier | $0 |
+| EAS Build · Free tier covers small projects | $0 USD (paid tier $19 USD/month if we exceed) |
+| Expo Push · Free, unlimited | $0 USD |
+| FCM (Firebase, backup option) · Free tier | $0 USD |
 | Stripe · same per-transaction fee as web | unchanged |
-| Code-signing certificate (Android) · self-managed | $0 |
-| App-store screenshots · I can render mockups, or use real screenshots from dev | $0 if DIY |
-| **Total to first Play Store listing** | **$25** |
+| Code-signing certificate (Android) · self-managed | $0 USD |
+| App-store screenshots · I can render mockups, or use real screenshots from dev | $0 USD if DIY |
+| **Total to first Play Store listing** | **$25 USD** |
 
-Ongoing runtime cost: $0 beyond what counsel.day already pays. Push and notifications free.
+Ongoing runtime cost: $0 USD beyond what counsel.day already pays. Push and notifications free.
 
 ---
 

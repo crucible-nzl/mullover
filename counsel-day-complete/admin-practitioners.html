@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin · Practitioners · Counsel.day</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f7f9fc">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin-shell.css">
+<style>
+  .toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+  .toolbar input { padding: 9px 12px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); font-family: var(--font-ui); font-size: 14px; min-width: 280px; }
+  .toolbar .count { margin-left: auto; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+
+  .pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .pill-btn { padding: 6px 12px; border: 1px solid var(--border); background: var(--surface); color: var(--ink-soft); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+  .pill-btn:hover { color: var(--accent); border-color: var(--accent); }
+  .pill-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .pill-btn .n { font-weight: 600; padding: 1px 6px; background: rgba(0,0,0,0.08); border-radius: 8px; }
+  .pill-btn.active .n { background: rgba(255,255,255,0.25); }
+
+  .pr-tbl { width: 100%; }
+  .pr-tbl td { vertical-align: top; }
+  .pr-tbl td.when { font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); white-space: nowrap; }
+  .pr-tbl td.email { font-family: var(--font-mono); font-size: 11px; word-break: break-all; }
+  .pr-tbl td.name { white-space: nowrap; }
+  .pr-tbl td.actions { white-space: nowrap; text-align: right; }
+  .pr-tbl .status-pill { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; }
+  .pr-tbl .status-pill.pending   { background: #fef3c7; color: #92400e; }
+  .pr-tbl .status-pill.approved  { background: #d1fae5; color: #065f46; }
+  .pr-tbl .status-pill.rejected  { background: #fee2e2; color: #991b1b; }
+  .pr-tbl .status-pill.withdrawn { background: var(--surface-2); color: var(--ink-soft); }
+  .pr-tbl .kind-pill { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 7px; background: var(--surface-2); color: var(--ink-soft); border-radius: 2px; }
+  .pr-tbl tr.open { background: var(--surface-2); }
+  .pr-tbl .open-btn { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; padding: 5px 10px; border: 1px solid var(--border); background: var(--surface); color: var(--ink-soft); cursor: pointer; }
+  .pr-tbl .open-btn:hover { color: var(--accent); border-color: var(--accent); }
+  .pr-tbl .ref-code { font-family: var(--font-mono); font-size: 12px; color: var(--accent); }
+
+  .drill { padding: 18px 22px; background: var(--surface); border-left: 3px solid var(--accent); margin: 2px 0 0; }
+  .drill h3 { font-family: var(--font-ui); font-size: 15px; font-weight: 600; margin: 0 0 12px; color: var(--ink); }
+  .drill .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 22px; margin-bottom: 16px; }
+  .drill .grid .lbl { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  .drill .grid .val { font-family: var(--font-ui); font-size: 13px; color: var(--ink); word-break: break-word; }
+  .drill .freeform { font-family: var(--font-body); font-size: 13px; line-height: 1.5; color: var(--ink-soft); white-space: pre-wrap; padding: 8px 12px; background: var(--surface-2); border-left: 2px solid var(--border); margin: 8px 0; }
+  .drill .actions-row { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 12px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .drill .action-card { flex: 1; min-width: 280px; padding: 14px 16px; border: 1px solid var(--border); background: var(--surface-2); }
+  .drill .action-card h4 { font-family: var(--font-ui); font-size: 13px; font-weight: 600; margin: 0 0 10px; color: var(--ink); }
+  .drill .action-card label { display: block; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 8px 0 4px; }
+  .drill .action-card input, .drill .action-card textarea {
+    width: 100%; padding: 8px 10px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--ink);
+    font-family: var(--font-ui); font-size: 13px; box-sizing: border-box;
+  }
+  .drill .action-card textarea { resize: vertical; min-height: 60px; font-family: var(--font-body); }
+  .drill .action-card .btn-row { display: flex; gap: 8px; margin-top: 12px; }
+  .drill .action-card button { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; padding: 7px 14px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); cursor: pointer; }
+  .drill .action-card .approve { background: #065f46; color: #fff; border-color: #065f46; }
+  .drill .action-card .approve:hover { background: #047857; }
+  .drill .action-card .reject { background: #991b1b; color: #fff; border-color: #991b1b; }
+  .drill .action-card .reject:hover { background: #b91c1c; }
+  .drill .action-card .hint { font-family: var(--font-body); font-style: italic; font-size: 11px; color: var(--muted); margin: 6px 0 0; }
+
+  .pager { margin-top: 14px; display: flex; gap: 10px; align-items: center; }
+  .pager button { font-family: var(--font-mono); font-size: 12px; padding: 7px 14px; border: 1px solid var(--border); background: var(--surface); color: var(--ink-soft); cursor: pointer; }
+  .pager button:disabled { opacity: 0.4; cursor: not-allowed; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">counsel<span class="tld">.day</span> · admin</div>
+  <div class="meta">
+    <a href="/account.html">← User-facing site</a>
+    <span id="adm-identity">…</span>
+    <a href="#" id="adm-logout">Log out</a>
+  </div>
+</div>
+<nav class="adm-subnav" aria-label="Admin sections">
+  <a href="/admin.html">Overview</a>
+  <a href="/admin-users.html">Users</a>
+  <a href="/admin-practitioners.html" class="active">Practitioners</a>
+  <a href="/admin-products.html">Products</a>
+  <a href="/admin-growth.html">Growth</a>
+  <a href="/admin-engagement.html">Engagement</a>
+  <a href="/admin-traffic.html">Traffic</a>
+  <a href="/admin-finance.html">Finance</a>
+  <a href="/admin-verdict-logs.html">Verdict logs</a>
+  <a href="/admin-audit-log.html">Audit log</a>
+  <a href="/admin-database.html">Database</a>
+  <a href="/admin-testing-area.html">Testing area</a>
+</nav>
+
+<div class="shell">
+  <h1>Practitioner referrals</h1>
+  <p class="lede">Applications from /apply-practitioner. Review, approve, or reject. Approval issues a referral code and binds it to a Stripe coupon you create manually first. All actions step-up MFA + audit log.</p>
+  <div id="adm-error" class="status-banner is-error" style="display:none;"></div>
+  <div id="adm-msg" class="status-banner is-ok" style="display:none;"></div>
+
+  <div class="pills" id="p-pills"></div>
+
+  <div class="toolbar">
+    <input type="search" id="p-q" placeholder="Search by name, email, practice, country" autocomplete="off">
+    <span class="count" id="p-count">…</span>
+  </div>
+
+  <table class="pr-tbl">
+    <thead>
+      <tr>
+        <th>Submitted</th>
+        <th>Name</th>
+        <th>Practice</th>
+        <th>Country</th>
+        <th>Kind</th>
+        <th>Expected</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="p-body">
+      <tr><td colspan="8" style="padding: 20px; text-align: center; color: var(--muted); font-family: var(--font-ui);">Loading…</td></tr>
+    </tbody>
+  </table>
+
+  <div class="pager">
+    <button id="p-prev" disabled>← Prev</button>
+    <button id="p-next" disabled>Next →</button>
+    <span id="p-page" style="font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-left: 12px;"></span>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var STATUSES = ['pending', 'approved', 'rejected', 'withdrawn', 'all'];
+  var state = {
+    status: 'pending',
+    q: '',
+    limit: 25,
+    offset: 0,
+    total: 0,
+    counts: {},
+    openId: null
+  };
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { var d = document.createElement('div'); d.textContent = String(s == null ? '' : s); return d.innerHTML; }
+  function fmtDate(s) {
+    if (!s) return '·';
+    var d = new Date(s);
+    return d.toLocaleString(undefined, { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function showError(msg) {
+    var el = $('adm-error'); el.textContent = msg; el.style.display = '';
+    setTimeout(function () { el.style.display = 'none'; }, 8000);
+  }
+  function showOk(msg) {
+    var el = $('adm-msg'); el.textContent = msg; el.style.display = '';
+    setTimeout(function () { el.style.display = 'none'; }, 5000);
+  }
+
+  function renderPills() {
+    var wrap = $('p-pills');
+    wrap.innerHTML = STATUSES.map(function (s) {
+      var n = s === 'all'
+        ? Object.values(state.counts).reduce(function (a, b) { return a + (b || 0); }, 0)
+        : (state.counts[s] || 0);
+      var cls = 'pill-btn' + (state.status === s ? ' active' : '');
+      return '<button class="' + cls + '" data-status="' + s + '">' + s + ' <span class="n">' + n + '</span></button>';
+    }).join('');
+    wrap.querySelectorAll('button').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        state.status = btn.dataset.status;
+        state.offset = 0;
+        load();
+      });
+    });
+  }
+
+  function suggestCode(app) {
+    var base = (app.last_name || app.first_name || 'CODE').replace(/[^A-Za-z]/g, '').toUpperCase().slice(0, 12);
+    return base + '10';
+  }
+
+  function renderRow(app) {
+    var key = 'p-' + app.id;
+    var html =
+      '<tr id="' + key + '">' +
+        '<td class="when">' + esc(fmtDate(app.created_at)) + '</td>' +
+        '<td class="name">' + esc(app.first_name) + ' ' + esc(app.last_name) + '<br><span class="email">' + esc(app.email) + '</span></td>' +
+        '<td>' + esc(app.practice_name) + '<br><span style="font-family: var(--font-mono); font-size: 10px; color: var(--muted);">' + esc(app.role) + '</span></td>' +
+        '<td>' + esc(app.country) + (app.city ? ' · ' + esc(app.city) : '') + '</td>' +
+        '<td><span class="kind-pill">' + esc(app.kind) + '</span></td>' +
+        '<td>' + esc(app.expected_referrals_per_month) + ' /mo</td>' +
+        '<td>' +
+          '<span class="status-pill ' + esc(app.status) + '">' + esc(app.status) + '</span>' +
+          (app.referral_code ? '<br><span class="ref-code">' + esc(app.referral_code) + '</span>' : '') +
+        '</td>' +
+        '<td class="actions"><button class="open-btn" data-open="' + esc(app.id) + '">' + (state.openId === app.id ? '× Close' : 'Open') + '</button></td>' +
+      '</tr>';
+    if (state.openId === app.id) {
+      html += '<tr class="open"><td colspan="8" style="padding: 0;">' + renderDrill(app) + '</td></tr>';
+    }
+    return html;
+  }
+
+  function renderDrill(app) {
+    var suggested = suggestCode(app);
+    var canAct = app.status === 'pending';
+    return '<div class="drill">' +
+      '<h3>Application detail</h3>' +
+      '<div class="grid">' +
+        '<div class="lbl">Email</div><div class="val">' + esc(app.email) + (app.phone ? ' · ' + esc(app.phone) : '') + '</div>' +
+        '<div class="lbl">Role</div><div class="val">' + esc(app.role) + (app.professional_body ? ' · ' + esc(app.professional_body) : '') + '</div>' +
+        '<div class="lbl">Location</div><div class="val">' + esc(app.country) + (app.city ? ' · ' + esc(app.city) : '') + '</div>' +
+        '<div class="lbl">Experience</div><div class="val">' + esc(app.years_in_practice || '·') + ' · ' + esc(app.active_clients || '·') + ' clients</div>' +
+        '<div class="lbl">Expected referrals</div><div class="val">' + esc(app.expected_referrals_per_month) + ' per month</div>' +
+        '<div class="lbl">Payout method</div><div class="val">' + esc(app.payout_method) + '</div>' +
+        '<div class="lbl">Website</div><div class="val">' + (app.website ? '<a href="' + esc(app.website) + '" target="_blank" rel="noopener">' + esc(app.website) + '</a>' : '·') + '</div>' +
+        '<div class="lbl">Submitted</div><div class="val">' + esc(fmtDate(app.created_at)) + '</div>' +
+        (app.referral_code ? '<div class="lbl">Referral code</div><div class="val ref-code" style="font-family: var(--font-mono); color: var(--accent);">' + esc(app.referral_code) + '</div>' : '') +
+        (app.stripe_coupon_id ? '<div class="lbl">Stripe coupon</div><div class="val" style="font-family: var(--font-mono);">' + esc(app.stripe_coupon_id) + '</div>' : '') +
+      '</div>' +
+      (app.client_focus ? '<div class="lbl" style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-top: 8px;">Client focus</div><div class="freeform">' + esc(app.client_focus) + '</div>' : '') +
+      (app.notes ? '<div class="lbl" style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-top: 8px;">Notes</div><div class="freeform">' + esc(app.notes) + '</div>' : '') +
+      (canAct
+        ? '<div class="actions-row">' +
+            '<div class="action-card">' +
+              '<h4>Approve</h4>' +
+              '<label>Referral code (uppercase, A-Z 0-9 _ -)</label>' +
+              '<input id="ap-code-' + esc(app.id) + '" type="text" value="' + esc(suggested) + '" maxlength="40">' +
+              '<label>Stripe coupon ID</label>' +
+              '<input id="ap-coupon-' + esc(app.id) + '" type="text" placeholder="coupon_xxxxxxxxxxxx" maxlength="80">' +
+              '<p class="hint">Create the coupon in Stripe first (10% off, code = the referral code above). Paste the coupon ID here.</p>' +
+              '<div class="btn-row"><button class="approve" data-act="approve" data-id="' + esc(app.id) + '">Approve + email applicant</button></div>' +
+            '</div>' +
+            '<div class="action-card">' +
+              '<h4>Reject</h4>' +
+              '<label>Reason (optional · sent in the rejection email)</label>' +
+              '<textarea id="ap-reason-' + esc(app.id) + '" placeholder="e.g. We are not opening more practitioner slots in your region right now."></textarea>' +
+              '<div class="btn-row"><button class="reject" data-act="reject" data-id="' + esc(app.id) + '">Reject + email applicant</button></div>' +
+            '</div>' +
+          '</div>'
+        : '<p class="hint" style="font-family: var(--font-body); font-style: italic; font-size: 12px; color: var(--muted); margin-top: 12px;">This application is in status <strong>' + esc(app.status) + '</strong> · no further actions available.</p>') +
+      '</div>';
+  }
+
+  function bindRowActions() {
+    document.querySelectorAll('[data-open]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.dataset.open;
+        state.openId = state.openId === id ? null : id;
+        render();
+      });
+    });
+    document.querySelectorAll('[data-act]').forEach(function (btn) {
+      btn.addEventListener('click', function () { performAction(btn.dataset.id, btn.dataset.act); });
+    });
+  }
+
+  function performAction(id, action) {
+    var body = { application_id: id, action: action };
+    if (action === 'approve') {
+      var codeEl = document.getElementById('ap-code-' + id);
+      var couponEl = document.getElementById('ap-coupon-' + id);
+      body.referral_code = codeEl ? codeEl.value.trim().toUpperCase() : '';
+      body.stripe_coupon_id = couponEl ? couponEl.value.trim() : '';
+      if (!body.referral_code) { showError('Referral code required.'); return; }
+      if (!body.stripe_coupon_id) { showError('Stripe coupon ID required. Create the coupon in Stripe first.'); return; }
+      if (!confirm('Approve and email applicant?\n\nCode: ' + body.referral_code + '\nCoupon: ' + body.stripe_coupon_id)) return;
+    } else if (action === 'reject') {
+      var reasonEl = document.getElementById('ap-reason-' + id);
+      body.reason = reasonEl ? reasonEl.value.trim() : '';
+      if (!confirm('Reject and email applicant?')) return;
+    }
+
+    fetch('/api/admin/practitioners', {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body)
+    })
+    .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+    .then(function (res) {
+      if (res.status === 403 && res.body && res.body.message && /mfa/i.test(res.body.message)) {
+        if (window.cdAdminMfa) window.cdAdminMfa(function () { performAction(id, action); });
+        else showError('Step-up MFA required. Sign out and back in.');
+        return;
+      }
+      if (res.status !== 200 || !res.body.ok) {
+        showError((res.body && res.body.message) || 'Action failed.');
+        return;
+      }
+      showOk(res.body.message || 'Done.');
+      state.openId = null;
+      load();
+    })
+    .catch(function () { showError('Network error.'); });
+  }
+
+  function render() {
+    renderPills();
+    var body = $('p-body');
+    if (!state.applications || state.applications.length === 0) {
+      body.innerHTML = '<tr><td colspan="8" style="padding: 20px; text-align: center; color: var(--muted); font-family: var(--font-ui);">No applications match this view.</td></tr>';
+    } else {
+      body.innerHTML = state.applications.map(renderRow).join('');
+    }
+    bindRowActions();
+    $('p-count').textContent = state.total + ' total · showing ' + state.applications.length;
+    $('p-prev').disabled = state.offset <= 0;
+    $('p-next').disabled = state.offset + state.applications.length >= state.total;
+    $('p-page').textContent = 'Rows ' + (state.applications.length === 0 ? 0 : state.offset + 1) + '-' + (state.offset + state.applications.length) + ' of ' + state.total;
+  }
+
+  function load() {
+    var q = new URLSearchParams();
+    q.set('status', state.status);
+    if (state.q) q.set('q', state.q);
+    q.set('limit', String(state.limit));
+    q.set('offset', String(state.offset));
+    fetch('/api/admin/practitioners?' + q.toString(), { credentials: 'include' })
+      .then(function (r) {
+        if (r.status === 401 || r.status === 403) { window.location.href = '/signin?next=/admin-practitioners.html'; throw new Error('auth'); }
+        return r.json();
+      })
+      .then(function (d) {
+        if (!d || !d.ok) { showError((d && d.message) || 'Could not load applications.'); return; }
+        state.total = d.total;
+        state.counts = d.counts || {};
+        state.applications = d.applications || [];
+        render();
+      })
+      .catch(function (e) { if (e && e.message !== 'auth') showError('Network error loading applications.'); });
+  }
+
+  // ---- bindings ----
+  $('p-q').addEventListener('input', function (e) {
+    state.q = e.target.value;
+    state.offset = 0;
+    clearTimeout(window.__pq);
+    window.__pq = setTimeout(load, 300);
+  });
+  $('p-prev').addEventListener('click', function () { state.offset = Math.max(0, state.offset - state.limit); load(); });
+  $('p-next').addEventListener('click', function () { state.offset += state.limit; load(); });
+
+  // Identity bootstrap (mirrors other admin pages)
+  fetch('/api/me', { credentials: 'include' })
+    .then(function (r) { return r.json(); })
+    .then(function (d) { if (d && d.ok && d.user) $('adm-identity').textContent = d.user.email; })
+    .catch(function () {});
+  $('adm-logout').addEventListener('click', function (e) {
+    e.preventDefault();
+    fetch('/api/signout', { method: 'POST', credentials: 'include' })
+      .then(function () { window.location.href = '/signin?next=/admin-practitioners.html'; });
+  });
+
+  load();
+})();
+</script>
+
+</body>
+</html>

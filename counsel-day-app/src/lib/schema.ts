@@ -527,6 +527,47 @@ export const products = pgTable(
 );
 
 // ---------------------------------------------------------------------------
+// PRACTITIONER_APPLICATIONS · intake for the referral program (counsellors +
+// therapists). Form lives at /apply-practitioner.html; admin reviews
+// manually before issuing a referral code + Stripe coupon.
+// ---------------------------------------------------------------------------
+export const practitionerApplications = pgTable(
+  'practitioner_applications',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    kind: text('kind').notNull(), // 'counsellor' | 'therapist'
+    firstName: text('first_name').notNull(),
+    lastName: text('last_name').notNull(),
+    email: text('email').notNull(),
+    phone: text('phone'),
+    practiceName: text('practice_name').notNull(),
+    role: text('role').notNull(),
+    professionalBody: text('professional_body'),
+    country: text('country').notNull(),
+    city: text('city'),
+    yearsInPractice: text('years_in_practice'),
+    activeClients: text('active_clients'),
+    expectedReferralsPerMonth: text('expected_referrals_per_month').notNull(),
+    payoutMethod: text('payout_method').notNull(),
+    clientFocus: text('client_focus'),
+    website: text('website'),
+    notes: text('notes'),
+    status: text('status').notNull().default('pending'),
+    referralCode: text('referral_code'),
+    stripeCouponId: text('stripe_coupon_id'),
+    reviewedBy: uuid('reviewed_by').references(() => users.id, { onDelete: 'set null' }),
+    reviewedAt: timestamp('reviewed_at', { withTimezone: true }),
+    ip: text('ip'),
+    userAgent: text('user_agent'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    statusIdx: index('practitioner_applications_status_idx').on(t.status, t.createdAt),
+  })
+);
+
+// ---------------------------------------------------------------------------
 // PUSH SUBSCRIPTIONS · Web Push endpoint per (user, browser/device). The
 // p256dh + auth keys are the asymmetric pieces the push library needs to
 // encrypt payloads to that specific subscription.

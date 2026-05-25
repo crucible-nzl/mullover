@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<!-- Order is load-bearing: Consent Mode v2 defaults MUST be set BEFORE -->
+<!-- GTM and gtag load, or the first pageview ships before user choice. -->
+<!-- This block is injected into every public HTML <head> by             -->
+<!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
+
+
+<!-- Preconnect to GA endpoints -->
+<link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+<link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
+<!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':         'denied',
+    'ad_user_data':       'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage':  'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage':   'granted',
+    'wait_for_update':    500
+  });
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':         'denied',
+      'ad_user_data':       'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage':  'denied'
+    });
+  }
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', {
+    'anonymize_ip': true,
+    'allow_google_signals': false,
+    'allow_ad_personalization_signals': false
+  });
+</script>
+<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
+
+<title>Apply to the practitioner referral program · Counsel.day</title>
+<meta name="description" content="Apply to the Counsel.day practitioner referral program. Counsellors, coaches, mediators, therapists. 10% off for your client; 15% quarterly share for you.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://counsel.day/apply-practitioner">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="styles-i8.css">
+
+<style>
+  .ap-page { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+  .ap-head { margin: 32px 0 28px; }
+  .ap-head .eyebrow {
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--wine); margin: 0 0 14px;
+  }
+  .ap-head h1 {
+    font-family: var(--font-display); font-weight: 500;
+    font-size: 36px; line-height: 1.15; color: var(--ink); margin: 0 0 16px;
+  }
+  .ap-head h1 .ital { font-style: italic; color: var(--wine); }
+  .ap-head .lede {
+    font-family: var(--font-body); font-size: 17px; line-height: 1.55;
+    color: var(--ink-soft); margin: 0;
+  }
+
+  .ap-summary {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    margin: 0 0 32px; padding: 18px 20px;
+    border: 1px solid var(--rule); background: var(--paper-deep);
+  }
+  .ap-summary div { font-family: var(--font-body); font-size: 14px; color: var(--ink-soft); }
+  .ap-summary strong { color: var(--wine); font-weight: 500; }
+
+  .ap-form fieldset {
+    border: none; padding: 0; margin: 0 0 28px;
+  }
+  .ap-form legend {
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--wine); padding: 0; margin: 0 0 14px;
+  }
+  .ap-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 14px; }
+  .ap-row.single { grid-template-columns: 1fr; }
+  @media (max-width: 600px) {
+    .ap-row { grid-template-columns: 1fr; }
+  }
+
+  .ap-field { display: flex; flex-direction: column; gap: 6px; }
+  .ap-field label {
+    font-family: var(--font-body); font-size: 13px; font-weight: 500;
+    color: var(--ink); letter-spacing: 0.02em;
+  }
+  .ap-field .hint {
+    font-family: var(--font-body); font-style: italic; font-size: 12px;
+    color: var(--muted); margin-top: -2px;
+  }
+  .ap-field input,
+  .ap-field select,
+  .ap-field textarea {
+    font-family: var(--font-body); font-size: 15px; color: var(--ink);
+    background: var(--paper); border: 1px solid var(--ink);
+    padding: 10px 12px; border-radius: 0; width: 100%;
+  }
+  .ap-field input:focus,
+  .ap-field select:focus,
+  .ap-field textarea:focus {
+    outline: none; border-color: var(--wine);
+    box-shadow: 0 0 0 2px var(--wine-soft);
+  }
+  .ap-field textarea { min-height: 88px; resize: vertical; }
+
+  .ap-required::after { content: " *"; color: var(--wine); }
+
+  .ap-submit-row {
+    display: flex; align-items: center; gap: 18px;
+    padding: 22px 0 0; border-top: 1px solid var(--rule); margin-top: 18px;
+  }
+  .ap-submit-row .meta {
+    font-family: var(--font-body); font-style: italic; font-size: 13px;
+    color: var(--muted); flex: 1;
+  }
+
+  .ap-status {
+    margin: 18px 0 0; padding: 14px 16px;
+    font-family: var(--font-body); font-size: 14px; line-height: 1.5;
+    display: none;
+  }
+  .ap-status.ok      { background: var(--wine-soft); border-left: 3px solid var(--wine); color: var(--ink); }
+  .ap-status.err     { background: #fdecea; border-left: 3px solid #c0392b; color: #6b1e16; }
+  .ap-status.show    { display: block; }
+</style>
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="how-it-works.html">How it works</a>
+      <a href="the-experience.html">The experience</a>
+      <a href="use-cases.html">Use cases</a>
+      <a href="durations.html">Durations</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="faq.html">FAQ</a>
+    </div>
+    <div class="nav-cta">
+      <a href="account.html" class="btn-text">Sign in</a>
+      <a href="signup.html" class="btn">Begin a decision</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content">
+  <div class="ap-page">
+
+    <div class="ap-head">
+      <div class="eyebrow" id="ap-eyebrow">REFERRAL PROGRAM · APPLICATION</div>
+      <h1>Apply to the Counsel.day referral <span class="ital" id="ap-kind">program.</span></h1>
+      <p class="lede">Five minutes to fill in. We reply within one business day. If the fit looks right we send a one-page agreement; once signed your referral code is issued.</p>
+    </div>
+
+    <div class="ap-summary">
+      <div><strong>10% off</strong> for your client when they enter your code at checkout</div>
+      <div><strong>15% quarterly share</strong> on every paid decision they file</div>
+      <div>Paid in <strong>USD</strong> · bank transfer or Stripe</div>
+      <div>No fee to join · no minimum referral commitment</div>
+    </div>
+
+    <form class="ap-form" id="ap-form" novalidate>
+
+      <fieldset>
+        <legend>Section 01 · About you</legend>
+        <div class="ap-row">
+          <div class="ap-field">
+            <label for="ap-first" class="ap-required">First name</label>
+            <input id="ap-first" name="first_name" type="text" autocomplete="given-name" required maxlength="80">
+          </div>
+          <div class="ap-field">
+            <label for="ap-last" class="ap-required">Last name</label>
+            <input id="ap-last" name="last_name" type="text" autocomplete="family-name" required maxlength="80">
+          </div>
+        </div>
+        <div class="ap-row">
+          <div class="ap-field">
+            <label for="ap-email" class="ap-required">Contact email</label>
+            <input id="ap-email" name="email" type="email" autocomplete="email" required maxlength="200">
+          </div>
+          <div class="ap-field">
+            <label for="ap-phone">Phone (optional)</label>
+            <input id="ap-phone" name="phone" type="tel" autocomplete="tel" maxlength="40">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Section 02 · Your practice</legend>
+        <div class="ap-row single">
+          <div class="ap-field">
+            <label for="ap-practice" class="ap-required">Practice name</label>
+            <input id="ap-practice" name="practice_name" type="text" autocomplete="organization" required maxlength="120">
+            <span class="hint">Use your trading name, or your full name if you practise as yourself.</span>
+          </div>
+        </div>
+        <div class="ap-row">
+          <div class="ap-field">
+            <label for="ap-role" class="ap-required">Your role</label>
+            <select id="ap-role" name="role" required>
+              <option value="">Select…</option>
+              <option>Counsellor</option>
+              <option>Therapist · psychotherapist</option>
+              <option>Therapist · psychologist</option>
+              <option>Therapist · MFT / couples</option>
+              <option>Coach · life</option>
+              <option>Coach · executive</option>
+              <option>Coach · career</option>
+              <option>Mediator</option>
+              <option>Financial advisor</option>
+              <option>Other guidance practitioner</option>
+            </select>
+          </div>
+          <div class="ap-field">
+            <label for="ap-body">Professional body (optional)</label>
+            <input id="ap-body" name="professional_body" type="text" maxlength="200" placeholder="e.g. BACP, ACA, NZAC">
+            <span class="hint">If you are registered with one. We do not require it.</span>
+          </div>
+        </div>
+        <div class="ap-row">
+          <div class="ap-field">
+            <label for="ap-country" class="ap-required">Country</label>
+            <input id="ap-country" name="country" type="text" autocomplete="country-name" required maxlength="80">
+          </div>
+          <div class="ap-field">
+            <label for="ap-city">City (optional)</label>
+            <input id="ap-city" name="city" type="text" autocomplete="address-level2" maxlength="80">
+          </div>
+        </div>
+        <div class="ap-row">
+          <div class="ap-field">
+            <label for="ap-years">Years in practice (optional)</label>
+            <select id="ap-years" name="years_in_practice">
+              <option value="">Select…</option>
+              <option>0-2</option>
+              <option>3-5</option>
+              <option>6-10</option>
+              <option>11-20</option>
+              <option>20+</option>
+            </select>
+          </div>
+          <div class="ap-field">
+            <label for="ap-clients">Active clients · roughly</label>
+            <select id="ap-clients" name="active_clients">
+              <option value="">Select…</option>
+              <option>1-10</option>
+              <option>11-25</option>
+              <option>26-50</option>
+              <option>51-100</option>
+              <option>100+</option>
+            </select>
+            <span class="hint">A rough head-count. No need to be exact.</span>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Section 03 · Fit with Counsel.day</legend>
+        <div class="ap-row">
+          <div class="ap-field">
+            <label for="ap-expected" class="ap-required">Expected referrals per month</label>
+            <select id="ap-expected" name="expected_referrals_per_month" required>
+              <option value="">Select…</option>
+              <option>0-1</option>
+              <option>2-4</option>
+              <option>5-10</option>
+              <option>11-25</option>
+              <option>25+</option>
+            </select>
+            <span class="hint">Your honest guess. No commitment attached.</span>
+          </div>
+          <div class="ap-field">
+            <label for="ap-payout" class="ap-required">Preferred payout method</label>
+            <select id="ap-payout" name="payout_method" required>
+              <option value="">Select…</option>
+              <option>Stripe Connect</option>
+              <option>Bank transfer (international)</option>
+              <option>Donate to a charity I nominate</option>
+              <option>I'll decide later</option>
+            </select>
+          </div>
+        </div>
+        <div class="ap-row single">
+          <div class="ap-field">
+            <label for="ap-clients-desc">Who do your clients tend to be? (optional)</label>
+            <textarea id="ap-clients-desc" name="client_focus" maxlength="800" placeholder="One or two sentences. e.g. 'Couples in their thirties working through housing and family decisions.' Helps us know whether the tool actually suits your caseload."></textarea>
+          </div>
+        </div>
+        <div class="ap-row single">
+          <div class="ap-field">
+            <label for="ap-website">Website (optional)</label>
+            <input id="ap-website" name="website" type="url" autocomplete="url" maxlength="240" placeholder="https://">
+          </div>
+        </div>
+        <div class="ap-row single">
+          <div class="ap-field">
+            <label for="ap-notes">Anything else we should know? (optional)</label>
+            <textarea id="ap-notes" name="notes" maxlength="2000" placeholder="Questions about the program, specific use cases on your mind, anything that would help us decide."></textarea>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Honeypot · invisible to humans, catches naive bots -->
+      <div style="position: absolute; left: -9999px; top: -9999px;" aria-hidden="true">
+        <label>Leave this blank <input type="text" name="company_url" tabindex="-1" autocomplete="off"></label>
+      </div>
+
+      <input type="hidden" name="kind" id="ap-kind-input" value="counsellor">
+
+      <div class="ap-submit-row">
+        <button type="submit" class="btn btn-large" id="ap-submit">Submit application</button>
+        <span class="meta">By submitting you agree we may contact you about the program. We do not market to you for any other purpose.</span>
+      </div>
+
+      <div class="ap-status" id="ap-status" role="status" aria-live="polite"></div>
+
+    </form>
+
+  </div>
+</main>
+
+<!-- CD:PARTIAL:colophon -->
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>For practitioners</h5>
+        <a href="counsellors.html">Counsellors</a>
+        <a href="therapists.html">Therapists</a>
+        <a href="apply-practitioner.html">Apply to the program</a>
+      </div>
+    </div>
+  </div>
+</footer>
+<!-- /CD:PARTIAL:colophon -->
+
+<script src="ga4.js" defer></script>
+<script>
+  /* Tailor the page based on ?kind= so a single form serves both
+     counsellors and therapists. */
+  (function () {
+    var params = new URLSearchParams(window.location.search);
+    var kind = (params.get('kind') || 'counsellor').toLowerCase();
+    if (kind !== 'therapist') kind = 'counsellor';
+    document.getElementById('ap-kind-input').value = kind;
+    var kindLabel = kind === 'therapist' ? 'therapist program.' : 'practitioner program.';
+    document.getElementById('ap-kind').textContent = kindLabel;
+    document.getElementById('ap-eyebrow').textContent = 'REFERRAL PROGRAM · ' + (kind === 'therapist' ? 'FOR THERAPISTS' : 'FOR COUNSELLORS') + ' · APPLICATION';
+
+    var form = document.getElementById('ap-form');
+    var btn = document.getElementById('ap-submit');
+    var status = document.getElementById('ap-status');
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      status.className = 'ap-status';
+      status.textContent = '';
+      var fd = new FormData(form);
+      var payload = {};
+      fd.forEach(function (v, k) { payload[k] = String(v); });
+
+      var origLabel = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Submitting' + String.fromCharCode(0x2026);
+
+      fetch('/api/practitioner/apply', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+      .then(function (res) {
+        if (res.status === 200 && res.body && res.body.ok) {
+          form.reset();
+          status.classList.add('ok', 'show');
+          status.innerHTML = '<strong>Application received.</strong> We reply within one business day to the email you supplied. Look for a note from <code>practitioners@counsel.day</code>.';
+          if (window.gtag) window.gtag('event', 'practitioner_apply_submit', { kind: payload.kind });
+        } else {
+          status.classList.add('err', 'show');
+          var msg = (res.body && (res.body.message || JSON.stringify(res.body.field_errors || {}))) || 'Could not submit. Please try again.';
+          status.textContent = msg;
+        }
+        btn.disabled = false;
+        btn.textContent = origLabel;
+      })
+      .catch(function () {
+        status.classList.add('err', 'show');
+        status.textContent = 'Network error. Please try again or email hello@counsel.day.';
+        btn.disabled = false;
+        btn.textContent = origLabel;
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>

@@ -60,8 +60,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </script>
 <!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
 
-<title>For therapists · The Counsel.day referral program · Counsel.day</title>
-<meta name="description" content="A Counsel.day referral program for therapists. Recommend the tool to clients facing a hard decision; receive 20% of their referral spend each quarter.">
+<title>For therapists · Counsel.day referral program · 10% off your client, 15% to you</title>
+<meta name="description" content="Therapists: send your clients a sealed-vote decision tool for the questions a single session can't settle. Your client gets 10% off with your code; you receive 15% of every paid decision they file, paid quarterly in USD.">
 <meta name="author" content="James Graham, founder of Counsel.day">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="canonical" href="https://counsel.day/therapists">
@@ -70,7 +70,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Counsel.day">
 <meta property="og:title" content="For therapists · Counsel.day referral program">
-<meta property="og:description" content="A referral program for therapists whose clients are working through a hard decision. Recommend the tool; receive 20% of their spend each quarter.">
+<meta property="og:description" content="10% off for your client. 15% quarterly share for you. A sealed-vote decision tool for the questions a single session can't settle.">
 <meta property="og:url" content="https://counsel.day/therapists">
 <meta property="og:image" content="https://counsel.day/og-image.png">
 <meta property="og:image:width" content="1200">
@@ -78,7 +78,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta property="og:locale" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="For therapists · Counsel.day referral program">
-<meta name="twitter:description" content="A referral program for therapists. Recommend Counsel.day; receive 20% of your client's spend each quarter.">
+<meta name="twitter:description" content="10% off for your client. 15% quarterly share for you. Sealed-vote decision tool.">
 <meta name="twitter:image" content="https://counsel.day/og-image.png">
 <meta property="article:modified_time" content="2026-05-15T19:00:00+12:00">
 <meta name="theme-color" content="#ffffff">
@@ -116,6 +116,90 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <link rel="stylesheet" href="/fonts/fonts.css">
 <link rel="stylesheet" href="styles-i8.css">
 <style>
+  /* Two-column hero so the right side of the page is never empty.
+     Prose on the left, sticky numbers card on the right. Collapses
+     to single-column at 880px. */
+  .pract-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 56px;
+    align-items: start;
+    margin: 22px 0 36px;
+  }
+  .pract-hero-prose .method-page-title { margin: 0 0 18px; }
+  .pract-hero-prose .method-page-lede { margin: 0 0 22px; max-width: none; }
+  @media (max-width: 880px) {
+    .pract-hero { grid-template-columns: 1fr; gap: 32px; }
+  }
+
+  /* The numbers + apply card. Border-only per i8 brand · no shadow. */
+  .pract-card {
+    border: 1px solid var(--ink);
+    background: var(--paper);
+    padding: 26px 26px 22px;
+    position: sticky;
+    top: 96px;
+  }
+  .pract-card-eyebrow {
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--wine); margin: 0 0 18px;
+  }
+  .pract-card-nums { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 0 0 22px; }
+  .pract-card-num .big {
+    font-family: var(--font-display); font-weight: 500;
+    font-size: 44px; line-height: 1; color: var(--wine);
+    display: block; margin-bottom: 8px;
+  }
+  .pract-card-num .lbl {
+    font-family: var(--font-body); font-style: italic;
+    font-size: 13px; line-height: 1.4; color: var(--ink-soft);
+    display: block;
+  }
+  .pract-card .btn { width: 100%; text-align: center; }
+  .pract-card-fine {
+    font-family: var(--font-body); font-style: italic;
+    font-size: 12px; line-height: 1.5; color: var(--muted);
+    margin: 14px 0 0; text-align: center;
+  }
+
+  /* Two-card "what it does / what's in it for you" section. */
+  .pract-twocol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin: 32px 0;
+  }
+  .pract-twocol-cell {
+    border: 1px solid var(--rule);
+    padding: 24px 26px;
+    background: var(--paper);
+  }
+  .pract-twocol-cell .eyebrow {
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--wine); margin: 0 0 12px;
+  }
+  .pract-twocol-cell h3 {
+    font-family: var(--font-display); font-weight: 500;
+    font-size: 22px; line-height: 1.3; color: var(--ink);
+    margin: 0 0 14px;
+  }
+  .pract-twocol-cell ul {
+    list-style: none; padding: 0; margin: 0;
+    font-family: var(--font-body); font-size: 15px; line-height: 1.55; color: var(--ink-soft);
+  }
+  .pract-twocol-cell li {
+    padding: 6px 0 6px 18px; position: relative;
+  }
+  .pract-twocol-cell li::before {
+    content: "·"; position: absolute; left: 0; top: 4px;
+    color: var(--wine); font-weight: 700;
+  }
+  @media (max-width: 720px) {
+    .pract-twocol { grid-template-columns: 1fr; }
+  }
+
   .boundary-card {
     background: var(--paper-deep);
     border-left: 4px solid var(--wine);
@@ -173,20 +257,58 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <span>For therapists</span>
     </div>
 
-    <div class="method-page-head">
-      <div class="method-page-eyebrow">REFERRAL PROGRAM</div>
-      <h1 class="method-page-title">A referral program for therapists working with clients on a hard <span class="ital">decision.</span></h1>
-      <p class="method-page-lede">Counsel.day is a private decision tool for the questions a single conversation cannot settle. When a client of yours is circling one of those questions, referring them to Counsel.day gives them a structured way to capture what they (and their partner, if there is one) actually think across the days between sessions, before the next session begins. In return, we pay you <strong>20% of their referral spend each quarter,</strong> for as long as their account remains active, and we send you a quarterly summary report on the work referred clients did with the tool.</p>
-      <div class="method-page-meta">
-        <div class="item"><span>Apply</span><span class="val wine">therapists@counsel.day</span></div>
-        <div class="item"><span>Referral share</span><span class="val">20% of spend</span></div>
-        <div class="item"><span>Payout cadence</span><span class="val">Quarterly · in USD</span></div>
+    <div class="pract-hero">
+      <div class="pract-hero-prose">
+        <div class="method-page-eyebrow">REFERRAL PROGRAM · FOR THERAPISTS</div>
+        <h1 class="method-page-title">Help your clients arrive at the next session having actually <span class="ital">decided.</span></h1>
+        <p class="method-page-lede">Counsel.day is a private decision tool for the question a client of yours keeps circling between sessions · house, career, partnership, family. They vote one private button each evening for a duration they choose. On the final day a sealed verdict opens with a five-layer analysis of where they actually landed. They bring it into your room; the session is still the session.</p>
+        <p class="method-page-lede" style="margin-top: 16px;">Your clients get <strong>10% off</strong> any Counsel.day decision they file with your referral code. You receive <strong>15% of every paid decision</strong> they file, paid in arrears each quarter in USD, plus a quarterly summary report on what referred clients did with the tool.</p>
       </div>
+      <aside class="pract-card">
+        <div class="pract-card-eyebrow">At a glance</div>
+        <div class="pract-card-nums">
+          <div class="pract-card-num">
+            <span class="big">10%</span>
+            <span class="lbl">off for your client when they use your code</span>
+          </div>
+          <div class="pract-card-num">
+            <span class="big">15%</span>
+            <span class="lbl">of every paid decision · paid quarterly in USD</span>
+          </div>
+        </div>
+        <a href="apply-practitioner.html?kind=therapist" class="btn btn-large">Apply to the program</a>
+        <p class="pract-card-fine">No fee to join · no minimum commitment · we reply within one business day</p>
+      </aside>
     </div>
 
     <div class="founder-case">
       <div class="label">A note on what this is and is not</div>
-      <p><strong>Counsel.day is a data tool, not a therapeutic intervention.</strong> The product is not validated, built, tested, or endorsed by clinicians; the founder, James Graham, is a data professional, not a therapist. The referral program is a sales-channel relationship; it is not a clinical partnership and does not imply clinical endorsement in either direction.</p>
+      <p><strong>Counsel.day is a data tool, not a therapeutic intervention.</strong> The product is not validated, built, tested, or endorsed by clinicians or therapeutic bodies; the founder, James Graham, is a data professional, not a therapist. The referral program is a sales-channel relationship; it is not a professional partnership and does not imply endorsement in either direction.</p>
+    </div>
+
+    <div class="pract-twocol">
+      <div class="pract-twocol-cell">
+        <div class="eyebrow">What it does for your client</div>
+        <h3>Captures the question across the days between your sessions.</h3>
+        <ul>
+          <li>One private vote each evening on the same question</li>
+          <li>A note field for the thought of the day · typed or spoken (30s voice cap)</li>
+          <li>Every vote sealed until the close · neither partner can be anchored by the other</li>
+          <li>On the final day, a five-layer verdict: trajectory, agreement curve, themes from notes, AI-written synthesis, and one specific next-conversation prompt</li>
+          <li>The verdict is the material they bring into your room</li>
+        </ul>
+      </div>
+      <div class="pract-twocol-cell">
+        <div class="eyebrow">What is in it for you</div>
+        <h3>A referral share and a quarterly read on the work.</h3>
+        <ul>
+          <li><strong>10% discount</strong> applied automatically when the client enters your unique code at checkout</li>
+          <li><strong>15% of every paid decision</strong> they file, for as long as the account is active</li>
+          <li>Payouts <strong>quarterly in USD</strong> · bank transfer or Stripe · $50 USD minimum</li>
+          <li>Quarterly summary report · anonymous, aggregate, no client identities</li>
+          <li>No fee to join · no minimum referral commitment · leave any time</li>
+        </ul>
+      </div>
     </div>
 
     <section class="method-stage">
@@ -195,8 +317,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <h2 class="method-stage-title">How a Counsel.day <span class="ital">referral</span> works.</h2>
       </div>
       <div class="method-stage-body">
-        <p>When you join the program, we issue you a personal referral link. Your client signs up through the link; the link binds the new account to your referral code for the lifetime of the account. We do not share your client's identity with you, and we never share your name or contact with your client; the binding is internal to our billing system.</p>
-        <p>From the day the account is paid, every quarter for as long as the account remains active, we pay you 20% of the gross subscription spend from that account. Payouts are made in USD by bank transfer or Stripe; the threshold is $50.00 USD per quarter; balances below the threshold carry forward to the next quarter.</p>
+        <p>When you join the program, we issue you <strong>one personal referral code</strong> (something like <code style="font-family: var(--font-mono); background: var(--paper-deep); padding: 2px 6px;">DRSMITH10</code>). Two things happen with it.</p>
+        <p><strong>Your client uses the code at checkout.</strong> They enter it on the Stripe payment page when they file a decision. The code applies a <strong>10% discount</strong> automatically and binds the resulting account to your referral for the lifetime of the account. They can use the code on a Solo, Couple, or Family decision. They do not need to remember it after the first use · the account stays bound.</p>
+        <p><strong>You receive the share each quarter.</strong> From the day the first payment lands, every quarter for as long as the account is active, we pay you <strong>15% of the gross spend</strong> from that account, in USD, by bank transfer or Stripe. The minimum payout threshold is $50.00 USD per quarter; balances below it carry forward. We never share your client's identity with you, and we never share your name or contact with them; the binding is internal to our billing system.</p>
       </div>
     </section>
 
@@ -207,19 +330,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
       <div class="method-stage-body">
         <p>Two things, every quarter.</p>
-        <p><strong>The first is the referral share.</strong> Twenty per cent of every paid month from every account you referred, paid in arrears, in USD. Solo Plus, Couple, and Family editions are all included. The free Solo tier is excluded because there is no spend to share.</p>
-        <p><strong>The second is the quarterly summary report.</strong> A short PDF that gives you an anonymous, aggregate read on what your referred clients did with the tool: how many decisions they opened, average duration, distribution across decision classes (family, home, career, partnership), and aggregate completion rate. The report does not name individual clients or quote from anyone's notes; it is built from non-identifying counts.</p>
+        <p><strong>The first is the referral share.</strong> 15% of every paid decision from every account you referred, paid in arrears, in USD. Paid Solo ($9.99 USD), Couple ($15.99 USD), and Family ($29.99 USD) decisions all count. The free first Solo decision is excluded because there is no spend to share.</p>
+        <p><strong>The second is the quarterly summary report.</strong> A short PDF that gives you an anonymous, aggregate read on what your referred clients did with the tool: how many decisions they opened, average duration, distribution across decision classes (career, home and place, partnership, family), and aggregate completion rate. The report does not name individual clients or quote from anyone's notes; it is built from non-identifying counts.</p>
       </div>
     </section>
 
 <section class="method-stage">
       <div class="method-stage-head">
         <div class="method-stage-eyebrow">WHO COUNSEL.DAY IS FOR</div>
-        <h2 class="method-stage-title">A data tool that arrives before the <span class="ital">conversation.</span></h2>
+        <h2 class="method-stage-title">A data tool that arrives before the <span class="ital">guidance</span> conversation.</h2>
       </div>
       <div class="method-stage-body">
-        <p>Counsel.day is built for the specific class of decision that has been circling for weeks or months without resolution, where a single conversation has repeatedly failed to settle it, and where each partner's feelings shift across days and weeks in ways neither of them can hold onto. Four classes of question come up most often: family and reproduction, home and place, career, and the partnership itself.</p>
-        <p>The product is not a substitute for couples therapy, individual therapy, or any form of clinical care. It does not deliver an intervention, a diagnosis, or a treatment plan. What it delivers is a structured longitudinal capture of two people's positions on one question, with an analysis on the final day that surfaces the trajectory, the themes, and the underlying axis of disagreement. That capture is the data a therapist can bring into a session; the session is still the session.</p>
+        <p>Counsel.day is built for the specific class of decision that has been circling for weeks or months without resolution, where a single conversation has repeatedly failed to settle it, and where the person (or couple) deciding has feelings that shift across days and weeks in ways they cannot otherwise hold onto. Career questions, home and place questions, partnership questions, family questions: these are the four most common classes the tool supports.</p>
+        <p>The product is not a therapeutic intervention or a substitute for therapy. It does not deliver clinical care, diagnosis, or treatment. What it delivers is a structured longitudinal capture of one or two people's positions on one specific decision, with an analysis on the final day that surfaces the trajectory, the themes, and the underlying axis of disagreement. That capture is the material your client can bring into your room; the session is still the session.</p>
       </div>
     </section>
 
@@ -234,7 +357,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="boundary-card">
         <div class="label">Our commitments to the referrer</div>
         <p><strong>Counsel.day will not</strong> claim clinical validity, therapeutic outcome, or evidence-based status that we cannot demonstrate. We will not market the tool with language that suggests it diagnoses, treats, or cures any condition. We will not characterise it as a substitute for therapy.</p>
-        <p><strong>Counsel.day will not</strong> ask you to make clinical claims on its behalf, and we will not use your professional credentials or name in our marketing without your signed written consent.</p>
+        <p><strong>Counsel.day will not</strong> ask you to make professional claims on its behalf, and we will not use your credentials, registration, or name in our marketing without your signed written consent.</p>
         <p><strong>Counsel.day will not</strong> retain your personal data beyond what is needed to administer the referral program; the data we hold on you is your name, your contact email, and your payout details. You can delete it at any time.</p>
       </div>
     </section>
@@ -245,7 +368,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <h2 class="method-stage-title">How to apply to the referral <span class="ital">program.</span></h2>
       </div>
       <div class="method-stage-body">
-        <p>Write to <strong>therapists@counsel.day</strong> with a short note about your practice (your country, your registration body, your client focus) and your preferred payout method. We reply within one business day. If the fit looks right, we send you a one-page program agreement; once signed, your referral link is issued and the share starts on the next billing cycle for any client who signs up.</p>
+        <p>Fill in the <strong><a href="apply-practitioner.html?kind=therapist" style="color: var(--wine); border-bottom: 1px solid var(--wine);">program application form</a></strong> · five minutes, no commitment. We reply within one business day. If the fit looks right, we send you a one-page program agreement; once signed, your referral code is issued and the discount + share start on the next billing cycle.</p>
         <p>There is no fee to join and no minimum referral commitment. You can leave the program at any time; we honour outstanding payouts for any active accounts you referred.</p>
       </div>
     </section>
@@ -254,7 +377,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="method-cta-eyebrow">Apply today</div>
       <h2 class="method-cta-title">Refer your clients to a tool that respects the work <span class="ital">you do.</span></h2>
       <div class="method-cta-row">
-        <a href="mailto:therapists@counsel.day" class="btn btn-large">Apply to the program</a>
+        <a href="apply-practitioner.html?kind=therapist" class="btn btn-large">Apply to the program</a>
         <a href="method.html" class="btn btn-ghost">Read the method first</a>
       </div>
     </div>
@@ -289,7 +412,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="colophon-col">
         <h3 class="colophon-col-h">For practitioners</h3>
         <a href="therapists.html">For therapists</a>
-        <a href="counsellors.html">For counsellors</a>
+        <a href="therapists.html">For therapists</a>
         <a href="engineering/index.html">Engineering</a>
       </div>
       <div class="colophon-col">

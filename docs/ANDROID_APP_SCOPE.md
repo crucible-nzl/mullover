@@ -115,7 +115,7 @@ Out of v1: admin pages, billing/Stripe Customer Portal (link out to web), pricin
 ## App navigation
 
 Bottom-tab nav (Android Material 3 / iOS native equivalents):
-- **Tonight** (vote-today) — the daily action, primary tab
+- **Tonight** (vote-today) · the daily action, primary tab
 - **Decisions** (list + detail)
 - **Account** (profile + settings)
 

@@ -47,13 +47,14 @@
   </div>
 
   <h2>Status funnel</h2>
-  <div class="chart-card"><div class="title">Decisions by status</div><div class="canvas-wrap"><canvas id="chart-status"></canvas></div></div>
+  <div class="chart-card"><div class="title">Decisions by status</div><div id="chart-status"></div></div>
 
   <h2>Participants per decision</h2>
-  <div class="chart-card"><div class="title">Histogram</div><div class="canvas-wrap"><canvas id="chart-participants"></canvas></div></div>
+  <div class="chart-card"><div class="title">Histogram</div><div id="chart-participants"></div></div>
 </div>
 
-<script src="/chart.umd.min.js"></script>
+<script src="/d3.v7.min.js"></script>
+<script src="/admin-charts.js"></script>
 <script>
 (function () {
   fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) {
@@ -73,20 +74,26 @@
       $('m-vcomp-sub').textContent = d.verdict_completion.completed + ' / ' + d.verdict_completion.started;
       $('m-ttfv').textContent = fmtSec(d.time_to_first_vote.median_seconds);
 
-      Chart.defaults.color = '#6b7a90';
-      Chart.defaults.borderColor = '#e4e8f0';
       var s = d.status_funnel;
-
-      new Chart($('chart-status'), {
-        type: 'bar',
-        data: { labels: ['Pending invites', 'Active', 'Verdict generating', 'Completed', 'Cancelled', 'Refunded'], datasets: [{ label: 'Decisions', data: [s.pending_invites, s.active, s.verdict_generating, s.completed, s.cancelled, s.refunded], backgroundColor: ['#b45309', '#2563eb', '#1d4ed8', '#047857', '#9ca3af', '#b91c1c'] }] },
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }, plugins: { legend: { display: false } } },
+      // Decisions by status · categorical (each status is a snapshot bucket,
+      // not part of a time series) · use horizontal bars with values.
+      CdChart.categoricalBars($('chart-status'), {
+        data: [
+          { label: 'Pending invites',    value: s.pending_invites,    color: '#b45309' },
+          { label: 'Active',             value: s.active,             color: '#2563eb' },
+          { label: 'Verdict generating', value: s.verdict_generating, color: '#1d4ed8' },
+          { label: 'Completed',          value: s.completed,          color: '#047857' },
+          { label: 'Cancelled',          value: s.cancelled,          color: '#9ca3af' },
+          { label: 'Refunded',           value: s.refunded,           color: '#b91c1c' },
+        ],
       });
 
-      new Chart($('chart-participants'), {
-        type: 'bar',
-        data: { labels: d.participants_hist.map(function (r) { return r.participants + ' participant' + (r.participants === 1 ? '' : 's'); }), datasets: [{ label: 'Decisions', data: d.participants_hist.map(function (r) { return r.decisions; }), backgroundColor: '#2563eb' }] },
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }, plugins: { legend: { display: false } } },
+      // Participants histogram · categorical horizontal bars
+      CdChart.categoricalBars($('chart-participants'), {
+        data: d.participants_hist.map(function (r) {
+          return { label: r.participants + ' participant' + (r.participants === 1 ? '' : 's'), value: r.decisions };
+        }),
+        color: '#2563eb',
       });
     })
     .catch(function (e) { if (e && e.message !== 'auth') showErr('Failed to load engagement data · ' + e.message); });

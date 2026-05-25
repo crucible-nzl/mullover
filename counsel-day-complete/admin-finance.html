@@ -55,13 +55,13 @@
   </div>
 
   <h2>Daily revenue · last 90 days</h2>
-  <div class="chart-card"><div class="title">Revenue per day (USD)</div><div class="canvas-wrap"><canvas id="chart-rev"></canvas></div></div>
+  <div class="chart-card"><div class="title">Revenue (USD)</div><div id="chart-rev"></div></div>
 
   <h2>AI cost per day · last 90 days</h2>
-  <div class="chart-card"><div class="title">Anthropic spend (USD)</div><div class="canvas-wrap"><canvas id="chart-ai"></canvas></div></div>
+  <div class="chart-card"><div class="title">Anthropic spend (USD)</div><div id="chart-ai"></div></div>
 
   <h2>Revenue by tier · cumulative</h2>
-  <div class="chart-card"><div class="title">Revenue split</div><div class="canvas-wrap"><canvas id="chart-tier"></canvas></div></div>
+  <div class="chart-card"><div class="title">Revenue split</div><div id="chart-tier"></div></div>
 
   <h2 style="margin-top: 36px;">Stripe webhooks · delivery health</h2>
   <p class="lede" style="margin-top: -8px;">Cross-reference of our idempotency table against Stripe's recent event log. Any row showing <span style="color: var(--red);">UNPROCESSED</span> means Stripe sent us the event but our handler 4xx'd or 5xx'd. Use the Stripe Dashboard link to inspect + re-send.</p>
@@ -72,7 +72,8 @@
   <div id="cd-wh-results" style="display: none;"></div>
 </div>
 
-<script src="/chart.umd.min.js"></script>
+<script src="/d3.v7.min.js"></script>
+<script src="/admin-charts.js"></script>
 <script>
 (function () {
   fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) {
@@ -94,26 +95,27 @@
       $('m-rp').textContent = d.refunds.processed_30d;
       $('m-rr-ratio').textContent = d.refunds.ratio_pct + ' %';
 
-      Chart.defaults.color = '#6b7a90';
-      Chart.defaults.borderColor = '#e4e8f0';
-
-      new Chart($('chart-rev'), {
-        type: 'bar',
-        data: { labels: d.revenue_daily.map(function (r) { return r.date; }), datasets: [{ label: 'USD', data: d.revenue_daily.map(function (r) { return r.gross_cents / 100; }), backgroundColor: '#2563eb', barThickness: 'flex', maxBarThickness: 14 }] },
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: function (v) { return '$' + v; } } } } },
+      // Revenue per day · bars + cumulative line
+      CdChart.dailyBars($('chart-rev'), {
+        data: d.revenue_daily.map(function (r) { return { date: r.date, value: r.gross_cents / 100 }; }),
+        color: '#2563eb',
+        yLabel: 'USD',
       });
 
-      new Chart($('chart-ai'), {
-        type: 'bar',
-        data: { labels: d.ai_cost_daily.map(function (r) { return r.date; }), datasets: [{ label: 'USD', data: d.ai_cost_daily.map(function (r) { return r.cost_cents / 100; }), backgroundColor: '#b91c1c', barThickness: 'flex', maxBarThickness: 14 }] },
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: function (v) { return '$' + v; } } } } },
+      // AI cost per day · bars + cumulative line
+      CdChart.dailyBars($('chart-ai'), {
+        data: d.ai_cost_daily.map(function (r) { return { date: r.date, value: r.cost_cents / 100 }; }),
+        color: '#b91c1c',
+        yLabel: 'USD',
       });
 
-      var tiers = Object.keys(d.revenue_by_tier);
-      new Chart($('chart-tier'), {
-        type: 'doughnut',
-        data: { labels: tiers, datasets: [{ data: tiers.map(function (t) { return (d.revenue_by_tier[t].gross_cents / 100).toFixed(2); }), backgroundColor: ['#2563eb', '#3b82f6', '#1d4ed8', '#047857', '#b45309'] }] },
-        options: { responsive: true, maintainAspectRatio: false },
+      // Revenue split by tier · donut, no cumulative pair (already cumulative)
+      var tierColors = { solo_free: '#9ca3af', solo_paid: '#2563eb', couple: '#1d4ed8', family: '#047857' };
+      CdChart.donut($('chart-tier'), {
+        data: Object.keys(d.revenue_by_tier).map(function (t) {
+          return { label: t, value: d.revenue_by_tier[t].gross_cents / 100, color: tierColors[t] };
+        }),
+        yLabel: 'USD',
       });
     })
     .catch(function (e) { if (e && e.message !== 'auth') showErr('Failed to load finance data · ' + e.message); });

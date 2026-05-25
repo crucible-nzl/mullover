@@ -60,7 +60,7 @@
     </div>
 
     <h2>Sessions and users, last 30 days</h2>
-    <div class="chart-card"><div class="title">Daily traffic</div><div class="canvas-wrap"><canvas id="chart-daily"></canvas></div></div>
+    <div class="chart-card"><div class="title">Daily traffic</div><div id="chart-daily"></div></div>
 
     <div class="grid-2">
       <div>
@@ -75,7 +75,8 @@
   </div>
 </div>
 
-<script src="/chart.umd.min.js"></script>
+<script src="/d3.v7.min.js"></script>
+<script src="/admin-charts.js"></script>
 <script>
 (function () {
   fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) {
@@ -98,15 +99,14 @@
       $('m-users').textContent = d.ga4.totals.users;
       $('m-pageviews').textContent = d.ga4.totals.pageviews;
 
-      Chart.defaults.color = '#6b7a90';
-      Chart.defaults.borderColor = '#e4e8f0';
-      new Chart($('chart-daily'), {
-        type: 'line',
-        data: { labels: d.ga4.daily.map(function (r) { return r.date; }), datasets: [
-          { label: 'Sessions', data: d.ga4.daily.map(function (r) { return r.sessions; }), borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.08)', tension: 0.3, fill: true, pointRadius: 2 },
-          { label: 'Active users', data: d.ga4.daily.map(function (r) { return r.users; }), borderColor: '#047857', backgroundColor: 'rgba(4,120,87,0.08)', tension: 0.3, fill: true, pointRadius: 2 },
-        ] },
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } },
+      // Sessions + Active users · two overlapping lines, paired with cumulative
+      CdChart.dailyLine($('chart-daily'), {
+        data: d.ga4.daily.map(function (r) {
+          return { date: r.date, series: [
+            { label: 'Sessions',     value: r.sessions, color: '#2563eb' },
+            { label: 'Active users', value: r.users,    color: '#047857' },
+          ]};
+        }),
       });
 
       var tp = $('tbl-pages');

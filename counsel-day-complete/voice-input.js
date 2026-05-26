@@ -113,8 +113,19 @@
     status.className = 'cd-vi-status';
     status.style.cssText = 'font-family:var(--font-mono, ui-monospace, monospace);font-size:11px;letter-spacing:0.08em;color:var(--muted, #6b635a);';
 
+    // "Not working?" diagnostic link · always present so any voice
+    // failure is one click away from being reported / debugged.
+    var diag = document.createElement('a');
+    diag.href = '/diag-voice.html';
+    diag.target = '_blank';
+    diag.rel = 'noopener';
+    diag.textContent = 'Test mic';
+    diag.style.cssText = 'font-family:var(--font-mono, ui-monospace, monospace);font-size:10px;letter-spacing:0.08em;color:var(--muted, #6b635a);margin-left:auto;border-bottom:1px solid var(--rule, #e8e6e1);text-decoration:none;padding-bottom:1px;';
+    diag.title = 'Open the voice-stack health check in a new tab';
+
     wrap.appendChild(btn);
     wrap.appendChild(status);
+    wrap.appendChild(diag);
     return { wrap: wrap, btn: btn, status: status };
   }
 
@@ -332,7 +343,14 @@
     attach: function (selectorOrEl, opts) {
       opts = opts || {};
       var field = (typeof selectorOrEl === 'string') ? document.querySelector(selectorOrEl) : selectorOrEl;
-      if (!field) return null;
+      if (!field) {
+        // Loud failure · the most common silent break is the field
+        // selector not matching (typo, wrong id, element rendered
+        // after script ran). Surface it in the console so a
+        // developer sees it in DevTools immediately.
+        console.warn('[CounselDayVoice] attach failed · selector returned no element ·', selectorOrEl);
+        return null;
+      }
       // Idempotent · don't attach twice
       if (field.dataset.cdVoiceAttached === '1') return null;
       field.dataset.cdVoiceAttached = '1';

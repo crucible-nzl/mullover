@@ -1043,7 +1043,8 @@ async function emailJournalVerdict(
     '',
     `Open the full verdict at ${APP_BASE_URL}/daily`,
     '',
-    '· A note from Counsel: if one of the strains above has been recurring across the past month, a 30-night sealed decision can hold it · the same evening rhythm, with a verdict on the close date. Compose one at ' + APP_BASE_URL + '/compose · or skip the nudge and let the journal do its work.',
+    '',
+    '· Tomorrow evening, file the next entry. The pattern is the practice.',
     '',
     '· Counsel.day',
   ].join('\n');
@@ -1064,10 +1065,8 @@ async function emailJournalVerdict(
       <h3 style="font-family: 'Geist Mono', monospace; font-size: 11px; letter-spacing: 0.14em; color: #722F37; margin-top: 24px;">A QUESTION FOR THE WEEK AHEAD</h3>
       <p style="font-family: Newsreader, Georgia, serif; font-style: italic; font-size: 18px; color: #0a0a0a;">${escapeHtml(v.question)}</p>
       <p style="margin-top: 30px;"><a href="${APP_BASE_URL}/daily" style="color: #722F37; border-bottom: 1px solid #722F37; padding-bottom: 1px; text-decoration: none;">Open the verdict on Counsel.day</a></p>
-      <p style="margin-top: 30px; padding: 14px 16px; background: #f4e6e8; border-left: 3px solid #722F37; font-family: Georgia, serif; font-size: 14px; line-height: 1.55; color: #364556;">
-        <strong style="color: #0a0a0a;">A note from Counsel.</strong> If one of the strains above has been recurring for weeks, a 30-night sealed decision can hold it &middot; the same evening rhythm, with a verdict on the close date. <a href="${APP_BASE_URL}/compose" style="color: #722F37; border-bottom: 1px solid #722F37; padding-bottom: 1px; text-decoration: none;">Compose one</a>, or skip the nudge and let the journal do its work.
-      </p>
-      <p style="font-family: 'Geist Mono', monospace; font-size: 11px; color: #6b635a; margin-top: 30px;">&middot; Counsel.day</p>
+      <p style="font-family: Georgia, serif; font-style: italic; font-size: 14px; color: #6b635a; margin-top: 24px;">Tomorrow evening, file the next entry. The pattern is the practice.</p>
+      <p style="font-family: 'Geist Mono', monospace; font-size: 11px; color: #6b635a; margin-top: 24px;">&middot; Counsel.day</p>
     </div>
   `.trim();
 

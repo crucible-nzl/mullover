@@ -82,6 +82,14 @@ export async function POST(req: Request) {
       metadata: { user_id: session.userId, product: 'daily_pro' },
     },
     allow_promotion_codes: true,
+    // When a 100%-off promo code reduces the FIRST invoice to $0,
+    // Stripe still wants a card on file by default (for the next
+    // billing cycle). 'if_required' tells Stripe to only collect a
+    // payment method when an amount is actually due NOW · 100%-off
+    // subscriptions skip the card form entirely. Future renewals
+    // still need a card, but Stripe handles that via a hosted
+    // re-authorization email when the trial / coupon expires.
+    payment_method_collection: 'if_required',
   });
 
   return NextResponse.json({ ok: true, url: checkoutSession.url }, { status: 200 });

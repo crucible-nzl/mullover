@@ -257,6 +257,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <a href="#privacy">Privacy</a>
     </nav>
 
+    <!-- 00 DECISIONS · quick management surface. Full registry on
+         /decisions; this is the "here's what you've got running" panel
+         on the account page so deletes / pauses / restarts are one
+         click away without leaving Account. -->
+    <section class="method-stage" id="decisions-mgmt">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">Your decisions</div>
+        <h2 class="method-stage-title">Manage what's <span class="ital">running.</span></h2>
+        <p style="font-family: var(--font-body); font-size: 16px; line-height: 1.55; color: var(--ink-soft); margin: 8px 0 0; max-width: 820px;">Every decision you've opened, in one place. Open any one to see the full detail · or pause, delete, or restart from here without leaving Account. Full registry view at <a href="/decisions.html" style="color: var(--wine); border-bottom: 1px solid var(--wine);">/decisions</a>.</p>
+      </div>
+      <div id="cd-acct-decisions-msg" role="alert" aria-live="polite" style="display: none; padding: 10px 14px; margin-bottom: 14px; font-family: var(--font-body); font-size: 14px;"></div>
+      <div id="cd-acct-decisions"><p style="font-family: var(--font-body); font-style: italic; color: var(--muted);">Loading…</p></div>
+      <div style="margin-top: 18px;">
+        <a href="/compose.html" class="btn" style="background: var(--wine); color: var(--paper); border-color: var(--wine);">Compose a new decision</a>
+        <a href="/decisions.html" class="btn-text" style="margin-left: 18px; color: var(--ink-soft); border-bottom: 1px solid var(--ink-soft);">See full registry</a>
+      </div>
+    </section>
+
     <!-- 01 PROFILE -->
     <section class="method-stage" id="profile">
       <div class="method-stage-head">
@@ -651,6 +669,109 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       if (portalEl) portalEl.style.display = planDef.portalVisible ? '' : 'none';
     })
     .catch(function (err) { console.warn('[account] /api/me failed', err); });
+})();
+</script>
+<script>
+/* Decision management surface · renders a per-decision row with
+   Open / Pause / Delete buttons. Reads /api/me.decisions (the user's
+   full decision list); writes via /api/decision/pause, /api/decision/delete,
+   and /api/decision/restart. */
+(function () {
+  var listEl = document.getElementById('cd-acct-decisions');
+  var msgEl = document.getElementById('cd-acct-decisions-msg');
+  if (!listEl) return;
+  function showMsg(kind, text) {
+    msgEl.style.display = 'block';
+    msgEl.textContent = text;
+    msgEl.style.background = kind === 'ok' ? 'var(--wine-soft)' : '#fdecea';
+    msgEl.style.borderLeft = '3px solid ' + (kind === 'ok' ? 'var(--wine)' : '#c0392b');
+    msgEl.style.color = kind === 'ok' ? 'var(--ink)' : '#6b1e16';
+    setTimeout(function () { msgEl.style.display = 'none'; }, 4000);
+  }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+  function statusPill(s) {
+    var map = {
+      active: { bg: 'var(--wine-soft)', fg: 'var(--wine)', label: 'RUNNING' },
+      pending_invites: { bg: '#fef3c7', fg: '#b45309', label: 'AWAITING INVITES' },
+      pending_payment: { bg: '#fef3c7', fg: '#b45309', label: 'AWAITING PAYMENT' },
+      verdict_generating: { bg: '#e7efff', fg: '#2563eb', label: 'GENERATING VERDICT' },
+      completed: { bg: '#d1fae5', fg: '#047857', label: 'CONCLUDED' },
+      cancelled: { bg: '#fee2e2', fg: '#c0392b', label: 'CANCELLED' },
+      refunded: { bg: '#fee2e2', fg: '#c0392b', label: 'REFUNDED' },
+    };
+    var v = map[s] || { bg: 'var(--paper-deep)', fg: 'var(--muted)', label: s.toUpperCase() };
+    return '<span style="display: inline-block; padding: 3px 9px; background: ' + v.bg + '; color: ' + v.fg + '; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; font-weight: 600;">' + v.label + '</span>';
+  }
+  function render(decisions) {
+    if (!decisions || decisions.length === 0) {
+      listEl.innerHTML = '<div style="padding: 22px 24px; background: var(--paper-deep); border-left: 3px solid var(--rule); font-family: var(--font-body); font-style: italic; color: var(--muted);">You haven\'t composed a decision yet. <a href="/compose.html" style="color: var(--wine); border-bottom: 1px solid var(--wine);">Start one</a>.</div>';
+      return;
+    }
+    listEl.innerHTML = decisions.map(function (d) {
+      var actions = '<a href="/decision.html?id=' + esc(d.id) + '" class="btn btn-ghost" style="padding: 8px 14px; font-size: 13px;">Open</a>';
+      if (d.status === 'active' || d.status === 'pending_invites') {
+        actions += ' <button type="button" data-act="pause" data-id="' + esc(d.id) + '" class="btn btn-ghost" style="padding: 8px 14px; font-size: 13px;">Pause 14 days</button>';
+      }
+      if (d.status !== 'completed' && d.status !== 'verdict_generating' && d.status !== 'cancelled') {
+        actions += ' <button type="button" data-act="delete" data-id="' + esc(d.id) + '" data-q="' + esc(d.question) + '" class="btn-danger" style="padding: 8px 14px; font-size: 13px;">Delete</button>';
+      }
+      var remaining = d.days_remaining != null ? (d.days_remaining + ' day' + (d.days_remaining === 1 ? '' : 's') + ' left') : '·';
+      return '<div style="padding: 16px 18px; background: var(--paper); border: 1px solid var(--rule); margin-bottom: 10px;">' +
+        '<div style="display: flex; gap: 14px; align-items: baseline; justify-content: space-between; flex-wrap: wrap; margin-bottom: 10px;">' +
+          '<div style="font-family: var(--font-display); font-size: 18px; line-height: 1.3; color: var(--ink); flex: 1 1 60%;">' + esc(d.question) + '</div>' +
+          '<div>' + statusPill(d.status) + '</div>' +
+        '</div>' +
+        '<div style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; font-family: var(--font-mono); font-size: 11px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase;">' +
+          '<span>' + esc(d.tier || '·') + '</span>' +
+          '<span>' + (d.duration_days || '·') + ' day' + (d.duration_days === 1 ? '' : 's') + '</span>' +
+          '<span>' + remaining + '</span>' +
+          (d.my_vote_count != null ? '<span>' + d.my_vote_count + ' vote' + (d.my_vote_count === 1 ? '' : 's') + ' cast</span>' : '') +
+        '</div>' +
+        '<div style="display: flex; gap: 8px; flex-wrap: wrap;">' + actions + '</div>' +
+      '</div>';
+    }).join('');
+  }
+  function load() {
+    fetch('/api/me', { credentials: 'include' })
+      .then(function (r) {
+        if (r.status === 401) { window.location.href = '/signin?next=/account.html'; throw new Error('auth'); }
+        return r.json();
+      })
+      .then(function (d) {
+        if (!d || !d.ok) throw new Error('Failed');
+        render(d.decisions || []);
+      })
+      .catch(function (e) { if (e && e.message !== 'auth') { listEl.innerHTML = '<p style="color: var(--wine); font-family: var(--font-body);">Could not load your decisions. <a href="/decisions.html" style="color: var(--wine); border-bottom: 1px solid var(--wine);">Open the full registry</a>.</p>'; } });
+  }
+  listEl.addEventListener('click', function (ev) {
+    var btn = ev.target.closest('button[data-act]');
+    if (!btn) return;
+    var act = btn.getAttribute('data-act');
+    var id = btn.getAttribute('data-id');
+    var q = btn.getAttribute('data-q') || '';
+    if (act === 'pause') {
+      btn.disabled = true; btn.textContent = 'Pausing…';
+      fetch('/api/decision/pause', { method: 'POST', credentials: 'include', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ decision_id: id, days: 14 }) })
+        .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+        .then(function (res) {
+          if (res.status === 200) { showMsg('ok', res.body.message || 'Paused.'); load(); }
+          else { showMsg('err', (res.body && res.body.message) || 'Could not pause.'); btn.disabled = false; btn.textContent = 'Pause 14 days'; }
+        })
+        .catch(function () { showMsg('err', 'Network error.'); btn.disabled = false; btn.textContent = 'Pause 14 days'; });
+    } else if (act === 'delete') {
+      var ok = window.confirm('Delete this decision?\n\n"' + q + '"\n\nIf you paid for it, the record is preserved for refund processing and the decision is marked cancelled. If unpaid, every trace is removed. This action is logged.');
+      if (!ok) return;
+      btn.disabled = true; btn.textContent = 'Deleting…';
+      fetch('/api/decision/delete', { method: 'POST', credentials: 'include', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ decision_id: id, confirm: 'DELETE' }) })
+        .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+        .then(function (res) {
+          if (res.status === 200) { showMsg('ok', res.body.message || 'Deleted.'); load(); }
+          else { showMsg('err', (res.body && res.body.message) || 'Could not delete.'); btn.disabled = false; btn.textContent = 'Delete'; }
+        })
+        .catch(function () { showMsg('err', 'Network error.'); btn.disabled = false; btn.textContent = 'Delete'; });
+    }
+  });
+  load();
 })();
 </script>
 <script>

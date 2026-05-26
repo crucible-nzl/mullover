@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin · Diagnostics · Counsel.day</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f7f9fc">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin-shell.css">
+<style>
+  .diag-tile { padding: 20px 22px; border: 1px solid var(--border); background: var(--surface); margin-bottom: 12px; display: grid; grid-template-columns: 28px 1fr auto; gap: 14px; align-items: center; }
+  .diag-tile .light { width: 12px; height: 12px; border-radius: 50%; background: var(--grey); margin-top: 4px; }
+  .diag-tile.ok .light { background: var(--green); }
+  .diag-tile.fail .light { background: var(--red); }
+  .diag-tile.warn .light { background: var(--yellow); }
+  .diag-tile .name { font-family: var(--font-ui); font-weight: 600; color: var(--ink); font-size: 14px; }
+  .diag-tile .desc { font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .diag-tile .meta { font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); margin-top: 4px; }
+  .diag-tile a.open { display: inline-block; padding: 8px 14px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); text-decoration: none; }
+  .diag-tile a.open:hover { background: var(--accent-soft); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">counsel<span class="tld">.day</span> · admin</div>
+  <div class="meta">
+    <a href="/account.html">← User-facing site</a>
+    <span id="adm-identity">…</span>
+    <a href="#" id="adm-logout">Log out</a>
+  </div>
+</div>
+<nav class="adm-subnav" aria-label="Admin sections">
+  <a href="/admin.html">Overview</a>
+  <a href="/admin-users.html">Users</a>
+  <a href="/admin-teams-waitlist.html">Teams waitlist</a>
+  <a href="/admin-practitioners.html">Practitioners</a>
+  <a href="/admin-products.html">Products</a>
+  <a href="/admin-growth.html">Growth</a>
+  <a href="/admin-engagement.html">Engagement</a>
+  <a href="/admin-traffic.html">Traffic</a>
+  <a href="/admin-finance.html">Finance</a>
+  <a href="/admin-verdict-logs.html">Verdict logs</a>
+  <a href="/admin-audit-log.html">Audit log</a>
+  <a href="/admin-database.html">Database</a>
+  <a href="/admin-diagnostics.html" class="active">Diagnostics</a>
+</nav>
+
+<div class="shell">
+  <h1>Diagnostics</h1>
+  <p class="lede">Every health check, in one place. Click <strong>Run</strong> on any tile to see the live state. The voice stack and integrations tiles run on this page; the deeper ones open the dedicated dashboards in a new tab.</p>
+
+  <h2>Live health checks</h2>
+  <div class="diag-tile" id="tile-version">
+    <div class="light"></div>
+    <div>
+      <div class="name">Deployed version</div>
+      <div class="desc">GET /api/health · returns the git SHA the live app is running</div>
+      <div class="meta" id="version-meta">checking…</div>
+    </div>
+    <button type="button" class="btn btn-secondary" onclick="checkVersion()" style="background: transparent; color: var(--accent); border: 1px solid var(--accent); font-family: var(--font-ui); font-size: 13px; padding: 8px 14px; cursor: pointer;">Re-check</button>
+  </div>
+
+  <div class="diag-tile" id="tile-db">
+    <div class="light"></div>
+    <div>
+      <div class="name">Database</div>
+      <div class="desc">PostgreSQL connectivity + round-trip latency (from /api/health)</div>
+      <div class="meta" id="db-meta">checking…</div>
+    </div>
+    <a class="open" href="/admin-database.html">Dashboard</a>
+  </div>
+
+  <div class="diag-tile" id="tile-voice">
+    <div class="light"></div>
+    <div>
+      <div class="name">Voice transcription stack</div>
+      <div class="desc">8-layer health check · browser permission, getUserMedia, MediaRecorder, /api/transcribe, OPENAI_API_KEY, Whisper budget. Also tests on YOUR current device.</div>
+      <div class="meta" id="voice-meta">opens in a new tab</div>
+    </div>
+    <a class="open" href="/diag-voice.html" target="_blank" rel="noopener">Open</a>
+  </div>
+
+  <div class="diag-tile" id="tile-integrations">
+    <div class="light"></div>
+    <div>
+      <div class="name">Integrations</div>
+      <div class="desc">Stripe, Anthropic, Brevo, GA4, push, backup · green/yellow/red dots on the Overview page</div>
+      <div class="meta">live on /admin.html</div>
+    </div>
+    <a class="open" href="/admin.html#int-list">Open</a>
+  </div>
+
+  <div class="diag-tile" id="tile-stripe">
+    <div class="light"></div>
+    <div>
+      <div class="name">Stripe webhook health</div>
+      <div class="desc">Cross-checks our idempotency table against Stripe's recent event log · catches handler 4xx/5xx</div>
+      <div class="meta">live on /admin-finance.html</div>
+    </div>
+    <a class="open" href="/admin-finance.html#stripe-webhook-health">Open</a>
+  </div>
+
+  <div class="diag-tile" id="tile-products-sync">
+    <div class="light"></div>
+    <div>
+      <div class="name">Stripe price IDs in sync</div>
+      <div class="desc">Confirms every product row's stripe_price_id resolves to an active Stripe Price at the expected amount</div>
+      <div class="meta">live on /admin-products.html · Check Stripe Sync</div>
+    </div>
+    <a class="open" href="/admin-products.html">Open</a>
+  </div>
+
+  <div class="diag-tile" id="tile-backup">
+    <div class="light"></div>
+    <div>
+      <div class="name">Backup verification</div>
+      <div class="desc">Last pg_dump run + verify status (gunzipped, row-count checked, age &lt; 24h)</div>
+      <div class="meta">live on /admin.html top banner</div>
+    </div>
+    <a class="open" href="/admin.html">Open</a>
+  </div>
+
+  <div class="diag-tile" id="tile-security">
+    <div class="light"></div>
+    <div>
+      <div class="name">Security posture</div>
+      <div class="desc">DMARC, HTTPS, CSP, rate-limit health, npm audit critical+high count</div>
+      <div class="meta">live on /admin-security.html</div>
+    </div>
+    <a class="open" href="/admin-security.html">Open</a>
+  </div>
+
+  <div class="diag-tile" id="tile-cron">
+    <div class="light"></div>
+    <div>
+      <div class="name">Cron triggers + outputs</div>
+      <div class="desc">Manual run + last-output for every periodic job (evening-prompt, verdict-generate, journal-digest, reopen-reminder, security-audit, etc.)</div>
+      <div class="meta">live on /admin.html · Cron controls</div>
+    </div>
+    <a class="open" href="/admin.html#cron-controls">Open</a>
+  </div>
+
+  <h2>External dashboards</h2>
+  <p class="lede" style="margin-bottom: 12px;">Direct links to the third-party panels.</p>
+
+  <div class="diag-tile">
+    <div class="light"></div>
+    <div>
+      <div class="name">Stripe Dashboard</div>
+      <div class="desc">Payments, subscriptions, products, webhooks, refunds</div>
+    </div>
+    <a class="open" href="https://dashboard.stripe.com/" target="_blank" rel="noopener">Open ↗</a>
+  </div>
+
+  <div class="diag-tile">
+    <div class="light"></div>
+    <div>
+      <div class="name">Anthropic Console</div>
+      <div class="desc">Live API usage / spend (lagging by ~5 minutes)</div>
+    </div>
+    <a class="open" href="https://console.anthropic.com/" target="_blank" rel="noopener">Open ↗</a>
+  </div>
+
+  <div class="diag-tile">
+    <div class="light"></div>
+    <div>
+      <div class="name">Cloudflare Dashboard</div>
+      <div class="desc">Edge cache (purge after HTML deploy), DNS, firewall</div>
+    </div>
+    <a class="open" href="https://dash.cloudflare.com/" target="_blank" rel="noopener">Open ↗</a>
+  </div>
+
+  <div class="diag-tile">
+    <div class="light"></div>
+    <div>
+      <div class="name">Hetzner Cloud Console</div>
+      <div class="desc">VPS, snapshots, networking</div>
+    </div>
+    <a class="open" href="https://console.hetzner.cloud/" target="_blank" rel="noopener">Open ↗</a>
+  </div>
+
+  <div class="diag-tile">
+    <div class="light"></div>
+    <div>
+      <div class="name">Brevo (email)</div>
+      <div class="desc">Transactional + marketing email delivery</div>
+    </div>
+    <a class="open" href="https://app.brevo.com/" target="_blank" rel="noopener">Open ↗</a>
+  </div>
+
+  <div class="diag-tile">
+    <div class="light"></div>
+    <div>
+      <div class="name">GA4 property</div>
+      <div class="desc">Traffic, funnel events, audiences</div>
+    </div>
+    <a class="open" href="https://analytics.google.com/" target="_blank" rel="noopener">Open ↗</a>
+  </div>
+
+  <div class="diag-tile">
+    <div class="light"></div>
+    <div>
+      <div class="name">GitHub Actions</div>
+      <div class="desc">Deploy approval queue + workflow runs</div>
+    </div>
+    <a class="open" href="https://github.com/crucible-nzl/mullover/actions" target="_blank" rel="noopener">Open ↗</a>
+  </div>
+
+  <div class="diag-tile">
+    <div class="light"></div>
+    <div>
+      <div class="name">UptimeRobot</div>
+      <div class="desc">External liveness monitor for counsel.day</div>
+    </div>
+    <a class="open" href="https://stats.uptimerobot.com/" target="_blank" rel="noopener">Open ↗</a>
+  </div>
+</div>
+
+<script>
+(function () {
+  fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json(); }).then(function (d) {
+    if (d && d.ok && d.user) { document.getElementById('adm-identity').textContent = d.user.email + ' · admin'; }
+  });
+  document.getElementById('adm-logout').addEventListener('click', function (e) { e.preventDefault(); fetch('/api/signout', { method: 'POST', credentials: 'include' }).finally(function () { window.location.href = '/'; }); });
+
+  window.checkVersion = function () {
+    var tileV = document.getElementById('tile-version');
+    var tileD = document.getElementById('tile-db');
+    document.getElementById('version-meta').textContent = 'checking…';
+    document.getElementById('db-meta').textContent = 'checking…';
+    fetch('/api/health').then(function (r) { return r.json(); }).then(function (j) {
+      if (j.ok) {
+        tileV.classList.remove('fail'); tileV.classList.add('ok');
+        document.getElementById('version-meta').textContent = 'version=' + j.version + ' · node=' + j.node + ' · started_at=' + j.started_at;
+      } else {
+        tileV.classList.remove('ok'); tileV.classList.add('fail');
+        document.getElementById('version-meta').textContent = 'unhealthy';
+      }
+      if (j.db === 'ok') {
+        tileD.classList.remove('fail'); tileD.classList.add('ok');
+        document.getElementById('db-meta').textContent = 'connected · round-trip ' + j.db_ms + 'ms';
+      } else {
+        tileD.classList.remove('ok'); tileD.classList.add('fail');
+        document.getElementById('db-meta').textContent = 'connection failed';
+      }
+    }).catch(function () {
+      tileV.classList.add('fail'); tileD.classList.add('fail');
+      document.getElementById('version-meta').textContent = 'fetch failed';
+      document.getElementById('db-meta').textContent = 'fetch failed';
+    });
+  };
+  checkVersion();
+})();
+</script>
+<script src="/admin-shell.js" defer></script>
+</body>
+</html>

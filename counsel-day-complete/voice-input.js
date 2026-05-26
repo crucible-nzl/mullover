@@ -64,7 +64,10 @@
   function newSR() {
     var Ctor = global.SpeechRecognition || global.webkitSpeechRecognition;
     var sr = new Ctor();
-    sr.continuous = false;
+    // continuous=true keeps the session alive across pauses · without
+    // this, Chrome ends the session at the first 1-2 second pause,
+    // any interim text is lost, and the user sees nothing.
+    sr.continuous = true;
     sr.interimResults = true;
     sr.lang = (navigator.language || 'en-US');
     return sr;
@@ -192,6 +195,7 @@
     try {
       sr = newSR();
     } catch (e) {
+      console.warn('[CounselDayVoice] SR constructor failed · falling back to Whisper', e);
       onFallback();
       return null;
     }
@@ -200,41 +204,77 @@
     var interim = '';
     var startMark = field.value.length;
     var stopped = false;
+    var anyTextReceived = false;
+    var sawAnyResult = false;
+
+    function writeCurrent() {
+      var preview = finalChunks.join(' ');
+      var orig = field.value.slice(0, startMark);
+      var sep = (orig && !/\s$/.test(orig)) ? ' ' : '';
+      var next = orig + sep + (preview ? preview + ' ' : '') + interim;
+      if (next !== field.value) {
+        field.value = next;
+        field.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    }
 
     sr.onresult = function (event) {
+      sawAnyResult = true;
       interim = '';
       for (var i = event.resultIndex; i < event.results.length; i++) {
         var r = event.results[i];
         if (r.isFinal) {
-          finalChunks.push((r[0].transcript || '').trim());
+          var t = (r[0].transcript || '').trim();
+          if (t) { finalChunks.push(t); anyTextReceived = true; }
         } else {
           interim += r[0].transcript;
+          if (r[0].transcript.trim()) anyTextReceived = true;
         }
       }
-      // Live preview: keep the finalised pieces in the field, append interim.
-      var preview = finalChunks.join(' ');
-      var orig = field.value.slice(0, startMark);
-      var sep = (orig && !/\s$/.test(orig)) ? ' ' : '';
-      field.value = orig + sep + (preview ? preview + ' ' : '') + interim;
-      field.dispatchEvent(new Event('input', { bubbles: true }));
+      writeCurrent();
+      if (anyTextReceived) {
+        status.textContent = 'Listening · text appearing live …';
+        status.style.color = 'var(--wine, #722F37)';
+      }
     };
     sr.onerror = function (e) {
+      console.warn('[CounselDayVoice] SR error · ' + (e && e.error), e);
       stopped = true;
-      // If the browser denied permission OR the network/no-speech error
-      // fires, fall back to Whisper. If the user just stopped (aborted),
-      // accept what we have.
-      if (e.error === 'no-speech' || e.error === 'audio-capture' || e.error === 'service-not-allowed' || e.error === 'network') {
+      // For ANY error · denied permission, no-speech, audio-capture,
+      // service-not-allowed, network, language-not-supported, aborted
+      // mid-flight without any captured text · fall back to Whisper.
+      // The previous behaviour silently ended the session on unknown
+      // errors, which is the failure mode the user hit on /daily.
+      if (!anyTextReceived) {
+        status.textContent = 'Switching to recorded transcription …';
+        status.style.color = 'var(--muted, #6b635a)';
         onFallback();
       } else {
-        status.textContent = '';
+        // We got some text · accept it and stop. Don't trigger Whisper
+        // because it would record a fresh clip and duplicate the entry.
+        status.textContent = 'Transcribed. Edit before sealing.';
+        status.style.color = 'var(--muted, #6b635a)';
         setRecording(btn, status, false);
         onDone();
       }
     };
     sr.onend = function () {
       if (stopped) return;
+      // If SR ended on its own (Chrome's continuous mode caps at ~60s,
+      // or the user paused for too long and the underlying engine quit)
+      // AND we never received any text, fall back to Whisper so the
+      // user isn't left wondering why nothing happened.
+      if (!sawAnyResult) {
+        console.warn('[CounselDayVoice] SR ended with no results · falling back to Whisper');
+        stopped = true;
+        status.textContent = 'Switching to recorded transcription …';
+        status.style.color = 'var(--muted, #6b635a)';
+        onFallback();
+        return;
+      }
       setRecording(btn, status, false);
-      status.textContent = '';
+      status.textContent = anyTextReceived ? 'Transcribed. Edit before sealing.' : '';
+      status.style.color = 'var(--muted, #6b635a)';
       onDone();
     };
 

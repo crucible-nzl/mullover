@@ -703,29 +703,11 @@ export const journalVerdicts = pgTable(
   })
 );
 
-export const teamsWaitlist = pgTable(
-  'teams_waitlist',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    email: text('email').notNull(),
-    fullName: text('full_name'),
-    company: text('company'),
-    role: text('role'),
-    teamSize: text('team_size'),
-    country: text('country'),
-    source: text('source'),
-    notes: text('notes'),
-    userAgent: text('user_agent'),
-    ipHash: text('ip_hash'),
-    contactedAt: timestamp('contacted_at', { withTimezone: true }),
-    status: text('status').notNull().default('pending'),
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  },
-  (t) => ({
-    statusIdx: index('teams_waitlist_status_idx').on(t.status, t.createdAt),
-    emailIdx: index('teams_waitlist_email_idx').on(t.email),
-  })
-);
+// teamsWaitlist · table preserved by migration 0028 but the product was
+// scoped out 2026-05-26 in favour of focusing on the dual product line
+// (Counsel.day flagship + The Daily Counsel). No app code references
+// this table anymore; the row count is zero on production. Left in the
+// database harmlessly · if we resurrect Teams, just re-export here.
 
 export const dailySubscriptions = pgTable(
   'daily_subscriptions',

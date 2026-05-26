@@ -9,9 +9,8 @@
 --
 -- This unlocks two big classes of decision the consumer product
 -- currently can't serve: "which of these 5 cities" / "which job
--- offer" / "which uni" · AND becomes the killer development-conversation
--- format on Counsel · Teams (rank these career paths nightly for 30
--- days).
+-- offer" / "which uni" · AND can later carry development-path or
+-- multi-option questions if the product line broadens.
 --
 -- Options are stored on the decision row as jsonb (decisions.options)
 -- to avoid a JOIN on the hot path. Vote rows carry the ordering as

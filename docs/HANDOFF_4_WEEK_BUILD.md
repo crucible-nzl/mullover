@@ -1,5 +1,19 @@
 # 4-week build · handoff document
 
+> **UPDATE 2026-05-26 · COUNSEL · TEAMS SCOPED OUT**
+> The B2B Teams product line has been removed from the active product
+> set. Going forward Counsel ships as a **dual product** · the
+> flagship sealed-vote decision tool and **The Daily Counsel** (the
+> standalone reflection journal), with the **For Practitioners**
+> referral channel funnelling clients to both. Everything below about
+> Teams (landing page, waitlist table, admin page, enterprise roadmap)
+> is preserved as historical reference · the implementation has been
+> removed from the live product. Migration 0028 (teams_waitlist table)
+> stays in place harmlessly; the schema export and all API routes /
+> HTML pages are gone. If you ever resurrect Teams, the enterprise
+> research below is still the right starting brief.
+
+
 This document covers everything that was built across the 4-week plan
 plus the items you (James) need to do yourself: send outbound emails,
 configure Stripe products, prepare for ProductHunt, run migrations on

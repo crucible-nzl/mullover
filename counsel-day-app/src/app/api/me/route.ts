@@ -41,6 +41,13 @@ export async function GET(req: Request) {
       createdAt: schema.users.createdAt,
       hasPassword: sql<boolean>`${schema.users.passwordHash} IS NOT NULL`,
       hasStripeCustomer: sql<boolean>`${schema.users.stripeCustomerId} IS NOT NULL`,
+      // Daily Pro subscription state · true iff active row + period not expired
+      dailyProActive: sql<boolean>`EXISTS (
+        SELECT 1 FROM daily_subscriptions ds
+        WHERE ds.user_id = ${schema.users.id}
+          AND ds.status = 'active'
+          AND ds.current_period_end > NOW()
+      )`,
     })
     .from(schema.users)
     .where(eq(schema.users.id, session.userId))
@@ -94,6 +101,7 @@ export async function GET(req: Request) {
         is_admin: !!user.isAdmin,
         has_password: user.hasPassword,
         has_stripe_customer: user.hasStripeCustomer,
+        daily_pro_active: !!user.dailyProActive,
         created_at: user.createdAt,
       },
       decisions,

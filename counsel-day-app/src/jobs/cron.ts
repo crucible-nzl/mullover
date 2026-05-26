@@ -809,6 +809,84 @@ async function runWithHeartbeat<T>(job: string, fn: () => Promise<T>): Promise<T
 // Privacy: the prompt is run against the user's own entries only ·
 // never cross-user · the prompt sees no other user's writing.
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// reopen-reminder · for every completed decision whose reopen_at has
+// passed, email the owner "six months ago you decided X · re-vote now?"
+// Idempotent · clearing reopen_at after a successful email send
+// prevents the reminder from firing every day.
+// ---------------------------------------------------------------------------
+async function reopenReminder() {
+  type Row = {
+    decision_id: string;
+    owner_id: string;
+    email: string;
+    first_name: string | null;
+    question: string;
+    reopen_at: string;
+  };
+  const rows = await db.execute<Row>(sql`
+    SELECT d.id::text AS decision_id,
+           u.id::text AS owner_id,
+           u.email,
+           u.first_name,
+           d.question,
+           d.reopen_at::text AS reopen_at
+    FROM decisions d
+    JOIN users u ON u.id = d.owner_user_id
+    WHERE d.reopen_at IS NOT NULL
+      AND d.reopen_at <= NOW()
+      AND d.status = 'completed'
+      AND u.deleted_at IS NULL
+    ORDER BY d.reopen_at ASC
+    LIMIT 100
+  `);
+
+  let sent = 0;
+  for (const r of rows as unknown as Row[]) {
+    const greeting = r.first_name ? `Hi ${r.first_name},` : 'Hi,';
+    const restartUrl = `${APP_BASE_URL}/decision.html?id=${r.decision_id}&action=restart`;
+    const text = [
+      greeting,
+      '',
+      `Six months ago you concluded a Counsel.day decision · "${r.question}"`,
+      '',
+      'Is it still the right answer? Re-vote for fourteen nights and we will produce a second verdict to compare against the original. The original verdict stays untouched in your registry.',
+      '',
+      `Restart the decision at ${restartUrl}`,
+      '',
+      "If the answer is still clearly yes (or no), reply to this email and we will close the re-check loop without re-voting.",
+      '',
+      '· Counsel.day',
+    ].join('\n');
+    try {
+      await sendTransactional({
+        to: { email: r.email, name: r.first_name ?? undefined },
+        subject: `Counsel · is "${r.question.slice(0, 60)}${r.question.length > 60 ? '…' : ''}" still the right answer?`,
+        textContent: text,
+        htmlContent: `<p>${greeting}</p>` +
+          `<p>Six months ago you concluded a Counsel.day decision &middot; <em>"${escapeHtml(r.question)}"</em></p>` +
+          '<p>Is it still the right answer? Re-vote for fourteen nights and we will produce a second verdict to compare against the original. The original verdict stays untouched in your registry.</p>' +
+          `<p style="margin-top: 24px;"><a href="${restartUrl}" style="display: inline-block; padding: 12px 22px; background: #722F37; color: #fff; text-decoration: none; font-family: 'Geist Mono', monospace; font-size: 13px; letter-spacing: 0.04em;">Restart the decision</a></p>` +
+          '<p>If the answer is still clearly yes (or no), reply to this email and we will close the re-check loop without re-voting.</p>' +
+          '<p style="font-family: \'Geist Mono\', monospace; font-size: 11px; color: #6b635a; margin-top: 30px;">&middot; Counsel.day</p>',
+      });
+      // Clear reopen_at so we don't re-send
+      await db.execute(sql`UPDATE decisions SET reopen_at = NULL, updated_at = NOW() WHERE id = ${r.decision_id}::uuid`);
+      await db.insert(schema.auditLog).values({
+        actorUserId: r.owner_id,
+        action: 'decision.reopen_reminder_sent',
+        targetType: 'decision',
+        targetId: r.decision_id,
+        metadata: {},
+      }).catch(() => {});
+      sent++;
+    } catch (err) {
+      console.error('[cron · reopen-reminder] send failed for ' + r.decision_id, (err as Error).message);
+    }
+  }
+  console.log('[cron · reopen-reminder] processed ' + (rows as unknown as Row[]).length + ' decisions, emailed ' + sent);
+}
+
 async function journalDigest() {
   // Window: the previous Monday-Sunday in UTC. Sunday-night cron means
   // "today" is the Sunday at the end of the window.
@@ -1236,8 +1314,9 @@ async function main() {
     case 'security-audit':       return runWithHeartbeat(job, securityAudit);
     case 'verdict-tts':          return runWithHeartbeat(job, verdictTts);
     case 'journal-digest':       return runWithHeartbeat(job, journalDigest);
+    case 'reopen-reminder':      return runWithHeartbeat(job, reopenReminder);
     default:
-      console.error(`Unknown job: ${job}. Valid: evening-prompt, verdict-generate, session-purge, invite-expiry, invite-reminder, hard-delete-purge, audit-prune, time-capsule-deliver, weekly-digest, security-audit, journal-digest`);
+      console.error(`Unknown job: ${job}. Valid: evening-prompt, verdict-generate, session-purge, invite-expiry, invite-reminder, hard-delete-purge, audit-prune, time-capsule-deliver, weekly-digest, security-audit, journal-digest, reopen-reminder`);
       process.exit(2);
   }
 }

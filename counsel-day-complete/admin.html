@@ -353,6 +353,12 @@
       <button class="btn btn-secondary" data-cron="journal-digest">Run now</button>
       <div class="out" data-cron-out="journal-digest"></div>
     </div>
+    <div class="cron-cell">
+      <div class="name">reopen-reminder</div>
+      <div class="desc">For every completed decision whose reopen_at has passed, emails the owner with a one-click restart. Idempotent · clears reopen_at after a successful send. Runs daily.</div>
+      <button class="btn btn-secondary" data-cron="reopen-reminder">Run now</button>
+      <div class="out" data-cron-out="reopen-reminder"></div>
+    </div>
   </div>
 
   <!-- CSV data exports -->

@@ -163,6 +163,20 @@
       <div class="lbl">TONIGHT · <span id="dc-today-date">…</span></div>
       <h2>How was <span class="ital">today?</span></h2>
       <textarea id="dc-text" placeholder="Speak it out loud (tap the mic), or type. Thirty to a hundred-and-eighty seconds about today · what worked, what dragged, what surprised you. Write to a trusted friend, not to a journal." maxlength="4000" aria-label="Tonight's reflection"></textarea>
+
+      <!-- Attach-to-decision · Pro feature.
+           Populated by /api/decisions for the current user · only
+           active flagship decisions show up. Free tier sees the row
+           with a lock icon + upgrade prompt instead. The selected
+           decision is sent on the entry POST as attached_decision_id,
+           which the API gates on daily_subscriptions.status='active'. -->
+      <div class="dc-attach" id="dc-attach" style="margin-top: 16px; padding: 12px 14px; background: var(--paper-deep); border-left: 3px solid var(--rule); display: none;">
+        <div style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px;">ATTACH TO AN ACTIVE DECISION · OPTIONAL · PRO</div>
+        <div id="dc-attach-body">
+          <p style="font-family: var(--font-body); font-style: italic; font-size: 13px; color: var(--muted); margin: 0;">Loading your active decisions…</p>
+        </div>
+      </div>
+
       <div class="meta-row">
         <span class="count"><span id="dc-count">0</span> / 4000 chars</span>
         <span class="seal-note">Sealed for 7 days the moment you submit. No re-reading.</span>
@@ -274,11 +288,15 @@
     if (text.length > 4000) { showMsg('err', 'Keep tonight\'s entry under 4000 characters.'); return; }
     submitBtn.disabled = true;
     submitBtn.textContent = 'Sealing…';
+    var attachSel = document.getElementById('dc-attach-select');
+    var attachId = (attachSel && attachSel.value) || null;
+    var body = { text_content: text };
+    if (attachId) body.attached_decision_id = attachId;
     fetch('/api/daily', {
       method: 'POST',
       credentials: 'include',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ text_content: text }),
+      body: JSON.stringify(body),
     })
       .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
       .then(function (res) {
@@ -332,6 +350,33 @@
     }).join('');
   }
 
+  function renderAttach(decisions, isPro) {
+    var box = document.getElementById('dc-attach');
+    var body = document.getElementById('dc-attach-body');
+    if (!box || !body) return;
+    if (!decisions || decisions.length === 0) {
+      // No active decisions to attach to · hide the surface entirely
+      box.style.display = 'none';
+      return;
+    }
+    box.style.display = 'block';
+    if (!isPro) {
+      body.innerHTML =
+        '<p style="font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: var(--ink-soft); margin: 0 0 8px;">Link tonight\'s entry to an active sealed decision so the close-day verdict pulls supporting evidence from your journal.</p>' +
+        '<p style="font-family: var(--font-body); font-size: 13px; color: var(--muted); margin: 0;"><a href="#dc-pro-prompt" style="color: var(--wine); border-bottom: 1px solid var(--wine);">Upgrade to Pro</a> &middot; $4.99 USD/month</p>';
+      return;
+    }
+    var opts = decisions.map(function (d) {
+      var q = d.question.length > 60 ? d.question.slice(0, 57) + '…' : d.question;
+      return '<option value="' + escapeHtml(d.id) + '">' + escapeHtml(q) + '</option>';
+    }).join('');
+    body.innerHTML =
+      '<select id="dc-attach-select" style="width: 100%; padding: 10px 12px; font-family: var(--font-body); font-size: 15px; color: var(--ink); background: var(--paper); border: 1px solid var(--rule); box-sizing: border-box;">' +
+      '<option value="">· Not attached to any decision ·</option>' +
+      opts +
+      '</select>';
+  }
+
   function load() {
     todayLbl.textContent = fmtLongDate(new Date().toISOString().slice(0, 10)).toUpperCase();
     Promise.all([
@@ -342,11 +387,24 @@
         }),
       fetch('/api/daily/verdicts', { credentials: 'include', headers: { accept: 'application/json' } })
         .then(function (r) { return r.json().catch(function () { return { ok: true, verdicts: [] }; }); }),
+      // /api/me returns both the user profile (incl. daily_pro_active)
+      // and the user's decisions list · one fetch, two pieces of data.
+      fetch('/api/me', { credentials: 'include' })
+        .then(function (r) { return r.json().catch(function () { return { ok: true, user: {}, decisions: [] }; }); }),
     ])
       .then(function (results) {
         var entryRes = results[0];
         var verdictRes = results[1];
+        var meRes = results[2];
         if (!entryRes || !entryRes.ok) return;
+
+        // Attach-to-decision · only show if there are active decisions.
+        // Pro detection: /api/me carries .user.daily_pro_active; falls
+        // back to false (free tier).
+        var actives = (meRes && meRes.decisions ? meRes.decisions : [])
+          .filter(function (d) { return d.status === 'active'; });
+        var isPro = !!(meRes && meRes.user && meRes.user.daily_pro_active);
+        renderAttach(actives, isPro);
 
         // sealed-today banner
         if (entryRes.sealed_today) {

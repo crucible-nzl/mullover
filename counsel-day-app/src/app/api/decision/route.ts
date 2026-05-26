@@ -79,6 +79,9 @@ export async function GET(req: Request) {
       amountPaidCents: schema.decisions.amountPaidCents,
       createdAt: schema.decisions.createdAt,
       pausedAt: schema.decisions.pausedAt,
+      reopenAt: schema.decisions.reopenAt,
+      mode: schema.decisions.mode,
+      options: schema.decisions.options,
       pausedUntil: schema.decisions.pausedUntil,
     })
     .from(schema.decisions)
@@ -218,6 +221,9 @@ export async function GET(req: Request) {
         you_voted_today: youVotedToday,
         is_unsealed: decision.unsealsAt ? decision.unsealsAt.getTime() <= Date.now() : false,
         paused_at: decision.pausedAt,
+        reopen_at: decision.reopenAt,
+        mode: decision.mode,
+        options: decision.options,
         paused_until: decision.pausedUntil,
         is_paused: decision.pausedUntil ? decision.pausedUntil.getTime() > Date.now() : false,
       },

@@ -226,8 +226,80 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <option value="strong_lean" selected>Strong Yes · Lean Yes · Lean No · Strong No (recommended)</option>
         <option value="yes_no">Yes · No (binary)</option>
         <option value="a_b">Option A · Option B (two named choices)</option>
+        <option value="ranked">Ranked options (3-6 choices · drag to rank nightly)</option>
       </select>
+
+      <!-- Ranked-options editor · only visible when format='ranked'.
+           User adds 3-6 distinct option labels (e.g. Wellington / Auckland /
+           Christchurch / Tauranga, or four job offers). On vote-today these
+           become drag-to-rank rows. The verdict cron tallies which options
+           kept appearing in the top spot across the period. -->
+      <div id="ranked-editor" style="display: none; margin-top: 18px; padding: 18px 20px; border: 1px solid var(--ink); background: var(--paper);">
+        <div style="font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine); margin-bottom: 10px;">RANKED OPTIONS · 3 TO 6 CHOICES</div>
+        <p style="font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: var(--ink-soft); margin: 0 0 14px;">List the choices you want to rank each evening. Examples · five cities you're considering · four job offers · three childcare options · two universities and an apprenticeship. The verdict on the close date names which option kept landing at the top across the period and which slid down over time.</p>
+        <div id="opt-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+        <button type="button" id="opt-add-btn" style="margin-top: 12px; padding: 9px 16px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; background: var(--paper-deep); color: var(--ink); border: 1px dashed var(--ink); cursor: pointer;">+ Add option</button>
+      </div>
     </div>
+    <script>
+      /* Ranked-options editor · show/hide on format change, build rows */
+      (function () {
+        var fmt = document.querySelector('select[name="format"]');
+        var box = document.getElementById('ranked-editor');
+        var list = document.getElementById('opt-list');
+        var addBtn = document.getElementById('opt-add-btn');
+        if (!fmt || !box || !list || !addBtn) return;
+        function buildRow(value) {
+          var row = document.createElement('div');
+          row.className = 'opt-row';
+          row.style.cssText = 'display: flex; gap: 8px; align-items: center;';
+          var input = document.createElement('input');
+          input.type = 'text';
+          input.maxLength = 80;
+          input.placeholder = 'e.g. Wellington';
+          input.value = value || '';
+          input.style.cssText = 'flex: 1; padding: 11px 13px; font-family: var(--font-body); font-size: 16px; color: var(--ink); background: var(--paper); border: 1px solid var(--rule); box-sizing: border-box;';
+          input.className = 'opt-input';
+          var rm = document.createElement('button');
+          rm.type = 'button';
+          rm.textContent = '×';
+          rm.title = 'Remove this option';
+          rm.style.cssText = 'flex: 0 0 36px; height: 40px; font-size: 18px; line-height: 1; background: var(--paper-deep); color: var(--muted); border: 1px solid var(--rule); cursor: pointer;';
+          rm.addEventListener('click', function () { if (list.children.length > 3) row.remove(); });
+          row.appendChild(input);
+          row.appendChild(rm);
+          return row;
+        }
+        function ensureMinRows() {
+          while (list.children.length < 3) list.appendChild(buildRow(''));
+        }
+        addBtn.addEventListener('click', function () {
+          if (list.children.length >= 6) return;
+          list.appendChild(buildRow(''));
+        });
+        fmt.addEventListener('change', function () {
+          if (fmt.value === 'ranked') {
+            box.style.display = 'block';
+            ensureMinRows();
+          } else {
+            box.style.display = 'none';
+          }
+        });
+        if (fmt.value === 'ranked') { box.style.display = 'block'; ensureMinRows(); }
+      })();
+      /* Hook into the submit path · attach options array when format=ranked */
+      window.__cdRankedOptions = function () {
+        var fmt = (document.querySelector('select[name="format"]') || {}).value;
+        if (fmt !== 'ranked') return null;
+        var inputs = document.querySelectorAll('#opt-list .opt-input');
+        var out = [];
+        for (var i = 0; i < inputs.length; i++) {
+          var v = (inputs[i].value || '').trim();
+          if (v) out.push(v);
+        }
+        return out;
+      };
+    </script>
 
     <div class="compose-field">
       <div class="field-label">FIELD 03 · DURATION <span class="req">·</span> REQUIRED</div>
@@ -240,6 +312,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <label class="dur-radio" onclick="selectDur(this)"><input type="radio" name="duration" value="90"><div class="span">90</div><div class="unit">Days</div><div class="class">Reproduction · life-shape class</div></label>
         <label class="dur-radio" onclick="selectDur(this)"><input type="radio" name="duration" value="365"><div class="span">365</div><div class="unit">Days</div><div class="class">Annual · largest decisions only</div></label>
       </div>
+
+      <!-- Pulse-mode toggle · always-on decision with no close date.
+           When checked, the duration grid above is disabled and the
+           server creates the decision with mode='pulse' (unseals_at NULL).
+           You can request a verdict at any time on the decision page;
+           the decision keeps running until you cancel it. -->
+      <label style="display: flex; gap: 12px; align-items: flex-start; margin-top: 18px; padding: 16px 18px; border: 1px dashed var(--rule); background: var(--paper-deep); cursor: pointer;">
+        <input type="checkbox" id="pulse-mode" name="pulse_mode" value="1" style="margin-top: 3px; width: 18px; height: 18px; accent-color: var(--wine); flex: 0 0 auto;" onchange="togglePulseMode(this)">
+        <span>
+          <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine);">PULSE MODE · OPTIONAL</span>
+          <span style="display: block; font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: var(--ink-soft); margin-top: 6px;">Skip the close date. The decision runs indefinitely; you can ask for a verdict on demand and it draws on every vote you have cast so far. Use this for questions you don't expect to close, like <em>how am I feeling about the job this month</em>. The duration choice above is ignored.</span>
+        </span>
+      </label>
     </div>
 
     <div class="compose-field">
@@ -330,6 +415,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </a>
 
 <script>
+function togglePulseMode(checkbox) {
+  var grid = document.querySelector('.dur-grid');
+  if (!grid) return;
+  if (checkbox.checked) {
+    grid.style.opacity = '0.35';
+    grid.style.pointerEvents = 'none';
+  } else {
+    grid.style.opacity = '';
+    grid.style.pointerEvents = '';
+  }
+}
 function selectDur(el) {
   document.querySelectorAll('.dur-radio').forEach(function (r) { r.classList.remove('selected'); });
   el.classList.add('selected');
@@ -393,13 +489,25 @@ function fileDecision(e) {
   var format = (form.querySelector('select[name="format"]')        || {}).value;
   var dur    = parseInt(((form.querySelector('input[name="duration"]:checked') || {}).value || '30'), 10);
   var partnerEmail = ((form.querySelector('input[name="partner_email"]') || {}).value || '').trim();
+  var pulseMode = (document.getElementById('pulse-mode') || {}).checked === true;
 
   var body = {
     question: q,
     format: format,
     duration_days: dur,
     tier: tier,
+    mode: pulseMode ? 'pulse' : 'standard',
   };
+  /* Ranked format · attach the option labels collected by the editor */
+  if (format === 'ranked' && typeof window.__cdRankedOptions === 'function') {
+    var opts = window.__cdRankedOptions();
+    if (!opts || opts.length < 3) {
+      alert('Ranked decisions need at least 3 options. Fill them in below the format dropdown.');
+      submitBtn.disabled = false; submitBtn.textContent = originalLabel;
+      return false;
+    }
+    body.options = opts;
+  }
   /* Send partner email regardless of selected tier · the backend
      auto-upgrades Solo → Couple/Family when a partner is supplied,
      and returns the effective tier in res.body.tier. This is the

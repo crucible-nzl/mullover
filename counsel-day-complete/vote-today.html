@@ -209,7 +209,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         <div style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin: 24px 0 12px;">VOTE TONIGHT · CHOOSE ONE</div>
 
-        <div class="vote-stamp-grid" role="radiogroup" aria-label="Tonight's vote">
+        <div class="vote-stamp-grid" id="vote-stamp-grid" role="radiogroup" aria-label="Tonight's vote">
           <button type="button" class="vote-stamp" data-vote="strong-yes" role="radio" aria-checked="false" onclick="selectVote(this)">
             <div class="band">STRONG · A</div>
             <div class="word">Strong <span class="ital">Yes</span></div>
@@ -230,6 +230,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <div class="word">Strong <span class="ital">No</span></div>
             <div class="help">An unambiguous no, on the balance of today.</div>
           </button>
+        </div>
+
+        <!-- RANKED · drag-to-rank surface · only used when the loaded
+             decision has format='ranked'. The 4-band grid above is
+             hidden and the rows below are populated from the decision's
+             options array. The user drags rows up/down (or uses the
+             up/down buttons on touch); the sealing button reads the
+             current DOM order as the ranking. -->
+        <div id="ranked-vote-surface" style="display: none; border: 1px solid var(--ink); background: var(--paper); margin: 20px 0 24px; padding: 18px 20px;">
+          <div style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine); margin-bottom: 14px;">DRAG TO RANK · TONIGHT</div>
+          <p style="font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: var(--ink-soft); margin: 0 0 14px;">Drag the option you most want at the top. Use the up/down buttons on touch. The ranking seals when you commit; tomorrow you'll see the same options in their default order and re-rank fresh.</p>
+          <ol id="ranked-list" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px;"></ol>
         </div>
 
         <div class="note-field">
@@ -368,11 +380,6 @@ function selectVote(btn) {
 var CD_VOTE_STATE = { decisionId: null, alreadyVoted: false };
 
 function sealVote() {
-  var selected = document.querySelector('.vote-stamp.selected');
-  if (!selected) {
-    alert('Choose Strong Yes, Lean Yes, Lean No, or Strong No before sealing tonight\'s vote.');
-    return;
-  }
   if (CD_VOTE_STATE.alreadyVoted) {
     alert('You have already voted today on this decision. Come back tomorrow.');
     return;
@@ -381,22 +388,50 @@ function sealVote() {
     alert('No active decision found. Compose one first.');
     return;
   }
-  /* The kebab-case data-vote values map 1:1 to the API direction enum after snake-casing. */
-  var direction = selected.getAttribute('data-vote').replace(/-/g, '_');
+
   var note = (document.getElementById('note-text').value || '').trim();
   var btn = document.querySelector('.commit-row .btn');
-  btn.disabled = true;
   var orig = btn.textContent;
-  btn.textContent = 'SEALING' + String.fromCharCode(0x2026);
-  fetch('/api/vote', {
-    method: 'POST', credentials: 'include',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({
+
+  // Ranked path · read the current DOM order as the ranking.
+  var voteBody;
+  if (CD_VOTE_STATE.format === 'ranked') {
+    var rows = document.querySelectorAll('#ranked-list li');
+    if (rows.length < 2) { alert('Could not read the ranking. Refresh the page.'); return; }
+    var rankedOrder = [];
+    for (var i = 0; i < rows.length; i++) {
+      rankedOrder.push(parseInt(rows[i].getAttribute('data-opt-idx'), 10));
+    }
+    voteBody = {
+      decision_id: CD_VOTE_STATE.decisionId,
+      direction: 'ranked',
+      ranked_order: rankedOrder,
+      note: note || undefined,
+      tags: (typeof window.cdSelectedChips === 'function' ? window.cdSelectedChips() : [])
+    };
+  } else {
+    // Standard 4-band / yes-no / a-b path
+    var selected = document.querySelector('.vote-stamp.selected');
+    if (!selected) {
+      alert('Choose Strong Yes, Lean Yes, Lean No, or Strong No before sealing tonight\'s vote.');
+      return;
+    }
+    /* The kebab-case data-vote values map 1:1 to the API direction enum after snake-casing. */
+    var direction = selected.getAttribute('data-vote').replace(/-/g, '_');
+    voteBody = {
       decision_id: CD_VOTE_STATE.decisionId,
       direction: direction,
       note: note || undefined,
       tags: (typeof window.cdSelectedChips === 'function' ? window.cdSelectedChips() : [])
-    })
+    };
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'SEALING' + String.fromCharCode(0x2026);
+  fetch('/api/vote', {
+    method: 'POST', credentials: 'include',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(voteBody)
   })
   .then(function (r) {
     if (r.status === 401) { window.location.href = '/signin?next=/vote-today.html'; return null; }
@@ -458,6 +493,70 @@ function sealVote() {
       if (!d || !d.ok) return;
       CD_VOTE_STATE.decisionId = d.decision.id;
       CD_VOTE_STATE.alreadyVoted = !!d.voted_today;
+      CD_VOTE_STATE.format = d.decision.format;
+      CD_VOTE_STATE.options = d.decision.options || null;
+
+      // If this decision is format='ranked', hide the 4-band stamp grid
+      // and render the drag-to-rank surface with the decision's options.
+      if (d.decision.format === 'ranked' && Array.isArray(d.decision.options) && d.decision.options.length >= 2) {
+        var stampGrid = document.getElementById('vote-stamp-grid');
+        var rankedBox = document.getElementById('ranked-vote-surface');
+        var rankedList = document.getElementById('ranked-list');
+        if (stampGrid) stampGrid.style.display = 'none';
+        if (rankedBox) rankedBox.style.display = 'block';
+        if (rankedList) {
+          rankedList.innerHTML = '';
+          d.decision.options.forEach(function (label, idx) {
+            var li = document.createElement('li');
+            li.setAttribute('data-opt-idx', String(idx));
+            li.draggable = true;
+            li.style.cssText = 'display: grid; grid-template-columns: 40px 1fr auto auto; gap: 10px; align-items: center; padding: 12px 14px; background: var(--paper); border: 1px solid var(--rule); cursor: grab; font-family: var(--font-body);';
+            li.innerHTML =
+              '<span class="rank-num" style="font-family: var(--font-mono); font-size: 13px; color: var(--wine); font-weight: 600;">' + (idx + 1) + '</span>' +
+              '<span style="font-size: 16px; color: var(--ink);">' + label.replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]; }) + '</span>' +
+              '<button type="button" class="rank-up"   style="background: var(--paper-deep); border: 1px solid var(--rule); font-family: var(--font-mono); font-size: 14px; min-height: 36px; min-width: 36px; cursor: pointer;" aria-label="Move up">▲</button>' +
+              '<button type="button" class="rank-down" style="background: var(--paper-deep); border: 1px solid var(--rule); font-family: var(--font-mono); font-size: 14px; min-height: 36px; min-width: 36px; cursor: pointer;" aria-label="Move down">▼</button>';
+            rankedList.appendChild(li);
+          });
+          // Up/Down buttons for touch
+          function renumber() {
+            var rows = rankedList.querySelectorAll('li');
+            for (var i = 0; i < rows.length; i++) {
+              var n = rows[i].querySelector('.rank-num');
+              if (n) n.textContent = (i + 1);
+            }
+          }
+          rankedList.addEventListener('click', function (ev) {
+            var btn = ev.target.closest('button');
+            if (!btn) return;
+            var row = btn.closest('li');
+            if (!row) return;
+            if (btn.classList.contains('rank-up')) {
+              if (row.previousElementSibling) rankedList.insertBefore(row, row.previousElementSibling);
+            } else if (btn.classList.contains('rank-down')) {
+              if (row.nextElementSibling) rankedList.insertBefore(row.nextElementSibling, row);
+            }
+            renumber();
+          });
+          // HTML5 drag-and-drop for desktop
+          var dragSrc = null;
+          rankedList.addEventListener('dragstart', function (ev) {
+            var li = ev.target.closest('li'); if (!li) return;
+            dragSrc = li; li.style.opacity = '0.4';
+          });
+          rankedList.addEventListener('dragend', function () { if (dragSrc) dragSrc.style.opacity = ''; dragSrc = null; renumber(); });
+          rankedList.addEventListener('dragover', function (ev) { ev.preventDefault(); });
+          rankedList.addEventListener('drop', function (ev) {
+            ev.preventDefault();
+            var target = ev.target.closest('li');
+            if (!target || !dragSrc || target === dragSrc) return;
+            var rect = target.getBoundingClientRect();
+            var after = (ev.clientY - rect.top) > (rect.height / 2);
+            rankedList.insertBefore(dragSrc, after ? target.nextSibling : target);
+            renumber();
+          });
+        }
+      }
       // Voice widget needs the decision id to enforce the 30s daily quota
       // and tier gate server-side. Disable on Solo Free decisions.
       if (window.__cdVoiceHandle) {

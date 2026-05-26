@@ -343,8 +343,36 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <button type="button" id="cd-owner-edit" class="btn btn-ghost" style="padding: 11px 22px; font-size: 14px;">Edit wording</button>
         <button type="button" id="cd-owner-reinvite" class="btn btn-ghost" style="padding: 11px 22px; font-size: 14px;">Resend invites</button>
         <button type="button" id="cd-owner-pause" class="btn btn-ghost" style="padding: 11px 22px; font-size: 14px;">Pause for a few days</button>
+        <button type="button" id="cd-owner-recheck" class="btn btn-ghost" style="padding: 11px 22px; font-size: 14px; display: none;">Schedule a re-check</button>
         <button type="button" id="cd-owner-restart" class="btn-danger" style="padding: 11px 22px; font-size: 14px;">Restart this decision</button>
         <button type="button" id="cd-owner-delete" class="btn-danger" style="padding: 11px 22px; font-size: 14px;">Delete this decision</button>
+      </div>
+
+      <!-- Re-check panel · only meaningful for completed decisions.
+           The button above is shown by JS once the decision has been
+           hydrated and we know its status. Sends POST /api/decision/reopen-schedule
+           which sets reopen_at. The evening-prompt cron emails the
+           owner when that timestamp passes, with one click to clone
+           the decision into a fresh 14-night re-vote. -->
+      <div id="cd-recheck-panel" style="display: none; margin-top: 22px; padding: 18px 22px; background: var(--paper-deep, #fafafa); border-left: 3px solid var(--wine); max-width: 760px;">
+        <div style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine); margin-bottom: 10px;">RE-CHECK THIS DECISION</div>
+        <p style="font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: var(--ink-soft); margin: 0 0 12px;">Six months on, is this still the right answer? Schedule a reminder · we will email you when the time comes with one click to clone the question into a fresh 14-night re-vote. The original verdict stays untouched; the re-vote produces a second verdict to compare against it.</p>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <label for="cd-recheck-months" style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);">RE-CHECK IN</label>
+          <select id="cd-recheck-months" style="font-family: var(--font-body); font-size: 16px; padding: 9px 12px; border: 1px solid var(--ink);">
+            <option value="3">3 months</option>
+            <option value="6" selected>6 months</option>
+            <option value="9">9 months</option>
+            <option value="12">12 months</option>
+            <option value="18">18 months</option>
+            <option value="24">2 years</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
+          <button type="button" id="cd-recheck-go" class="btn" style="padding: 10px 20px; font-size: 14px;">Schedule re-check</button>
+          <button type="button" id="cd-recheck-cancel" class="btn btn-ghost" style="padding: 10px 20px; font-size: 14px;">Cancel</button>
+        </div>
+        <div id="cd-recheck-current" style="display: none; margin-top: 14px; padding: 10px 12px; background: var(--wine-soft); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--ink);"></div>
       </div>
 
       <!-- Pause panel · revealed by Pause button -->
@@ -738,8 +766,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     if (!d) return;
     var me = (d.participants || []).filter(function (p) { return p.is_you; })[0];
     if (!me || !me.is_owner) return;
-    // No editing once the verdict is generating / completed / cancelled / refunded
-    if (['verdict_generating', 'completed', 'cancelled', 'refunded'].indexOf(d.status) !== -1) return;
+
+    // Completed decisions get a different owner-controls subset · only
+    // the re-check option (the only meaningful action on a sealed verdict).
+    if (d.status === 'completed') {
+      ownerSection.style.display = '';
+      // Hide all owner buttons except Schedule a re-check
+      ['cd-owner-edit','cd-owner-reinvite','cd-owner-pause','cd-owner-restart','cd-owner-delete'].forEach(function (id) {
+        var b = document.getElementById(id); if (b) b.style.display = 'none';
+      });
+      var recheck = document.getElementById('cd-owner-recheck');
+      if (recheck) recheck.style.display = '';
+      // Surface current re-check schedule if one is in place
+      if (d.reopen_at) {
+        var when = new Date(d.reopen_at);
+        var cur = document.getElementById('cd-recheck-current');
+        if (cur) {
+          cur.style.display = 'block';
+          cur.textContent = 'CURRENTLY SCHEDULED · ' + ['SUN','MON','TUE','WED','THU','FRI','SAT'][when.getDay()] + ' ' + when.getDate() + ' ' + ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][when.getMonth()] + ' ' + when.getFullYear();
+        }
+      }
+      return;
+    }
+
+    // No other owner actions once the verdict is generating / cancelled / refunded
+    if (['verdict_generating', 'cancelled', 'refunded'].indexOf(d.status) !== -1) return;
     ownerSection.style.display = '';
 
     // Paused state · show the resume banner with the resume date
@@ -848,6 +899,37 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   }
   var pauseCancel = document.getElementById('cd-pause-cancel');
   if (pauseCancel) pauseCancel.addEventListener('click', function () { pausePanel.style.display = 'none'; });
+
+  // Re-check (6-month) handlers
+  var recheckPanel = document.getElementById('cd-recheck-panel');
+  var recheckBtn = document.getElementById('cd-owner-recheck');
+  if (recheckBtn) {
+    recheckBtn.addEventListener('click', function () {
+      recheckPanel.style.display = recheckPanel.style.display === 'none' ? 'block' : 'none';
+    });
+  }
+  var recheckCancel = document.getElementById('cd-recheck-cancel');
+  if (recheckCancel) recheckCancel.addEventListener('click', function () { recheckPanel.style.display = 'none'; });
+  var recheckGo = document.getElementById('cd-recheck-go');
+  if (recheckGo) {
+    recheckGo.addEventListener('click', function () {
+      var monthsSel = document.getElementById('cd-recheck-months');
+      var months = parseInt((monthsSel && monthsSel.value) || '6', 10);
+      recheckGo.disabled = true; recheckGo.textContent = 'Scheduling…';
+      fetch('/api/decision/reopen-schedule', { method: 'POST', credentials: 'include', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ decision_id: decisionId, months: months }) })
+        .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+        .then(function (res) {
+          if (res.status === 200) {
+            showMsg('success', res.body.message || 'Scheduled.');
+            setTimeout(function () { window.location.reload(); }, 900);
+          } else {
+            showMsg('error', (res.body && res.body.message) || 'Could not schedule re-check.');
+          }
+        })
+        .catch(function () { showMsg('error', 'Network error.'); })
+        .finally(function () { recheckGo.disabled = false; recheckGo.textContent = 'Schedule re-check'; });
+    });
+  }
   var pauseGo = document.getElementById('cd-pause-go');
   if (pauseGo) {
     pauseGo.addEventListener('click', function () {

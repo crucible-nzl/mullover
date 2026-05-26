@@ -50,11 +50,17 @@ const participantSchema = z.object({
 
 const composeSchema = z.object({
   question: z.string().trim().min(10).max(280),
-  format: z.enum(['yes_no', 'strong_lean', 'a_b']),
+  format: z.enum(['yes_no', 'strong_lean', 'a_b', 'ranked']),
   duration_days: z.coerce.number().int().min(7).max(365),
   tier: z.enum(['solo_free', 'solo_paid', 'couple', 'family']),
   owner_display_name: z.string().trim().min(1).max(80).optional(),
   participants: z.array(participantSchema).optional(),
+  // Pulse mode · no close date · unseals_at = null. The decision
+  // runs indefinitely and the user can request a verdict on demand.
+  mode: z.enum(['standard', 'pulse']).optional(),
+  // Ranked-options format · array of 3-6 distinct option labels.
+  // Required when format='ranked', ignored otherwise.
+  options: z.array(z.string().trim().min(1).max(80)).min(3).max(6).optional(),
 });
 
 type Tier = 'solo_free' | 'solo_paid' | 'couple' | 'family';
@@ -172,10 +178,24 @@ export async function POST(req: Request) {
       ? 'active'
       : 'pending_invites'
     : 'pending_payment';
+  const isPulse = input.mode === 'pulse';
   const startsAt = isFree ? new Date() : null;
-  const unsealsAt = isFree && initialStatus === 'active'
+  // Pulse decisions never have a close date · unseals_at stays null.
+  // Standard decisions get the calculated close date when active.
+  const unsealsAt = isFree && initialStatus === 'active' && !isPulse
     ? new Date(Date.now() + input.duration_days * 24 * 60 * 60 * 1000)
     : null;
+
+  // Ranked-options validation · format='ranked' requires options array.
+  if (input.format === 'ranked') {
+    if (!input.options || input.options.length < 3) {
+      return NextResponse.json({ ok: false, message: 'Ranked decisions need 3-6 options.' }, { status: 422 });
+    }
+    const uniq = new Set(input.options.map((s) => s.toLowerCase().trim()));
+    if (uniq.size !== input.options.length) {
+      return NextResponse.json({ ok: false, message: 'Each ranked option must be distinct.' }, { status: 422 });
+    }
+  }
 
   // ---- insert decision ----
   const insertedDecision = await db
@@ -189,6 +209,8 @@ export async function POST(req: Request) {
       status: initialStatus,
       startsAt,
       unsealsAt,
+      mode: isPulse ? 'pulse' : 'standard',
+      options: input.format === 'ranked' ? (input.options as unknown as object) : null,
     })
     .returning({ id: schema.decisions.id });
   const decisionId = insertedDecision[0].id;

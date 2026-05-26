@@ -141,6 +141,17 @@
       <p class="sub">Type or speak for thirty to a hundred-and-eighty seconds about today. The entry seals for seven days; you cannot re-read it. Each Sunday evening, the past week of unsealed entries becomes a Monday-morning verdict on what's working, what's straining, and one question for the week ahead.</p>
     </div>
 
+    <!-- The "what is this · how does it fit · why bother" explainer.
+         Surfaces immediately for first-time visitors. Anchor-linked
+         from index.html and pricing.html. -->
+    <aside id="about" style="border: 1px solid var(--rule); background: var(--paper-deep); padding: 24px 28px; margin-bottom: 36px;">
+      <h2 style="font-family: var(--font-display); font-weight: 400; font-size: 24px; line-height: 1.2; color: var(--ink); margin: 0 0 14px;">What this <span style="font-style: italic; color: var(--wine);">is, exactly.</span></h2>
+      <p style="font-family: var(--font-body); font-size: 16px; line-height: 1.62; color: var(--ink); margin: 0 0 12px;"><strong style="font-weight: 500;">Counsel.day</strong> (the flagship) is a sealed-vote tool for the questions a single conversation cannot resolve · you pick a question, a duration of 7-90 days, and each evening you cast one private vote. On the close date a verdict ships.</p>
+      <p style="font-family: var(--font-body); font-size: 16px; line-height: 1.62; color: var(--ink); margin: 0 0 12px;"><strong style="font-weight: 500;">The Daily Counsel</strong> (this page) is the everyday companion. Most evenings, you don't have a hard decision running · you just have a day to reflect on. The Daily is the place that holds those minutes. The same sealed-vote DNA: you can't re-read your entry for seven days, and the verdict that ships each Monday is observational, not advisory · it quotes your own phrasing back to you and names one specific question for the week ahead.</p>
+      <p style="font-family: var(--font-body); font-size: 16px; line-height: 1.62; color: var(--ink); margin: 0 0 12px;"><strong style="font-weight: 500;">Why bother.</strong> Most journaling apps emphasise tracking everything · streaks, scores, moods. The Daily emphasises noticing what's working. The verdict leads with positives. The point is not to fix your day · it is to see, at the end of each week, what kept landing as alive.</p>
+      <p style="font-family: var(--font-body); font-size: 15px; line-height: 1.55; color: var(--ink-soft); margin: 0; font-style: italic;">No streaks. No scores. No mood emoji. Free for the daily entry, the seven-day seal, and the weekly Monday verdict · forever. Pro ($4.99 USD/mo) adds a monthly themed deep-dive and the ability to attach an entry to one of your active sealed decisions.</p>
+    </aside>
+
     <div id="dc-msg" class="dc-msg" role="alert" aria-live="polite"></div>
 
     <div class="dc-sealed-banner" id="dc-sealed-today">
@@ -151,7 +162,7 @@
     <section class="dc-compose" id="dc-compose-block">
       <div class="lbl">TONIGHT · <span id="dc-today-date">…</span></div>
       <h2>How was <span class="ital">today?</span></h2>
-      <textarea id="dc-text" placeholder="Speak it out loud first if it helps. Then write down what you would say to a trusted friend about how today actually went · what worked, what dragged, what came up that surprised you." maxlength="4000" aria-label="Tonight's reflection"></textarea>
+      <textarea id="dc-text" placeholder="Speak it out loud (tap the mic), or type. Thirty to a hundred-and-eighty seconds about today · what worked, what dragged, what surprised you. Write to a trusted friend, not to a journal." maxlength="4000" aria-label="Tonight's reflection"></textarea>
       <div class="meta-row">
         <span class="count"><span id="dc-count">0</span> / 4000 chars</span>
         <span class="seal-note">Sealed for 7 days the moment you submit. No re-reading.</span>
@@ -166,10 +177,10 @@
     <div id="dc-entries"><div class="dc-empty">Entries open one week after you file them. Once they unseal they appear here, in the verdict, and (Pro) attached to any active decision.</div></div>
 
     <aside class="dc-pro-prompt" id="dc-pro-prompt">
-      <div class="lbl">COUNSEL · DAILY · PRO</div>
-      <h4>Voice entries, monthly deep-dive, and <span class="ital">attach to an active decision.</span></h4>
-      <p>Pro adds 30-second voice recording (transcribed automatically), a monthly themed verdict on what the month was really about, and the ability to link a daily entry to one of your active sealed decisions so the close-day verdict references the supporting evidence. $4.99 USD per month.</p>
-      <a class="upgrade" href="/account.html?upgrade=daily_pro">Upgrade to Pro</a>
+      <div class="lbl">COUNSEL · DAILY · PRO · $4.99 USD / MONTH</div>
+      <h4>The monthly deep-dive, and <span class="ital">attach to an active decision.</span></h4>
+      <p>Free gets you the daily entry (text or voice), the seven-day seal, and the Monday-morning verdict each week · forever. Pro adds two things: a monthly themed verdict on the last four weeks that names what the month was actually about, and the ability to link a daily entry to one of your active sealed decisions so the close-day verdict on that decision pulls supporting evidence from your journal.</p>
+      <button type="button" class="upgrade" id="dc-pro-upgrade">Upgrade to Pro</button>
     </aside>
 
   </div>
@@ -365,5 +376,47 @@
 })();
 </script>
 <script src="ga4.js" defer></script>
+<script src="/nav-toggle.js" defer></script>
+<script src="/voice-input.js" defer></script>
+<script>
+  /* Voice-to-text on the daily-entry textarea. No decision_id is
+     supplied to /api/transcribe, so the server's tier gate doesn't
+     fire · voice works for every signed-in user, free or Pro. The
+     positioning of "voice as Pro-only" lives in marketing copy on
+     the upsell card below the composer, not in a hard gate here. */
+  window.addEventListener('DOMContentLoaded', function () {
+    if (window.CounselDayVoice) {
+      window.CounselDayVoice.attach('#dc-text', {
+        label: 'Speak tonight’s entry'
+      });
+    }
+    var upgradeBtn = document.getElementById('dc-pro-upgrade');
+    if (upgradeBtn) {
+      upgradeBtn.addEventListener('click', function () {
+        upgradeBtn.disabled = true;
+        var orig = upgradeBtn.textContent;
+        upgradeBtn.textContent = 'Redirecting to checkout…';
+        fetch('/api/daily/upgrade', { method: 'POST', credentials: 'include' })
+          .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+          .then(function (res) {
+            if (res.status === 200 && res.body && res.body.url) {
+              window.location.href = res.body.url;
+            } else if (res.status === 401) {
+              window.location.href = '/signin?next=/daily.html';
+            } else {
+              upgradeBtn.disabled = false;
+              upgradeBtn.textContent = orig;
+              alert((res.body && res.body.message) || 'Could not start checkout. Please try again.');
+            }
+          })
+          .catch(function () {
+            upgradeBtn.disabled = false;
+            upgradeBtn.textContent = orig;
+            alert('Network error. Please try again.');
+          });
+      });
+    }
+  });
+</script>
 </body>
 </html>

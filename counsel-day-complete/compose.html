@@ -155,9 +155,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <nav class="nav-bar" aria-label="Primary site navigation">
   <div class="nav-inner">
     <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
-    <div class="nav-links">
+    <button type="button" class="nav-toggle" id="cd-nav-toggle" aria-controls="cd-nav-links" aria-expanded="false" aria-label="Open menu">
+      <span class="nav-toggle-bar"></span>
+      <span class="nav-toggle-bar"></span>
+      <span class="nav-toggle-bar"></span>
+    </button>
+    <div class="nav-links" id="cd-nav-links">
       <a href="decisions.html">Your decisions</a>
       <a href="vote-today.html">Tonight's vote</a>
+      <a href="daily.html">The Daily</a>
       <a href="compose.html">Compose</a>
       <a href="account.html">Account</a>
       <a href="help.html">Help</a>
@@ -167,6 +173,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </div>
 </nav>
+<script>
+  (function () {
+    var toggle = document.getElementById('cd-nav-toggle');
+    var bar = toggle && toggle.closest('.nav-bar');
+    if (!toggle || !bar) return;
+    toggle.addEventListener('click', function () {
+      var open = bar.classList.toggle('menu-open');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    });
+  })();
+</script>
 <!-- /CD:PARTIAL:nav-app -->
 
 <main id="main-content">
@@ -325,16 +343,11 @@ function selectTier(el) {
   el.classList.add('selected');
   var radio = el.querySelector('input[type="radio"]');
   if (radio) radio.checked = true;
-  /* Voice transcription is a paid-tier benefit. Disable the mic on
-     Solo Free; re-enable for solo_paid / couple / family. */
-  if (window.__cdVoiceHandle && typeof window.__cdVoiceHandle.setDisabled === 'function') {
-    var t = el.dataset.tier;
-    if (t === 'solo_free') {
-      window.__cdVoiceHandle.setDisabled(true, 'Voice transcription is a paid-tier benefit');
-    } else {
-      window.__cdVoiceHandle.setDisabled(false);
-    }
-  }
+  /* Voice on compose works for everyone (no decision_id = no server-
+     side tier gate). The selectTier mic-disabling that used to live
+     here was removed when /api/transcribe's gate semantics were
+     clarified · the gate only fires on /vote-today where the
+     decision tier is already locked. */
 }
 
 function updatePreview() {
@@ -598,18 +611,20 @@ function saveDraft() {
 <script src="ga4.js" defer></script>
 <script src="voice-input.js" defer></script>
 <script>
-  /* Voice-to-text on the question field. Starts disabled because the
-     form opens with Solo Free pre-selected · selectTier() re-enables
-     when the user picks a paid tier. */
+  /* Voice-to-text on the question field. The server's /api/transcribe
+     route only applies the paid-tier gate when a decision_id is
+     supplied · compose has none yet (the decision doesn't exist until
+     submission) so voice works freely here for every user, free or
+     paid. The gate kicks back in on /vote-today where the decision
+     tier is locked. */
   window.addEventListener('DOMContentLoaded', function () {
     if (window.CounselDayVoice) {
       window.__cdVoiceHandle = window.CounselDayVoice.attach('#q-input', {
-        label: 'Speak the question',
-        disabled: true,
-        disabledReason: 'Voice transcription is a paid-tier benefit'
+        label: 'Speak the question'
       });
     }
   });
 </script>
+<script src="/nav-toggle.js" defer></script>
 </body>
 </html>

@@ -83,11 +83,36 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <nav class="nav-bar" aria-label="Primary site navigation">
   <div class="nav-inner">
     <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <button type="button" class="nav-toggle" id="cd-nav-toggle" aria-controls="cd-nav-links" aria-expanded="false" aria-label="Open menu">
+      <span class="nav-toggle-bar"></span>
+      <span class="nav-toggle-bar"></span>
+      <span class="nav-toggle-bar"></span>
+    </button>
+    <div class="nav-links" id="cd-nav-links">
+      <a href="how-it-works.html">How it works</a>
+      <a href="the-experience.html">The experience</a>
+      <a href="daily.html">The Daily</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="faq.html">FAQ</a>
+    </div>
     <div class="nav-cta">
+      <a href="account.html" class="btn-text">Sign in</a>
       <a href="signup.html" class="btn">Start a decision</a>
     </div>
   </div>
 </nav>
+<script>
+  (function () {
+    var toggle = document.getElementById('cd-nav-toggle');
+    var bar = toggle && toggle.closest('.nav-bar');
+    if (!toggle || !bar) return;
+    toggle.addEventListener('click', function () {
+      var open = bar.classList.toggle('menu-open');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    });
+  })();
+</script>
 <!-- /CD:PARTIAL:nav-public -->
 
 <main id="main-content">
@@ -136,18 +161,35 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <div class="colophon-top">
       <div>
         <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
-        <p class="colophon-tagline">A decision tool for solo, couples, and families. Worldwide, priced in USD.</p>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Each evening, you cast one private vote on the same question, for a duration you set, with every vote sealed in the database until the final day. Worldwide, priced in USD.</p>
       </div>
       <div class="colophon-col">
-        <h5>Product</h5>
+        <h5>The app</h5>
+        <a href="decisions.html">Your decisions</a>
+        <a href="vote-today.html">Tonight's vote</a>
+        <a href="compose.html">Compose</a>
+        <a href="account.html">Your account</a>
+        <a href="billing.html">Billing</a>
+      </div>
+      <div class="colophon-col">
+        <h3 class="colophon-col-h">The product</h3>
         <a href="method.html">The method</a>
-        <a href="pricing.html">Pricing</a>
+        <a href="why-time.html">Why time</a>
         <a href="verdict.html">A real verdict</a>
       </div>
       <div class="colophon-col">
-        <h5>Legal</h5>
+        <h5>Support</h5>
+        <a href="help.html">Help</a>
+        <a href="correspondence.html">Correspondence</a>
+        <a href="contact.html">Contact</a>
+        <a href="faq.html">FAQ</a>
+        <a href="status.html">Status</a>
+      </div>
+      <div class="colophon-col">
+        <h3 class="colophon-col-h">The fine print</h3>
         <a href="privacy.html">Privacy</a>
         <a href="terms.html">Terms</a>
+        <a href="refunds.html">Refunds</a>
       </div>
     </div>
     <div class="colophon-bottom">
@@ -199,5 +241,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 })();
 </script>
 <script src="ga4.js" defer></script>
+<script src="/nav-toggle.js" defer></script>
 </body>
 </html>

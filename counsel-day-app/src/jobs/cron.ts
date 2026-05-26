@@ -792,6 +792,217 @@ async function runWithHeartbeat<T>(job: string, fn: () => Promise<T>): Promise<T
  * (defaults to admin@counsel.day). Cheap query · just COUNT()s
  * against indexed columns.
  */
+// ---------------------------------------------------------------------------
+// THE DAILY COUNSEL · journal-digest
+// ---------------------------------------------------------------------------
+// Runs every Sunday evening (NZ local cron) and ships a Monday-morning
+// verdict to every user who logged 3+ journal entries in the past week
+// of UNSEALED entries. The verdict is written in the Counsel.day
+// editorial voice · observational, not advisory · referencing specific
+// phrases the user used. Three sections: positives (3-5 recurring),
+// strains (1-2 recurring), throughline (one paragraph), and one
+// concrete question for the week ahead.
+//
+// Free tier · weekly verdict only
+// Pro tier  · weekly + monthly deep-dive on the last Sunday of the month
+//
+// Privacy: the prompt is run against the user's own entries only ·
+// never cross-user · the prompt sees no other user's writing.
+// ---------------------------------------------------------------------------
+async function journalDigest() {
+  // Window: the previous Monday-Sunday in UTC. Sunday-night cron means
+  // "today" is the Sunday at the end of the window.
+  const now = new Date();
+  const sunday = new Date(now);
+  sunday.setUTCHours(0, 0, 0, 0);
+  while (sunday.getUTCDay() !== 0) sunday.setUTCDate(sunday.getUTCDate() - 1);
+  const monday = new Date(sunday);
+  monday.setUTCDate(monday.getUTCDate() - 6);
+  const weekStartsOn = monday.toISOString().slice(0, 10);
+  const weekEndsOn = sunday.toISOString().slice(0, 10);
+
+  // Pull every user with at least 3 UNSEALED entries falling on dates
+  // inside the window. Re-running on the same Sunday is idempotent
+  // because of the unique index on (user_id, week_starts_on, kind).
+  type Candidate = { user_id: string; email: string; first_name: string | null; entry_count: string };
+  const candidates = await db.execute<Candidate>(sql`
+    SELECT u.id::text AS user_id, u.email, u.first_name, COUNT(*)::text AS entry_count
+    FROM users u
+    JOIN journal_entries j ON j.user_id = u.id
+    WHERE j.deleted_at IS NULL
+      AND j.unseals_at <= NOW()
+      AND j.entry_date BETWEEN ${weekStartsOn}::date AND ${weekEndsOn}::date
+      AND u.deleted_at IS NULL
+      AND NOT EXISTS (
+        SELECT 1 FROM journal_verdicts v
+        WHERE v.user_id = u.id AND v.week_starts_on = ${weekStartsOn}::date AND v.kind = 'weekly'
+      )
+    GROUP BY u.id, u.email, u.first_name
+    HAVING COUNT(*) >= 3
+  `);
+
+  let sent = 0;
+  for (const c of candidates as unknown as Candidate[]) {
+    try {
+      const verdict = await generateJournalVerdict(c.user_id, weekStartsOn, weekEndsOn);
+      if (!verdict) continue;
+      await emailJournalVerdict(c.email, c.first_name, verdict, weekStartsOn, weekEndsOn);
+      await db.update(schema.journalVerdicts)
+        .set({ deliveredEmailAt: new Date() })
+        .where(eq(schema.journalVerdicts.id, verdict.id));
+      sent++;
+    } catch (err) {
+      console.error('[cron · journal-digest] user ' + c.user_id + ' failed', (err as Error).message);
+    }
+  }
+  console.log('[cron · journal-digest] processed ' + (candidates as unknown as Candidate[]).length + ' users, emailed ' + sent);
+}
+
+async function generateJournalVerdict(userId: string, weekStartsOn: string, weekEndsOn: string): Promise<{ id: string; positives: string[]; strains: string[]; throughline: string; question: string } | null> {
+  // Read the unsealed entries for the window.
+  const entries = await db.execute<{ entry_date: string; text_content: string | null; transcript: string | null }>(sql`
+    SELECT entry_date::text AS entry_date, text_content, transcript
+    FROM journal_entries
+    WHERE user_id = ${userId}::uuid
+      AND deleted_at IS NULL
+      AND unseals_at <= NOW()
+      AND entry_date BETWEEN ${weekStartsOn}::date AND ${weekEndsOn}::date
+    ORDER BY entry_date ASC
+  `);
+  if ((entries as unknown[]).length < 3) return null;
+
+  const body = (entries as unknown as Array<{ entry_date: string; text_content: string | null; transcript: string | null }>).map((e) => {
+    const text = (e.text_content || e.transcript || '').trim();
+    return `[${e.entry_date}]\n${text}`;
+  }).join('\n\n');
+
+  const systemPrompt = await resolvePrompt('journal_weekly_verdict', JOURNAL_WEEKLY_VERDICT_SYSTEM_DEFAULT);
+  const userPrompt = `Here are the journal entries for the week of ${weekStartsOn} to ${weekEndsOn}. Each entry begins with the date in brackets.\n\n${body}\n\nReturn ONLY valid JSON with keys: positives (array of 3-5 short observational strings, each starts with a verb, no advice), strains (array of 1-2), throughline (one paragraph, 2-4 sentences, observational), question_for_next (one specific concrete question for the week ahead).`;
+
+  let res;
+  try {
+    res = await callAnthropic(
+      { source: 'journal_weekly_verdict' },
+      {
+        model: VERDICT_MODEL,
+        max_tokens: 1200,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }],
+      },
+    );
+  } catch (err) {
+    console.warn('[journal-verdict] anthropic call failed', (err as Error).message);
+    return null;
+  }
+  const textBlock = res.message.content.find((b) => b.type === 'text');
+  if (!textBlock || textBlock.type !== 'text') return null;
+
+  let parsed: { positives?: string[]; strains?: string[]; throughline?: string; question_for_next?: string };
+  try {
+    // Strip code-fence wrappers if Claude adds them.
+    const jsonText = textBlock.text.replace(/^```(?:json)?\n?|\n?```$/g, '').trim();
+    parsed = JSON.parse(jsonText);
+  } catch {
+    console.warn('[journal-verdict] JSON parse failed');
+    return null;
+  }
+
+  const positives = Array.isArray(parsed.positives) ? parsed.positives.slice(0, 5).map(String) : [];
+  const strains = Array.isArray(parsed.strains) ? parsed.strains.slice(0, 2).map(String) : [];
+  const throughline = typeof parsed.throughline === 'string' ? parsed.throughline : '';
+  const question = typeof parsed.question_for_next === 'string' ? parsed.question_for_next : '';
+
+  if (positives.length === 0 || !throughline || !question) return null;
+
+  const inserted = await db.insert(schema.journalVerdicts).values({
+    userId,
+    weekStartsOn,
+    weekEndsOn,
+    kind: 'weekly',
+    entriesCount: (entries as unknown[]).length,
+    positives: positives as unknown as object,
+    strains: strains as unknown as object,
+    throughline,
+    questionForNext: question,
+    model: VERDICT_MODEL,
+    tokensIn: res.tokensInput,
+    tokensOut: res.tokensOutput,
+    costCents: res.costCents,
+  }).returning({ id: schema.journalVerdicts.id });
+
+  return { id: inserted[0].id, positives, strains, throughline, question };
+}
+
+async function emailJournalVerdict(
+  email: string,
+  firstName: string | null,
+  v: { positives: string[]; strains: string[]; throughline: string; question: string },
+  weekStartsOn: string,
+  weekEndsOn: string,
+) {
+  const greeting = firstName ? `Hi ${firstName},` : 'Hi,';
+  const weekStr = new Date(weekStartsOn).toLocaleDateString('en-NZ', { day: '2-digit', month: 'short' })
+    + ' to ' + new Date(weekEndsOn).toLocaleDateString('en-NZ', { day: '2-digit', month: 'short' });
+  const positivesText = v.positives.map((p) => '  · ' + p).join('\n');
+  const strainsText = v.strains.length ? v.strains.map((s) => '  · ' + s).join('\n') : '  · None named this week.';
+
+  const text = [
+    greeting,
+    '',
+    `Your Counsel · Daily verdict for ${weekStr}.`,
+    '',
+    'What stood out as working:',
+    positivesText,
+    '',
+    'What kept coming up as a strain:',
+    strainsText,
+    '',
+    'Throughline:',
+    v.throughline,
+    '',
+    'A question for the week ahead:',
+    v.question,
+    '',
+    `Open the full verdict at ${APP_BASE_URL}/daily`,
+    '',
+    '· A note from Counsel: if one of the strains above has been recurring across the past month, a 30-night sealed decision can hold it · the same evening rhythm, with a verdict on the close date. Compose one at ' + APP_BASE_URL + '/compose · or skip the nudge and let the journal do its work.',
+    '',
+    '· Counsel.day',
+  ].join('\n');
+
+  const html = `
+    <div style="font-family: Georgia, serif; max-width: 540px; color: #0a0a0a; line-height: 1.55;">
+      <p style="font-family: 'Geist Mono', monospace; font-size: 11px; letter-spacing: 0.14em; color: #6b635a; text-transform: uppercase;">COUNSEL &middot; DAILY &middot; WEEKLY VERDICT</p>
+      <h2 style="font-family: Newsreader, Georgia, serif; font-weight: 400; font-size: 24px; margin: 0 0 4px;">Week of <em style="color: #722F37;">${weekStr}</em></h2>
+      <p>${greeting}</p>
+      <h3 style="font-family: 'Geist Mono', monospace; font-size: 11px; letter-spacing: 0.14em; color: #722F37; margin-top: 26px;">WHAT STOOD OUT AS WORKING</h3>
+      <ul style="margin: 0; padding-left: 18px;">${v.positives.map((p) => `<li style="margin-bottom: 6px;">${escapeHtml(p)}</li>`).join('')}</ul>
+      <h3 style="font-family: 'Geist Mono', monospace; font-size: 11px; letter-spacing: 0.14em; color: #722F37; margin-top: 24px;">WHAT KEPT COMING UP AS A STRAIN</h3>
+      ${v.strains.length
+        ? `<ul style="margin: 0; padding-left: 18px;">${v.strains.map((s) => `<li style="margin-bottom: 6px;">${escapeHtml(s)}</li>`).join('')}</ul>`
+        : '<p style="font-style: italic; color: #6b635a;">None named this week.</p>'}
+      <h3 style="font-family: 'Geist Mono', monospace; font-size: 11px; letter-spacing: 0.14em; color: #722F37; margin-top: 24px;">THROUGHLINE</h3>
+      <p>${escapeHtml(v.throughline)}</p>
+      <h3 style="font-family: 'Geist Mono', monospace; font-size: 11px; letter-spacing: 0.14em; color: #722F37; margin-top: 24px;">A QUESTION FOR THE WEEK AHEAD</h3>
+      <p style="font-family: Newsreader, Georgia, serif; font-style: italic; font-size: 18px; color: #0a0a0a;">${escapeHtml(v.question)}</p>
+      <p style="margin-top: 30px;"><a href="${APP_BASE_URL}/daily" style="color: #722F37; border-bottom: 1px solid #722F37; padding-bottom: 1px; text-decoration: none;">Open the verdict on Counsel.day</a></p>
+      <p style="margin-top: 30px; padding: 14px 16px; background: #f4e6e8; border-left: 3px solid #722F37; font-family: Georgia, serif; font-size: 14px; line-height: 1.55; color: #364556;">
+        <strong style="color: #0a0a0a;">A note from Counsel.</strong> If one of the strains above has been recurring for weeks, a 30-night sealed decision can hold it &middot; the same evening rhythm, with a verdict on the close date. <a href="${APP_BASE_URL}/compose" style="color: #722F37; border-bottom: 1px solid #722F37; padding-bottom: 1px; text-decoration: none;">Compose one</a>, or skip the nudge and let the journal do its work.
+      </p>
+      <p style="font-family: 'Geist Mono', monospace; font-size: 11px; color: #6b635a; margin-top: 30px;">&middot; Counsel.day</p>
+    </div>
+  `.trim();
+
+  await sendTransactional({
+    to: { email, name: firstName ?? undefined },
+    subject: `Counsel · Daily · your week of ${weekStr}`,
+    textContent: text,
+    htmlContent: html,
+  });
+}
+
+const JOURNAL_WEEKLY_VERDICT_SYSTEM_DEFAULT = `You are the Counsel.day editorial voice writing a weekly verdict on a user's daily journal entries. You are observational, not advisory. You quote the user's own phrasing back to them. You do not give advice, you do not diagnose, you do not coach. You name what is recurring, what is working, what is straining. You write one specific concrete question for the week ahead. No bullet points in the throughline; one prose paragraph of 2-4 sentences. Never use the words "feel", "you should", "you might consider", "try to", "remember to". Lead with what is working before what is straining.`;
+
 async function weeklyDigest() {
   const opsEmail = process.env.OPS_DIGEST_EMAIL ?? 'admin@counsel.day';
 
@@ -1024,8 +1235,9 @@ async function main() {
     case 'weekly-digest':        return runWithHeartbeat(job, weeklyDigest);
     case 'security-audit':       return runWithHeartbeat(job, securityAudit);
     case 'verdict-tts':          return runWithHeartbeat(job, verdictTts);
+    case 'journal-digest':       return runWithHeartbeat(job, journalDigest);
     default:
-      console.error(`Unknown job: ${job}. Valid: evening-prompt, verdict-generate, session-purge, invite-expiry, invite-reminder, hard-delete-purge, audit-prune, time-capsule-deliver, weekly-digest, security-audit`);
+      console.error(`Unknown job: ${job}. Valid: evening-prompt, verdict-generate, session-purge, invite-expiry, invite-reminder, hard-delete-purge, audit-prune, time-capsule-deliver, weekly-digest, security-audit, journal-digest`);
       process.exit(2);
   }
 }

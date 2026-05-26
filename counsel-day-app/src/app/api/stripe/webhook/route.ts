@@ -188,18 +188,62 @@ export async function POST(req: Request) {
         }
         break;
       }
-      // customer.subscription.* events retained as defensive no-ops:
-      // we no longer SELL a subscription (Consumer Annual retired
-      // 2026-05-25), but Stripe may still deliver these for any
-      // historical subscribers · accept them silently rather than
-      // returning an error that Stripe would retry.
+      // customer.subscription.* events · The Daily Counsel Pro tier
+      // ($4.99 USD/mo) lives in a separate daily_subscriptions table.
+      // Any subscription with product='daily_pro' in metadata gets
+      // mirrored there. Legacy users.current_plan flip for the long-
+      // retired Consumer Annual is retained defensively.
       case 'customer.subscription.created':
       case 'customer.subscription.updated':
       case 'customer.subscription.deleted': {
         const sub = event.data.object as Stripe.Subscription;
         const customer = typeof sub.customer === 'string' ? sub.customer : sub.customer.id;
-        // If any user still has currentPlan set from a legacy annual
-        // subscription, drop them back to 'free' when the sub ends.
+        const product = (sub.metadata as Record<string, string> | undefined)?.product;
+        const userIdFromMeta = (sub.metadata as Record<string, string> | undefined)?.user_id;
+
+        // Daily Pro subscription fulfillment
+        if (product === 'daily_pro' && userIdFromMeta) {
+          const priceId = sub.items.data[0]?.price.id ?? null;
+          const status = event.type === 'customer.subscription.deleted'
+            ? 'canceled'
+            : (sub.status === 'active' || sub.status === 'trialing' ? 'active'
+              : sub.status === 'past_due' ? 'past_due'
+              : sub.status === 'canceled' || sub.status === 'unpaid' ? 'canceled'
+              : 'inactive');
+          const periodStart = (sub as unknown as { current_period_start?: number }).current_period_start
+            ? new Date(((sub as unknown as { current_period_start: number }).current_period_start) * 1000)
+            : null;
+          const periodEnd = (sub as unknown as { current_period_end?: number }).current_period_end
+            ? new Date(((sub as unknown as { current_period_end: number }).current_period_end) * 1000)
+            : null;
+
+          await db.execute(sql`
+            INSERT INTO daily_subscriptions (
+              user_id, stripe_customer_id, stripe_subscription_id, stripe_price_id,
+              status, current_period_start, current_period_end, cancel_at_period_end,
+              started_at, canceled_at, updated_at
+            ) VALUES (
+              ${userIdFromMeta}::uuid, ${customer}, ${sub.id}, ${priceId},
+              ${status}, ${periodStart}, ${periodEnd}, ${sub.cancel_at_period_end ?? false},
+              ${status === 'active' ? new Date() : null},
+              ${status === 'canceled' ? new Date() : null},
+              NOW()
+            )
+            ON CONFLICT (user_id) DO UPDATE SET
+              stripe_customer_id = EXCLUDED.stripe_customer_id,
+              stripe_subscription_id = EXCLUDED.stripe_subscription_id,
+              stripe_price_id = EXCLUDED.stripe_price_id,
+              status = EXCLUDED.status,
+              current_period_start = EXCLUDED.current_period_start,
+              current_period_end = EXCLUDED.current_period_end,
+              cancel_at_period_end = EXCLUDED.cancel_at_period_end,
+              canceled_at = EXCLUDED.canceled_at,
+              updated_at = NOW()
+          `);
+          break;
+        }
+
+        // Legacy users.current_plan flip for any historical sub.
         if (sub.status === 'canceled' || sub.status === 'unpaid' || event.type === 'customer.subscription.deleted') {
           const rows = await db
             .select({ id: schema.users.id })

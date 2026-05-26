@@ -223,6 +223,47 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="count">AUTOSAVED · SEALED · UP TO 3,000 CHARACTERS</div>
         </div>
 
+        <!-- Follow-up chips · optional · select what came up tonight.
+             The verdict cron clusters these across nights to ground theme
+             insight in cause, not just direction. Hidden chip rail; the
+             reveal toggle appears below for any vote, but on the negative
+             options (lean_no / strong_no / no) it auto-expands. -->
+        <div class="note-field" id="chip-rail-wrap">
+          <div class="note-field-label">
+            <span>WHAT'S COMING UP TONIGHT · OPTIONAL</span>
+            <span class="right">PICK ANY THAT FIT</span>
+          </div>
+          <div id="chip-rail" style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <button type="button" class="chip" data-tag="workload" style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; padding: 9px 14px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink-soft); cursor: pointer; min-height: 36px;">workload</button>
+            <button type="button" class="chip" data-tag="sleep"            style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; padding: 9px 14px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink-soft); cursor: pointer; min-height: 36px;">sleep</button>
+            <button type="button" class="chip" data-tag="time"             style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; padding: 9px 14px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink-soft); cursor: pointer; min-height: 36px;">time</button>
+            <button type="button" class="chip" data-tag="money"            style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; padding: 9px 14px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink-soft); cursor: pointer; min-height: 36px;">money</button>
+            <button type="button" class="chip" data-tag="the_other_person" style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; padding: 9px 14px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink-soft); cursor: pointer; min-height: 36px;">the other person</button>
+            <button type="button" class="chip" data-tag="health"           style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; padding: 9px 14px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink-soft); cursor: pointer; min-height: 36px;">health</button>
+            <button type="button" class="chip" data-tag="family"           style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; padding: 9px 14px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink-soft); cursor: pointer; min-height: 36px;">family</button>
+            <button type="button" class="chip" data-tag="role_clarity"     style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; padding: 9px 14px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink-soft); cursor: pointer; min-height: 36px;">role clarity</button>
+            <button type="button" class="chip" data-tag="meetings"         style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; padding: 9px 14px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink-soft); cursor: pointer; min-height: 36px;">meetings</button>
+            <button type="button" class="chip" data-tag="other"            style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; padding: 9px 14px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink-soft); cursor: pointer; min-height: 36px;">something else</button>
+          </div>
+          <div class="count" style="margin-top: 10px;">YOUR PICKS ARE SEALED WITH THE VOTE</div>
+        </div>
+        <script>
+          /* Chip toggle · selected chips get the wine background. They
+             ride along on the vote submission as a tags[] array. */
+          document.querySelectorAll('#chip-rail .chip').forEach(function (c) {
+            c.addEventListener('click', function () {
+              var on = c.classList.toggle('selected');
+              c.style.background = on ? 'var(--wine)' : 'var(--paper)';
+              c.style.color = on ? 'var(--paper)' : 'var(--ink-soft)';
+              c.style.borderColor = on ? 'var(--wine)' : 'var(--rule)';
+            });
+          });
+          window.cdSelectedChips = function () {
+            return Array.from(document.querySelectorAll('#chip-rail .chip.selected'))
+              .map(function (c) { return c.getAttribute('data-tag'); });
+          };
+        </script>
+
         <div class="seal-strip">
           <div class="left">Sealing is permanent. <strong>You cannot change tonight's vote</strong> once committed.</div>
           <div class="right">Sealed by: ed25519 + AES-256-GCM</div>
@@ -335,7 +376,8 @@ function sealVote() {
     body: JSON.stringify({
       decision_id: CD_VOTE_STATE.decisionId,
       direction: direction,
-      note: note || undefined
+      note: note || undefined,
+      tags: (typeof window.cdSelectedChips === 'function' ? window.cdSelectedChips() : [])
     })
   })
   .then(function (r) {

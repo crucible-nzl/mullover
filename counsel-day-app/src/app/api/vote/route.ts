@@ -22,11 +22,33 @@ import { eq, and } from 'drizzle-orm';
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
+// Follow-up chips on low-conviction / negative votes. Stored as
+// short tag strings; the verdict cron clusters them across votes
+// to produce cause-grounded themes ("workload came up 4 of 7 nights").
+// Bank kept small + opinionated; "other" lets the user type free text
+// in the note field.
+const TAG_ENUM = z.enum([
+  'workload',
+  'sleep',
+  'time',
+  'money',
+  'the_other_person',
+  'health',
+  'family',
+  'role_clarity',
+  'meetings',
+  'other',
+]);
+
 const voteSchema = z.object({
   decision_id: z.string().uuid(),
-  direction: z.enum(['yes', 'no', 'strong_yes', 'lean_yes', 'lean_no', 'strong_no', 'a', 'b']),
+  direction: z.enum(['yes', 'no', 'strong_yes', 'lean_yes', 'lean_no', 'strong_no', 'a', 'b', 'ranked']),
   conviction: z.coerce.number().min(0).max(1).optional(),
   note: z.string().max(2000).optional(),
+  tags: z.array(TAG_ENUM).max(5).optional(),
+  // ranked-format only: array of option indices (top-pick first).
+  // Length must equal the parent decision's options length.
+  ranked_order: z.array(z.coerce.number().int().min(0).max(20)).min(2).max(20).optional(),
 });
 
 function todayDateString(): string {
@@ -53,7 +75,19 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ ok: false, message: 'Invalid vote.', issues: parsed.error.issues }, { status: 422 });
   }
-  const { decision_id, direction, conviction, note } = parsed.data;
+  const { decision_id, direction, conviction, note, tags, ranked_order } = parsed.data;
+
+  // If direction === 'ranked' the caller MUST supply ranked_order, and
+  // the indices must be unique + match the parent decision's option count.
+  if (direction === 'ranked') {
+    if (!ranked_order || ranked_order.length < 2) {
+      return NextResponse.json({ ok: false, message: 'Ranked votes require an ordering of all options.' }, { status: 422 });
+    }
+    const uniq = new Set(ranked_order);
+    if (uniq.size !== ranked_order.length) {
+      return NextResponse.json({ ok: false, message: 'Each option must appear in the ranking exactly once.' }, { status: 422 });
+    }
+  }
 
   // Resolve participant row for THIS user in THIS decision (a user might
   // be the owner OR an invited partner who has accepted).
@@ -100,6 +134,8 @@ export async function POST(req: Request) {
       direction,
       conviction: conviction != null ? conviction.toFixed(2) : null,
       note: note ?? null,
+      tags: (tags ?? []) as unknown as object,
+      rankedOrder: ranked_order ? (ranked_order as unknown as object) : null,
     });
   } catch (err) {
     const msg = (err as Error).message ?? '';

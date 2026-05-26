@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+<link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage': 'denied','ad_user_data':'denied','ad_personalization':'denied',
+    'analytics_storage':'denied','functionality_storage':'denied','personalization_storage':'denied',
+    'security_storage':'granted','wait_for_update':500
+  });
+  if (navigator.globalPrivacyControl === true || navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' || window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent','update',{ 'ad_storage':'denied','ad_user_data':'denied','ad_personalization':'denied','analytics_storage':'denied' });
+  }
+</script>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', { 'anonymize_ip': true, 'allow_google_signals': false, 'allow_ad_personalization_signals': false });
+</script>
+
+<title>The Daily Counsel · your evening reflection · Counsel.day</title>
+<meta name="description" content="Counsel · Daily · one minute every evening, sealed for seven days. Monday morning, the verdict on what worked.">
+<meta name="robots" content="noindex, nofollow">
+<meta property="article:modified_time" content="2026-05-25T19:00:00+12:00">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="styles-i8.css">
+<style>
+  .dc-shell { max-width: 880px; margin: 0 auto; padding: 30px 32px 60px; }
+  .dc-bread { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 28px; }
+  .dc-bread a { color: var(--wine); border-bottom: 1px solid var(--wine); padding-bottom: 1px; text-decoration: none; }
+
+  .dc-head { padding-bottom: 24px; border-bottom: 1px solid var(--ink); margin-bottom: 30px; }
+  .dc-head .eyebrow { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine); margin-bottom: 14px; }
+  .dc-head h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(30px, 4vw, 44px); line-height: 1.08; letter-spacing: -0.018em; color: var(--ink); margin: 0 0 12px; }
+  .dc-head h1 .ital { font-style: italic; color: var(--wine); font-weight: 400; }
+  .dc-head .sub { font-family: var(--font-body); font-size: 16px; line-height: 1.55; color: var(--ink-soft); margin: 0; max-width: 620px; }
+
+  /* Tonight's entry composer */
+  .dc-compose { border: 1px solid var(--ink); background: var(--paper); padding: 26px 28px 24px; margin-bottom: 36px; }
+  .dc-compose .lbl { font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin-bottom: 10px; }
+  .dc-compose h2 { font-family: var(--font-display); font-weight: 400; font-size: 24px; line-height: 1.2; color: var(--ink); margin: 0 0 14px; }
+  .dc-compose h2 .ital { font-style: italic; color: var(--wine); font-weight: 400; }
+  .dc-compose textarea { width: 100%; min-height: 200px; padding: 16px 18px; border: 1px solid var(--rule); background: var(--paper); font-family: var(--font-body); font-size: 16px; line-height: 1.6; color: var(--ink); resize: vertical; box-sizing: border-box; -webkit-appearance: none; }
+  .dc-compose textarea:focus { outline: none; border-color: var(--wine); box-shadow: 0 0 0 2px var(--wine-soft); }
+  .dc-compose .meta-row { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-top: 14px; }
+  .dc-compose .count { font-family: var(--font-mono); font-size: 11px; color: var(--muted); letter-spacing: 0.08em; }
+  .dc-compose .seal-note { font-family: var(--font-body); font-style: italic; font-size: 13px; color: var(--muted); flex: 1 1 auto; }
+  .dc-compose button.submit { padding: 13px 24px; font-family: var(--font-ui); font-size: 14px; font-weight: 500; background: var(--ink); color: var(--paper); border: none; cursor: pointer; min-height: 44px; letter-spacing: 0.02em; }
+  .dc-compose button.submit:hover { background: var(--wine-deep); }
+  .dc-compose button.submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Sealed-today banner */
+  .dc-sealed-banner { padding: 18px 22px; background: var(--wine-soft); border-left: 3px solid var(--wine); margin-bottom: 30px; font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: var(--ink); display: none; }
+  .dc-sealed-banner.is-shown { display: block; }
+  .dc-sealed-banner .lbl { font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin-bottom: 6px; }
+
+  /* Status / error banners (alert / success messages from the API) */
+  .dc-msg { padding: 12px 16px; margin-bottom: 18px; font-family: var(--font-body); font-size: 14px; line-height: 1.5; display: none; }
+  .dc-msg.is-shown { display: block; }
+  .dc-msg.ok { background: var(--wine-soft); border-left: 3px solid var(--wine); color: var(--ink); }
+  .dc-msg.err { background: #fdecea; border-left: 3px solid #c0392b; color: #6b1e16; }
+
+  /* Verdict card */
+  .dc-section-label { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine); margin: 36px 0 14px; padding-bottom: 10px; border-bottom: 1px solid var(--rule); }
+  .dc-verdict { border: 1px solid var(--ink); background: var(--paper); padding: 28px 32px; margin-bottom: 24px; }
+  .dc-verdict .week { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .dc-verdict h3 { font-family: var(--font-display); font-weight: 400; font-size: 26px; line-height: 1.18; color: var(--ink); margin: 0 0 22px; }
+  .dc-verdict h3 .ital { font-style: italic; color: var(--wine); font-weight: 400; }
+  .dc-verdict h4 { font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine); margin: 22px 0 10px; }
+  .dc-verdict ul { margin: 0; padding-left: 22px; font-family: var(--font-body); font-size: 16px; line-height: 1.6; color: var(--ink-soft); }
+  .dc-verdict ul li { margin-bottom: 6px; }
+  .dc-verdict p.through { font-family: var(--font-body); font-size: 17px; line-height: 1.65; color: var(--ink); margin: 0; }
+  .dc-verdict p.question { font-family: var(--font-display); font-style: italic; font-size: 22px; line-height: 1.4; color: var(--ink); margin: 0; border-left: 3px solid var(--wine); padding: 4px 0 4px 20px; }
+
+  /* Past entries archive */
+  .dc-entry-row { display: grid; grid-template-columns: 110px 1fr; gap: 18px; padding: 18px 0; border-bottom: 1px solid var(--rule); }
+  .dc-entry-row .date { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine); }
+  .dc-entry-row .text { font-family: var(--font-body); font-size: 15px; line-height: 1.6; color: var(--ink); white-space: pre-wrap; }
+  .dc-entry-row:last-child { border-bottom: none; }
+  @media (max-width: 600px) {
+    .dc-entry-row { grid-template-columns: 1fr; gap: 6px; }
+  }
+
+  .dc-empty { padding: 30px 24px; background: var(--paper-deep); border: 1px dashed var(--rule); font-family: var(--font-body); font-style: italic; font-size: 15px; color: var(--muted); text-align: center; }
+
+  /* Pro upgrade prompt at the bottom of the page */
+  .dc-pro-prompt { margin-top: 40px; padding: 24px 28px; background: var(--paper-deep); border-left: 3px solid var(--wine); }
+  .dc-pro-prompt .lbl { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine); margin-bottom: 8px; }
+  .dc-pro-prompt h4 { font-family: var(--font-display); font-weight: 400; font-size: 22px; line-height: 1.22; color: var(--ink); margin: 0 0 10px; }
+  .dc-pro-prompt h4 .ital { font-style: italic; color: var(--wine); }
+  .dc-pro-prompt p { font-family: var(--font-body); font-size: 15px; line-height: 1.55; color: var(--ink-soft); margin: 0 0 16px; }
+  .dc-pro-prompt a.upgrade { display: inline-block; padding: 12px 20px; font-family: var(--font-ui); font-size: 13px; font-weight: 500; background: var(--wine); color: var(--paper); border: none; cursor: pointer; text-decoration: none; min-height: 44px; box-sizing: border-box; line-height: 1.5; letter-spacing: 0.02em; }
+  .dc-pro-prompt a.upgrade:hover { background: var(--wine-deep); }
+</style>
+</head>
+<body>
+
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <div class="nav-links">
+      <a href="decisions.html">Your decisions</a>
+      <a href="vote-today.html">Tonight's vote</a>
+      <a href="daily.html">The Daily</a>
+      <a href="compose.html">Compose</a>
+      <a href="account.html">Account</a>
+    </div>
+    <div class="nav-cta">
+      <a href="account.html" class="btn-text">You</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main-content">
+  <div class="dc-shell">
+
+    <div class="dc-bread">
+      <a href="account.html">← Account</a>
+      <span style="margin: 0 10px;">·</span>
+      <span id="dc-bread-stat">LOADING…</span>
+    </div>
+
+    <div class="dc-head">
+      <div class="eyebrow">THE DAILY COUNSEL · YOUR EVENING REFLECTION</div>
+      <h1>One minute tonight. <span class="ital">A verdict on Monday.</span></h1>
+      <p class="sub">Type or speak for thirty to a hundred-and-eighty seconds about today. The entry seals for seven days; you cannot re-read it. Each Sunday evening, the past week of unsealed entries becomes a Monday-morning verdict on what's working, what's straining, and one question for the week ahead.</p>
+    </div>
+
+    <div id="dc-msg" class="dc-msg" role="alert" aria-live="polite"></div>
+
+    <div class="dc-sealed-banner" id="dc-sealed-today">
+      <div class="lbl">TONIGHT'S ENTRY · ALREADY SEALED</div>
+      <div id="dc-sealed-text">You filed tonight's entry. It opens for you on <strong id="dc-sealed-when">…</strong>.</div>
+    </div>
+
+    <section class="dc-compose" id="dc-compose-block">
+      <div class="lbl">TONIGHT · <span id="dc-today-date">…</span></div>
+      <h2>How was <span class="ital">today?</span></h2>
+      <textarea id="dc-text" placeholder="Speak it out loud first if it helps. Then write down what you would say to a trusted friend about how today actually went · what worked, what dragged, what came up that surprised you." maxlength="4000" aria-label="Tonight's reflection"></textarea>
+      <div class="meta-row">
+        <span class="count"><span id="dc-count">0</span> / 4000 chars</span>
+        <span class="seal-note">Sealed for 7 days the moment you submit. No re-reading.</span>
+        <button type="button" class="submit" id="dc-submit">Seal tonight's entry</button>
+      </div>
+    </section>
+
+    <div class="dc-section-label" id="dc-verdicts-label">YOUR WEEKLY VERDICTS</div>
+    <div id="dc-verdicts"><div class="dc-empty">No verdicts yet. File three or more entries this week and your first Monday verdict arrives next week.</div></div>
+
+    <div class="dc-section-label">YOUR UNSEALED ENTRIES</div>
+    <div id="dc-entries"><div class="dc-empty">Entries open one week after you file them. Once they unseal they appear here, in the verdict, and (Pro) attached to any active decision.</div></div>
+
+    <aside class="dc-pro-prompt" id="dc-pro-prompt">
+      <div class="lbl">COUNSEL · DAILY · PRO</div>
+      <h4>Voice entries, monthly deep-dive, and <span class="ital">attach to an active decision.</span></h4>
+      <p>Pro adds 30-second voice recording (transcribed automatically), a monthly themed verdict on what the month was really about, and the ability to link a daily entry to one of your active sealed decisions so the close-day verdict references the supporting evidence. $4.99 USD per month.</p>
+      <a class="upgrade" href="/account.html?upgrade=daily_pro">Upgrade to Pro</a>
+    </aside>
+
+  </div>
+</main>
+
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. The Daily Counsel is the evening reflection that runs alongside.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The app</h5>
+        <a href="decisions.html">Your decisions</a>
+        <a href="daily.html">The Daily</a>
+        <a href="vote-today.html">Tonight's vote</a>
+        <a href="compose.html">Compose</a>
+        <a href="account.html">Your account</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The product</h5>
+        <a href="method.html">The method</a>
+        <a href="why-time.html">Why time</a>
+        <a href="verdict.html">A real verdict</a>
+      </div>
+      <div class="colophon-col">
+        <h5>Support</h5>
+        <a href="help.html">Help</a>
+        <a href="contact.html">Contact</a>
+        <a href="faq.html">FAQ</a>
+      </div>
+      <div class="colophon-col">
+        <h5>The fine print</h5>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="refunds.html">Refunds</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>© 2026 Counsel.day · USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var msgEl = document.getElementById('dc-msg');
+  var textEl = document.getElementById('dc-text');
+  var countEl = document.getElementById('dc-count');
+  var submitBtn = document.getElementById('dc-submit');
+  var composeBlock = document.getElementById('dc-compose-block');
+  var sealedBanner = document.getElementById('dc-sealed-today');
+  var sealedWhen = document.getElementById('dc-sealed-when');
+  var todayLbl = document.getElementById('dc-today-date');
+  var breadStat = document.getElementById('dc-bread-stat');
+  var verdictsEl = document.getElementById('dc-verdicts');
+  var entriesEl = document.getElementById('dc-entries');
+
+  function showMsg(kind, text) {
+    msgEl.className = 'dc-msg is-shown ' + kind;
+    msgEl.textContent = text;
+    setTimeout(function () { msgEl.classList.remove('is-shown'); }, 5500);
+  }
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c];
+    });
+  }
+  function fmtLongDate(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()] + ' ' + d.getDate() + ' ' +
+      ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];
+  }
+  function fmtDayMonth(iso) {
+    if (!iso) return '';
+    var d = new Date(iso + (iso.indexOf('T') === -1 ? 'T12:00:00' : ''));
+    return d.getDate() + ' ' + ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][d.getMonth()];
+  }
+
+  // Character counter
+  textEl.addEventListener('input', function () {
+    countEl.textContent = textEl.value.length;
+  });
+
+  // Submit
+  submitBtn.addEventListener('click', function () {
+    var text = textEl.value.trim();
+    if (text.length < 1) { showMsg('err', 'Write at least one sentence.'); return; }
+    if (text.length > 4000) { showMsg('err', 'Keep tonight\'s entry under 4000 characters.'); return; }
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sealing…';
+    fetch('/api/daily', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ text_content: text }),
+    })
+      .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+      .then(function (res) {
+        if (res.status === 201 || res.status === 200) {
+          showMsg('ok', res.body.message || 'Sealed.');
+          textEl.value = '';
+          countEl.textContent = '0';
+          load();
+        } else if (res.status === 401) {
+          window.location.href = '/signin?next=/daily.html';
+        } else {
+          showMsg('err', (res.body && res.body.message) || 'Could not save.');
+        }
+      })
+      .catch(function () { showMsg('err', 'Network error. Try again in a moment.'); })
+      .finally(function () { submitBtn.disabled = false; submitBtn.textContent = 'Seal tonight\'s entry'; });
+  });
+
+  function renderVerdicts(verdicts) {
+    if (!verdicts || verdicts.length === 0) {
+      verdictsEl.innerHTML = '<div class="dc-empty">No verdicts yet. File three or more entries this week and your first Monday verdict arrives next week.</div>';
+      return;
+    }
+    verdictsEl.innerHTML = verdicts.map(function (v) {
+      var weekStart = fmtLongDate(v.week_starts_on);
+      var weekEnd = fmtLongDate(v.week_ends_on);
+      var positives = (v.positives || []).map(function (p) { return '<li>' + escapeHtml(p) + '</li>'; }).join('');
+      var strains = (v.strains || []).map(function (s) { return '<li>' + escapeHtml(s) + '</li>'; }).join('');
+      return '<article class="dc-verdict">' +
+        '<div class="week">WEEK OF ' + escapeHtml(weekStart.toUpperCase()) + ' TO ' + escapeHtml(weekEnd.toUpperCase()) + '</div>' +
+        '<h3>What the <span class="ital">week was about.</span></h3>' +
+        '<h4>WHAT STOOD OUT AS WORKING</h4><ul>' + positives + '</ul>' +
+        (strains ? '<h4>WHAT KEPT COMING UP AS A STRAIN</h4><ul>' + strains + '</ul>' : '') +
+        '<h4>THROUGHLINE</h4><p class="through">' + escapeHtml(v.throughline || '') + '</p>' +
+        '<h4>A QUESTION FOR THE WEEK AHEAD</h4><p class="question">' + escapeHtml(v.question_for_next || '') + '</p>' +
+      '</article>';
+    }).join('');
+  }
+
+  function renderEntries(entries) {
+    if (!entries || entries.length === 0) {
+      entriesEl.innerHTML = '<div class="dc-empty">Entries open one week after you file them. Once they unseal they appear here.</div>';
+      return;
+    }
+    entriesEl.innerHTML = entries.map(function (e) {
+      var text = e.transcript || e.text_content || '';
+      return '<div class="dc-entry-row">' +
+        '<div class="date">' + escapeHtml(fmtDayMonth(e.entry_date)) + '</div>' +
+        '<div class="text">' + escapeHtml(text) + '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function load() {
+    todayLbl.textContent = fmtLongDate(new Date().toISOString().slice(0, 10)).toUpperCase();
+    Promise.all([
+      fetch('/api/daily', { credentials: 'include', headers: { accept: 'application/json' } })
+        .then(function (r) {
+          if (r.status === 401) { window.location.href = '/signin?next=/daily.html'; throw new Error('redirect'); }
+          return r.json();
+        }),
+      fetch('/api/daily/verdicts', { credentials: 'include', headers: { accept: 'application/json' } })
+        .then(function (r) { return r.json().catch(function () { return { ok: true, verdicts: [] }; }); }),
+    ])
+      .then(function (results) {
+        var entryRes = results[0];
+        var verdictRes = results[1];
+        if (!entryRes || !entryRes.ok) return;
+
+        // sealed-today banner
+        if (entryRes.sealed_today) {
+          sealedBanner.classList.add('is-shown');
+          composeBlock.style.display = 'none';
+          var when = new Date(entryRes.sealed_today.unseals_at);
+          sealedWhen.textContent = fmtLongDate(when.toISOString().slice(0, 10));
+        } else {
+          sealedBanner.classList.remove('is-shown');
+          composeBlock.style.display = '';
+        }
+
+        // bread
+        var n = (entryRes.entries || []).length;
+        breadStat.textContent = n + ' unsealed entr' + (n === 1 ? 'y' : 'ies') + (entryRes.sealed_today ? ' · 1 sealed tonight' : '');
+
+        renderVerdicts((verdictRes && verdictRes.verdicts) || []);
+        renderEntries(entryRes.entries || []);
+      })
+      .catch(function (e) {
+        if (e && e.message === 'redirect') return;
+        showMsg('err', 'Could not load. Refresh to try again.');
+      });
+  }
+
+  load();
+})();
+</script>
+<script src="ga4.js" defer></script>
+</body>
+</html>

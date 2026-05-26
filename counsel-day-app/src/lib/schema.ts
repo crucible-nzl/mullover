@@ -146,9 +146,13 @@ export const decisions = pgTable(
     amountPaidCents: integer('amount_paid_cents').notNull().default(0),
     paidAt: timestamp('paid_at', { withTimezone: true }),
     refundedAt: timestamp('refunded_at', { withTimezone: true }),
+    options: jsonb('options'), // ranked-format only: ["Wellington", "Auckland", ...]
     pausedAt: timestamp('paused_at', { withTimezone: true }),
     pausedUntil: timestamp('paused_until', { withTimezone: true }),
     cancelledAt: timestamp('cancelled_at', { withTimezone: true }),
+    mode: text('mode').notNull().default('standard'), // 'standard' | 'pulse'
+    reopenAt: timestamp('reopen_at', { withTimezone: true }),
+    reopenOf: uuid('reopen_of'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
@@ -221,6 +225,8 @@ export const votes = pgTable(
     direction: text('direction').notNull(),
     conviction: numeric('conviction', { precision: 3, scale: 2 }),
     note: text('note'),
+    tags: jsonb('tags').notNull().default([]), // follow-up chips on low-conviction votes
+    rankedOrder: jsonb('ranked_order'),         // ranked-format: array of option indices, top-first
     sealedAt: timestamp('sealed_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => ({
@@ -232,7 +238,7 @@ export const votes = pgTable(
     ),
     directionCheck: check(
       'votes_direction_check',
-      sql`${t.direction} IN ('yes', 'no', 'strong_yes', 'lean_yes', 'lean_no', 'strong_no', 'a', 'b')`
+      sql`${t.direction} IN ('yes', 'no', 'strong_yes', 'lean_yes', 'lean_no', 'strong_no', 'a', 'b', 'ranked')`
     ),
   })
 );
@@ -637,5 +643,107 @@ export const auditLog = pgTable(
   (t) => ({
     actorIdx: index('audit_log_actor_idx').on(t.actorUserId),
     actionIdx: index('audit_log_action_idx').on(t.action),
+  })
+);
+
+// ---------------------------------------------------------------------------
+// THE DAILY COUNSEL · evening journal entries · sealed 7 days · weekly verdict
+// ---------------------------------------------------------------------------
+// Companion product to the flagship sealed-decision instrument. Free
+// tier: text entries + weekly verdict. Pro tier: voice entries + monthly
+// deep-dive + attach-to-decision linking. See migration 0026.
+// ---------------------------------------------------------------------------
+export const journalEntries = pgTable(
+  'journal_entries',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    entryDate: date('entry_date').notNull(),
+    textContent: text('text_content'),
+    audioUrl: text('audio_url'),
+    transcript: text('transcript'),
+    durationSeconds: numeric('duration_seconds'),
+    wordCount: integer('word_count'),
+    language: text('language').default('en'),
+    sentiment: numeric('sentiment'),
+    attachedDecisionId: uuid('attached_decision_id').references(() => decisions.id, { onDelete: 'set null' }),
+    sealedAt: timestamp('sealed_at', { withTimezone: true }).notNull().defaultNow(),
+    unsealsAt: timestamp('unseals_at', { withTimezone: true }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true }),
+  },
+  (t) => ({
+    userDateIdx: index('journal_entries_user_date_idx').on(t.userId, t.entryDate),
+    unsealsIdx: index('journal_entries_unseals_idx').on(t.unsealsAt),
+  })
+);
+
+export const journalVerdicts = pgTable(
+  'journal_verdicts',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    weekStartsOn: date('week_starts_on').notNull(),
+    weekEndsOn: date('week_ends_on').notNull(),
+    kind: text('kind').notNull().default('weekly'), // 'weekly' | 'monthly'
+    entriesCount: integer('entries_count').notNull().default(0),
+    positives: jsonb('positives').notNull().default([]),
+    strains: jsonb('strains').notNull().default([]),
+    throughline: text('throughline'),
+    questionForNext: text('question_for_next'),
+    model: text('model'),
+    tokensIn: integer('tokens_in'),
+    tokensOut: integer('tokens_out'),
+    costCents: integer('cost_cents'),
+    deliveredEmailAt: timestamp('delivered_email_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    userWeekIdx: index('journal_verdicts_user_week_idx').on(t.userId, t.weekStartsOn),
+  })
+);
+
+export const teamsWaitlist = pgTable(
+  'teams_waitlist',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    email: text('email').notNull(),
+    fullName: text('full_name'),
+    company: text('company'),
+    role: text('role'),
+    teamSize: text('team_size'),
+    country: text('country'),
+    source: text('source'),
+    notes: text('notes'),
+    userAgent: text('user_agent'),
+    ipHash: text('ip_hash'),
+    contactedAt: timestamp('contacted_at', { withTimezone: true }),
+    status: text('status').notNull().default('pending'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    statusIdx: index('teams_waitlist_status_idx').on(t.status, t.createdAt),
+    emailIdx: index('teams_waitlist_email_idx').on(t.email),
+  })
+);
+
+export const dailySubscriptions = pgTable(
+  'daily_subscriptions',
+  {
+    userId: uuid('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+    stripeCustomerId: text('stripe_customer_id'),
+    stripeSubscriptionId: text('stripe_subscription_id'),
+    stripePriceId: text('stripe_price_id'),
+    status: text('status').notNull().default('inactive'), // active | past_due | canceled | inactive
+    currentPeriodStart: timestamp('current_period_start', { withTimezone: true }),
+    currentPeriodEnd: timestamp('current_period_end', { withTimezone: true }),
+    cancelAtPeriodEnd: boolean('cancel_at_period_end').notNull().default(false),
+    startedAt: timestamp('started_at', { withTimezone: true }),
+    canceledAt: timestamp('canceled_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    statusIdx: index('daily_subscriptions_status_idx').on(t.status),
   })
 );

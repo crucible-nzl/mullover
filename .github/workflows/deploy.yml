@@ -116,12 +116,21 @@ jobs:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
         run: |
-          # Mirror what scripts/deploy.sh does, but with CI-provided SSH.
+          # rsync (with --delete) is the right tool here · tar over SSH
+          # ADDS and UPDATES files but never REMOVES files deleted in the
+          # source tree. That left orphan route files on the server
+          # (e.g. teams-waitlist/route.ts after the Teams scope-out)
+          # which then broke `next build` with "import error · X is not
+          # exported from @/lib/schema". --delete fixes this cleanly.
+          # Excludes preserve node_modules, .next build cache, secrets,
+          # git data, and the runtime .git-rev sha file.
           cd counsel-day-app
           ssh -i ~/.ssh/id_ed25519 "$SSH_USER@$SSH_HOST" "sudo mkdir -p /opt/counsel-day-app && sudo chown -R deploy:deploy /opt/counsel-day-app"
-          tar -czf - \
-            --exclude='node_modules' --exclude='.next' --exclude='.env' --exclude='.env.local' --exclude='.git' \
-            . | ssh -i ~/.ssh/id_ed25519 "$SSH_USER@$SSH_HOST" "tar -xzf - -C /opt/counsel-day-app"
+          rsync -e "ssh -i ~/.ssh/id_ed25519" -az --delete \
+            --exclude='node_modules' --exclude='.next' \
+            --exclude='.env' --exclude='.env.local' \
+            --exclude='.git' --exclude='.git-rev' \
+            ./ "$SSH_USER@$SSH_HOST:/opt/counsel-day-app/"
           ssh -i ~/.ssh/id_ed25519 "$SSH_USER@$SSH_HOST" "
             set -e
             cd /opt/counsel-day-app

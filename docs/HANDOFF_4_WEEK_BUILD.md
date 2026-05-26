@@ -50,41 +50,73 @@ prod, and the enterprise roadmap from the parallel research.
 
 ## What still needs YOUR hand on the wheel
 
-### Pre-deploy checklist (15 minutes)
+### Post-deploy · 5-minute server setup (paste-ready)
 
-1. **Apply migrations 0026-0030 on prod.** They run automatically on deploy via the migrate-on-boot pattern · just confirm the deploy log shows them applied.
-2. **Set environment variable on the server:**
-   ```bash
-   # /etc/counsel-day-app/env.local
-   STRIPE_DAILY_PRO_PRICE_ID=price_xxx   # see Stripe setup below
-   ```
-3. **Create Stripe product + price** (Stripe Dashboard → Products):
-   - Product name: `Counsel · Daily Pro`
-   - Recurring price: `$4.99 USD / month`
-   - Copy the `price_xxx` ID into the env var above
-4. **Add a systemd timer for the `journal-digest` cron · runs every Sunday 22:00 NZT.** Example unit:
-   ```
-   # /etc/systemd/system/counsel-day-journal-digest.timer
-   [Unit]
-   Description=Counsel.day · weekly journal digest
-   [Timer]
-   OnCalendar=Sun *-*-* 22:00:00 Pacific/Auckland
-   Persistent=true
-   Unit=counsel-day-journal-digest.service
-   [Install]
-   WantedBy=timers.target
+The deploy has shipped (commits `7a809ae` + the systemd / Stripe-setup
+helper commit). Migrations 0026-0030 ran automatically on deploy. Three
+things to finish from your laptop, all SSH'd into the prod box:
 
-   # /etc/systemd/system/counsel-day-journal-digest.service
-   [Unit]
-   Description=Counsel.day · journal-digest job
-   [Service]
-   Type=oneshot
-   User=deploy
-   WorkingDirectory=/opt/counsel-day-app
-   ExecStart=/usr/bin/npx tsx src/jobs/cron.ts journal-digest
-   EnvironmentFile=/etc/counsel-day-app/env.local
-   ```
-   Then: `sudo systemctl daemon-reload && sudo systemctl enable --now counsel-day-journal-digest.timer`
+#### 1 · Stripe Daily Pro product + price (one shot, idempotent)
+
+```bash
+ssh counsel-day-prod-01
+cd /opt/counsel-day-app
+set -a; source /etc/counsel-day-app/env.local; set +a
+npx tsx scripts/setup-daily-pro-product.ts
+```
+
+Output looks like:
+```
+Created product · prod_xxxxxxxxxxxxxx
+Created price · price_xxxxxxxxxxxxxx
+
+Counsel · Daily Pro · prod_xxxxxxxxxxxxxx
+Recurring price · price_xxxxxxxxxxxxxx · $4.99 USD / month
+
+Add this line to /etc/counsel-day-app/env.local:
+  STRIPE_DAILY_PRO_PRICE_ID=price_xxxxxxxxxxxxxx
+
+Then: sudo systemctl restart counsel-day-app
+```
+
+Copy that `STRIPE_DAILY_PRO_PRICE_ID=…` line into `/etc/counsel-day-app/env.local`
+and restart:
+
+```bash
+sudo nano /etc/counsel-day-app/env.local   # paste the line at the bottom
+sudo systemctl restart counsel-day-app
+```
+
+Re-running the script later is a no-op · it matches by exact product
+name and (amount, currency, interval) so it'll find the existing
+product/price instead of creating duplicates.
+
+#### 2 · Install the journal-digest weekly cron
+
+The systemd units shipped with the deploy at
+`counsel-day-app/ops/counsel-day-cron-journal-digest.{timer,service}`.
+Install them with:
+
+```bash
+ssh counsel-day-prod-01
+sudo cp /opt/counsel-day-app/ops/counsel-day-cron-journal-digest.timer   /etc/systemd/system/
+sudo cp /opt/counsel-day-app/ops/counsel-day-cron-journal-digest.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now counsel-day-cron-journal-digest.timer
+# Verify
+systemctl list-timers --all | grep journal-digest
+```
+
+The timer fires every Sunday 10:00 UTC (= 22:00 NZST / 23:00 NZDT).
+Persistent=true means a missed run (server reboot, etc) catches up on
+next boot.
+
+#### 3 · Smoke-test the new surfaces in a browser
+
+- **/daily** · sign in, file an entry, confirm the seal banner shows "Opens [date 7 days out]"
+- **/for-teams** · submit the waitlist form with a fake company; you should get an ops alert email at `OPS_DIGEST_EMAIL`
+- **Vote chip rail** · open an active decision's `/vote-today`, confirm the chip row appears below the note field
+- **Manual journal-digest trigger** · `/admin.html` → Cron controls → click `journal-digest` → confirm "processed N users" in the captured output (will be 0 until you file 3+ entries across the past week)
 
 ### Outbound for /for-teams · the 20-email campaign
 

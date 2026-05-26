@@ -1,0 +1,16 @@
+[Unit]
+Description=Counsel · Daily · weekly journal-digest job (single-shot, called by .timer)
+After=postgresql.service counsel-day-app.service
+Wants=postgresql.service
+
+[Service]
+Type=oneshot
+User=deploy
+Group=deploy
+WorkingDirectory=/opt/counsel-day-app
+EnvironmentFile=/etc/counsel-day-app/env.local
+Environment="NODE_ENV=production"
+ExecStart=/usr/bin/npx tsx src/jobs/cron.ts journal-digest
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=counsel-day-cron-journal-digest

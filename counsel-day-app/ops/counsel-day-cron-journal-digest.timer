@@ -1,0 +1,16 @@
+[Unit]
+Description=Counsel · Daily · weekly journal-digest · every Sunday 22:00 NZT
+Requires=counsel-day-cron-journal-digest.service
+
+[Timer]
+# Server runs UTC. NZT (Pacific/Auckland) is UTC+12 (winter) / UTC+13 (DST).
+# Schedule for 10:00 UTC = 22:00 NZST (winter) / 23:00 NZDT (summer).
+# Close enough to "Sunday evening NZ time"; not user-facing, so the +1h
+# DST drift just means the verdict lands at 10pm or 11pm local on the
+# user's Sunday. Monday-morning email send is the user-visible moment.
+OnCalendar=Sun *-*-* 10:00:00
+Persistent=true
+AccuracySec=1m
+
+[Install]
+WantedBy=timers.target

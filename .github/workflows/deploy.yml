@@ -229,3 +229,39 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
         run: |
           ssh -i ~/.ssh/id_ed25519 "$SSH_USER@$SSH_HOST" 'sudo systemctl start counsel-day-sitemap.service'
+
+      # Sync Caddyfile + reload Caddy if it changed. The repo's
+      # counsel-day-complete/ops/Caddyfile is the source of truth;
+      # the live config at /etc/caddy/Caddyfile gets overwritten,
+      # validated, and reloaded. Caddy's reload is graceful · the
+      # process keeps serving the old config until the new one is
+      # validated, so a syntax error doesn't take the site down.
+      #
+      # Requires passwordless sudo for the deploy user on:
+      #   cp /tmp/Caddyfile.new /etc/caddy/Caddyfile
+      #   caddy validate --config /etc/caddy/Caddyfile
+      #   systemctl reload caddy
+      # (One-time sudoers edit.)
+      - name: Sync Caddyfile + reload
+        if: steps.detect.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          scp -i ~/.ssh/id_ed25519 counsel-day-complete/ops/Caddyfile "$SSH_USER@$SSH_HOST:/tmp/Caddyfile.new"
+          ssh -i ~/.ssh/id_ed25519 "$SSH_USER@$SSH_HOST" '
+            set -e
+            # Only reload if there is a real change; saves Caddy from
+            # an unnecessary graceful-reload on every static deploy.
+            if sudo cmp -s /tmp/Caddyfile.new /etc/caddy/Caddyfile; then
+              echo "Caddyfile unchanged · no reload"
+              rm -f /tmp/Caddyfile.new
+              exit 0
+            fi
+            echo "Caddyfile changed · validating + reloading"
+            sudo caddy validate --config /tmp/Caddyfile.new --adapter caddyfile
+            sudo cp /tmp/Caddyfile.new /etc/caddy/Caddyfile
+            sudo systemctl reload caddy
+            rm -f /tmp/Caddyfile.new
+            echo "Caddy reloaded OK"
+          '

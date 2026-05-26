@@ -87,7 +87,14 @@ counsel.day {
         X-Content-Type-Options "nosniff"
         X-Frame-Options "DENY"
         Referrer-Policy "strict-origin-when-cross-origin"
-        Permissions-Policy "interest-cohort=(), camera=(), microphone=(), geolocation=()"
+        # microphone=(self) allows OUR origin to call getUserMedia() for the
+        # voice-input widget on /compose, /vote-today, /verdict-reveal, /daily.
+        # Previously this was microphone=() which denied EVERY origin including
+        # ourselves, so the browser rejected the mic request before showing the
+        # permission prompt · silent failure, recurring bug. Camera stays
+        # fully denied (we don't use it). interest-cohort + geolocation stay
+        # denied site-wide.
+        Permissions-Policy "interest-cohort=(), camera=(), microphone=(self), geolocation=()"
         Cross-Origin-Opener-Policy "same-origin"
         # CSP · self-hosted fonts mean we no longer need fonts.googleapis.com
         # (style-src) or fonts.gstatic.com (font-src). Google still appears in

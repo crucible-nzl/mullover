@@ -442,7 +442,15 @@
   window.addEventListener('DOMContentLoaded', function () {
     if (window.CounselDayVoice) {
       window.CounselDayVoice.attach('#dc-text', {
-        label: 'Speak tonight’s entry'
+        label: 'Speak tonight’s entry',
+        // Force the Whisper path. SpeechRecognition on desktop Chrome
+        // proved unreliable here · the session would run, capture
+        // nothing, and a user-initiated Stop short-circuited the
+        // auto-fallback. Whisper is the proven path (verified end-to-end
+        // on /diag-voice): tap SPEAK, record, tap Stop, text appears
+        // in the box. The reflection-journal use case doesn't need
+        // live transcription · users speak 30-180s then commit.
+        preferWhisper: true
       });
     }
     var upgradeBtn = document.getElementById('dc-pro-upgrade');

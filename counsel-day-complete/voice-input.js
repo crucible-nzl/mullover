@@ -282,7 +282,24 @@
       sr.start();
       setRecording(btn, status, true);
       return {
-        stop: function () { stopped = true; try { sr.stop(); } catch (e) {} setRecording(btn, status, false); status.textContent = ''; }
+        // User-initiated stop · if SR captured ANY text by the time
+        // they stopped, accept it. If SR captured nothing (SR was
+        // probably silently dead from the start), fall back to
+        // Whisper instead of leaving the user with an empty box.
+        stop: function () {
+          stopped = true;
+          try { sr.stop(); } catch (e) {}
+          if (!anyTextReceived) {
+            setRecording(btn, status, false);
+            status.textContent = 'Switching to recorded transcription …';
+            status.style.color = 'var(--muted, #6b635a)';
+            onFallback();
+            return;
+          }
+          setRecording(btn, status, false);
+          status.textContent = 'Transcribed. Edit before sealing.';
+          status.style.color = 'var(--muted, #6b635a)';
+        }
       };
     } catch (e) {
       onFallback();

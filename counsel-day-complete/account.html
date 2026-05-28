@@ -405,7 +405,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="sub-tile-eyebrow" style="color: var(--wine);">Counsel Journal</div>
           <div class="sub-tile-status" id="cd-daily-status">Loading…</div>
           <h3 class="sub-tile-name" id="cd-daily-name">Loading…</h3>
-          <p class="sub-tile-detail" id="cd-daily-detail">The nightly entry and the weekly Monday verdict are free forever, with 90 days of history. Pro ($4.99 USD/month) unlocks the monthly themed verdict that reads the past four weeks together, and removes the history cap.</p>
+          <p class="sub-tile-detail" id="cd-daily-detail">Counsel Journal is a single $4.99 USD/month subscription · nightly entry (text or voice), seven-day seal, weekly Monday verdict, monthly themed verdict on the first Monday of every month, and unlimited history. Cancel any time.</p>
           <div class="sub-tile-renewal" id="cd-daily-renewal"></div>
           <div class="sub-tile-actions" id="cd-daily-actions">
             <a href="journal.html" class="btn-text">Open the Journal</a>
@@ -418,7 +418,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="label">Billing history</div>
         <div class="value">
           <a href="billing.html" class="btn-text" style="border-bottom: 1px solid var(--wine); padding-bottom: 2px;">Open billing history →</a>
-          <span style="display: block; font-family: var(--font-body); font-size: 13px; color: var(--muted); margin-top: 6px;">Receipts for both per-decision charges and Journal Pro renewals appear in one place.</span>
+          <span style="display: block; font-family: var(--font-body); font-size: 13px; color: var(--muted); margin-top: 6px;">Receipts for both per-decision charges and Counsel Journal renewals appear in one place.</span>
         </div>
       </div>
     </section>
@@ -689,7 +689,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <h3 class="colophon-col-h">Counsel Journal</h3>
         <a href="journal.html">Open the Journal</a>
         <a href="journal.html#about">What it is</a>
-        <a href="journal.html#pro">Journal Pro</a>
+        <a href="pricing.html#the-daily">$4.99 USD/month</a>
       </div>
       <div class="colophon-col">
         <h5>Support</h5>
@@ -834,10 +834,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         if (dTile) dTile.classList.add('is-active');
         if (dStatus) {
           dStatus.className = 'sub-tile-status is-paid';
-          dStatus.textContent = 'Paid · Journal Pro · $4.99 USD/mo';
+          dStatus.textContent = 'Active subscription · $4.99 USD / month';
         }
-        if (dName) dName.textContent = 'Journal Pro · $4.99 USD / month';
-        if (dDetail) dDetail.textContent = 'You are subscribed to Journal Pro. The monthly themed verdict arrives on the first Monday of each month and reads the past four weekly verdicts together. Unlimited history · entries stay readable past the 90-day cap that applies to the free tier.';
+        if (dName) dName.textContent = 'Counsel Journal · $4.99 USD / month';
+        if (dDetail) dDetail.textContent = 'You are subscribed to Counsel Journal. The monthly themed verdict arrives on the first Monday of each month and reads the past four weekly verdicts together. Unlimited history · all entries and verdicts stay readable as long as the subscription is active.';
         if (dRenewal) {
           dRenewal.textContent = dailyRenewsAt
             ? ('Renews ' + fmtDate(dailyRenewsAt) + ' · cancel any time in Stripe portal')
@@ -872,7 +872,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           var dCancelBtn = document.getElementById('cd-daily-cancel');
           if (dCancelBtn) {
             dCancelBtn.addEventListener('click', function () {
-              if (!window.confirm('Cancel Journal Pro at the end of the current period?\n\nYou will keep Pro benefits until ' + (dailyRenewsAt ? fmtDate(dailyRenewsAt) : 'the end of the current billing cycle') + ' and then drop back to the free tier. The cancellation can be reversed any time before that date from the Stripe portal.')) return;
+              if (!window.confirm('Cancel Counsel Journal at the end of the current period?\n\nYou will keep access until ' + (dailyRenewsAt ? fmtDate(dailyRenewsAt) : 'the end of the current billing cycle') + ' and then lose access to the Journal entirely. The cancellation can be reversed any time before that date from the Stripe portal.')) return;
               dCancelBtn.disabled = true;
               var orig = dCancelBtn.textContent;
               dCancelBtn.textContent = 'Cancelling…';
@@ -896,15 +896,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         if (dTile) dTile.classList.remove('is-active');
         if (dStatus) {
           dStatus.className = 'sub-tile-status is-free';
-          dStatus.textContent = 'Free tier · no subscription';
+          dStatus.textContent = 'Not subscribed';
         }
-        if (dName) dName.textContent = 'Counsel Journal · free forever';
-        if (dDetail) dDetail.textContent = 'You\'re on the free tier · nightly entry (text or voice), seven-day seal, weekly Monday verdict, 90-day history. Pro ($4.99 USD/month) adds a monthly themed verdict and removes the history cap.';
-        if (dRenewal) dRenewal.textContent = 'No subscription · upgrade any time';
+        if (dName) dName.textContent = 'Counsel Journal · $4.99 USD / month';
+        if (dDetail) dDetail.textContent = 'You don\'t have an active Counsel Journal subscription. Subscribe to start filing nightly entries (text or voice), receive the weekly Monday verdict and the monthly themed verdict, and keep unlimited history. Cancel any time.';
+        if (dRenewal) dRenewal.textContent = 'Not subscribed · subscribe any time';
         if (dActions) {
           dActions.innerHTML =
-            '<a href="journal.html" class="btn-text">Open the Journal</a>' +
-            ' <button type="button" id="cd-daily-upgrade" class="btn" style="background: var(--wine); color: var(--paper); border-color: var(--wine);">Upgrade to Pro · $4.99 USD / month</button>';
+            '<a href="journal.html" class="btn-text">Read about the Journal</a>' +
+            ' <button type="button" id="cd-daily-upgrade" class="btn" style="background: var(--wine); color: var(--paper); border-color: var(--wine);">Subscribe · $4.99 USD / month</button>';
           var dUpBtn = document.getElementById('cd-daily-upgrade');
           if (dUpBtn) {
             dUpBtn.addEventListener('click', function () {

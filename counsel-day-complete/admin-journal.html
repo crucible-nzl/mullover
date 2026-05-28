@@ -69,7 +69,7 @@
 
 <div class="shell">
   <h1>Counsel Journal &middot; controls</h1>
-  <p class="lede">Everything that drives the Journal product: which AI model writes the weekly + monthly verdicts, the Whisper variant that handles voice transcription, the free-tier retention window, the Pro price, the prompt links, and the live cost meters.</p>
+  <p class="lede">Everything that drives the Journal product: which AI model writes the weekly + monthly verdicts, the Whisper variant that handles voice transcription, the subscription price, the prompt links, and the live cost meters. Counsel Journal is a paid-only subscription at $4.99 USD/month.</p>
 
   <div class="jr-grid">
 
@@ -100,7 +100,7 @@
               <option value="claude-opus-4-8">Claude Opus 4.8</option>
               <option value="claude-sonnet-4-6">Claude Sonnet 4.6</option>
             </select>
-            <span class="jr-hint">Used on the first Monday of the month for Journal Pro subscribers only. Reads the past 4 weekly verdicts together; Opus recommended for the synthesis quality.</span>
+            <span class="jr-hint">Used on the first Monday of the month for all active Counsel Journal subscribers. Reads the past 4 weekly verdicts together; Opus recommended for the synthesis quality.</span>
           </div>
         </div>
 
@@ -134,37 +134,34 @@
         <span class="jr-status" id="jr-models-status">&nbsp;</span>
       </section>
 
-      <!-- TIER + PRICING -->
+      <!-- SUBSCRIPTION · single tier, paid-only product -->
       <section class="jr-card" id="jr-tiers">
-        <h2>Free tier + Pro</h2>
-        <p class="lede">What the free tier includes, what Pro unlocks, and the price point. Changes affect new sign-ups immediately; existing subscribers honour their current plan until renewal.</p>
+        <h2>Subscription</h2>
+        <p class="lede">Counsel Journal is a single paid subscription · no free tier. Changes to the subscription price must be made in the Stripe Dashboard so that webhook reconciliation stays in sync.</p>
 
         <div class="jr-row">
-          <span class="jr-label">Free tier · history cap</span>
-          <div>
-            <input type="number" class="jr-input" id="jr-free-history-days" min="7" max="365" value="90" style="max-width: 120px;">
-            <span class="jr-hint">days · entries + verdicts beyond this age are hidden from free users. 90 days is the default. Audio files in the vault are deleted at this age for free users (see vault below).</span>
-          </div>
-        </div>
-
-        <div class="jr-row">
-          <span class="jr-label">Pro · monthly price</span>
+          <span class="jr-label">Monthly price</span>
           <div>
             <input type="text" class="jr-input" id="jr-pro-price" value="$4.99 USD" style="max-width: 140px;" readonly>
-            <span class="jr-hint">Stripe price ID: STRIPE_DAILY_PRO_PRICE_ID in env.local. Read-only here · changes to actual price must be made in Stripe Dashboard so that webhook reconciliation stays in sync.</span>
+            <span class="jr-hint">Stripe price ID: STRIPE_DAILY_PRO_PRICE_ID in env.local. Read-only here.</span>
           </div>
         </div>
 
         <div class="jr-row">
-          <span class="jr-label">Pro · features</span>
+          <span class="jr-label">Subscriber features</span>
           <div>
             <label style="display: block; margin-bottom: 6px;"><input type="checkbox" id="jr-feat-monthly-verdict" checked> Monthly themed verdict on first Monday of the month</label>
-            <label style="display: block; margin-bottom: 6px;"><input type="checkbox" id="jr-feat-unlimited-history" checked> Unlimited history (no 90-day cap)</label>
-            <label style="display: block; margin-bottom: 6px;"><input type="checkbox" id="jr-feat-vault-permanent" checked> Audio vault retention permanent (free tier audio expires at 90 days)</label>
+            <label style="display: block; margin-bottom: 6px;"><input type="checkbox" id="jr-feat-unlimited-history" checked> Unlimited history</label>
+            <label style="display: block; margin-bottom: 6px;"><input type="checkbox" id="jr-feat-vault-permanent" checked> Audio vault retention permanent (while subscription is active)</label>
           </div>
         </div>
 
-        <button type="button" class="jr-btn-save" id="jr-save-tiers">Save tier configuration</button>
+        <!-- Free-tier history cap input retained but hidden · backend
+             API still accepts the field, just not user-facing because
+             there is no free tier anymore. -->
+        <input type="hidden" id="jr-free-history-days" value="0">
+
+        <button type="button" class="jr-btn-save" id="jr-save-tiers">Save subscription configuration</button>
         <span class="jr-status" id="jr-tiers-status">&nbsp;</span>
       </section>
 
@@ -235,7 +232,7 @@
           <span class="sub" id="jr-m-anthropic-verdicts">…</span>
         </div>
         <div class="jr-metric">
-          <span class="k">Active Journal Pro subs</span>
+          <span class="k">Active Counsel Journal subs</span>
           <span class="v" id="jr-m-pro-count">…</span>
           <span class="sub" id="jr-m-pro-mrr">…</span>
         </div>
@@ -259,7 +256,7 @@
         <h2>Operational levers</h2>
         <p class="lede">Use sparingly. Each action is audit-logged.</p>
         <p style="margin: 10px 0;"><button type="button" class="jr-btn-save" style="background: transparent; color: var(--ink-soft); border: 1px solid var(--rule);" onclick="window.confirm('Force-run the weekly verdict generation for all eligible users now? This bypasses the Sunday-evening cron schedule.') && fetch('/api/admin/journal/run-weekly', {method:'POST', credentials:'include'}).then(function(r){return r.json();}).then(function(j){alert(j.message || JSON.stringify(j));});">Run weekly verdict cron now</button></p>
-        <p style="margin: 10px 0;"><button type="button" class="jr-btn-save" style="background: transparent; color: var(--ink-soft); border: 1px solid var(--rule);" onclick="window.confirm('Force-run the monthly themed verdict for all Pro subscribers?') && fetch('/api/admin/journal/run-monthly', {method:'POST', credentials:'include'}).then(function(r){return r.json();}).then(function(j){alert(j.message || JSON.stringify(j));});">Run monthly verdict cron now</button></p>
+        <p style="margin: 10px 0;"><button type="button" class="jr-btn-save" style="background: transparent; color: var(--ink-soft); border: 1px solid var(--rule);" onclick="window.confirm('Force-run the monthly themed verdict for all active Counsel Journal subscribers?') && fetch('/api/admin/journal/run-monthly', {method:'POST', credentials:'include'}).then(function(r){return r.json();}).then(function(j){alert(j.message || JSON.stringify(j));});">Run monthly verdict cron now</button></p>
         <p style="margin: 10px 0;"><button type="button" class="jr-btn-save" style="background: transparent; color: var(--wine, #722F37); border: 1px solid var(--wine, #722F37);" onclick="window.confirm('Purge expired vault audio for free-tier users (>90 days)? This is normally automatic but can be triggered here.') && fetch('/api/admin/journal/vault-purge', {method:'POST', credentials:'include'}).then(function(r){return r.json();}).then(function(j){alert(j.message || JSON.stringify(j));});">Purge expired vault audio now</button></p>
       </section>
     </aside>

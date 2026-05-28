@@ -444,13 +444,13 @@
               rowHtml('Last active', fmtTs(s.last_active_at)) +
               rowHtml('Deleted', p.deleted_at ? fmtTs(p.deleted_at) : '·') +
             '</div>' +
-            '<div><h3 style="font-family: var(--font-ui); font-size: 13px; margin: 0 0 10px; color: var(--ink);">Security · Billing · Journal Pro</h3>' +
+            '<div><h3 style="font-family: var(--font-ui); font-size: 13px; margin: 0 0 10px; color: var(--ink);">Security · Billing · Counsel Journal</h3>' +
               rowHtml('MFA enabled', p.mfa_enabled ? ('yes · ' + fmtTs(p.mfa_enabled_at)) : 'no') +
               rowHtml('MFA last used', fmtTs(p.mfa_last_used_at)) +
               rowHtml('Stripe customer', stripeLink) +
               rowHtml('Lifetime decisions', s.decision_count) +
               rowHtml('Lifetime spend', spend) +
-              rowHtml('Journal Pro', (function () {
+              rowHtml('Counsel Journal sub', (function () {
                 if (!p.daily_pro_status || p.daily_pro_status === 'none') return 'not subscribed';
                 var until = p.daily_pro_current_period_end ? (' · until ' + fmtTs(p.daily_pro_current_period_end)) : '';
                 return '<span style="color: var(--accent);">' + escapeHtml(p.daily_pro_status) + '</span>' + until;

@@ -191,11 +191,18 @@
     <div class="dc-section-label">YOUR UNSEALED ENTRIES</div>
     <div id="dc-entries"><div class="dc-empty">Entries open one week after you file them. Once they unseal they appear here, in the verdict, and (Pro) attached to any active decision.</div></div>
 
-    <aside class="dc-pro-prompt" id="dc-pro-prompt">
+    <aside class="dc-pro-prompt" id="dc-pro-prompt" style="display: none;">
       <div class="lbl">COUNSEL · DAILY · PRO · $4.99 USD / MONTH</div>
       <h4>A monthly verdict that reads <span class="ital">what the month was about.</span></h4>
       <p>The free tier gets you everything you need to build the habit · daily entry (text or voice), seven-day seal, weekly Monday verdict, forever. Pro adds a monthly themed deep-dive that reads the past four weekly verdicts together and names what the month was actually about · the shape of it, not the moments. Cancel any time from the billing portal; the subscription stops at the end of the period. (If you also use Counsel.day's flagship decision tool, Pro lets you link an entry to an active decision so its verdict reads your supporting evidence.)</p>
       <button type="button" class="upgrade" id="dc-pro-upgrade">Upgrade to Pro</button>
+    </aside>
+
+    <aside class="dc-pro-prompt" id="dc-pro-active" style="display: none;">
+      <div class="lbl">COUNSEL · DAILY · PRO · ACTIVE</div>
+      <h4>You're <span class="ital">subscribed.</span></h4>
+      <p>Your monthly themed verdict arrives on the first Monday of each month and reads the past four weekly verdicts together. Manage or cancel your subscription any time in your account.</p>
+      <a class="upgrade" href="/account.html">Manage subscription</a>
     </aside>
 
   </div>
@@ -402,6 +409,13 @@
           .filter(function (d) { return d.status === 'active'; });
         var isPro = !!(meRes && meRes.user && meRes.user.daily_pro_active);
         renderAttach(actives, isPro);
+        // Upsell card visible to free users, active-subscriber card
+        // visible to Pro · never both. The upsell button is wired only
+        // for the free case.
+        var upsellEl = document.getElementById('dc-pro-prompt');
+        var activeEl = document.getElementById('dc-pro-active');
+        if (upsellEl) upsellEl.style.display = isPro ? 'none' : '';
+        if (activeEl) activeEl.style.display = isPro ? '' : 'none';
 
         // sealed-today banner
         if (entryRes.sealed_today) {
@@ -481,5 +495,6 @@
     }
   });
 </script>
+<script src="/helper-widget.js" defer></script>
 </body>
 </html>

@@ -99,6 +99,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 .signin-msg.is-shown { display: block; }
 .signin-msg.is-success { background: var(--wine-soft); border-left: 3px solid var(--wine); color: var(--ink); }
 .signin-msg.is-error { background: #fdecea; border-left: 3px solid #c0392b; color: #6b1e16; }
+
+.signin-reset-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--rule); }
+.signin-reset-link { font-family: var(--font-body); font-size: 14px; color: var(--wine); border-bottom: 1px solid var(--wine); }
+.signin-reset-link:hover { color: var(--wine-deep); border-bottom-color: var(--wine-deep); }
+.signin-reset-sep { color: var(--muted); }
+.signin-reset-hint { font-family: var(--font-body); font-size: 13px; color: var(--muted); font-style: italic; }
 </style>
 </head>
 <body>
@@ -174,6 +180,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <button type="submit" class="btn btn-large">Sign in</button>
           <span class="alt">New here? <a href="signup.html">Create an account</a></span>
         </div>
+
+        <div class="signin-reset-row">
+          <a href="forgot-password.html" class="signin-reset-link">Forgot or reset your password</a>
+          <span class="signin-reset-sep">·</span>
+          <span class="signin-reset-hint">Or just leave the password blank above and we'll email you a one-time link.</span>
+        </div>
       </form>
     </section>
 
@@ -186,25 +198,34 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="colophon-top">
       <div>
         <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
-        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Each evening, you cast one private vote on the same question, for a duration you set, with every vote sealed in the database until the final day. Worldwide, priced in USD.</p>
+        <p class="colophon-tagline">Two products. Counsel.day is a decision tool for solo, couples, and families · one private vote each evening on the same question, for a duration you set, sealed until the final day. The Daily Counsel is the evening journal that runs alongside · one minute every evening, a verdict on Monday. Worldwide, priced in USD.</p>
       </div>
       <div class="colophon-col">
         <h5>The app</h5>
         <a href="decisions.html">Your decisions</a>
         <a href="vote-today.html">Tonight's vote</a>
+        <a href="daily.html">The Daily</a>
         <a href="compose.html">Compose</a>
         <a href="account.html">Your account</a>
         <a href="billing.html">Billing</a>
       </div>
       <div class="colophon-col">
-        <h3 class="colophon-col-h">The product</h3>
+        <h3 class="colophon-col-h">The decision tool</h3>
         <a href="method.html">The method</a>
         <a href="why-time.html">Why time</a>
         <a href="verdict.html">A real verdict</a>
+        <a href="pricing.html">Pricing</a>
+      </div>
+      <div class="colophon-col">
+        <h3 class="colophon-col-h">The Daily</h3>
+        <a href="daily.html">Open The Daily</a>
+        <a href="daily.html#about">What it is</a>
+        <a href="daily.html#pro">Daily Pro</a>
       </div>
       <div class="colophon-col">
         <h5>Support</h5>
         <a href="help.html">Help</a>
+        <a href="helper.html">Helper bot</a>
         <a href="correspondence.html">Correspondence</a>
         <a href="contact.html">Contact</a>
         <a href="faq.html">FAQ</a>
@@ -222,6 +243,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </div>
 </footer>
+<script src="/helper-widget.js" defer></script>
 <!-- /CD:PARTIAL:colophon -->
 
 <script>

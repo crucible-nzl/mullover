@@ -14,7 +14,15 @@
     if (!navInner) return;
     var bar = navInner.closest('.nav-bar');
 
-    var toggle = navInner.querySelector('#cd-nav-toggle');
+    // Defensive dedup. If, for any reason (service worker, cached
+    // double-import, partial-sync collision) there's more than one
+    // .nav-toggle inside this nav, keep the first and remove the rest.
+    var existing = navInner.querySelectorAll('.nav-toggle');
+    for (var i = 1; i < existing.length; i++) {
+      existing[i].parentNode.removeChild(existing[i]);
+    }
+
+    var toggle = navInner.querySelector('#cd-nav-toggle') || navInner.querySelector('.nav-toggle');
     if (!toggle) {
       toggle = document.createElement('button');
       toggle.type = 'button';

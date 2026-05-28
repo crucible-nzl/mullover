@@ -1626,17 +1626,82 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <!-- faq moved to a dedicated page -->
 
-<!-- THE DAILY COUNSEL · companion product band -->
-<section class="quote-band" style="background: var(--paper);">
-  <div class="quote-band-inner" style="text-align: left; max-width: 1080px;">
-    <div class="quote-band-kicker" style="color: var(--wine);">A companion product · The Daily Counsel</div>
-    <h2 style="font-family: var(--font-display); font-weight: 400; font-size: clamp(28px, 3.4vw, 40px); line-height: 1.12; letter-spacing: -0.012em; color: var(--ink); margin: 0 0 18px;">One minute every evening. <span style="font-style: italic; color: var(--wine);">A verdict on Monday.</span></h2>
-    <p style="font-family: var(--font-body); font-size: 18px; line-height: 1.6; color: var(--ink-soft); margin: 0 0 22px; max-width: 760px;">A decision is the rare moment. The texture of how a season actually feels lives in the evenings between. <strong style="font-weight: 500; color: var(--ink);">The Daily Counsel</strong> is the evening journal that runs alongside · type or speak for thirty to a hundred-and-eighty seconds about today, the entry seals for seven days (you can't re-read it), and each Sunday-evening the past week of unsealed entries becomes a Monday-morning verdict. Three to five recurring positives, one or two strains, one paragraph throughline, one specific question for the week ahead. Free forever for the daily entry and the weekly verdict.</p>
-    <p style="font-family: var(--font-body); font-size: 16px; line-height: 1.55; color: var(--ink-soft); margin: 0 0 24px; max-width: 760px; font-style: italic;">Where the flagship decision tool gives you a single verdict at the close of a 7-90 day question, The Daily gives you a verdict every Monday on the week you actually lived. Same sealed-vote DNA. Same observational voice. Same trust at the database layer · not even the founder can read your entries.</p>
-    <a href="daily.html" class="btn" style="background: var(--wine); color: var(--paper); border-color: var(--wine);">Open The Daily</a>
-    <a href="daily.html#about" class="btn-text" style="margin-left: 18px; color: var(--ink-soft); border-bottom: 1px solid var(--ink-soft);">What it is</a>
+<!-- THE DAILY COUNSEL · companion product band · 2-col on desktop, stacked on mobile -->
+<section class="quote-band daily-band" style="background: var(--paper);">
+  <div class="daily-band-inner">
+    <div class="daily-band-copy">
+      <div class="quote-band-kicker" style="color: var(--wine);">A second product · The Daily Counsel</div>
+      <h2 class="daily-band-h2">One minute every evening. <span style="font-style: italic; color: var(--wine);">A verdict on Monday.</span></h2>
+      <p class="daily-band-lede">A decision is the rare moment. The texture of how a season actually feels lives in the evenings between. <strong style="font-weight: 500; color: var(--ink);">The Daily Counsel</strong> is the evening journal that runs alongside Counsel.day · or stands alone.</p>
+      <ul class="daily-band-list">
+        <li><strong>Type or speak.</strong> Thirty to a hundred-and-eighty seconds about today. Voice transcribes on-device-grade Whisper · no editing your past from your present mood.</li>
+        <li><strong>Seven-day seal.</strong> The moment you submit, the entry locks. You can't re-read it. Future-you reads what tonight-you wrote, not what you wish you'd written.</li>
+        <li><strong>A Monday verdict.</strong> Every Sunday evening, the past week's unsealed entries become a Monday morning verdict: three to five things that kept working, one or two strains, one paragraph throughline, one specific question for the week ahead.</li>
+        <li><strong>Free forever for the core loop.</strong> Daily entry, voice transcription, seven-day seal, weekly verdict · no card required. Pro ($4.99 USD/month) adds a monthly themed verdict that reads the past four weeks together.</li>
+      </ul>
+      <p class="daily-band-prom">Same sealed-vote DNA as the flagship. Same observational voice. Same trust at the database layer · not even the founder can read your entries.</p>
+      <div class="daily-band-cta">
+        <a href="daily.html" class="btn" style="background: var(--wine); color: var(--paper); border-color: var(--wine);">Open The Daily</a>
+        <a href="daily.html#about" class="btn-text" style="margin-left: 4px; color: var(--ink-soft); border-bottom: 1px solid var(--ink-soft);">What it is</a>
+      </div>
+    </div>
+    <aside class="daily-band-specimen" aria-label="Example weekly verdict from The Daily">
+      <div class="dvb-eyebrow">A SPECIMEN · YOUR MONDAY VERDICT</div>
+      <div class="dvb-card">
+        <div class="dvb-week">WEEK OF MON 18 MAY TO SUN 24 MAY</div>
+        <h3 class="dvb-title">What the <span class="ital">week was about.</span></h3>
+        <h4 class="dvb-h4">WHAT STOOD OUT AS WORKING</h4>
+        <ul class="dvb-ul">
+          <li>Morning walks before the laptop · five of seven days, each time the entry that night was lighter.</li>
+          <li>One unstructured hour with Alex on Wednesday, no agenda · the only evening you mentioned wanting more time.</li>
+          <li>Saying no to the Friday meeting · freed the afternoon you used to start the writing thing.</li>
+        </ul>
+        <h4 class="dvb-h4">WHAT KEPT COMING UP AS A STRAIN</h4>
+        <ul class="dvb-ul">
+          <li>Sunday-night dread about the week's calendar · mentioned three nights.</li>
+        </ul>
+        <h4 class="dvb-h4">THROUGHLINE</h4>
+        <p class="dvb-through">The week worked when you protected unstructured hours and broke when the calendar was over-booked. The pattern is consistent: structure for the work, looseness for everything else.</p>
+        <h4 class="dvb-h4">A QUESTION FOR THE WEEK AHEAD</h4>
+        <p class="dvb-question">Which two hours of next week would you protect first, if you could only protect two?</p>
+      </div>
+      <div class="dvb-foot">Illustrative · verdicts are generated from your own sealed entries; never seen by a human.</div>
+    </aside>
   </div>
 </section>
+<style>
+  .daily-band { padding: 72px 24px; }
+  .daily-band-inner { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 56px; align-items: start; }
+  .daily-band-copy { min-width: 0; }
+  .daily-band-h2 { font-family: var(--font-display); font-weight: 400; font-size: clamp(28px, 3.4vw, 40px); line-height: 1.12; letter-spacing: -0.012em; color: var(--ink); margin: 0 0 18px; }
+  .daily-band-lede { font-family: var(--font-body); font-size: 18px; line-height: 1.6; color: var(--ink-soft); margin: 0 0 18px; }
+  .daily-band-list { list-style: none; padding: 0; margin: 0 0 22px; }
+  .daily-band-list li { font-family: var(--font-body); font-size: 16px; line-height: 1.55; color: var(--ink-soft); margin: 0 0 14px; padding-left: 18px; position: relative; }
+  .daily-band-list li::before { content: '·'; position: absolute; left: 0; top: 0; color: var(--wine); font-weight: 700; }
+  .daily-band-list strong { color: var(--ink); font-weight: 500; }
+  .daily-band-prom { font-family: var(--font-body); font-style: italic; font-size: 15px; line-height: 1.55; color: var(--ink-soft); margin: 0 0 22px; }
+  .daily-band-cta { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+
+  /* Specimen verdict card · the visual payoff */
+  .daily-band-specimen { font-family: var(--font-body); }
+  .dvb-eyebrow { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; color: var(--wine); text-transform: uppercase; margin-bottom: 10px; }
+  .dvb-card { border: 1px solid var(--ink); background: var(--paper); padding: 24px 26px; }
+  .dvb-week { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; }
+  .dvb-title { font-family: var(--font-display); font-weight: 400; font-size: 26px; line-height: 1.15; color: var(--ink); margin: 0 0 18px; }
+  .dvb-title .ital { font-style: italic; color: var(--wine); }
+  .dvb-h4 { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.12em; color: var(--ink); text-transform: uppercase; margin: 18px 0 8px; }
+  .dvb-ul { list-style: none; padding: 0; margin: 0; }
+  .dvb-ul li { font-size: 14px; line-height: 1.5; color: var(--ink); margin-bottom: 6px; padding-left: 14px; position: relative; }
+  .dvb-ul li::before { content: '·'; position: absolute; left: 0; top: 0; color: var(--wine); }
+  .dvb-through { font-size: 14px; line-height: 1.55; color: var(--ink); margin: 0; }
+  .dvb-question { font-family: var(--font-display); font-style: italic; font-size: 17px; line-height: 1.35; color: var(--wine); margin: 0; }
+  .dvb-foot { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; margin-top: 10px; }
+
+  @media (max-width: 900px) {
+    .daily-band { padding: 56px 20px; }
+    .daily-band-inner { grid-template-columns: 1fr; gap: 36px; }
+  }
+</style>
 
 <!-- CLOSING -->
 <section class="closing">
@@ -1855,5 +1920,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <script src="pwa.js" defer></script>
 <script src="ga4.js" defer></script>
 <script src="/nav-toggle.js" defer></script>
+<script src="/helper-widget.js" defer></script>
 </body>
 </html>

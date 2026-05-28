@@ -77,7 +77,7 @@
 
   function buildButton(label) {
     var wrap = document.createElement('div');
-    wrap.style.cssText = 'display:flex;align-items:center;gap:10px;margin:6px 0 10px;';
+    wrap.style.cssText = 'display:flex;align-items:center;gap:10px;margin:6px 0 10px;flex-wrap:wrap;';
 
     var btn = document.createElement('button');
     btn.type = 'button';
@@ -112,6 +112,18 @@
       }
     });
 
+    // Recording indicator · pulsing dot + live timer · only visible
+    // when the widget is in the recording state. Sits next to the
+    // button so the user has unambiguous visual confirmation that
+    // audio capture is live (the prior version showed only a text
+    // status string that several users missed entirely).
+    var indicator = document.createElement('span');
+    indicator.className = 'cd-vi-indicator';
+    indicator.style.cssText = 'display:none;align-items:center;gap:8px;font-family:var(--font-mono, ui-monospace, monospace);font-size:11px;letter-spacing:0.08em;';
+    indicator.innerHTML =
+      '<span class="cd-vi-dot" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--wine, #722F37);animation:cdViPulse 1.1s ease-in-out infinite;"></span>' +
+      '<span class="cd-vi-timer" style="color:var(--wine, #722F37);font-weight:600;">0:00 / 0:30</span>';
+
     var status = document.createElement('span');
     status.className = 'cd-vi-status';
     status.style.cssText = 'font-family:var(--font-mono, ui-monospace, monospace);font-size:11px;letter-spacing:0.08em;color:var(--muted, #6b635a);';
@@ -126,32 +138,82 @@
     diag.style.cssText = 'font-family:var(--font-mono, ui-monospace, monospace);font-size:10px;letter-spacing:0.08em;color:var(--muted, #6b635a);margin-left:auto;border-bottom:1px solid var(--rule, #e8e6e1);text-decoration:none;padding-bottom:1px;';
     diag.title = 'Open the voice-stack health check in a new tab';
 
+    // Inject the pulse keyframes once on first build (page-wide).
+    if (!document.getElementById('cd-vi-keyframes')) {
+      var sty = document.createElement('style');
+      sty.id = 'cd-vi-keyframes';
+      sty.textContent = '@keyframes cdViPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.35); opacity: 0.55; } } .cd-vi-warn .cd-vi-timer { color: #c0392b !important; }';
+      document.head.appendChild(sty);
+    }
+
     wrap.appendChild(btn);
+    wrap.appendChild(indicator);
     wrap.appendChild(status);
     wrap.appendChild(diag);
-    return { wrap: wrap, btn: btn, status: status };
+    return { wrap: wrap, btn: btn, status: status, indicator: indicator };
   }
 
   function micSvg() {
     return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>';
   }
 
-  function setRecording(btn, status, on) {
+  function setRecording(btn, status, on, indicator) {
+    // Allow callers to omit the indicator · pull it from the button's
+    // sibling row so we can update the visual without threading the
+    // reference through every call site.
+    if (!indicator && btn && btn.parentElement) {
+      indicator = btn.parentElement.querySelector('.cd-vi-indicator');
+    }
     if (on) {
       btn.classList.add('cd-vi-recording');
       btn.style.background = 'var(--wine, #722F37)';
       btn.style.color = '#fff';
       btn.style.borderColor = 'var(--wine, #722F37)';
       btn.querySelector('.cd-vi-text').textContent = 'Stop';
-      status.textContent = 'Recording … 30s max';
-      status.style.color = 'var(--wine, #722F37)';
+      // Status line now mirrors the indicator. The pulsing dot + timer
+      // are the primary signal; the status line carries hints.
+      status.textContent = 'Tap Stop when done, or it will auto-stop at the cap.';
+      status.style.color = 'var(--muted, #6b635a)';
+      if (indicator) {
+        indicator.style.display = 'inline-flex';
+        var t = indicator.querySelector('.cd-vi-timer');
+        if (t) t.textContent = '0:00 / 0:30';
+      }
     } else {
       btn.classList.remove('cd-vi-recording');
       btn.style.background = 'var(--paper, #fff)';
       btn.style.color = 'var(--ink, #0a0a0a)';
       btn.style.borderColor = 'var(--ink, #0a0a0a)';
       btn.querySelector('.cd-vi-text').textContent = btn.dataset.label || 'Dictate';
+      if (indicator) {
+        indicator.style.display = 'none';
+        indicator.classList.remove('cd-vi-warn');
+      }
     }
+  }
+
+  // Start a 1Hz tick that updates the timer in the indicator and warns
+  // the user when they're within 5 seconds of the cap. Returns a fn that
+  // clears the interval.
+  function startTimer(indicator, maxMs) {
+    if (!indicator) return function () {};
+    var startedAt = Date.now();
+    var maxSec = Math.round(maxMs / 1000);
+    function fmt(s) {
+      var m = Math.floor(s / 60);
+      var rs = s % 60;
+      return m + ':' + (rs < 10 ? '0' : '') + rs;
+    }
+    function tick() {
+      var elapsed = Math.floor((Date.now() - startedAt) / 1000);
+      var remaining = Math.max(0, maxSec - elapsed);
+      var timerEl = indicator.querySelector('.cd-vi-timer');
+      if (timerEl) timerEl.textContent = fmt(elapsed) + ' / ' + fmt(maxSec);
+      if (remaining <= 5) indicator.classList.add('cd-vi-warn');
+    }
+    tick();
+    var id = setInterval(tick, 250);
+    return function () { clearInterval(id); };
   }
 
   /* Disabled state · greyed-out button + tooltip. Used by compose.html
@@ -328,6 +390,8 @@
     var stream = null;
     var chunks = [];
     var hardStop = null;
+    var stopTimer = null;
+    var indicator = btn && btn.parentElement && btn.parentElement.querySelector('.cd-vi-indicator');
 
     navigator.mediaDevices.getUserMedia({ audio: true })
       .then(function (s) {
@@ -337,6 +401,7 @@
         rec.onstop = function () {
           if (stream) stream.getTracks().forEach(function (t) { t.stop(); });
           if (hardStop) clearTimeout(hardStop);
+          if (stopTimer) { stopTimer(); stopTimer = null; }
           var blob = new Blob(chunks, { type: mime });
           if (blob.size === 0) {
             status.textContent = 'No audio captured.';
@@ -378,7 +443,17 @@
         };
         rec.start();
         setRecording(btn, status, true);
-        hardStop = setTimeout(function () { if (rec.state === 'recording') rec.stop(); }, MAX_RECORD_MS);
+        stopTimer = startTimer(indicator, MAX_RECORD_MS);
+        hardStop = setTimeout(function () {
+          if (rec.state === 'recording') {
+            // Make the auto-stop visible · users were missing the silent
+            // cutoff at 30s. Status flashes a clear "Cap reached" line
+            // and the indicator stops pulsing immediately.
+            status.textContent = 'Cap reached at ' + Math.round(MAX_RECORD_MS / 1000) + 's · transcribing now.';
+            status.style.color = 'var(--wine, #722F37)';
+            rec.stop();
+          }
+        }, MAX_RECORD_MS);
       })
       .catch(function () {
         status.textContent = 'Microphone permission denied. Type the note.';

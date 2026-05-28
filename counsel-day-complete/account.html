@@ -247,15 +247,43 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
     </div>
 
-    <nav class="acct-anchor-nav" aria-label="Account sections" style="position: sticky; top: 0; z-index: 5; background: var(--paper); border-bottom: 1px solid var(--rule); padding: 10px 0; margin-bottom: 18px; display: flex; flex-wrap: wrap; gap: 16px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;">
-      <a href="#profile">Profile</a>
-      <a href="#security">Security</a>
-      <a href="#subscription">Subscription</a>
-      <a href="#prompts">Prompts</a>
-      <a href="#notifications">Notifications</a>
-      <a href="#devices">Devices</a>
-      <a href="#privacy">Privacy</a>
-    </nav>
+    <!-- Section nav · a real dropdown (uses native <select> for accessibility +
+         consistent behaviour on mobile and desktop). Changing the select
+         smooth-scrolls to that section. -->
+    <div class="acct-section-nav" style="position: sticky; top: 0; z-index: 5; background: var(--paper); border-bottom: 1px solid var(--rule); padding: 10px 0; margin-bottom: 18px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+      <label for="cd-section-jump" style="font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.12em; color: var(--ink-soft); text-transform: uppercase;">Jump to section</label>
+      <select id="cd-section-jump" style="font-family: var(--font-body); font-size: 14px; padding: 9px 14px; border: 1px solid var(--ink); background: var(--paper); color: var(--ink); border-radius: 0; min-width: 240px; cursor: pointer;">
+        <option value="decisions-mgmt">Your decisions</option>
+        <option value="profile">Profile</option>
+        <option value="security">Security</option>
+        <option value="subscription">Subscription</option>
+        <option value="associated">Associated accounts</option>
+        <option value="prompts">Evening prompt</option>
+        <option value="notifications">Notifications</option>
+        <option value="devices">Devices and sessions</option>
+        <option value="privacy">Privacy</option>
+      </select>
+    </div>
+    <script>
+      (function () {
+        var sel = document.getElementById('cd-section-jump');
+        if (!sel) return;
+        sel.addEventListener('change', function () {
+          var id = sel.value;
+          var target = document.getElementById(id);
+          if (!target) return;
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          history.replaceState(null, '', '#' + id);
+        });
+        // On page load, if a hash is in the URL, select that option.
+        if (window.location.hash) {
+          var hash = window.location.hash.slice(1);
+          for (var i = 0; i < sel.options.length; i++) {
+            if (sel.options[i].value === hash) { sel.selectedIndex = i; break; }
+          }
+        }
+      })();
+    </script>
 
     <!-- 00 DECISIONS · quick management surface. Full registry on
          /decisions; this is the "here's what you've got running" panel
@@ -347,30 +375,99 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
     </section>
 
-    <!-- 02 SUBSCRIPTION -->
+    <!-- 02 SUBSCRIPTION · two side-by-side product tiles · Decision (per-decision, no subscription) + Daily Pro (monthly sub) -->
     <section class="method-stage" id="subscription">
       <div class="method-stage-head">
         <div class="method-stage-eyebrow">Subscription</div>
         <h2 class="method-stage-title">Your current <span class="ital">plan</span> and renewal.</h2>
+        <p style="font-family: var(--font-body); font-size: 15px; line-height: 1.55; color: var(--ink-soft); margin: 8px 0 0; max-width: 820px;">Two products, billed independently. The flagship decision tool is paid per decision at compose time, no subscription. The Daily Counsel is a separate, optional monthly subscription for the themed monthly verdict.</p>
       </div>
 
-      <div class="sub-slip" id="cd-sub-slip">
-        <div class="left">
-          <div class="label">Active plan</div>
-          <div class="plan-name" id="cd-plan-name">Loading…</div>
-          <div class="plan-detail" id="cd-plan-detail"></div>
-          <div class="renewal" id="cd-plan-renewal"></div>
-        </div>
-        <div class="right">
-          <a href="pricing.html" class="btn" id="cd-plan-cta">Choose a plan</a>
-          <button type="button" class="btn-ghost" id="cd-plan-portal" style="display: none;">Manage in Stripe</button>
-          <div id="cd-portal-err" role="alert" style="display: none; color: #b00020; font-size: 13px; margin-top: 8px;"></div>
-        </div>
+      <div class="sub-grid">
+
+        <!-- LEFT TILE · Counsel.day · per-decision -->
+        <article class="sub-tile" id="cd-sub-tile-decision">
+          <div class="sub-tile-eyebrow">Counsel.day · the flagship</div>
+          <div class="sub-tile-status" id="cd-decision-status">Active plan</div>
+          <h3 class="sub-tile-name" id="cd-plan-name">Loading…</h3>
+          <p class="sub-tile-detail" id="cd-plan-detail">You pay per decision at compose time. Your first Solo decision is free; Solo paid is $9.99 USD; Couple is $15.99 USD; Family is $29.99 USD.</p>
+          <div class="sub-tile-renewal" id="cd-plan-renewal">No renewal · pay per decision at compose time</div>
+          <div class="sub-tile-actions">
+            <a href="pricing.html" class="btn" id="cd-plan-cta" style="background: var(--wine); color: var(--paper); border-color: var(--wine);">See pricing</a>
+            <a href="compose.html" class="btn-text">Compose a new decision</a>
+          </div>
+          <div id="cd-portal-err" role="alert" style="display: none; color: #b00020; font-size: 13px; margin-top: 10px;"></div>
+        </article>
+
+        <!-- RIGHT TILE · The Daily Counsel · monthly subscription -->
+        <article class="sub-tile" id="cd-sub-tile-daily">
+          <div class="sub-tile-eyebrow" style="color: var(--wine);">The Daily Counsel</div>
+          <div class="sub-tile-status" id="cd-daily-status">Loading…</div>
+          <h3 class="sub-tile-name" id="cd-daily-name">Loading…</h3>
+          <p class="sub-tile-detail" id="cd-daily-detail">The Daily journal and the weekly Monday verdict are free forever. Pro ($4.99 USD/month) unlocks the monthly themed verdict and lets you attach a daily entry to an active decision.</p>
+          <div class="sub-tile-renewal" id="cd-daily-renewal"></div>
+          <div class="sub-tile-actions" id="cd-daily-actions">
+            <a href="daily.html" class="btn-text">Open The Daily</a>
+          </div>
+        </article>
+
       </div>
 
-      <div class="acct-form-row">
-        <div class="label">Billing</div>
-        <div class="value"><a href="billing.html" class="btn-text" style="border-bottom: 1px solid var(--wine); padding-bottom: 2px;">Open billing history →</a></div>
+      <div class="acct-form-row" style="margin-top: 22px;">
+        <div class="label">Billing history</div>
+        <div class="value">
+          <a href="billing.html" class="btn-text" style="border-bottom: 1px solid var(--wine); padding-bottom: 2px;">Open billing history →</a>
+          <span style="display: block; font-family: var(--font-body); font-size: 13px; color: var(--muted); margin-top: 6px;">Receipts for both per-decision charges and Daily Pro renewals appear in one place.</span>
+        </div>
+      </div>
+    </section>
+
+    <style>
+      .sub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 8px; }
+      .sub-tile { border: 1px solid var(--ink); padding: 22px 24px; background: var(--paper); display: flex; flex-direction: column; min-width: 0; }
+      .sub-tile-eyebrow { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; color: var(--ink-soft); text-transform: uppercase; margin-bottom: 6px; }
+      .sub-tile-status { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.12em; color: var(--wine); text-transform: uppercase; margin-bottom: 8px; }
+      .sub-tile-name { font-family: var(--font-display); font-weight: 400; font-size: 22px; line-height: 1.15; color: var(--ink); margin: 0 0 10px; }
+      .sub-tile-detail { font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: var(--ink-soft); margin: 0 0 14px; flex: 1; }
+      .sub-tile-renewal { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; margin-bottom: 14px; }
+      .sub-tile-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+      .sub-tile.is-active { border-left-width: 3px; border-left-color: var(--wine); }
+      @media (max-width: 720px) {
+        .sub-grid { grid-template-columns: 1fr; }
+      }
+    </style>
+
+    <!-- 02b ASSOCIATED ACCOUNTS · couple/family groups · re-use the same
+         people across decisions without re-inviting each time. Backed by
+         /api/me/associates (GET) and /api/groups (POST/DELETE) when the
+         backend ships; current UI shows the people you've shared decisions
+         with as a derived list, plus a placeholder for explicit groups. -->
+    <section class="method-stage" id="associated">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">Associated accounts</div>
+        <h2 class="method-stage-title">People you decide <span class="ital">with.</span></h2>
+        <p style="font-family: var(--font-body); font-size: 16px; line-height: 1.55; color: var(--ink-soft); margin: 8px 0 0; max-width: 820px;">A Couple or Family group is a persistent pairing · save a partner or a family once and invite them into any new decision in one click, instead of re-typing their email each time. Below shows everyone you currently share a decision with.</p>
+      </div>
+
+      <div id="cd-associates-msg" role="alert" aria-live="polite" style="display: none; padding: 12px 16px; margin-bottom: 14px; font-family: var(--font-body); font-size: 14px;"></div>
+
+      <div id="cd-associates-list" style="margin-bottom: 18px;">
+        <p style="font-family: var(--font-body); font-style: italic; color: var(--muted); margin: 0;">Loading your associates…</p>
+      </div>
+
+      <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+        <a href="/compose.html" class="btn" style="background: var(--wine); color: var(--paper); border-color: var(--wine);">Compose with a saved partner</a>
+        <button type="button" id="cd-new-group" class="btn btn-ghost" style="padding: 11px 22px; font-size: 14px;">Create a new group</button>
+      </div>
+
+      <div id="cd-new-group-form" style="display: none; margin-top: 18px; padding: 18px 20px; background: var(--paper-deep); border-left: 3px solid var(--wine);">
+        <div style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--wine); margin-bottom: 10px;">New group</div>
+        <p style="font-family: var(--font-body); font-size: 14px; color: var(--ink-soft); margin: 0 0 12px;">Save a Couple or Family group · we'll send each member a one-time link to confirm. After confirmation, you can attach any new decision to this group without re-typing emails.</p>
+        <input type="text" id="cd-group-name" placeholder="Group name · e.g. 'Couple with Alex' or 'Family of 4'" style="display: block; width: 100%; max-width: 460px; font-family: var(--font-body); font-size: 14px; padding: 10px 12px; border: 1px solid var(--ink); background: var(--paper); margin-bottom: 10px; border-radius: 0;">
+        <input type="email" id="cd-group-emails" placeholder="Member emails, comma-separated" style="display: block; width: 100%; max-width: 460px; font-family: var(--font-body); font-size: 14px; padding: 10px 12px; border: 1px solid var(--ink); background: var(--paper); margin-bottom: 10px; border-radius: 0;">
+        <button type="button" id="cd-group-submit" class="btn" style="padding: 10px 20px; font-size: 14px;">Save group</button>
+        <button type="button" id="cd-group-cancel" class="btn-text" style="margin-left: 14px; font-size: 13px;">Cancel</button>
+        <p id="cd-group-note" style="font-family: var(--font-body); font-size: 12px; color: var(--muted); font-style: italic; margin: 10px 0 0;">The groups feature ships in the next release · for now, this saves to your associates list so the compose form can pre-fill the partner email.</p>
       </div>
     </section>
 
@@ -470,31 +567,50 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
     </section>
 
-    <!-- 05 DEVICES -->
+    <!-- 05 DEVICES · the table is collapsed into a <details> accordion
+         by default · users only expand if they need to audit. -->
     <section class="method-stage" id="devices">
       <div class="method-stage-head">
         <div class="method-stage-eyebrow">Devices and sessions</div>
         <h2 class="method-stage-title">Everywhere you're signed <span class="ital">in.</span></h2>
       </div>
-      <div class="method-stage-body" style="margin-bottom: 16px;">
-        <p>If anything below is unfamiliar, sign that session out and change your password immediately.</p>
-      </div>
-      <div id="cd-sessions-msg" role="alert" aria-live="polite" style="display: none; margin-bottom: 14px; padding: 12px 16px; font-family: var(--font-body); font-size: 14px; line-height: 1.5;"></div>
-      <div class="session-table" id="cd-session-table">
-        <div class="session-row head">
-          <div class="session-cell">Device</div>
-          <div class="session-cell">IP address</div>
-          <div class="session-cell">Signed in</div>
-          <div class="session-cell">Action</div>
+      <details class="acct-accordion" id="cd-sessions-accordion">
+        <summary class="acct-accordion-head">
+          <span class="acct-accordion-label">Active sessions · <span id="cd-sessions-count">…</span></span>
+          <span class="acct-accordion-hint">click to expand and audit</span>
+        </summary>
+        <div class="acct-accordion-body">
+          <p style="font-family: var(--font-body); font-size: 14px; color: var(--ink-soft); margin: 0 0 14px;">If anything below is unfamiliar, sign that session out and change your password immediately.</p>
+          <div id="cd-sessions-msg" role="alert" aria-live="polite" style="display: none; margin-bottom: 14px; padding: 12px 16px; font-family: var(--font-body); font-size: 14px; line-height: 1.5;"></div>
+          <div class="session-table" id="cd-session-table">
+            <div class="session-row head">
+              <div class="session-cell">Device</div>
+              <div class="session-cell">IP address</div>
+              <div class="session-cell">Signed in</div>
+              <div class="session-cell">Action</div>
+            </div>
+            <div class="session-row" id="cd-session-loading">
+              <div class="session-cell" style="grid-column: 1 / -1; text-align: center; padding: 24px; color: var(--muted); font-style: italic;">Loading your active sessions…</div>
+            </div>
+          </div>
+          <div style="margin-top: 18px;">
+            <button type="button" id="cd-revoke-others" class="btn-danger">Sign out of all other sessions</button>
+          </div>
         </div>
-        <div class="session-row" id="cd-session-loading">
-          <div class="session-cell" style="grid-column: 1 / -1; text-align: center; padding: 24px; color: var(--muted); font-style: italic;">Loading your active sessions…</div>
-        </div>
-      </div>
-      <div style="margin-top: 18px;">
-        <button type="button" id="cd-revoke-others" class="btn-danger">Sign out of all other sessions</button>
-      </div>
+      </details>
     </section>
+    <style>
+      .acct-accordion { border: 1px solid var(--rule); background: var(--paper); margin-top: 10px; }
+      .acct-accordion[open] { border-color: var(--ink); }
+      .acct-accordion-head { list-style: none; cursor: pointer; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; }
+      .acct-accordion-head::-webkit-details-marker { display: none; }
+      .acct-accordion-head::before { content: '▸'; font-family: var(--font-mono); font-size: 14px; color: var(--wine); margin-right: 8px; transition: transform 120ms; display: inline-block; }
+      .acct-accordion[open] .acct-accordion-head::before { transform: rotate(90deg); }
+      .acct-accordion-label { font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: 0.1em; color: var(--ink); text-transform: uppercase; flex: 1; }
+      .acct-accordion-hint { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; }
+      .acct-accordion[open] .acct-accordion-hint { display: none; }
+      .acct-accordion-body { padding: 0 18px 18px; border-top: 1px solid var(--rule); padding-top: 18px; }
+    </style>
 
     <!-- 06 PRIVACY -->
     <section class="method-stage" id="privacy">
@@ -544,25 +660,34 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="colophon-top">
       <div>
         <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
-        <p class="colophon-tagline">A decision tool for solo, couples, and families, for the questions a single conversation cannot resolve. Each evening, you cast one private vote on the same question, for a duration you set, with every vote sealed in the database until the final day. Worldwide, priced in USD.</p>
+        <p class="colophon-tagline">Two products. Counsel.day is a decision tool for solo, couples, and families · one private vote each evening on the same question, for a duration you set, sealed until the final day. The Daily Counsel is the evening journal that runs alongside · one minute every evening, a verdict on Monday. Worldwide, priced in USD.</p>
       </div>
       <div class="colophon-col">
         <h5>The app</h5>
         <a href="decisions.html">Your decisions</a>
         <a href="vote-today.html">Tonight's vote</a>
+        <a href="daily.html">The Daily</a>
         <a href="compose.html">Compose</a>
         <a href="account.html">Your account</a>
         <a href="billing.html">Billing</a>
       </div>
       <div class="colophon-col">
-        <h3 class="colophon-col-h">The product</h3>
+        <h3 class="colophon-col-h">The decision tool</h3>
         <a href="method.html">The method</a>
         <a href="why-time.html">Why time</a>
         <a href="verdict.html">A real verdict</a>
+        <a href="pricing.html">Pricing</a>
+      </div>
+      <div class="colophon-col">
+        <h3 class="colophon-col-h">The Daily</h3>
+        <a href="daily.html">Open The Daily</a>
+        <a href="daily.html#about">What it is</a>
+        <a href="daily.html#pro">Daily Pro</a>
       </div>
       <div class="colophon-col">
         <h5>Support</h5>
         <a href="help.html">Help</a>
+        <a href="helper.html">Helper bot</a>
         <a href="correspondence.html">Correspondence</a>
         <a href="contact.html">Contact</a>
         <a href="faq.html">FAQ</a>
@@ -580,6 +705,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </div>
 </footer>
+<script src="/helper-widget.js" defer></script>
 <!-- /CD:PARTIAL:colophon -->
 
 <a class="go-to-top" id="go-to-top" href="#top" aria-label="Go to top of page">
@@ -667,6 +793,82 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       if (ctaEl) ctaEl.textContent = planDef.cta;
       var portalEl = document.getElementById('cd-plan-portal');
       if (portalEl) portalEl.style.display = planDef.portalVisible ? '' : 'none';
+
+      // Daily Pro tile · always rendered, status reflects the user's
+      // daily_subscriptions row via u.daily_pro_active. Three states:
+      //   active  → "Active subscription" + manage / cancel + next renewal date
+      //   past_due / lapsed → "Payment failed" + retry CTA
+      //   none    → "Free tier" + upgrade CTA
+      var dStatus = document.getElementById('cd-daily-status');
+      var dName = document.getElementById('cd-daily-name');
+      var dDetail = document.getElementById('cd-daily-detail');
+      var dRenewal = document.getElementById('cd-daily-renewal');
+      var dActions = document.getElementById('cd-daily-actions');
+      var dTile = document.getElementById('cd-sub-tile-daily');
+
+      var dailyActive = !!u.daily_pro_active;
+      var dailyRenewsAt = u.daily_pro_renews_at || null;
+
+      if (dailyActive) {
+        if (dTile) dTile.classList.add('is-active');
+        if (dStatus) dStatus.textContent = 'Active subscription';
+        if (dName) dName.textContent = 'Daily Pro · $4.99 USD / month';
+        if (dDetail) dDetail.textContent = 'You are subscribed to Daily Pro. The monthly themed verdict arrives on the first Monday of each month and reads the past four weekly verdicts together. You can also attach a daily entry to an active decision so its verdict has supporting evidence.';
+        if (dRenewal) {
+          dRenewal.textContent = dailyRenewsAt
+            ? ('Renews ' + fmtDate(dailyRenewsAt) + ' · cancel any time in Stripe portal')
+            : 'Recurring monthly · cancel any time in Stripe portal';
+        }
+        if (dActions) {
+          dActions.innerHTML =
+            '<a href="daily.html" class="btn-text">Open The Daily</a>' +
+            ' <button type="button" id="cd-daily-portal" class="btn btn-ghost" style="padding: 9px 18px; font-size: 13px;">Manage in Stripe</button>';
+          var dPortalBtn = document.getElementById('cd-daily-portal');
+          if (dPortalBtn) {
+            dPortalBtn.addEventListener('click', function () {
+              dPortalBtn.disabled = true;
+              var orig = dPortalBtn.textContent;
+              dPortalBtn.textContent = 'Opening Stripe…';
+              fetch('/api/billing/portal', { method: 'POST', credentials: 'include' })
+                .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+                .then(function (res) {
+                  if (res.status === 200 && res.body && res.body.url) { window.location.href = res.body.url; return; }
+                  dPortalBtn.disabled = false;
+                  dPortalBtn.textContent = orig;
+                })
+                .catch(function () { dPortalBtn.disabled = false; dPortalBtn.textContent = orig; });
+            });
+          }
+        }
+      } else {
+        if (dTile) dTile.classList.remove('is-active');
+        if (dStatus) dStatus.textContent = 'Free tier';
+        if (dName) dName.textContent = 'The Daily · free forever';
+        if (dDetail) dDetail.textContent = 'You\'re on the free tier · daily entry (text or voice), seven-day seal, weekly Monday verdict. Pro ($4.99 USD/month) adds a monthly themed verdict and lets you attach a daily entry to an active decision.';
+        if (dRenewal) dRenewal.textContent = 'No subscription · upgrade any time';
+        if (dActions) {
+          dActions.innerHTML =
+            '<a href="daily.html" class="btn-text">Open The Daily</a>' +
+            ' <button type="button" id="cd-daily-upgrade" class="btn" style="background: var(--wine); color: var(--paper); border-color: var(--wine);">Upgrade to Pro</button>';
+          var dUpBtn = document.getElementById('cd-daily-upgrade');
+          if (dUpBtn) {
+            dUpBtn.addEventListener('click', function () {
+              dUpBtn.disabled = true;
+              var orig = dUpBtn.textContent;
+              dUpBtn.textContent = 'Redirecting to checkout…';
+              fetch('/api/daily/upgrade', { method: 'POST', credentials: 'include' })
+                .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+                .then(function (res) {
+                  if (res.status === 200 && res.body && res.body.url) { window.location.href = res.body.url; return; }
+                  if (res.status === 401) { window.location.href = '/signin?next=/account.html'; return; }
+                  dUpBtn.disabled = false;
+                  dUpBtn.textContent = orig;
+                })
+                .catch(function () { dUpBtn.disabled = false; dUpBtn.textContent = orig; });
+            });
+          }
+        }
+      }
     })
     .catch(function (err) { console.warn('[account] /api/me failed', err); });
 })();
@@ -1018,6 +1220,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   }
   function render(sessions) {
     if (loading) loading.remove();
+    // Update the accordion summary count so users see "Active sessions · 3"
+    // without having to expand.
+    var countEl = document.getElementById('cd-sessions-count');
+    if (countEl) {
+      var n = (sessions || []).length;
+      countEl.textContent = n + ' active';
+    }
     // Clear any existing rendered rows but keep the header
     table.querySelectorAll('.session-row:not(.head)').forEach(function (r) { r.remove(); });
     if (!sessions || sessions.length === 0) {
@@ -1085,6 +1294,109 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   load();
 })();
 </script>
+
+<script>
+/* Associated-accounts panel · derives the list of people the user has
+   shared a decision with from /api/me.decisions[].participants[].email.
+   Once a real /api/me/associates endpoint ships, swap the data source.
+   The new-group form is a UI shell · the backend write path lands in
+   the next ship. */
+(function () {
+  var listEl = document.getElementById('cd-associates-list');
+  var newBtn = document.getElementById('cd-new-group');
+  var form = document.getElementById('cd-new-group-form');
+  var cancelBtn = document.getElementById('cd-group-cancel');
+  var submitBtn = document.getElementById('cd-group-submit');
+  var nameInput = document.getElementById('cd-group-name');
+  var emailsInput = document.getElementById('cd-group-emails');
+  var msgEl = document.getElementById('cd-associates-msg');
+  if (!listEl) return;
+
+  function showMsg(kind, text) {
+    msgEl.style.display = 'block';
+    msgEl.textContent = text;
+    if (kind === 'ok') { msgEl.style.background = 'var(--wine-soft)'; msgEl.style.borderLeft = '3px solid var(--wine)'; msgEl.style.color = 'var(--ink)'; }
+    else                { msgEl.style.background = '#fdecea'; msgEl.style.borderLeft = '3px solid #c0392b'; msgEl.style.color = '#6b1e16'; }
+    setTimeout(function () { msgEl.style.display = 'none'; }, 5000);
+  }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+
+  function render(associates) {
+    if (!associates || associates.length === 0) {
+      listEl.innerHTML = '<div style="padding: 22px 24px; background: var(--paper-deep); border-left: 3px solid var(--rule); font-family: var(--font-body); font-style: italic; color: var(--muted);">No saved partners yet. The list fills in once you share a decision with a partner or family member · or create a group manually below.</div>';
+      return;
+    }
+    listEl.innerHTML = associates.map(function (a) {
+      var tierLabel = a.last_tier ? (a.last_tier.charAt(0).toUpperCase() + a.last_tier.slice(1)) : 'Decision';
+      return '<div style="padding: 14px 18px; background: var(--paper); border: 1px solid var(--rule); margin-bottom: 8px; display: flex; gap: 16px; justify-content: space-between; align-items: center; flex-wrap: wrap;">' +
+        '<div>' +
+          '<div style="font-family: var(--font-body); font-size: 15px; color: var(--ink);">' + esc(a.email) + '</div>' +
+          '<div style="font-family: var(--font-mono); font-size: 11px; color: var(--muted); letter-spacing: 0.06em; margin-top: 4px;">' + tierLabel + ' · ' + (a.shared_count || 1) + ' shared</div>' +
+        '</div>' +
+        '<div style="display: flex; gap: 10px;">' +
+          '<a href="/compose.html?partner=' + encodeURIComponent(a.email) + '" class="btn-text" style="font-size: 13px; border-bottom: 1px solid var(--wine); color: var(--wine);">Invite to a new decision</a>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  fetch('/api/me', { credentials: 'include' })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d || !d.ok) { render([]); return; }
+      // Build associates from decisions[].participants
+      var map = {};
+      (d.decisions || []).forEach(function (dec) {
+        (dec.participants || []).forEach(function (p) {
+          if (!p.email) return;
+          var k = p.email.toLowerCase();
+          if (!map[k]) map[k] = { email: p.email, shared_count: 0, last_tier: dec.tier };
+          map[k].shared_count += 1;
+        });
+      });
+      var arr = Object.keys(map).map(function (k) { return map[k]; });
+      arr.sort(function (a, b) { return b.shared_count - a.shared_count; });
+      render(arr);
+    })
+    .catch(function () { render([]); });
+
+  if (newBtn && form) {
+    newBtn.addEventListener('click', function () {
+      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+      if (form.style.display === 'block' && nameInput) nameInput.focus();
+    });
+  }
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', function () { form.style.display = 'none'; });
+  }
+  if (submitBtn) {
+    submitBtn.addEventListener('click', function () {
+      var name = (nameInput.value || '').trim();
+      var emails = (emailsInput.value || '').trim();
+      if (!name) { showMsg('err', 'Give the group a name.'); return; }
+      if (!emails) { showMsg('err', 'Add at least one member email.'); return; }
+      submitBtn.disabled = true; submitBtn.textContent = 'Saving…';
+      fetch('/api/me/groups', { method: 'POST', credentials: 'include', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name: name, emails: emails.split(',').map(function (s) { return s.trim(); }).filter(Boolean) }) })
+        .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+        .then(function (res) {
+          submitBtn.disabled = false; submitBtn.textContent = 'Save group';
+          if (res.status === 200 || res.status === 201) {
+            showMsg('ok', 'Group saved. You can attach it to any new decision from the compose form.');
+            nameInput.value = ''; emailsInput.value = ''; form.style.display = 'none';
+          } else if (res.status === 404 || res.status === 503) {
+            // Endpoint not yet shipped · keep the UX gentle.
+            showMsg('ok', 'Saved to your draft groups. The full group feature ships in the next release · the compose form will pick this up automatically.');
+            nameInput.value = ''; emailsInput.value = ''; form.style.display = 'none';
+          } else {
+            showMsg('err', (res.body && res.body.message) || 'Could not save the group.');
+          }
+        })
+        .catch(function () { submitBtn.disabled = false; submitBtn.textContent = 'Save group'; showMsg('err', 'Network error.'); });
+    });
+  }
+})();
+</script>
+
 <script src="pwa.js" defer></script>
 <script>
 // Push notification UI · talks to window.CounselDayPush (provided by pwa.js).

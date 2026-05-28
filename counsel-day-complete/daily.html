@@ -136,7 +136,7 @@
     </div>
 
     <div class="dc-head">
-      <div class="eyebrow">THE DAILY COUNSEL · A REFLECTION JOURNAL WITH WEEKLY ANALYSIS</div>
+      <div class="eyebrow">COUNSEL JOURNAL · A REFLECTION JOURNAL WITH WEEKLY ANALYSIS</div>
       <h1>Reflect on today. <span class="ital">See the pattern on Monday.</span></h1>
       <p class="sub">A standalone reflection journal. Type or speak for a minute about today · what worked, what dragged, what surprised you. The entry seals for seven days; you cannot re-read it. Each Monday morning an analysis arrives in your inbox: three to five things that kept working, one or two that kept straining, the throughline of the week, and one specific question for the days ahead.</p>
     </div>
@@ -165,18 +165,11 @@
       <h2>How was <span class="ital">today?</span></h2>
       <textarea id="dc-text" placeholder="Speak it out loud (tap the mic), or type. Thirty to a hundred-and-eighty seconds about today · what worked, what dragged, what surprised you. Write to a trusted friend, not to a journal." maxlength="4000" aria-label="Tonight's reflection"></textarea>
 
-      <!-- Attach-to-decision · Pro feature.
-           Populated by /api/decisions for the current user · only
-           active flagship decisions show up. Free tier sees the row
-           with a lock icon + upgrade prompt instead. The selected
-           decision is sent on the entry POST as attached_decision_id,
-           which the API gates on daily_subscriptions.status='active'. -->
-      <div class="dc-attach" id="dc-attach" style="margin-top: 16px; padding: 12px 14px; background: var(--paper-deep); border-left: 3px solid var(--rule); display: none;">
-        <div style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px;">ATTACH TO AN ACTIVE DECISION · OPTIONAL · PRO</div>
-        <div id="dc-attach-body">
-          <p style="font-family: var(--font-body); font-style: italic; font-size: 13px; color: var(--muted); margin: 0;">Loading your active decisions…</p>
-        </div>
-      </div>
+      <!-- Attach-to-decision UI removed: Counsel Journal is now a fully
+           standalone product. Daily reflection-on-a-specific-decision
+           lives inside Counsel.day Decision (the flagship), free with
+           every active decision. -->
+      <div class="dc-attach" id="dc-attach" style="display: none;"></div>
 
       <div class="meta-row">
         <span class="count"><span id="dc-count">0</span> / 4000 chars</span>
@@ -189,12 +182,12 @@
     <div id="dc-verdicts"><div class="dc-empty">No verdicts yet. File three or more entries this week and your first Monday verdict arrives next week.</div></div>
 
     <div class="dc-section-label">YOUR UNSEALED ENTRIES</div>
-    <div id="dc-entries"><div class="dc-empty">Entries open one week after you file them. Once they unseal they appear here, in the verdict, and (Pro) attached to any active decision.</div></div>
+    <div id="dc-entries"><div class="dc-empty">Entries open one week after you file them. Once they unseal they appear here and feed into the next Monday verdict.</div></div>
 
     <aside class="dc-pro-prompt" id="dc-pro-prompt" style="display: none;">
       <div class="lbl">COUNSEL JOURNAL · PRO · $4.99 USD / MONTH</div>
       <h4>A monthly verdict that reads <span class="ital">what the month was about.</span></h4>
-      <p>The free tier gets you everything you need to build the habit · daily entry (text or voice), seven-day seal, weekly Monday verdict, forever. Pro adds a monthly themed deep-dive that reads the past four weekly verdicts together and names what the month was actually about · the shape of it, not the moments. Cancel any time from the billing portal; the subscription stops at the end of the period. (If you also use Counsel.day's flagship decision tool, Pro lets you link an entry to an active decision so its verdict reads your supporting evidence.)</p>
+      <p>The free tier gets you everything you need to build the habit · nightly entry (text or voice), seven-day seal, weekly Monday verdict, and 90 days of history. Pro adds two things: a <strong>monthly themed verdict</strong> on the first Monday of each month that reads the past four weekly verdicts together and names what the month was actually about · the shape of it, not the moments · and <strong>unlimited history</strong> so your entries and verdicts stay readable past the 90-day cap. Cancel any time from the billing portal; the subscription stops at the end of the period.</p>
       <button type="button" class="upgrade" id="dc-pro-upgrade">Upgrade to Pro</button>
     </aside>
 

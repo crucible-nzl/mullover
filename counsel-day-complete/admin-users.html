@@ -454,7 +454,7 @@
                 var until = p.daily_pro_current_period_end ? (' · until ' + fmtTs(p.daily_pro_current_period_end)) : '';
                 return '<span style="color: var(--accent);">' + escapeHtml(p.daily_pro_status) + '</span>' + until;
               })()) +
-              rowHtml('Daily entries · last 30d', s.daily_entries_30d != null ? s.daily_entries_30d : '·') +
+              rowHtml('Journal entries · last 30d', s.daily_entries_30d != null ? s.daily_entries_30d : '·') +
             '</div></div>' +
             compBlock +
             '<h3 style="font-family: var(--font-ui); font-size: 13px; margin: 18px 0 8px; color: var(--ink);">Recent decisions · ' + d.decisions.length + '</h3>' +

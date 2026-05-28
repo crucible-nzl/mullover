@@ -120,7 +120,7 @@
         '<p>Factual questions only · pricing, the sealed-vote method, billing, refunds, technical issues. For your actual decision, the product is the answer.</p>' +
         '<div class="cd-help-chips">' +
           '<button type="button" class="cd-help-chip" data-q="How much does the Couple tier cost?">How much does Couple cost?</button>' +
-          '<button type="button" class="cd-help-chip" data-q="What is The Daily Counsel and how does it work?">What is The Daily Counsel?</button>' +
+          '<button type="button" class="cd-help-chip" data-q="What is Counsel Journal and how does it work?">What is Counsel Journal?</button>' +
           '<button type="button" class="cd-help-chip" data-q="How long can a decision run?">How long can a decision run?</button>' +
           '<button type="button" class="cd-help-chip" data-q="Does this replace therapy?">Does this replace therapy?</button>' +
           '<button type="button" class="cd-help-chip" data-q="Can I refund a decision?">Can I refund a decision?</button>' +

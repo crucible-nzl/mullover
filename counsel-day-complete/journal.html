@@ -116,7 +116,7 @@
     <div class="nav-links">
       <a href="decisions.html">Your decisions</a>
       <a href="vote-today.html">Tonight's vote</a>
-      <a href="daily.html">Journal</a>
+      <a href="journal.html">Journal</a>
       <a href="compose.html">Compose</a>
       <a href="account.html">Account</a>
     </div>
@@ -282,7 +282,7 @@
       <div class="colophon-col">
         <h5>The app</h5>
         <a href="decisions.html">Your decisions</a>
-        <a href="daily.html">Journal</a>
+        <a href="journal.html">Journal</a>
         <a href="vote-today.html">Tonight's vote</a>
         <a href="compose.html">Compose</a>
         <a href="account.html">Your account</a>
@@ -378,7 +378,7 @@
           countEl.textContent = '0';
           load();
         } else if (res.status === 401) {
-          window.location.href = '/signin?next=/daily.html';
+          window.location.href = '/signin?next=/journal.html';
         } else {
           showMsg('err', (res.body && res.body.message) || 'Could not save.');
         }
@@ -469,7 +469,7 @@
         '<p style="font-family: var(--font-body); font-size: 16px; line-height: 1.6; color: var(--ink); margin: 0 0 18px;">Counsel Journal is free forever for the core loop · nightly entry (text or voice), seven-day seal, weekly Monday verdict, 90 days of history. No card required.</p>' +
         '<div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">' +
           '<a href="signup.html?product=journal" class="submit" style="background: var(--wine); color: var(--paper); padding: 13px 24px; text-decoration: none; font-family: var(--font-ui); font-size: 14px; font-weight: 500; min-height: 44px; display: inline-flex; align-items: center; letter-spacing: 0.02em;">Sign up · free</a>' +
-          '<a href="signin?next=/daily.html" style="font-family: var(--font-body); font-size: 14px; color: var(--wine); border-bottom: 1px solid var(--wine);">Already have an account? Sign in</a>' +
+          '<a href="signin?next=/journal.html" style="font-family: var(--font-body); font-size: 14px; color: var(--wine); border-bottom: 1px solid var(--wine);">Already have an account? Sign in</a>' +
         '</div>';
     }
     var verdictsLbl = document.getElementById('dc-verdicts-label');
@@ -588,7 +588,7 @@
             if (res.status === 200 && res.body && res.body.url) {
               window.location.href = res.body.url;
             } else if (res.status === 401) {
-              window.location.href = '/signin?next=/daily.html';
+              window.location.href = '/signin?next=/journal.html';
             } else {
               upgradeBtn.disabled = false;
               upgradeBtn.textContent = orig;

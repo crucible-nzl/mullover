@@ -206,7 +206,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="nav-links" id="cd-nav-links">
       <a href="decisions.html">Your decisions</a>
       <a href="vote-today.html">Tonight's vote</a>
-      <a href="daily.html">Journal</a>
+      <a href="journal.html">Journal</a>
       <a href="vault.html">Vault</a>
       <a href="compose.html">Compose</a>
       <a href="account.html">Account</a>
@@ -408,7 +408,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <p class="sub-tile-detail" id="cd-daily-detail">The nightly entry and the weekly Monday verdict are free forever, with 90 days of history. Pro ($4.99 USD/month) unlocks the monthly themed verdict that reads the past four weeks together, and removes the history cap.</p>
           <div class="sub-tile-renewal" id="cd-daily-renewal"></div>
           <div class="sub-tile-actions" id="cd-daily-actions">
-            <a href="daily.html" class="btn-text">Open the Journal</a>
+            <a href="journal.html" class="btn-text">Open the Journal</a>
           </div>
         </article>
 
@@ -673,7 +673,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <h5>The app</h5>
         <a href="decisions.html">Your decisions</a>
         <a href="vote-today.html">Tonight's vote</a>
-        <a href="daily.html">Journal</a>
+        <a href="journal.html">Journal</a>
         <a href="compose.html">Compose</a>
         <a href="account.html">Your account</a>
         <a href="billing.html">Billing</a>
@@ -687,9 +687,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
       <div class="colophon-col">
         <h3 class="colophon-col-h">Counsel Journal</h3>
-        <a href="daily.html">Open the Journal</a>
-        <a href="daily.html#about">What it is</a>
-        <a href="daily.html#pro">Journal Pro</a>
+        <a href="journal.html">Open the Journal</a>
+        <a href="journal.html#about">What it is</a>
+        <a href="journal.html#pro">Journal Pro</a>
       </div>
       <div class="colophon-col">
         <h5>Support</h5>
@@ -850,7 +850,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           // route flips the sub to cancel_at_period_end so the user keeps
           // Pro benefits until the period ends.
           dActions.innerHTML =
-            '<a href="daily.html" class="btn-text">Open the Journal</a>' +
+            '<a href="journal.html" class="btn-text">Open the Journal</a>' +
             ' <button type="button" id="cd-daily-portal" class="btn btn-ghost" style="padding: 9px 18px; font-size: 13px;">Manage in Stripe</button>' +
             ' <button type="button" id="cd-daily-cancel" class="btn-text" style="color: #b00020; border-bottom: 1px solid #b00020; padding: 9px 0; font-size: 13px;">Cancel subscription</button>';
           var dPortalBtn = document.getElementById('cd-daily-portal');
@@ -903,7 +903,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         if (dRenewal) dRenewal.textContent = 'No subscription · upgrade any time';
         if (dActions) {
           dActions.innerHTML =
-            '<a href="daily.html" class="btn-text">Open the Journal</a>' +
+            '<a href="journal.html" class="btn-text">Open the Journal</a>' +
             ' <button type="button" id="cd-daily-upgrade" class="btn" style="background: var(--wine); color: var(--paper); border-color: var(--wine);">Upgrade to Pro · $4.99 USD / month</button>';
           var dUpBtn = document.getElementById('cd-daily-upgrade');
           if (dUpBtn) {

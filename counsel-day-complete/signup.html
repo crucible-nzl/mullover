@@ -246,7 +246,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </button>
     <div class="nav-links" id="cd-nav-links">
       <a href="how-it-works.html">How it works</a>
-      <a href="daily.html">Journal</a>
+      <a href="journal.html">Journal</a>
       <a href="counsellors.html">For Practitioners</a>
       <a href="pricing.html">Pricing</a>
       <a href="faq.html">FAQ</a>
@@ -281,10 +281,42 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
 
     <div class="method-page-head">
-      <div class="method-page-eyebrow">BEGIN A DECISION</div>
-      <h1 class="method-page-title">Create your account, <span class="ital">in under a minute.</span></h1>
-      <p class="method-page-lede">Your first Solo decision is free. No card required to begin. We will never sell your data, never use it for advertising, and will never read the votes you seal inside a decision.</p>
+      <div class="method-page-eyebrow" id="su-eyebrow">CREATE YOUR ACCOUNT</div>
+      <h1 class="method-page-title" id="su-headline">Create your account, <span class="ital">in under a minute.</span></h1>
+      <p class="method-page-lede" id="su-lede"><strong>Both products are free to start.</strong> Counsel Journal is free forever for the nightly entry and weekly verdict. Counsel.day Decision gives you a free first Solo decision. No card required to begin. Pick the one to start with, or sign up once and use both.</p>
+
+      <!-- TWO START-WITH choices, equal weight, visible at the top of
+           the signup page so first-time visitors see that both products
+           have a free entry point. Click toggles which product the
+           signup form is framed for. ?product=journal pre-selects the
+           Journal option on landing. -->
+      <div class="su-pick" role="group" aria-label="Pick a product to start with">
+        <button type="button" class="su-pick-btn" data-product="journal">
+          <div class="su-pick-kicker">PRODUCT 02 · COUNSEL JOURNAL</div>
+          <div class="su-pick-name">Start journalling</div>
+          <div class="su-pick-meta"><strong>Free forever</strong> · nightly entry · weekly verdict · 90 days history</div>
+        </button>
+        <button type="button" class="su-pick-btn" data-product="decision">
+          <div class="su-pick-kicker">PRODUCT 01 · COUNSEL.DAY DECISION</div>
+          <div class="su-pick-name">Begin a decision</div>
+          <div class="su-pick-meta"><strong>First Solo decision free</strong> · then $9.99 to $29.99 USD per decision</div>
+        </button>
+      </div>
     </div>
+    <style>
+      .su-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 24px; }
+      .su-pick-btn { text-align: left; padding: 18px 20px; border: 1px solid var(--ink); background: var(--paper); color: var(--ink); font-family: inherit; cursor: pointer; border-radius: 0; display: flex; flex-direction: column; gap: 6px; min-height: 44px; transition: background 120ms ease; }
+      .su-pick-btn:hover { background: var(--paper-deep); }
+      .su-pick-btn.is-on { background: var(--wine); color: var(--paper); border-color: var(--wine); }
+      .su-pick-btn.is-on .su-pick-kicker { color: var(--paper); opacity: 0.85; }
+      .su-pick-btn.is-on .su-pick-meta { color: var(--paper); opacity: 0.9; }
+      .su-pick-btn.is-on .su-pick-meta strong { color: var(--paper); }
+      .su-pick-kicker { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; color: var(--wine); text-transform: uppercase; }
+      .su-pick-name { font-family: var(--font-display); font-weight: 400; font-size: 20px; line-height: 1.1; }
+      .su-pick-meta { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em; color: var(--ink-soft); }
+      .su-pick-meta strong { color: var(--ink); font-weight: 600; }
+      @media (max-width: 720px) { .su-pick { grid-template-columns: 1fr; } }
+    </style>
 
     <div class="signup-grid">
 
@@ -336,8 +368,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <!-- reCAPTCHA v3 token populated client-side at submit time. -->
           <input type="hidden" id="su-recaptcha-token" name="g_recaptcha_token" value="">
 
+          <!-- Carries the picked product into the POST so the server
+               can route the user to the right "next step" (journal.html
+               or compose.html) after email verification. -->
+          <input type="hidden" id="su-product" name="product" value="">
+
           <div class="signup-submit-row">
-            <button type="submit" class="btn btn-large">Begin a decision</button>
+            <button type="submit" class="btn btn-large" id="su-submit-btn">Create my account</button>
             <span class="have-account">Already have an account? <a href="account.html">Sign in</a></span>
           </div>
 
@@ -359,10 +396,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </ol>
         </div>
 
-        <div class="signup-info-block">
+        <div class="signup-info-block" id="su-free-block">
           <div class="eyebrow">What you get free</div>
-          <h3>Your first Solo decision, <span class="ital">at no cost.</span></h3>
-          <p>One full decision · choose a question, choose a duration up to 90 days, vote each evening, read the verdict on the final day. No card required. After that, paid decisions begin at $9.99 USD for Solo, $15.99 USD for Couple, $29.99 USD for Family. <a href="pricing.html">See pricing.</a></p>
+          <h3>Both products, <span class="ital">free to start.</span></h3>
+          <p><strong>Counsel Journal:</strong> free forever for nightly entry + weekly verdict (90 days history). <strong>Counsel.day Decision:</strong> first Solo decision free; paid tiers from $9.99 to $29.99 USD per decision. <a href="pricing.html">See pricing.</a></p>
         </div>
 
         <div class="signup-info-block">
@@ -395,7 +432,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <h5>The app</h5>
         <a href="decisions.html">Your decisions</a>
         <a href="vote-today.html">Tonight's vote</a>
-        <a href="daily.html">Journal</a>
+        <a href="journal.html">Journal</a>
         <a href="compose.html">Compose</a>
         <a href="account.html">Your account</a>
         <a href="billing.html">Billing</a>
@@ -409,9 +446,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
       <div class="colophon-col">
         <h3 class="colophon-col-h">Counsel Journal</h3>
-        <a href="daily.html">Open the Journal</a>
-        <a href="daily.html#about">What it is</a>
-        <a href="daily.html#pro">Journal Pro</a>
+        <a href="journal.html">Open the Journal</a>
+        <a href="journal.html#about">What it is</a>
+        <a href="journal.html#pro">Journal Pro</a>
       </div>
       <div class="colophon-col">
         <h5>Support</h5>
@@ -459,6 +496,69 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
    - The /api/signup endpoint does not yet exist; until it does the submit is
      intercepted and the success slip is shown so the demo flow works. */
 (function () {
+  // PRODUCT PICKER · changes page framing (eyebrow, headline, lede,
+  // submit-button label, sidebar block) based on which product the
+  // visitor wants to start with. ?product=journal or ?product=decision
+  // pre-selects on landing; clicking a card flips at any time.
+  var picks = document.querySelectorAll('.su-pick-btn');
+  var eyebrow = document.getElementById('su-eyebrow');
+  var headline = document.getElementById('su-headline');
+  var lede = document.getElementById('su-lede');
+  var submitBtn = document.getElementById('su-submit-btn');
+  var productEl = document.getElementById('su-product');
+  var freeSidebar = document.getElementById('su-free-block');
+
+  var FRAME = {
+    journal: {
+      eyebrow:  'START JOURNALLING · FREE FOREVER',
+      headline: 'Start journalling, <span class="ital">tonight.</span>',
+      lede:     '<strong>Counsel Journal is free forever</strong> for the core loop · nightly entry (text or voice), seven-day seal, weekly Monday verdict, 90 days of history. No card. No trial. Verify your email, write tonight, get your first verdict next Monday.',
+      submit:   'Create my account · start journalling',
+      freeTitle:'Counsel Journal · <span class="ital">free forever.</span>',
+      freeBody: 'Nightly entry (type or speak), seven-day seal, weekly Monday verdict, 90 days of history. <strong>No card required.</strong> Journal Pro is optional at $4.99 USD/month and adds the monthly themed verdict + unlimited history. <a href="pricing.html">See pricing.</a>',
+    },
+    decision: {
+      eyebrow:  'BEGIN A DECISION · FIRST SOLO FREE',
+      headline: 'Begin a decision, <span class="ital">in under a minute.</span>',
+      lede:     '<strong>Your first Solo decision is free.</strong> No card required. After that, paid decisions start at $9.99 USD for Solo, $15.99 USD for Couple, $29.99 USD for Family · per decision, no subscription.',
+      submit:   'Create my account · begin a decision',
+      freeTitle:'Your first Solo decision, <span class="ital">at no cost.</span>',
+      freeBody: 'One full decision · choose a question, choose a duration up to 90 days, vote each evening, read the verdict on the final day. No card required. After that, paid decisions begin at $9.99 USD for Solo, $15.99 USD for Couple, $29.99 USD for Family. <a href="pricing.html">See pricing.</a>',
+    },
+    both: {
+      eyebrow:  'CREATE YOUR ACCOUNT',
+      headline: 'Create your account, <span class="ital">in under a minute.</span>',
+      lede:     '<strong>Both products are free to start.</strong> Counsel Journal is free forever for the nightly entry and weekly verdict. Counsel.day Decision gives you a free first Solo decision. No card required to begin. Pick the one to start with, or sign up once and use both.',
+      submit:   'Create my account',
+      freeTitle:'Both products, <span class="ital">free to start.</span>',
+      freeBody: '<strong>Counsel Journal:</strong> free forever for nightly entry + weekly verdict (90 days history). <strong>Counsel.day Decision:</strong> first Solo decision free; paid tiers from $9.99 to $29.99 USD per decision. <a href="pricing.html">See pricing.</a>',
+    }
+  };
+
+  function applyFrame(key) {
+    var f = FRAME[key] || FRAME.both;
+    if (eyebrow) eyebrow.textContent = f.eyebrow;
+    if (headline) headline.innerHTML = f.headline;
+    if (lede) lede.innerHTML = f.lede;
+    if (submitBtn) submitBtn.textContent = f.submit;
+    if (productEl) productEl.value = (key === 'both') ? '' : key;
+    if (freeSidebar) {
+      var t = freeSidebar.querySelector('h3');
+      var p = freeSidebar.querySelector('p');
+      if (t) t.innerHTML = f.freeTitle;
+      if (p) p.innerHTML = f.freeBody;
+    }
+    picks.forEach(function (b) { b.classList.toggle('is-on', b.getAttribute('data-product') === key); });
+  }
+
+  picks.forEach(function (b) {
+    b.addEventListener('click', function () { applyFrame(b.getAttribute('data-product')); });
+  });
+
+  // Initial state from ?product= query.
+  var qp = new URLSearchParams(window.location.search).get('product');
+  if (qp === 'journal' || qp === 'decision') applyFrame(qp);
+
   var form = document.getElementById('signup-form');
   if (!form) return;
   var nameEl = document.getElementById('su-name');

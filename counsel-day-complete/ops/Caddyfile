@@ -57,6 +57,13 @@ counsel.day {
         }
     }
 
+    # /daily and /daily.html · old URL for Counsel Journal, kept as a
+    # permanent redirect to the new /journal.html so old bookmarks,
+    # share-links, and any inbound SEO equity survive the rename.
+    # 301 (permanent) so search engines transfer rank cleanly.
+    @daily_legacy path /daily /daily.html
+    redir @daily_legacy /journal.html 301
+
     # Legacy crawlers (and a few SEO checkers) request /favicon.ico
     # literally · serve the SVG with a 200 instead of letting them get
     # a 404. Modern browsers use the <link rel="icon"> declarations.

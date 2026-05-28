@@ -206,7 +206,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="nav-links" id="cd-nav-links">
       <a href="decisions.html">Your decisions</a>
       <a href="vote-today.html">Tonight's vote</a>
-      <a href="daily.html">The Daily</a>
+      <a href="daily.html">Journal</a>
       <a href="compose.html">Compose</a>
       <a href="account.html">Account</a>
       <a href="help.html">Help</a>
@@ -375,12 +375,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
     </section>
 
-    <!-- 02 SUBSCRIPTION · two side-by-side product tiles · Decision (per-decision, no subscription) + Daily Pro (monthly sub) -->
+    <!-- 02 SUBSCRIPTION · two side-by-side product tiles · Decision (per-decision, no subscription) + Journal Pro (monthly sub) -->
     <section class="method-stage" id="subscription">
       <div class="method-stage-head">
         <div class="method-stage-eyebrow">Subscription</div>
         <h2 class="method-stage-title">Your current <span class="ital">plan</span> and renewal.</h2>
-        <p style="font-family: var(--font-body); font-size: 15px; line-height: 1.55; color: var(--ink-soft); margin: 8px 0 0; max-width: 820px;">Two products, billed independently. The flagship decision tool is paid per decision at compose time, no subscription. The Daily Counsel is a separate, optional monthly subscription for the themed monthly verdict.</p>
+        <p style="font-family: var(--font-body); font-size: 15px; line-height: 1.55; color: var(--ink-soft); margin: 8px 0 0; max-width: 820px;">Two products, billed independently. The flagship decision tool is paid per decision at compose time, no subscription. Counsel Journal is a separate, optional monthly subscription for the themed monthly verdict.</p>
       </div>
 
       <div class="sub-grid">
@@ -399,9 +399,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div id="cd-portal-err" role="alert" style="display: none; color: #b00020; font-size: 13px; margin-top: 10px;"></div>
         </article>
 
-        <!-- RIGHT TILE · The Daily Counsel · monthly subscription -->
+        <!-- RIGHT TILE · Counsel Journal · monthly subscription -->
         <article class="sub-tile" id="cd-sub-tile-daily">
-          <div class="sub-tile-eyebrow" style="color: var(--wine);">The Daily Counsel</div>
+          <div class="sub-tile-eyebrow" style="color: var(--wine);">Counsel Journal</div>
           <div class="sub-tile-status" id="cd-daily-status">Loading…</div>
           <h3 class="sub-tile-name" id="cd-daily-name">Loading…</h3>
           <p class="sub-tile-detail" id="cd-daily-detail">The Daily journal and the weekly Monday verdict are free forever. Pro ($4.99 USD/month) unlocks the monthly themed verdict and lets you attach a daily entry to an active decision.</p>
@@ -417,7 +417,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="label">Billing history</div>
         <div class="value">
           <a href="billing.html" class="btn-text" style="border-bottom: 1px solid var(--wine); padding-bottom: 2px;">Open billing history →</a>
-          <span style="display: block; font-family: var(--font-body); font-size: 13px; color: var(--muted); margin-top: 6px;">Receipts for both per-decision charges and Daily Pro renewals appear in one place.</span>
+          <span style="display: block; font-family: var(--font-body); font-size: 13px; color: var(--muted); margin-top: 6px;">Receipts for both per-decision charges and Journal Pro renewals appear in one place.</span>
         </div>
       </div>
     </section>
@@ -660,13 +660,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="colophon-top">
       <div>
         <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
-        <p class="colophon-tagline">Two products. Counsel.day is a decision tool for solo, couples, and families · one private vote each evening on the same question, for a duration you set, sealed until the final day. The Daily Counsel is the evening journal that runs alongside · one minute every evening, a verdict on Monday. Worldwide, priced in USD.</p>
+        <p class="colophon-tagline">Two products. Counsel.day Decision is for solo, couples, and families facing a hard joint decision · one private vote each evening on the same question, for a duration you set, sealed until the final day. Counsel Journal is the standalone reflection tool · one minute every evening, a verdict on Monday, a themed verdict every month. Worldwide, priced in USD.</p>
       </div>
       <div class="colophon-col">
         <h5>The app</h5>
         <a href="decisions.html">Your decisions</a>
         <a href="vote-today.html">Tonight's vote</a>
-        <a href="daily.html">The Daily</a>
+        <a href="daily.html">Journal</a>
         <a href="compose.html">Compose</a>
         <a href="account.html">Your account</a>
         <a href="billing.html">Billing</a>
@@ -679,10 +679,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <a href="pricing.html">Pricing</a>
       </div>
       <div class="colophon-col">
-        <h3 class="colophon-col-h">The Daily</h3>
-        <a href="daily.html">Open The Daily</a>
+        <h3 class="colophon-col-h">Counsel Journal</h3>
+        <a href="daily.html">Open the Journal</a>
         <a href="daily.html#about">What it is</a>
-        <a href="daily.html#pro">Daily Pro</a>
+        <a href="daily.html#pro">Journal Pro</a>
       </div>
       <div class="colophon-col">
         <h5>Support</h5>
@@ -794,7 +794,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       var portalEl = document.getElementById('cd-plan-portal');
       if (portalEl) portalEl.style.display = planDef.portalVisible ? '' : 'none';
 
-      // Daily Pro tile · always rendered, status reflects the user's
+      // Journal Pro tile · always rendered, status reflects the user's
       // daily_subscriptions row via u.daily_pro_active. Three states:
       //   active  → "Active subscription" + manage / cancel + next renewal date
       //   past_due / lapsed → "Payment failed" + retry CTA
@@ -812,8 +812,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       if (dailyActive) {
         if (dTile) dTile.classList.add('is-active');
         if (dStatus) dStatus.textContent = 'Active subscription';
-        if (dName) dName.textContent = 'Daily Pro · $4.99 USD / month';
-        if (dDetail) dDetail.textContent = 'You are subscribed to Daily Pro. The monthly themed verdict arrives on the first Monday of each month and reads the past four weekly verdicts together. You can also attach a daily entry to an active decision so its verdict has supporting evidence.';
+        if (dName) dName.textContent = 'Journal Pro · $4.99 USD / month';
+        if (dDetail) dDetail.textContent = 'You are subscribed to Journal Pro. The monthly themed verdict arrives on the first Monday of each month and reads the past four weekly verdicts together. You can also attach a daily entry to an active decision so its verdict has supporting evidence.';
         if (dRenewal) {
           dRenewal.textContent = dailyRenewsAt
             ? ('Renews ' + fmtDate(dailyRenewsAt) + ' · cancel any time in Stripe portal')

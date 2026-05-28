@@ -24,6 +24,7 @@
   <a href="/admin-users.html">Users</a>
   <a href="/admin-practitioners.html">Practitioners</a>
   <a href="/admin-products.html">Products</a>
+  <a href="/admin-journal.html">Journal</a>
   <a href="/admin-growth.html">Growth</a>
   <a href="/admin-engagement.html">Engagement</a>
   <a href="/admin-traffic.html">Traffic</a>
@@ -47,6 +48,32 @@
     <div class="card"><div class="label">Net</div><div class="value skel skel-value" id="m-net">…</div><div class="sub">Revenue minus AI cost</div></div>
     <div class="card"><div class="label">Gross margin</div><div class="value skel skel-value" id="m-margin">…</div><div class="sub">Net / revenue</div></div>
   </div>
+
+  <h2 id="cost-services">Cost-tracked services · last 30 days</h2>
+  <p class="lede" style="margin-top: -8px;">Recurring spend across the third-party services Counsel.day pays for. Anthropic powers verdict synthesis; OpenAI powers Whisper voice transcription; R2 stores the audio vault.</p>
+  <div class="grid-4">
+    <div class="card">
+      <div class="label">OpenAI · Whisper minutes (30d)</div>
+      <div class="value skel skel-value" id="m-whisper-mins">…</div>
+      <div class="sub" id="m-whisper-cost">~$? USD at $0.006 USD/min</div>
+    </div>
+    <div class="card">
+      <div class="label">OpenAI · 30d spend</div>
+      <div class="value skel skel-value" id="m-openai-spend">…</div>
+      <div class="sub" id="m-openai-remain">credits remaining: <span id="m-openai-credits">…</span></div>
+    </div>
+    <div class="card">
+      <div class="label">Anthropic · 30d spend</div>
+      <div class="value skel skel-value" id="m-anthropic-spend">…</div>
+      <div class="sub" id="m-anthropic-verdicts">? verdicts generated</div>
+    </div>
+    <div class="card">
+      <div class="label">R2 · audio storage</div>
+      <div class="value skel skel-value" id="m-r2-storage">…</div>
+      <div class="sub" id="m-r2-cost">~$? USD/mo at $0.015 USD/GB</div>
+    </div>
+  </div>
+  <p class="lede" style="margin-top: 8px; font-size: 12px;">Full Journal-bound cost meters + controls live on <a href="/admin-journal.html" style="color: var(--accent);">/admin-journal.html</a>. OpenAI key + status on <a href="/admin-diagnostics.html#tile-openai" style="color: var(--accent);">/admin-diagnostics.html</a>.</p>
 
   <h2>Refunds, last 30 days</h2>
   <div class="grid-3">
@@ -95,6 +122,22 @@
       $('m-rr').textContent = d.refunds.requested_30d;
       $('m-rp').textContent = d.refunds.processed_30d;
       $('m-rr-ratio').textContent = d.refunds.ratio_pct + ' %';
+
+      // Cost-tracked services · OpenAI Whisper, Anthropic, Cloudflare R2.
+      // Falls back to '·' when /api/admin/finance doesn't yet return
+      // these fields (backend addition pending; UI ships first).
+      var c = d.cost_tracked || {};
+      var minutes = c.whisper_minutes_30d;
+      $('m-whisper-mins').textContent = (minutes != null) ? (minutes + ' min') : '·';
+      $('m-whisper-cost').textContent = (minutes != null) ? ('~$' + (minutes * 0.006).toFixed(2) + ' USD at $0.006 USD/min') : 'pending backend';
+      $('m-openai-spend').textContent = (c.openai_spend_30d_usd != null) ? ('$' + c.openai_spend_30d_usd.toFixed(2) + ' USD') : '·';
+      $('m-openai-credits').textContent = (c.openai_credits_remaining_usd != null) ? ('$' + c.openai_credits_remaining_usd.toFixed(2) + ' USD') : 'unknown';
+      $('m-anthropic-spend').textContent = (c.anthropic_spend_30d_usd != null) ? ('$' + c.anthropic_spend_30d_usd.toFixed(2) + ' USD') : '·';
+      $('m-anthropic-verdicts').textContent = (c.anthropic_verdicts_30d != null) ? (c.anthropic_verdicts_30d + ' verdicts generated') : 'pending backend';
+      var gb = c.r2_storage_gb;
+      $('m-r2-storage').textContent = (gb != null) ? (gb.toFixed(2) + ' GB') : '·';
+      $('m-r2-cost').textContent = (gb != null) ? ('~$' + (gb * 0.015).toFixed(3) + ' USD/mo at $0.015 USD/GB') : 'pending backend';
+      ['m-whisper-mins','m-openai-spend','m-anthropic-spend','m-r2-storage'].forEach(function (id) { $(id).classList.remove('skel','skel-value'); });
 
       // Revenue per day · bars + cumulative line
       CdChart.dailyBars($('chart-rev'), {

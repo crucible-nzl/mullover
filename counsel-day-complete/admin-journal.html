@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin &middot; Counsel Journal controls &middot; Counsel.day</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f7f9fc">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin-shell.css">
+<style>
+  .jr-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 18px; }
+  @media (max-width: 1100px) { .jr-grid { grid-template-columns: 1fr; } }
+  .jr-card { background: var(--surface); border: 1px solid var(--border); padding: 20px 22px 22px; margin-bottom: 18px; }
+  .jr-card h2 { margin: 0 0 6px; font-family: var(--font-ui); font-size: 16px; font-weight: 600; color: var(--ink); }
+  .jr-card .lede { font-family: var(--font-ui); font-size: 13px; color: var(--ink-soft); margin: 0 0 16px; line-height: 1.5; }
+  .jr-row { display: grid; grid-template-columns: 200px 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px dotted var(--rule); align-items: center; }
+  .jr-row:last-child { border-bottom: none; }
+  .jr-label { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--ink-soft); text-transform: uppercase; }
+  .jr-value { font-family: var(--font-ui); font-size: 14px; color: var(--ink); }
+  .jr-input, .jr-select { width: 100%; max-width: 420px; padding: 8px 10px; font-family: var(--font-ui); font-size: 13px; color: var(--ink); background: var(--surface); border: 1px solid var(--rule); border-radius: 0; box-sizing: border-box; }
+  .jr-input:focus, .jr-select:focus { outline: none; border-color: var(--accent); }
+  .jr-hint { font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-top: 4px; display: block; }
+  .jr-pill { display: inline-block; padding: 3px 9px; font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
+  .jr-pill.is-active { background: var(--accent-soft); color: var(--accent); }
+  .jr-pill.is-warn { background: #fef3c7; color: #b45309; }
+  .jr-btn-save { background: var(--accent); color: var(--surface); border: none; padding: 9px 22px; font-family: var(--font-ui); font-size: 13px; font-weight: 500; cursor: pointer; margin-top: 14px; }
+  .jr-btn-save:hover { filter: brightness(1.1); }
+  .jr-btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
+  .jr-status { font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-left: 10px; }
+  .jr-status.ok { color: var(--success, #2e7d32); }
+  .jr-status.err { color: var(--wine, #722F37); }
+  .jr-metric { display: flex; gap: 18px; align-items: baseline; padding: 10px 0; border-bottom: 1px dotted var(--rule); }
+  .jr-metric:last-child { border-bottom: none; }
+  .jr-metric .k { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; width: 180px; flex-shrink: 0; }
+  .jr-metric .v { font-family: var(--font-ui); font-size: 18px; font-weight: 600; color: var(--ink); }
+  .jr-metric .sub { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">counsel<span class="tld">.day</span> &middot; admin</div>
+  <div class="meta">
+    <a href="/account.html">&larr; User-facing site</a>
+    <span id="adm-identity">&hellip;</span>
+    <a href="#" id="adm-logout">Log out</a>
+  </div>
+</div>
+<nav class="adm-subnav" aria-label="Admin sections">
+  <a href="/admin.html">Overview</a>
+  <a href="/admin-users.html">Users</a>
+  <a href="/admin-practitioners.html">Practitioners</a>
+  <a href="/admin-products.html">Products</a>
+  <a href="/admin-journal.html" class="active">Journal</a>
+  <a href="/admin-growth.html">Growth</a>
+  <a href="/admin-engagement.html">Engagement</a>
+  <a href="/admin-traffic.html">Traffic</a>
+  <a href="/admin-finance.html">Finance</a>
+  <a href="/admin-verdict-logs.html">Verdict logs</a>
+  <a href="/admin-audit-log.html">Audit log</a>
+  <a href="/admin-chatbot-queries.html">Chatbot</a>
+  <a href="/admin-prompt-editor.html">Prompts</a>
+  <a href="/admin-database.html">Database</a>
+  <a href="/admin-diagnostics.html">Diagnostics</a>
+  <a href="/admin-testing-area.html">Testing</a>
+</nav>
+
+<div class="shell">
+  <h1>Counsel Journal &middot; controls</h1>
+  <p class="lede">Everything that drives the Journal product: which AI model writes the weekly + monthly verdicts, the Whisper variant that handles voice transcription, the free-tier retention window, the Pro price, the prompt links, and the live cost meters.</p>
+
+  <div class="jr-grid">
+
+    <div>
+      <!-- AI MODEL SELECTION -->
+      <section class="jr-card" id="jr-models">
+        <h2>AI models</h2>
+        <p class="lede">Live model selectors for the verdict synthesis (Claude) and the voice transcription (OpenAI Whisper). Changes save instantly and apply on the next cron run.</p>
+
+        <div class="jr-row">
+          <span class="jr-label">Weekly verdict model</span>
+          <div>
+            <select class="jr-select" id="jr-weekly-model">
+              <option value="claude-opus-4-7">Claude Opus 4.7 (recommended)</option>
+              <option value="claude-opus-4-8">Claude Opus 4.8 (more expensive)</option>
+              <option value="claude-sonnet-4-6">Claude Sonnet 4.6 (cheaper)</option>
+              <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (cheapest · degraded quality on long entries)</option>
+            </select>
+            <span class="jr-hint">Used by the Sunday-evening verdict cron. Anthropic Pricing: Opus ~$15/M input, Sonnet ~$3/M, Haiku ~$0.80/M.</span>
+          </div>
+        </div>
+
+        <div class="jr-row">
+          <span class="jr-label">Monthly verdict model</span>
+          <div>
+            <select class="jr-select" id="jr-monthly-model">
+              <option value="claude-opus-4-7">Claude Opus 4.7 (recommended for themed read)</option>
+              <option value="claude-opus-4-8">Claude Opus 4.8</option>
+              <option value="claude-sonnet-4-6">Claude Sonnet 4.6</option>
+            </select>
+            <span class="jr-hint">Used on the first Monday of the month for Journal Pro subscribers only. Reads the past 4 weekly verdicts together; Opus recommended for the synthesis quality.</span>
+          </div>
+        </div>
+
+        <div class="jr-row">
+          <span class="jr-label">Voice transcription</span>
+          <div>
+            <select class="jr-select" id="jr-whisper-model">
+              <option value="whisper-1">OpenAI Whisper-1 (currently only published option)</option>
+            </select>
+            <span class="jr-hint">~$0.006 USD per minute. Audio is sent to OpenAI; the no-train data agreement applies. Audio is NOT stored after transcription (see vault settings below).</span>
+          </div>
+        </div>
+
+        <div class="jr-row">
+          <span class="jr-label">Anthropic API key</span>
+          <div>
+            <span class="jr-value" id="jr-anthropic-key">checking…</span>
+            <span class="jr-hint">Set in /etc/counsel-day-app/env.local as ANTHROPIC_API_KEY. Rotates via Infisical secrets manager.</span>
+          </div>
+        </div>
+
+        <div class="jr-row">
+          <span class="jr-label">OpenAI API key</span>
+          <div>
+            <span class="jr-value" id="jr-openai-key">checking…</span>
+            <span class="jr-hint">Set in /etc/counsel-day-app/env.local as OPENAI_API_KEY. Used for Whisper transcription only.</span>
+          </div>
+        </div>
+
+        <button type="button" class="jr-btn-save" id="jr-save-models">Save model configuration</button>
+        <span class="jr-status" id="jr-models-status">&nbsp;</span>
+      </section>
+
+      <!-- TIER + PRICING -->
+      <section class="jr-card" id="jr-tiers">
+        <h2>Free tier + Pro</h2>
+        <p class="lede">What the free tier includes, what Pro unlocks, and the price point. Changes affect new sign-ups immediately; existing subscribers honour their current plan until renewal.</p>
+
+        <div class="jr-row">
+          <span class="jr-label">Free tier · history cap</span>
+          <div>
+            <input type="number" class="jr-input" id="jr-free-history-days" min="7" max="365" value="90" style="max-width: 120px;">
+            <span class="jr-hint">days · entries + verdicts beyond this age are hidden from free users. 90 days is the default. Audio files in the vault are deleted at this age for free users (see vault below).</span>
+          </div>
+        </div>
+
+        <div class="jr-row">
+          <span class="jr-label">Pro · monthly price</span>
+          <div>
+            <input type="text" class="jr-input" id="jr-pro-price" value="$4.99 USD" style="max-width: 140px;" readonly>
+            <span class="jr-hint">Stripe price ID: STRIPE_DAILY_PRO_PRICE_ID in env.local. Read-only here · changes to actual price must be made in Stripe Dashboard so that webhook reconciliation stays in sync.</span>
+          </div>
+        </div>
+
+        <div class="jr-row">
+          <span class="jr-label">Pro · features</span>
+          <div>
+            <label style="display: block; margin-bottom: 6px;"><input type="checkbox" id="jr-feat-monthly-verdict" checked> Monthly themed verdict on first Monday of the month</label>
+            <label style="display: block; margin-bottom: 6px;"><input type="checkbox" id="jr-feat-unlimited-history" checked> Unlimited history (no 90-day cap)</label>
+            <label style="display: block; margin-bottom: 6px;"><input type="checkbox" id="jr-feat-vault-permanent" checked> Audio vault retention permanent (free tier audio expires at 90 days)</label>
+          </div>
+        </div>
+
+        <button type="button" class="jr-btn-save" id="jr-save-tiers">Save tier configuration</button>
+        <span class="jr-status" id="jr-tiers-status">&nbsp;</span>
+      </section>
+
+      <!-- AUDIO VAULT -->
+      <section class="jr-card" id="jr-vault">
+        <h2>Audio vault</h2>
+        <p class="lede">Cloudflare R2 bucket storing voice recordings + transcripts. Per <a href="https://counsel.day/project_audio_vault_storage" style="color: var(--accent);">memory</a> the bucket is <code>counsel-journal-audio</code> with per-user prefix.</p>
+
+        <div class="jr-row">
+          <span class="jr-label">R2 endpoint</span>
+          <div>
+            <span class="jr-value" id="jr-r2-endpoint">checking…</span>
+          </div>
+        </div>
+
+        <div class="jr-row">
+          <span class="jr-label">Bucket</span>
+          <div>
+            <span class="jr-value" id="jr-r2-bucket">checking…</span>
+          </div>
+        </div>
+
+        <div class="jr-row">
+          <span class="jr-label">Signed URL expiry</span>
+          <div>
+            <input type="number" class="jr-input" id="jr-signed-url-mins" min="5" max="1440" value="60" style="max-width: 100px;"> minutes
+            <span class="jr-hint">How long a playback URL stays valid. Default 60min. Shorter is more secure but harder for users on slow links.</span>
+          </div>
+        </div>
+
+        <div class="jr-row">
+          <span class="jr-label">Free-tier retention</span>
+          <div>
+            <input type="number" class="jr-input" id="jr-vault-free-days" min="7" max="365" value="90" style="max-width: 100px;"> days
+            <span class="jr-hint">After this, free-tier audio files are purged from R2 (transcript text stays in DB until the entry-history cap). Pro retention is permanent.</span>
+          </div>
+        </div>
+
+        <button type="button" class="jr-btn-save" id="jr-save-vault">Save vault configuration</button>
+        <span class="jr-status" id="jr-vault-status">&nbsp;</span>
+      </section>
+    </div>
+
+    <aside>
+      <!-- LIVE METRICS -->
+      <section class="jr-card" id="jr-metrics">
+        <h2>Live cost meters</h2>
+        <p class="lede">Real-time usage and spend for the Journal-bound services. 30-day rolling window unless noted.</p>
+
+        <div class="jr-metric">
+          <span class="k">R2 storage used</span>
+          <span class="v" id="jr-m-storage">…</span>
+          <span class="sub" id="jr-m-storage-cost">…</span>
+        </div>
+        <div class="jr-metric">
+          <span class="k">Whisper · 30d minutes</span>
+          <span class="v" id="jr-m-whisper-mins">…</span>
+          <span class="sub" id="jr-m-whisper-cost">…</span>
+        </div>
+        <div class="jr-metric">
+          <span class="k">OpenAI · 30d spend</span>
+          <span class="v" id="jr-m-openai-spend">…</span>
+          <span class="sub" id="jr-m-openai-remain">…</span>
+        </div>
+        <div class="jr-metric">
+          <span class="k">Anthropic · 30d spend</span>
+          <span class="v" id="jr-m-anthropic-spend">…</span>
+          <span class="sub" id="jr-m-anthropic-verdicts">…</span>
+        </div>
+        <div class="jr-metric">
+          <span class="k">Active Journal Pro subs</span>
+          <span class="v" id="jr-m-pro-count">…</span>
+          <span class="sub" id="jr-m-pro-mrr">…</span>
+        </div>
+        <div class="jr-metric">
+          <span class="k">Journal entries · 30d</span>
+          <span class="v" id="jr-m-entries">…</span>
+          <span class="sub" id="jr-m-entries-vox">…</span>
+        </div>
+      </section>
+
+      <!-- PROMPT EDITORS · links -->
+      <section class="jr-card">
+        <h2>Verdict prompts</h2>
+        <p class="lede">The weekly + monthly verdict prompts live in the prompt editor (versioned, rollback-safe).</p>
+        <p style="margin: 12px 0;"><a href="/admin-prompt-editor.html?kind=journal_weekly_synthesis" style="color: var(--accent);">Open weekly verdict prompt →</a></p>
+        <p style="margin: 12px 0;"><a href="/admin-prompt-editor.html?kind=journal_monthly_synthesis" style="color: var(--accent);">Open monthly themed verdict prompt →</a></p>
+      </section>
+
+      <!-- DANGER -->
+      <section class="jr-card">
+        <h2>Operational levers</h2>
+        <p class="lede">Use sparingly. Each action is audit-logged.</p>
+        <p style="margin: 10px 0;"><button type="button" class="jr-btn-save" style="background: transparent; color: var(--ink-soft); border: 1px solid var(--rule);" onclick="window.confirm('Force-run the weekly verdict generation for all eligible users now? This bypasses the Sunday-evening cron schedule.') && fetch('/api/admin/journal/run-weekly', {method:'POST', credentials:'include'}).then(function(r){return r.json();}).then(function(j){alert(j.message || JSON.stringify(j));});">Run weekly verdict cron now</button></p>
+        <p style="margin: 10px 0;"><button type="button" class="jr-btn-save" style="background: transparent; color: var(--ink-soft); border: 1px solid var(--rule);" onclick="window.confirm('Force-run the monthly themed verdict for all Pro subscribers?') && fetch('/api/admin/journal/run-monthly', {method:'POST', credentials:'include'}).then(function(r){return r.json();}).then(function(j){alert(j.message || JSON.stringify(j));});">Run monthly verdict cron now</button></p>
+        <p style="margin: 10px 0;"><button type="button" class="jr-btn-save" style="background: transparent; color: var(--wine, #722F37); border: 1px solid var(--wine, #722F37);" onclick="window.confirm('Purge expired vault audio for free-tier users (>90 days)? This is normally automatic but can be triggered here.') && fetch('/api/admin/journal/vault-purge', {method:'POST', credentials:'include'}).then(function(r){return r.json();}).then(function(j){alert(j.message || JSON.stringify(j));});">Purge expired vault audio now</button></p>
+      </section>
+    </aside>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  fetch('/api/admin/me', { credentials: 'include' })
+    .then(function (r) { if (r.status === 401) { window.location.href = '/signin?next=/admin-journal.html'; return null; } return r.json(); })
+    .then(function (j) { if (j && j.email) document.getElementById('adm-identity').textContent = j.email + ' · admin'; });
+  document.getElementById('adm-logout').addEventListener('click', function (e) { e.preventDefault(); fetch('/api/signout', { method: 'POST', credentials: 'include' }).finally(function () { window.location.href = '/'; }); });
+
+  // Pull current Journal config from /api/admin/journal/config. If the
+  // endpoint isn't deployed yet, leave the form on defaults and show a
+  // warning so the gap is visible.
+  function loadConfig() {
+    fetch('/api/admin/journal/config', { credentials: 'include' })
+      .then(function (r) { if (r.status === 404) throw new Error('endpoint-missing'); return r.json(); })
+      .then(function (j) {
+        if (!j || !j.ok) return;
+        if (j.weekly_model)        document.getElementById('jr-weekly-model').value = j.weekly_model;
+        if (j.monthly_model)       document.getElementById('jr-monthly-model').value = j.monthly_model;
+        if (j.whisper_model)       document.getElementById('jr-whisper-model').value = j.whisper_model;
+        if (j.free_history_days != null) document.getElementById('jr-free-history-days').value = j.free_history_days;
+        if (j.signed_url_mins != null)   document.getElementById('jr-signed-url-mins').value = j.signed_url_mins;
+        if (j.vault_free_days != null)   document.getElementById('jr-vault-free-days').value = j.vault_free_days;
+        document.getElementById('jr-anthropic-key').textContent = j.anthropic_key_present ? 'present' : 'MISSING';
+        document.getElementById('jr-openai-key').textContent    = j.openai_key_present    ? 'present' : 'MISSING';
+        document.getElementById('jr-r2-endpoint').textContent   = j.r2_endpoint || 'not configured';
+        document.getElementById('jr-r2-bucket').textContent     = j.r2_bucket   || 'not configured';
+      })
+      .catch(function (e) {
+        var msg = 'config endpoint not configured · /api/admin/journal/config returns 404';
+        document.getElementById('jr-anthropic-key').textContent = msg;
+        document.getElementById('jr-openai-key').textContent = msg;
+        document.getElementById('jr-r2-endpoint').textContent = msg;
+        document.getElementById('jr-r2-bucket').textContent = msg;
+      });
+  }
+
+  function loadMetrics() {
+    fetch('/api/admin/journal/metrics', { credentials: 'include' })
+      .then(function (r) { if (r.status === 404) throw new Error('endpoint-missing'); return r.json(); })
+      .then(function (m) {
+        if (!m || !m.ok) return;
+        var st = m.storage_gb;
+        document.getElementById('jr-m-storage').textContent = st != null ? (st.toFixed(2) + ' GB') : '·';
+        document.getElementById('jr-m-storage-cost').textContent = st != null ? ('R2 ~$' + (st * 0.015).toFixed(3) + ' USD/mo') : '';
+        document.getElementById('jr-m-whisper-mins').textContent = m.whisper_mins_30d != null ? (m.whisper_mins_30d + ' min') : '·';
+        document.getElementById('jr-m-whisper-cost').textContent = m.whisper_mins_30d != null ? ('~$' + (m.whisper_mins_30d * 0.006).toFixed(2) + ' USD') : '';
+        document.getElementById('jr-m-openai-spend').textContent = m.openai_spend_30d_usd != null ? ('$' + m.openai_spend_30d_usd.toFixed(2) + ' USD') : '·';
+        document.getElementById('jr-m-openai-remain').textContent = m.openai_credits_remaining_usd != null ? ('credits left: $' + m.openai_credits_remaining_usd.toFixed(2) + ' USD') : '';
+        document.getElementById('jr-m-anthropic-spend').textContent = m.anthropic_spend_30d_usd != null ? ('$' + m.anthropic_spend_30d_usd.toFixed(2) + ' USD') : '·';
+        document.getElementById('jr-m-anthropic-verdicts').textContent = m.verdicts_generated_30d != null ? (m.verdicts_generated_30d + ' verdicts') : '';
+        document.getElementById('jr-m-pro-count').textContent = m.pro_active != null ? m.pro_active : '·';
+        document.getElementById('jr-m-pro-mrr').textContent = m.pro_active != null ? ('$' + (m.pro_active * 4.99).toFixed(2) + ' USD MRR') : '';
+        document.getElementById('jr-m-entries').textContent = m.entries_30d != null ? m.entries_30d : '·';
+        document.getElementById('jr-m-entries-vox').textContent = m.voice_entries_30d != null ? (m.voice_entries_30d + ' via voice') : '';
+      })
+      .catch(function () {
+        ['jr-m-storage','jr-m-whisper-mins','jr-m-openai-spend','jr-m-anthropic-spend','jr-m-pro-count','jr-m-entries']
+          .forEach(function (id) { document.getElementById(id).textContent = '·'; });
+      });
+  }
+
+  function saveBundle(button, statusId, payload) {
+    button.disabled = true;
+    var status = document.getElementById(statusId);
+    status.className = 'jr-status'; status.textContent = 'saving…';
+    fetch('/api/admin/journal/config', { method: 'POST', credentials: 'include', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) })
+      .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+      .then(function (res) {
+        button.disabled = false;
+        if (res.status === 200) { status.className = 'jr-status ok'; status.textContent = '✓ saved'; }
+        else                    { status.className = 'jr-status err'; status.textContent = (res.body && res.body.message) || 'save failed'; }
+      })
+      .catch(function () { button.disabled = false; status.className = 'jr-status err'; status.textContent = 'network error'; });
+  }
+
+  document.getElementById('jr-save-models').addEventListener('click', function () {
+    saveBundle(this, 'jr-models-status', {
+      weekly_model:  document.getElementById('jr-weekly-model').value,
+      monthly_model: document.getElementById('jr-monthly-model').value,
+      whisper_model: document.getElementById('jr-whisper-model').value,
+    });
+  });
+  document.getElementById('jr-save-tiers').addEventListener('click', function () {
+    saveBundle(this, 'jr-tiers-status', {
+      free_history_days: parseInt(document.getElementById('jr-free-history-days').value, 10),
+      feat_monthly_verdict:   document.getElementById('jr-feat-monthly-verdict').checked,
+      feat_unlimited_history: document.getElementById('jr-feat-unlimited-history').checked,
+      feat_vault_permanent:   document.getElementById('jr-feat-vault-permanent').checked,
+    });
+  });
+  document.getElementById('jr-save-vault').addEventListener('click', function () {
+    saveBundle(this, 'jr-vault-status', {
+      signed_url_mins: parseInt(document.getElementById('jr-signed-url-mins').value, 10),
+      vault_free_days: parseInt(document.getElementById('jr-vault-free-days').value, 10),
+    });
+  });
+
+  loadConfig();
+  loadMetrics();
+})();
+</script>
+<script src="/admin-shell.js" defer></script>
+</body>
+</html>

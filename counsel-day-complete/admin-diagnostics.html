@@ -36,6 +36,7 @@
   <a href="/admin-users.html">Users</a>
   <a href="/admin-practitioners.html">Practitioners</a>
   <a href="/admin-products.html">Products</a>
+  <a href="/admin-journal.html">Journal</a>
   <a href="/admin-growth.html">Growth</a>
   <a href="/admin-engagement.html">Engagement</a>
   <a href="/admin-traffic.html">Traffic</a>
@@ -79,6 +80,16 @@
       <div class="meta" id="voice-meta">opens in a new tab</div>
     </div>
     <a class="open" href="/diag-voice.html" target="_blank" rel="noopener">Open</a>
+  </div>
+
+  <div class="diag-tile" id="tile-openai">
+    <div class="light"></div>
+    <div>
+      <div class="name">OpenAI · Whisper transcription · cost-tracked</div>
+      <div class="desc">OPENAI_API_KEY present, credits remaining (best-effort from /v1/dashboard), 30-day spend, Whisper minutes consumed this month. <strong>Tracked as a recurring cost</strong> · see /admin-finance.html for trend.</div>
+      <div class="meta" id="openai-meta">checking…</div>
+    </div>
+    <button type="button" class="btn btn-secondary" onclick="checkOpenAI()" style="background: transparent; color: var(--accent); border: 1px solid var(--accent); font-family: var(--font-ui); font-size: 13px; padding: 8px 14px; cursor: pointer;">Re-check</button>
   </div>
 
   <div class="diag-tile" id="tile-integrations">
@@ -250,7 +261,49 @@
       document.getElementById('db-meta').textContent = 'fetch failed';
     });
   };
+
+  // OpenAI status · backend endpoint /api/admin/openai-status returns
+  // { ok, key_present, credits_remaining_usd, spend_30d_usd,
+  //   whisper_minutes_30d, error? }. Until that endpoint ships the
+  // tile shows a yellow "endpoint not configured" warning so the
+  // missing-cost-tracking gap is obvious.
+  window.checkOpenAI = function () {
+    var tile = document.getElementById('tile-openai');
+    var meta = document.getElementById('openai-meta');
+    if (!tile || !meta) return;
+    meta.textContent = 'checking…';
+    fetch('/api/admin/openai-status', { credentials: 'include' })
+      .then(function (r) {
+        if (r.status === 404) {
+          tile.classList.remove('ok','fail'); tile.classList.add('warn');
+          meta.textContent = 'endpoint not configured · cost-tracking gap · /api/admin/openai-status returns 404';
+          return null;
+        }
+        return r.json();
+      })
+      .then(function (j) {
+        if (!j) return;
+        if (j.ok) {
+          tile.classList.remove('fail','warn'); tile.classList.add('ok');
+          var parts = [];
+          parts.push('key=' + (j.key_present ? 'present' : 'MISSING'));
+          if (j.credits_remaining_usd != null) parts.push('credits=$' + j.credits_remaining_usd.toFixed(2) + ' USD');
+          if (j.spend_30d_usd != null)        parts.push('30d spend=$' + j.spend_30d_usd.toFixed(2) + ' USD');
+          if (j.whisper_minutes_30d != null)  parts.push('Whisper 30d=' + j.whisper_minutes_30d + 'min');
+          meta.textContent = parts.join(' · ');
+        } else {
+          tile.classList.remove('ok','warn'); tile.classList.add('fail');
+          meta.textContent = (j.error || 'unhealthy');
+        }
+      })
+      .catch(function () {
+        tile.classList.add('fail');
+        meta.textContent = 'fetch failed · check the app log';
+      });
+  };
+
   checkVersion();
+  checkOpenAI();
 })();
 </script>
 <script src="/admin-shell.js" defer></script>

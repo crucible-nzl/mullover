@@ -130,8 +130,8 @@
   <div class="dc-shell">
 
     <div class="dc-bread">
-      <a href="account.html">← Account</a>
-      <span style="margin: 0 10px;">·</span>
+      <a href="account.html" id="dc-bread-back">← Account</a>
+      <span id="dc-bread-sep" style="margin: 0 10px;">·</span>
       <span id="dc-bread-stat">LOADING…</span>
     </div>
 
@@ -450,12 +450,52 @@
       '</select>';
   }
 
+  // Render the public marketing view for anonymous visitors · no
+  // auto-redirect to /signin. Hides the personal sections (entries
+  // list, verdicts, sealed banner) and swaps the composer for a
+  // "sign in to start tonight's entry" CTA so the marketing copy
+  // (hero, 3-step mechanism, specimen verdicts, Pro upsell) stays
+  // readable without a session.
+  function renderPublicMarketingView() {
+    var crumbA = document.getElementById('dc-bread-back');
+    var crumbSep = document.getElementById('dc-bread-sep');
+    if (crumbA) crumbA.style.display = 'none';
+    if (crumbSep) crumbSep.style.display = 'none';
+    if (breadStat) breadStat.textContent = 'A standalone reflection journal';
+    if (composeBlock) {
+      composeBlock.innerHTML =
+        '<div class="lbl">SIGN IN TO START</div>' +
+        '<h2>Ready to start <span class="ital">tonight\'s entry?</span></h2>' +
+        '<p style="font-family: var(--font-body); font-size: 16px; line-height: 1.6; color: var(--ink); margin: 0 0 18px;">Counsel Journal is free forever for the core loop · nightly entry (text or voice), seven-day seal, weekly Monday verdict, 90 days of history. No card required.</p>' +
+        '<div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">' +
+          '<a href="signup.html?product=journal" class="submit" style="background: var(--wine); color: var(--paper); padding: 13px 24px; text-decoration: none; font-family: var(--font-ui); font-size: 14px; font-weight: 500; min-height: 44px; display: inline-flex; align-items: center; letter-spacing: 0.02em;">Sign up · free</a>' +
+          '<a href="signin?next=/daily.html" style="font-family: var(--font-body); font-size: 14px; color: var(--wine); border-bottom: 1px solid var(--wine);">Already have an account? Sign in</a>' +
+        '</div>';
+    }
+    var verdictsLbl = document.getElementById('dc-verdicts-label');
+    if (verdictsLbl) verdictsLbl.style.display = 'none';
+    if (verdictsEl) verdictsEl.style.display = 'none';
+    var entriesLbl = verdictsLbl && verdictsLbl.nextElementSibling;
+    document.querySelectorAll('.dc-section-label').forEach(function (l) {
+      if (l.textContent && l.textContent.indexOf('YOUR') === 0) l.style.display = 'none';
+    });
+    if (entriesEl) entriesEl.style.display = 'none';
+    // Force the upsell card visible · public visitor needs to see the
+    // Pro positioning before they sign up.
+    var upsell = document.getElementById('dc-pro-prompt');
+    if (upsell) upsell.style.display = '';
+    var active = document.getElementById('dc-pro-active');
+    if (active) active.style.display = 'none';
+  }
+
   function load() {
     todayLbl.textContent = fmtLongDate(new Date().toISOString().slice(0, 10)).toUpperCase();
     Promise.all([
       fetch('/api/daily', { credentials: 'include', headers: { accept: 'application/json' } })
         .then(function (r) {
-          if (r.status === 401) { window.location.href = '/signin?next=/daily.html'; throw new Error('redirect'); }
+          // 401 = anonymous visitor · DO NOT redirect. Return a sentinel
+          // and let the public-marketing view render instead.
+          if (r.status === 401) return { ok: false, anonymous: true };
           return r.json();
         }),
       fetch('/api/daily/verdicts', { credentials: 'include', headers: { accept: 'application/json' } })
@@ -469,6 +509,8 @@
         var entryRes = results[0];
         var verdictRes = results[1];
         var meRes = results[2];
+        // Anonymous visitor · render the public marketing view and stop.
+        if (entryRes && entryRes.anonymous) { renderPublicMarketingView(); return; }
         if (!entryRes || !entryRes.ok) return;
 
         // Attach-to-decision · only show if there are active decisions.

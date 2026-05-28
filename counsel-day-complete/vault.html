@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<!-- Order is load-bearing: Consent Mode v2 defaults MUST be set BEFORE -->
+<!-- GTM and gtag load, or the first pageview ships before user choice. -->
+<!-- This block is injected into every public HTML <head> by             -->
+<!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
+
+<!-- Preconnect to GA endpoints · saves ~100ms first-load handshake -->
+<link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+<link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
+
+<!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':         'denied',
+    'ad_user_data':       'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage':  'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage':   'granted',
+    'wait_for_update':    500
+  });
+  // Honour Global Privacy Control + Do-Not-Track before any tag fires.
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':         'denied',
+      'ad_user_data':       'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage':  'denied'
+    });
+  }
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', {
+    'anonymize_ip': true,
+    'allow_google_signals': false,
+    'allow_ad_personalization_signals': false
+  });
+</script>
+<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
+
+<title>The Vault &middot; Counsel Journal &middot; Counsel.day</title>
+<meta name="description" content="Replay every Counsel Journal recording you've ever made, with the original transcript scrolling alongside.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="styles-i8.css">
+<style>
+  .vault-shell { max-width: 1280px; margin: 0 auto; padding: 30px 32px 60px; }
+  .vault-bread { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 28px; }
+  .vault-bread a { color: var(--wine); border-bottom: 1px solid var(--wine); padding-bottom: 1px; text-decoration: none; }
+
+  .vault-head { padding-bottom: 22px; border-bottom: 1px solid var(--ink); margin-bottom: 28px; display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end; }
+  .vault-head .ttl { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine); margin-bottom: 12px; }
+  .vault-head h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(34px, 4.4vw, 56px); line-height: 1.05; color: var(--ink); margin: 0; }
+  .vault-head h1 .ital { font-style: italic; color: var(--wine); }
+  .vault-head .sub { font-family: var(--font-body); font-size: 16px; line-height: 1.55; color: var(--ink-soft); margin: 10px 0 0; max-width: 720px; }
+
+  .vault-stats { display: grid; grid-template-columns: repeat(3, auto); gap: 22px; font-family: var(--font-mono); text-align: right; }
+  .vault-stats .stat .v { font-family: var(--font-display); font-size: 26px; font-weight: 400; color: var(--ink); display: block; }
+  .vault-stats .stat .k { font-size: 11px; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; }
+
+  .vault-filter { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; align-items: center; }
+  .vault-filter .lbl { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
+  .vault-filter button { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 7px 14px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink-soft); cursor: pointer; border-radius: 0; min-height: 36px; }
+  .vault-filter button.is-on { background: var(--wine); color: var(--paper); border-color: var(--wine); }
+  .vault-filter .search { flex: 1; min-width: 200px; max-width: 360px; padding: 7px 12px; border: 1px solid var(--rule); background: var(--paper); font-family: var(--font-body); font-size: 14px; }
+  .vault-filter .search:focus { outline: none; border-color: var(--wine); }
+
+  .vault-banner { padding: 14px 18px; background: var(--paper-deep); border-left: 3px solid var(--wine); margin-bottom: 22px; font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: var(--ink); }
+  .vault-banner.is-warn { background: #fef3c7; border-left-color: #b45309; }
+  .vault-banner strong { color: var(--ink); font-weight: 500; }
+  .vault-banner a { color: var(--wine); border-bottom: 1px solid var(--wine); padding-bottom: 1px; text-decoration: none; }
+
+  .vault-list { display: flex; flex-direction: column; gap: 14px; }
+  .vault-row { border: 1px solid var(--rule); background: var(--paper); padding: 0; overflow: hidden; }
+  .vault-row.is-open { border-color: var(--ink); }
+  .vault-row-head { display: grid; grid-template-columns: 130px 1fr 80px 100px; gap: 18px; align-items: center; padding: 16px 22px; cursor: pointer; transition: background 120ms; }
+  .vault-row-head:hover { background: var(--paper-deep); }
+  .vault-row-head .date { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; color: var(--wine); text-transform: uppercase; }
+  .vault-row-head .preview { font-family: var(--font-body); font-size: 14px; line-height: 1.5; color: var(--ink); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .vault-row-head .dur { font-family: var(--font-mono); font-size: 12px; color: var(--ink-soft); text-align: right; }
+  .vault-row-head .play-btn { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 9px 14px; border: 1px solid var(--ink); background: var(--paper); color: var(--ink); cursor: pointer; border-radius: 0; min-height: 36px; }
+  .vault-row.is-open .vault-row-head .play-btn { background: var(--ink); color: var(--paper); }
+  .vault-row.is-text-only .vault-row-head .play-btn { background: var(--paper-deep); color: var(--muted); border-style: dashed; cursor: default; }
+
+  .vault-row-body { display: none; padding: 20px 22px 24px; border-top: 1px solid var(--rule); background: var(--paper-deep); }
+  .vault-row.is-open .vault-row-body { display: block; }
+  .vault-player { margin-bottom: 16px; }
+  .vault-player audio { width: 100%; min-height: 44px; }
+  .vault-player-fallback { font-family: var(--font-body); font-style: italic; font-size: 13px; color: var(--muted); padding: 12px 16px; background: var(--paper); border: 1px dashed var(--rule); }
+  .vault-transcript-label { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine); margin: 0 0 10px; }
+  .vault-transcript { font-family: var(--font-body); font-size: 15px; line-height: 1.7; color: var(--ink); white-space: pre-wrap; padding: 16px 18px; background: var(--paper); border-left: 3px solid var(--wine); max-height: 340px; overflow-y: auto; }
+  .vault-row-meta { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 14px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; }
+  .vault-row-meta .item strong { color: var(--ink); font-weight: 600; }
+
+  .vault-empty { padding: 40px 24px; text-align: center; font-family: var(--font-body); font-style: italic; color: var(--muted); border: 1px dashed var(--rule); }
+
+  .vault-pager { display: flex; gap: 10px; align-items: center; justify-content: center; margin-top: 22px; }
+  .vault-pager button { font-family: var(--font-mono); font-size: 12px; padding: 9px 16px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink-soft); cursor: pointer; border-radius: 0; min-height: 36px; }
+  .vault-pager button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .vault-pager span { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+
+  @media (max-width: 720px) {
+    .vault-shell { padding: 22px 18px 50px; }
+    .vault-head { grid-template-columns: 1fr; }
+    .vault-stats { text-align: left; }
+    .vault-row-head { grid-template-columns: 1fr; gap: 10px; padding: 14px 16px; }
+    .vault-row-head .dur, .vault-row-head .play-btn { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<!-- CD:PARTIAL:nav-app -->
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <button type="button" class="nav-toggle" id="cd-nav-toggle" aria-controls="cd-nav-links" aria-expanded="false" aria-label="Open menu">
+      <span class="nav-toggle-bar"></span>
+      <span class="nav-toggle-bar"></span>
+      <span class="nav-toggle-bar"></span>
+    </button>
+    <div class="nav-links" id="cd-nav-links">
+      <a href="decisions.html">Your decisions</a>
+      <a href="vote-today.html">Tonight's vote</a>
+      <a href="daily.html">Journal</a>
+      <a href="vault.html">Vault</a>
+      <a href="compose.html">Compose</a>
+      <a href="account.html">Account</a>
+      <a href="help.html">Help</a>
+    </div>
+    <div class="nav-cta">
+      <a href="account.html" class="btn-text" id="cd-nav-name">Account</a>
+    </div>
+  </div>
+</nav>
+<script>
+  (function () {
+    var toggle = document.getElementById('cd-nav-toggle');
+    var bar = toggle && toggle.closest('.nav-bar');
+    if (!toggle || !bar) return;
+    toggle.addEventListener('click', function () {
+      var open = bar.classList.toggle('menu-open');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    });
+  })();
+</script>
+<!-- /CD:PARTIAL:nav-app -->
+
+<main id="main-content">
+  <div class="vault-shell">
+
+    <div class="vault-bread">
+      <a href="daily.html">← Counsel Journal</a>
+      <span style="margin: 0 10px;">·</span>
+      <span>THE VAULT</span>
+    </div>
+
+    <header class="vault-head">
+      <div>
+        <div class="ttl">THE VAULT · YOUR RECORDED REFLECTIONS</div>
+        <h1>Listen back. <span class="ital">Read along.</span></h1>
+        <p class="sub">Every Counsel Journal recording you've ever made, with the original transcript scrolling alongside. Audio plays at the click of a row · the transcript stays editable in your head, never in the file.</p>
+      </div>
+      <div class="vault-stats">
+        <div class="stat"><span class="v" id="vault-stat-count">·</span><span class="k">Recordings</span></div>
+        <div class="stat"><span class="v" id="vault-stat-mins">·</span><span class="k">Total minutes</span></div>
+        <div class="stat"><span class="v" id="vault-stat-words">·</span><span class="k">Words transcribed</span></div>
+      </div>
+    </header>
+
+    <!-- Tier-aware banner · explains the 90-day retention for free users
+         and the unlimited retention for Pro. Hidden when /api/me says
+         the user is Pro. -->
+    <div class="vault-banner" id="vault-banner-free" style="display: none;">
+      <strong>Free tier.</strong> Audio recordings are kept in the vault for 90 days from the date you filed them. After that the transcript stays in your account but the audio is removed. <a href="account.html#subscription">Upgrade to Journal Pro</a> for unlimited audio retention.
+    </div>
+    <div class="vault-banner" id="vault-banner-text-only" style="display: none;">
+      Some of your entries were typed (not spoken) · those rows show the text but have no audio to play back.
+    </div>
+
+    <div class="vault-filter">
+      <span class="lbl">Filter</span>
+      <button type="button" data-filter="all" class="is-on">All</button>
+      <button type="button" data-filter="week">This week</button>
+      <button type="button" data-filter="month">This month</button>
+      <button type="button" data-filter="year">This year</button>
+      <button type="button" data-filter="voice">Voice only</button>
+      <input type="text" class="search" id="vault-search" placeholder="Search transcripts…" aria-label="Search transcripts">
+    </div>
+
+    <div class="vault-list" id="vault-list">
+      <div class="vault-empty" id="vault-empty">Loading your recordings…</div>
+    </div>
+
+    <div class="vault-pager" id="vault-pager" style="display: none;">
+      <button type="button" id="vault-prev" disabled>← Older</button>
+      <span id="vault-range">·</span>
+      <button type="button" id="vault-next">Newer →</button>
+    </div>
+
+  </div>
+</main>
+
+<!-- CD:PARTIAL:colophon -->
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">Two products. Counsel.day Decision is for solo, couples, and families facing a hard joint decision · one private vote each evening on the same question, for a duration you set, sealed until the final day. Counsel Journal is the standalone reflection tool · one minute every evening, a verdict on Monday, a themed verdict every month. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The app</h5>
+        <a href="decisions.html">Your decisions</a>
+        <a href="vote-today.html">Tonight's vote</a>
+        <a href="daily.html">Journal</a>
+        <a href="compose.html">Compose</a>
+        <a href="account.html">Your account</a>
+        <a href="billing.html">Billing</a>
+      </div>
+      <div class="colophon-col">
+        <h3 class="colophon-col-h">The decision tool</h3>
+        <a href="method.html">The method</a>
+        <a href="why-time.html">Why time</a>
+        <a href="verdict.html">A real verdict</a>
+        <a href="pricing.html">Pricing</a>
+      </div>
+      <div class="colophon-col">
+        <h3 class="colophon-col-h">Counsel Journal</h3>
+        <a href="daily.html">Open the Journal</a>
+        <a href="daily.html#about">What it is</a>
+        <a href="daily.html#pro">Journal Pro</a>
+      </div>
+      <div class="colophon-col">
+        <h5>Support</h5>
+        <a href="help.html">Help</a>
+        <a href="helper.html">Helper bot</a>
+        <a href="correspondence.html">Correspondence</a>
+        <a href="contact.html">Contact</a>
+        <a href="faq.html">FAQ</a>
+        <a href="status.html">Status</a>
+      </div>
+      <div class="colophon-col">
+        <h3 class="colophon-col-h">The fine print</h3>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="refunds.html">Refunds</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>&copy; 2026 Counsel.day &middot; USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+<script src="/helper-widget.js" defer></script>
+<!-- /CD:PARTIAL:colophon -->
+
+<script>
+(function () {
+  var listEl = document.getElementById('vault-list');
+  var emptyEl = document.getElementById('vault-empty');
+  var pagerEl = document.getElementById('vault-pager');
+  var prevBtn = document.getElementById('vault-prev');
+  var nextBtn = document.getElementById('vault-next');
+  var rangeEl = document.getElementById('vault-range');
+  var searchEl = document.getElementById('vault-search');
+  var filterBtns = document.querySelectorAll('.vault-filter button[data-filter]');
+  var bannerFree = document.getElementById('vault-banner-free');
+  var bannerTextOnly = document.getElementById('vault-banner-text-only');
+
+  var state = { entries: [], filter: 'all', search: '', page: 0, pageSize: 20, isPro: false };
+
+  function fmtDate(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    return ['SUN','MON','TUE','WED','THU','FRI','SAT'][d.getDay()] + ' ' + d.getDate() + ' ' +
+      ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][d.getMonth()] + ' ' + d.getFullYear();
+  }
+  function fmtDur(s) {
+    if (s == null) return '·';
+    s = Math.round(s);
+    var m = Math.floor(s / 60); var r = s % 60;
+    return m + ':' + (r < 10 ? '0' : '') + r;
+  }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+
+  function applyFilters() {
+    var now = Date.now();
+    var weekMs = 7 * 24 * 3600 * 1000, monthMs = 31 * weekMs / 7, yearMs = 365 * 24 * 3600 * 1000;
+    var q = state.search.trim().toLowerCase();
+    return state.entries.filter(function (e) {
+      if (state.filter === 'voice' && !e.audio_url) return false;
+      if (state.filter === 'week' || state.filter === 'month' || state.filter === 'year') {
+        var t = new Date(e.entry_date).getTime();
+        if (state.filter === 'week' && (now - t) > weekMs) return false;
+        if (state.filter === 'month' && (now - t) > monthMs) return false;
+        if (state.filter === 'year' && (now - t) > yearMs) return false;
+      }
+      if (q && (e.transcript || e.text_content || '').toLowerCase().indexOf(q) === -1) return false;
+      return true;
+    });
+  }
+
+  function render() {
+    var filtered = applyFilters();
+    var start = state.page * state.pageSize;
+    var slice = filtered.slice(start, start + state.pageSize);
+    if (slice.length === 0) {
+      listEl.innerHTML = '<div class="vault-empty">No recordings match the filter.</div>';
+      pagerEl.style.display = 'none';
+      return;
+    }
+    listEl.innerHTML = slice.map(function (e, i) {
+      var isTextOnly = !e.audio_url;
+      var preview = (e.transcript || e.text_content || '').slice(0, 240);
+      return '<article class="vault-row' + (isTextOnly ? ' is-text-only' : '') + '" data-id="' + esc(e.id) + '">' +
+        '<div class="vault-row-head" data-toggle>' +
+          '<div class="date">' + esc(fmtDate(e.entry_date)) + '</div>' +
+          '<div class="preview">' + esc(preview) + (preview.length === 240 ? '…' : '') + '</div>' +
+          '<div class="dur">' + (isTextOnly ? 'text only' : fmtDur(e.duration_seconds)) + '</div>' +
+          '<button type="button" class="play-btn">' + (isTextOnly ? 'View' : 'Play') + '</button>' +
+        '</div>' +
+        '<div class="vault-row-body">' +
+          (isTextOnly ? '<div class="vault-player-fallback">This entry was typed, not spoken. No audio to play back.</div>' :
+            '<div class="vault-player" data-player-for="' + esc(e.id) + '"><div class="vault-player-fallback">Loading audio…</div></div>') +
+          '<div class="vault-transcript-label">FULL TRANSCRIPT</div>' +
+          '<div class="vault-transcript">' + esc(e.transcript || e.text_content || '') + '</div>' +
+          '<div class="vault-row-meta">' +
+            '<span class="item">Filed <strong>' + esc(fmtDate(e.entry_date)) + '</strong></span>' +
+            (e.duration_seconds != null ? '<span class="item">Length <strong>' + fmtDur(e.duration_seconds) + '</strong></span>' : '') +
+            (e.word_count != null ? '<span class="item">Words <strong>' + e.word_count + '</strong></span>' : '') +
+            (e.language ? '<span class="item">Language <strong>' + esc(e.language) + '</strong></span>' : '') +
+          '</div>' +
+        '</div>' +
+      '</article>';
+    }).join('');
+    pagerEl.style.display = filtered.length > state.pageSize ? 'flex' : 'none';
+    rangeEl.textContent = (start + 1) + ' to ' + Math.min(start + slice.length, filtered.length) + ' of ' + filtered.length;
+    prevBtn.disabled = state.page === 0;
+    nextBtn.disabled = (state.page + 1) * state.pageSize >= filtered.length;
+  }
+
+  function lazyLoadAudio(entryId, container) {
+    container.innerHTML = '<div class="vault-player-fallback">Requesting playback link…</div>';
+    fetch('/api/journal/vault/' + encodeURIComponent(entryId) + '/playback', { credentials: 'include' })
+      .then(function (r) {
+        if (r.status === 503) return r.json().then(function (j) { throw new Error(j.message || 'Vault not configured.'); });
+        return r.json();
+      })
+      .then(function (j) {
+        if (j && j.url) {
+          container.innerHTML = '<audio controls preload="metadata" src="' + j.url + '"></audio>';
+        } else {
+          container.innerHTML = '<div class="vault-player-fallback">No audio link returned.</div>';
+        }
+      })
+      .catch(function (err) {
+        container.innerHTML = '<div class="vault-player-fallback">' + esc(err.message || 'Could not load audio.') + '</div>';
+      });
+  }
+
+  listEl.addEventListener('click', function (ev) {
+    var head = ev.target.closest('[data-toggle]');
+    if (!head) return;
+    var row = head.closest('.vault-row');
+    if (!row) return;
+    var wasOpen = row.classList.toggle('is-open');
+    if (wasOpen) {
+      var playerEl = row.querySelector('[data-player-for]');
+      if (playerEl && !playerEl.dataset.loaded) {
+        playerEl.dataset.loaded = '1';
+        lazyLoadAudio(playerEl.getAttribute('data-player-for'), playerEl);
+      }
+    }
+  });
+
+  filterBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      filterBtns.forEach(function (x) { x.classList.remove('is-on'); });
+      b.classList.add('is-on');
+      state.filter = b.getAttribute('data-filter');
+      state.page = 0;
+      render();
+    });
+  });
+  searchEl.addEventListener('input', function () { state.search = searchEl.value; state.page = 0; render(); });
+  prevBtn.addEventListener('click', function () { if (state.page > 0) { state.page--; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); } });
+  nextBtn.addEventListener('click', function () { state.page++; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+
+  Promise.all([
+    fetch('/api/journal/vault', { credentials: 'include' }).then(function (r) {
+      if (r.status === 401) { window.location.href = '/signin?next=/vault.html'; throw new Error('redirect'); }
+      return r.json();
+    }),
+    fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json().catch(function () { return { ok: true, user: {} }; }); }),
+  ])
+    .then(function (results) {
+      var v = results[0]; var me = results[1];
+      if (!v || !v.ok) { emptyEl.textContent = (v && v.message) || 'Could not load the vault.'; return; }
+      state.entries = v.entries || [];
+      state.isPro = !!(me && me.user && me.user.daily_pro_active);
+      bannerFree.style.display = state.isPro ? 'none' : 'block';
+      var hasTextOnly = state.entries.some(function (e) { return !e.audio_url && (e.text_content || e.transcript); });
+      bannerTextOnly.style.display = hasTextOnly ? 'block' : 'none';
+
+      document.getElementById('vault-stat-count').textContent = state.entries.length;
+      var mins = state.entries.reduce(function (a, e) { return a + (Number(e.duration_seconds) || 0); }, 0) / 60;
+      document.getElementById('vault-stat-mins').textContent = mins.toFixed(0);
+      var words = state.entries.reduce(function (a, e) { return a + (Number(e.word_count) || 0); }, 0);
+      document.getElementById('vault-stat-words').textContent = words.toLocaleString();
+
+      if (state.entries.length === 0) {
+        listEl.innerHTML = '<div class="vault-empty">No recordings yet. <a href="daily.html" style="color: var(--wine); border-bottom: 1px solid var(--wine);">File your first entry →</a></div>';
+        return;
+      }
+      render();
+    })
+    .catch(function (e) { if (e && e.message !== 'redirect') emptyEl.textContent = 'Network error. Refresh to try again.'; });
+})();
+</script>
+<script src="pwa.js" defer></script>
+<script src="ga4.js" defer></script>
+<script src="/nav-toggle.js" defer></script>
+<script src="/helper-widget.js" defer></script>
+</body>
+</html>

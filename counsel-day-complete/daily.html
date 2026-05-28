@@ -456,15 +456,13 @@
   window.addEventListener('DOMContentLoaded', function () {
     if (window.CounselDayVoice) {
       window.CounselDayVoice.attach('#dc-text', {
-        label: 'Speak tonight’s entry',
-        // Force the Whisper path. SpeechRecognition on desktop Chrome
-        // proved unreliable here · the session would run, capture
-        // nothing, and a user-initiated Stop short-circuited the
-        // auto-fallback. Whisper is the proven path (verified end-to-end
-        // on /diag-voice): tap SPEAK, record, tap Stop, text appears
-        // in the box. The reflection-journal use case doesn't need
-        // live transcription · users speak 30-180s then commit.
-        preferWhisper: true
+        label: 'Speak tonight’s entry'
+        // SR-first (live text appearing as you speak); on any silent
+        // failure or zero-result onend the widget automatically falls
+        // back to Whisper. The visual cues that prove the mic is
+        // capturing audio · pulsing wine dot, 5 amplitude bars, live
+        // timer, red textarea border, "Transcribing…" banner on Stop ·
+        // are all built into voice-input.js as of commit 2fadae9.
       });
     }
     var upgradeBtn = document.getElementById('dc-pro-upgrade');

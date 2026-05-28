@@ -112,16 +112,23 @@
       }
     });
 
-    // Recording indicator · pulsing dot + live timer · only visible
-    // when the widget is in the recording state. Sits next to the
-    // button so the user has unambiguous visual confirmation that
-    // audio capture is live (the prior version showed only a text
-    // status string that several users missed entirely).
+    // Recording indicator · pulsing dot + live audio level bars +
+    // live timer. Three signals next to the button so the user has
+    // unambiguous visual confirmation that audio capture is live.
+    // The bars are amplitude-driven via WebAudio AnalyserNode (real
+    // data), so users see their own voice as movement.
     var indicator = document.createElement('span');
     indicator.className = 'cd-vi-indicator';
-    indicator.style.cssText = 'display:none;align-items:center;gap:8px;font-family:var(--font-mono, ui-monospace, monospace);font-size:11px;letter-spacing:0.08em;';
+    indicator.style.cssText = 'display:none;align-items:center;gap:10px;font-family:var(--font-mono, ui-monospace, monospace);font-size:11px;letter-spacing:0.08em;';
     indicator.innerHTML =
       '<span class="cd-vi-dot" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--wine, #722F37);animation:cdViPulse 1.1s ease-in-out infinite;"></span>' +
+      '<span class="cd-vi-meter" aria-hidden="true" style="display:inline-flex;align-items:flex-end;gap:2px;height:18px;">' +
+        '<span class="cd-vi-bar" style="display:inline-block;width:3px;height:4px;background:var(--wine, #722F37);transition:height 80ms linear;"></span>' +
+        '<span class="cd-vi-bar" style="display:inline-block;width:3px;height:8px;background:var(--wine, #722F37);transition:height 80ms linear;"></span>' +
+        '<span class="cd-vi-bar" style="display:inline-block;width:3px;height:14px;background:var(--wine, #722F37);transition:height 80ms linear;"></span>' +
+        '<span class="cd-vi-bar" style="display:inline-block;width:3px;height:10px;background:var(--wine, #722F37);transition:height 80ms linear;"></span>' +
+        '<span class="cd-vi-bar" style="display:inline-block;width:3px;height:6px;background:var(--wine, #722F37);transition:height 80ms linear;"></span>' +
+      '</span>' +
       '<span class="cd-vi-timer" style="color:var(--wine, #722F37);font-weight:600;">0:00 / 0:30</span>';
 
     var status = document.createElement('span');
@@ -138,11 +145,27 @@
     diag.style.cssText = 'font-family:var(--font-mono, ui-monospace, monospace);font-size:10px;letter-spacing:0.08em;color:var(--muted, #6b635a);margin-left:auto;border-bottom:1px solid var(--rule, #e8e6e1);text-decoration:none;padding-bottom:1px;';
     diag.title = 'Open the voice-stack health check in a new tab';
 
-    // Inject the pulse keyframes once on first build (page-wide).
+    // Inject the pulse keyframes + textarea recording-state styles
+    // once on first build (page-wide).
     if (!document.getElementById('cd-vi-keyframes')) {
       var sty = document.createElement('style');
       sty.id = 'cd-vi-keyframes';
-      sty.textContent = '@keyframes cdViPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.35); opacity: 0.55; } } .cd-vi-warn .cd-vi-timer { color: #c0392b !important; }';
+      sty.textContent =
+        '@keyframes cdViPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.35); opacity: 0.55; } }' +
+        '.cd-vi-warn .cd-vi-timer { color: #c0392b !important; }' +
+        '.cd-vi-warn .cd-vi-bar { background: #c0392b !important; }' +
+        // Red border on the textarea while recording · peripheral-
+        // vision cue. Wraps both <input> and <textarea>.
+        '.cd-vi-field-recording { outline: 2px solid var(--wine, #722F37) !important; outline-offset: 2px; box-shadow: 0 0 0 4px rgba(114,47,55,0.08) !important; }' +
+        // Transcribing overlay · positioned outside the field as an
+        // adjacent banner since the field may itself be inside a
+        // bordered container. Animates in/out with opacity.
+        '.cd-vi-transcribing { display: flex; align-items: center; gap: 10px; padding: 10px 14px; margin: 6px 0; background: var(--paper-deep, #faf8f4); border-left: 3px solid var(--wine, #722F37); font-family: var(--font-mono, ui-monospace, monospace); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--wine, #722F37); }' +
+        '.cd-vi-transcribing .dots { display: inline-flex; gap: 3px; }' +
+        '.cd-vi-transcribing .dots span { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--wine, #722F37); animation: cdViBounce 0.9s ease-in-out infinite; }' +
+        '.cd-vi-transcribing .dots span:nth-child(2) { animation-delay: 0.15s; }' +
+        '.cd-vi-transcribing .dots span:nth-child(3) { animation-delay: 0.3s; }' +
+        '@keyframes cdViBounce { 0%, 80%, 100% { transform: translateY(0); opacity: 0.5; } 40% { transform: translateY(-4px); opacity: 1; } }';
       document.head.appendChild(sty);
     }
 
@@ -190,6 +213,83 @@
         indicator.classList.remove('cd-vi-warn');
       }
     }
+  }
+
+  // Drive the 5-bar amplitude meter inside the indicator from a live
+  // MediaStream. Uses WebAudio AnalyserNode at fftSize=128 to compute
+  // an RMS-ish reading per frame · cheap, no SAB / Worklets needed.
+  // Returns a stop fn that detaches the analyser and resets bar heights.
+  function startMeter(indicator, stream) {
+    if (!indicator || !stream) return function () {};
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return function () {};
+    var ctx;
+    try { ctx = new AC(); } catch (e) { return function () {}; }
+    var source, analyser;
+    try {
+      source = ctx.createMediaStreamSource(stream);
+      analyser = ctx.createAnalyser();
+      analyser.fftSize = 128;
+      analyser.smoothingTimeConstant = 0.55;
+      source.connect(analyser);
+    } catch (e) {
+      try { ctx.close(); } catch (e2) {}
+      return function () {};
+    }
+    var bars = indicator.querySelectorAll('.cd-vi-bar');
+    var data = new Uint8Array(analyser.frequencyBinCount);
+    var raf = 0;
+    var minH = [3, 4, 5, 4, 3]; // visible baseline so bars never collapse to 0
+    var maxH = [10, 16, 22, 18, 12];
+    function tick() {
+      analyser.getByteFrequencyData(data);
+      // Take 5 bins spread across the meaningful voice range and map
+      // to bar heights.
+      for (var i = 0; i < bars.length; i++) {
+        var idx = Math.floor((i + 1) * data.length / 7);
+        var v = data[idx] || 0;
+        var h = minH[i] + (v / 255) * (maxH[i] - minH[i]);
+        bars[i].style.height = h.toFixed(1) + 'px';
+      }
+      raf = requestAnimationFrame(tick);
+    }
+    tick();
+    return function () {
+      if (raf) cancelAnimationFrame(raf);
+      try { source.disconnect(); } catch (e) {}
+      try { analyser.disconnect(); } catch (e) {}
+      try { ctx.close(); } catch (e) {}
+      for (var i = 0; i < bars.length; i++) bars[i].style.height = minH[i] + 'px';
+    };
+  }
+
+  // Toggle a red-outline class on the bound field while recording so
+  // the user has a peripheral-vision cue even when they're not looking
+  // at the indicator strip.
+  function setFieldRecording(field, on) {
+    if (!field || !field.classList) return;
+    field.classList.toggle('cd-vi-field-recording', !!on);
+  }
+
+  // Show / hide a "TRANSCRIBING AUDIO…" banner between the indicator
+  // and the textarea. Visible from the moment Stop fires until /api/
+  // transcribe returns and we append the text. Idempotent.
+  function showTranscribingBanner(wrap) {
+    if (!wrap) return null;
+    var existing = wrap.parentNode && wrap.parentNode.querySelector('.cd-vi-transcribing');
+    if (existing) return existing;
+    var banner = document.createElement('div');
+    banner.className = 'cd-vi-transcribing';
+    banner.setAttribute('role', 'status');
+    banner.setAttribute('aria-live', 'polite');
+    banner.innerHTML = '<span>Transcribing audio</span><span class="dots"><span></span><span></span><span></span></span>';
+    if (wrap.parentNode) wrap.parentNode.insertBefore(banner, wrap.nextSibling);
+    return banner;
+  }
+  function hideTranscribingBanner(wrap) {
+    if (!wrap || !wrap.parentNode) return;
+    var b = wrap.parentNode.querySelector('.cd-vi-transcribing');
+    if (b && b.parentNode) b.parentNode.removeChild(b);
   }
 
   // Start a 1Hz tick that updates the timer in the indicator and warns
@@ -317,6 +417,7 @@
         status.textContent = 'Transcribed. Edit before sealing.';
         status.style.color = 'var(--muted, #6b635a)';
         setRecording(btn, status, false);
+        setFieldRecording(field, false);
         onDone();
       }
     };
@@ -335,6 +436,7 @@
         return;
       }
       setRecording(btn, status, false);
+      setFieldRecording(field, false);
       status.textContent = anyTextReceived ? 'Transcribed. Edit before sealing.' : '';
       status.style.color = 'var(--muted, #6b635a)';
       onDone();
@@ -343,6 +445,7 @@
     try {
       sr.start();
       setRecording(btn, status, true);
+      setFieldRecording(field, true);
       return {
         // User-initiated stop · if SR captured ANY text by the time
         // they stopped, accept it. If SR captured nothing (SR was
@@ -353,12 +456,14 @@
           try { sr.stop(); } catch (e) {}
           if (!anyTextReceived) {
             setRecording(btn, status, false);
+            setFieldRecording(field, false);
             status.textContent = 'Switching to recorded transcription …';
             status.style.color = 'var(--muted, #6b635a)';
             onFallback();
             return;
           }
           setRecording(btn, status, false);
+          setFieldRecording(field, false);
           status.textContent = 'Transcribed. Edit before sealing.';
           status.style.color = 'var(--muted, #6b635a)';
         }
@@ -391,7 +496,9 @@
     var chunks = [];
     var hardStop = null;
     var stopTimer = null;
+    var stopMeter = null;
     var indicator = btn && btn.parentElement && btn.parentElement.querySelector('.cd-vi-indicator');
+    var wrap = btn && btn.parentElement;
 
     navigator.mediaDevices.getUserMedia({ audio: true })
       .then(function (s) {
@@ -399,6 +506,12 @@
         rec = new MediaRecorder(s, { mimeType: mime });
         rec.ondataavailable = function (e) { if (e.data && e.data.size > 0) chunks.push(e.data); };
         rec.onstop = function () {
+          if (stopMeter) { stopMeter(); stopMeter = null; }
+          setFieldRecording(field, false);
+          // Show the transcribing banner the moment recording stops ·
+          // /api/transcribe usually takes 1-3 seconds, and without a
+          // status the field looks dead.
+          showTranscribingBanner(wrap);
           if (stream) stream.getTracks().forEach(function (t) { t.stop(); });
           if (hardStop) clearTimeout(hardStop);
           if (stopTimer) { stopTimer(); stopTimer = null; }
@@ -418,6 +531,7 @@
           fetch(ENDPOINT, { method: 'POST', credentials: 'include', body: fd })
             .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
             .then(function (res) {
+              hideTranscribingBanner(wrap);
               if (res.status === 200 && res.body && res.body.ok) {
                 appendToField(field, res.body.transcript || '');
                 var quotaSuffix = '';
@@ -435,6 +549,7 @@
               onDone();
             })
             .catch(function () {
+              hideTranscribingBanner(wrap);
               status.textContent = 'Network error. Type the note.';
               status.style.color = 'var(--wine, #722F37)';
               setRecording(btn, status, false);
@@ -443,6 +558,8 @@
         };
         rec.start();
         setRecording(btn, status, true);
+        setFieldRecording(field, true);
+        stopMeter = startMeter(indicator, stream);
         stopTimer = startTimer(indicator, MAX_RECORD_MS);
         hardStop = setTimeout(function () {
           if (rec.state === 'recording') {

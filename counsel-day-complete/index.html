@@ -1389,20 +1389,69 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <main id="main-content">
 
-<!-- DUAL-PRODUCT HERO · two products, full-width, side-by-side on desktop ·
-     Decision (left) keeps the existing partner-A/B sealed-vote diagram ·
-     Counsel Journal (right) gets an analogous seven-evening-then-verdict
-     diagram. Mobile collapses to stacked. -->
-<section class="dual-hero">
-  <div class="dual-hero-inner">
+<!-- SIMPLE INTRO + TWO PRODUCT CARDS · the diagrams are moved
+     below into a dedicated "How each works" band to keep the hero
+     scannable. -->
+<section class="intro-band">
+  <div class="intro-inner">
+    <div class="intro-kicker">A SEALED-VOTE FAMILY OF TOOLS</div>
+    <h1 class="intro-headline">Two tools. Same idea. <span class="ital">Write today, look back later.</span></h1>
+    <p class="intro-lede">Counsel.day is a sealed-vote system for hard questions. The <strong>Decision</strong> tool helps you settle a joint decision over a season. The <strong>Journal</strong> gives you a Monday verdict on the week you actually lived. Same database, same observational voice, same trust at the layer underneath. Pick the one that fits the question.</p>
+  </div>
+</section>
 
-    <!-- LEFT PRODUCT · Counsel.day Decision -->
-    <article class="dual-hero-product">
-      <div class="dh-kicker">Product 01 · for the hard joint decision</div>
-      <h1 class="dh-headline">Counsel.day <span class="ital">Decision.</span></h1>
-      <p class="dh-lede">For solo, couples, and families facing a question one conversation cannot resolve. One private vote each evening, sealed for a duration you set, one verdict at the close.</p>
+<section class="product-cards-band">
+  <div class="product-cards-inner">
 
-      <figure class="dh-figure" role="figure" aria-labelledby="mech-title mech-desc">
+    <!-- LEFT CARD · Counsel.day Decision -->
+    <article class="product-card">
+      <div class="pc-kicker">DECISION TOOL</div>
+      <h2 class="pc-name">Counsel.day <span class="ital">Decision</span></h2>
+      <p class="pc-tagline">For the question one conversation cannot resolve.</p>
+      <ul class="pc-points">
+        <li>One private vote each evening · 7 to 90 days, you choose</li>
+        <li>Sealed votes · neither side sways the other</li>
+        <li>One verdict at the close · five-layer analysis · one conversation to follow</li>
+      </ul>
+      <div class="pc-price">From <strong>$9.99 USD</strong> per decision · first Solo decision <span style="color: var(--wine);">free</span></div>
+      <div class="pc-cta">
+        <a href="signup.html" class="btn btn-large">Start a decision</a>
+        <a href="#how" class="btn-text">See how it works</a>
+      </div>
+    </article>
+
+    <!-- RIGHT CARD · Counsel Journal -->
+    <article class="product-card">
+      <div class="pc-kicker" style="color: var(--wine);">REFLECTION JOURNAL</div>
+      <h2 class="pc-name">Counsel <span class="ital">Journal</span></h2>
+      <p class="pc-tagline">For the everyday signal of a season.</p>
+      <ul class="pc-points">
+        <li>One minute every evening · type or speak</li>
+        <li>Sealed for seven days · you can't re-read it</li>
+        <li>A verdict every Monday · what worked, what strained, one question for the week ahead</li>
+      </ul>
+      <div class="pc-price"><strong>Free forever</strong> · Pro adds a monthly themed verdict at $4.99 USD/month</div>
+      <div class="pc-cta">
+        <a href="daily.html" class="btn btn-large" style="background: var(--wine); color: var(--paper); border-color: var(--wine);">Start journalling</a>
+        <a href="#how" class="btn-text">See how it works</a>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- HOW EACH WORKS · the diagrams, moved out of the hero ·
+     opt-in scroll for visitors who want the visual proof. -->
+<section class="how-band" id="how">
+  <div class="how-inner">
+    <div class="how-eyebrow">HOW EACH WORKS</div>
+    <h2 class="how-title">A picture of <span class="ital">each.</span></h2>
+    <p class="how-lede">Both products work the same way at the database layer · sealed votes that you cannot re-read, opening on a fixed schedule with a verdict that reads the whole arc. The shape of the schedule is what differs.</p>
+
+    <div class="how-grid">
+      <figure class="how-figure">
+        <figcaption class="how-figcap"><strong>Decision</strong> · thirty sealed evenings · both verdicts open on day 30</figcaption>
+        <figure class="dh-figure" role="figure" aria-labelledby="mech-title mech-desc">
       <svg viewBox="0 0 1280 232" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="mech-title mech-desc" preserveAspectRatio="xMidYMid meet">
         <title id="mech-title">How the mechanism works</title>
         <desc id="mech-desc">Two horizontal lanes, one per partner. Each lane carries twenty-nine sealed daily-vote ticks coloured by which way the partner leaned that evening · forest green for yes-days, wine for no-days · so each lane shows a believable mix that sways day to day. The final day thirty tick is the partner's verdict tick, followed by a YES or NO badge and the verdict word in Newsreader. Partner A reaches YES with the word Go in forest green; Partner B reaches NO with the words Lean No in wine italic. Top labels read DAY 01 QUESTION POSED on the left and DAY 30 VERDICT REVEALS on the right.</desc>
@@ -1514,24 +1563,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <text x="640" y="220" text-anchor="middle" font-family="Geist Mono, ui-monospace, monospace" font-size="10" fill="#9b9286" letter-spacing="1.8">THIRTY SEALED EVENINGS  ·  NEITHER PARTNER SEES THE OTHER'S VOTE  ·  BOTH VERDICTS OPEN AT THE SAME INSTANT ON THE FINAL DAY</text>
       </svg>
     </figure>
+      </figure>
 
-      <p class="dh-body">Each evening, you cast one private vote on the question you have set, for the duration you have chosen. Your partner sees only that you voted; never which way. On the final day both verdicts open at the same instant, with a five-layer analysis of where you converged, where you diverged, and the single conversation that follows.</p>
-      <div class="dh-cta">
-        <a href="signup.html" class="btn btn-large">Start your first decision · free</a>
-        <a href="#mechanism" class="btn-text">See how it works</a>
-      </div>
-      <p class="dh-reassure"><strong>No card required</strong> · you set the duration · we hold you to it</p>
-    </article>
-
-    <div class="dual-hero-divider" aria-hidden="true"></div>
-
-    <!-- RIGHT PRODUCT · Counsel Journal -->
-    <article class="dual-hero-product">
-      <div class="dh-kicker">Product 02 · for the everyday signal</div>
-      <h1 class="dh-headline">Counsel <span class="ital">Journal.</span></h1>
-      <p class="dh-lede">A standalone reflection journal. One minute every evening, type or speak. Seven-day seal. A Monday verdict that reads what the week was about.</p>
-
-      <figure class="dh-figure" role="figure" aria-labelledby="journ-title journ-desc">
+      <figure class="how-figure">
+        <figcaption class="how-figcap"><strong>Journal</strong> · seven sealed evenings · Monday morning verdict reads the week</figcaption>
+        <figure class="dh-figure" role="figure" aria-labelledby="journ-title journ-desc">
         <svg viewBox="0 0 1280 232" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="journ-title journ-desc" preserveAspectRatio="xMidYMid meet">
           <title id="journ-title">How the Counsel Journal works</title>
           <desc id="journ-desc">One sealed evening entry per night for seven nights, then on Monday morning a verdict ships that reads the past week of unsealed entries together · three to five recurring positives, one or two strains, one paragraph throughline, one specific question for the week ahead.</desc>
@@ -1609,38 +1645,56 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <text x="640" y="220" text-anchor="middle" font-family="Geist Mono, ui-monospace, monospace" font-size="10" fill="#9b9286" letter-spacing="1.8">SEVEN SEALED EVENINGS  ·  NOT RE-READABLE UNTIL THEY UNSEAL  ·  MONDAY MORNING THE VERDICT READS THE WEEK</text>
         </svg>
       </figure>
+      </figure>
 
-      <p class="dh-body">Type or speak for thirty to a hundred-and-eighty seconds about today. The entry seals for seven days the moment you submit · you cannot re-read it. On Sunday evening the past week of unsealed entries becomes a Monday morning verdict: three to five things that kept working, one or two strains, one paragraph throughline, one specific question for the week ahead.</p>
-      <div class="dh-cta">
-        <a href="daily.html" class="btn btn-large" style="background: var(--wine); color: var(--paper); border-color: var(--wine);">Start journalling · free</a>
-        <a href="daily.html#about" class="btn-text">What it is</a>
-      </div>
-      <p class="dh-reassure"><strong>Free forever</strong> · core loop free · Pro adds the monthly themed verdict · $4.99 USD/month</p>
-    </article>
-
+    </div>
   </div>
 </section>
 <style>
-  .dual-hero { padding: 56px 32px 64px; background: var(--paper); border-bottom: 1px solid var(--rule); }
-  .dual-hero-inner { max-width: 1800px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr); gap: 44px; align-items: start; }
-  .dual-hero-divider { background: var(--rule); align-self: stretch; min-height: 200px; }
-  .dual-hero-product { min-width: 0; }
-  .dual-hero-product .dh-kicker { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine); margin-bottom: 14px; }
-  .dual-hero-product .dh-headline { font-family: var(--font-display); font-weight: 400; font-size: clamp(28px, 3.4vw, 44px); line-height: 1.06; letter-spacing: -0.018em; color: var(--ink); margin: 0 0 14px; }
-  .dual-hero-product .dh-headline .ital { font-style: italic; color: var(--wine); }
-  .dual-hero-product .dh-lede { font-family: var(--font-body); font-size: 17px; line-height: 1.5; color: var(--ink-soft); margin: 0 0 22px; max-width: 620px; }
-  .dual-hero-product .dh-figure { margin: 22px 0 24px; width: 100%; }
-  .dual-hero-product .dh-figure svg { width: 100%; height: auto; display: block; }
-  .dual-hero-product .dh-body { font-family: var(--font-body); font-size: 15px; line-height: 1.6; color: var(--ink); margin: 0 0 18px; max-width: 640px; }
-  .dual-hero-product .dh-cta { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-bottom: 10px; }
-  .dual-hero-product .dh-reassure { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; color: var(--muted); margin: 8px 0 0; }
-  .dual-hero-product .dh-reassure strong { color: var(--ink); font-weight: 600; }
-  @media (max-width: 1100px) {
-    .dual-hero-inner { grid-template-columns: 1fr; gap: 36px; }
-    .dual-hero-divider { display: none; }
-  }
-  @media (max-width: 600px) {
-    .dual-hero { padding: 40px 18px 48px; }
+  /* INTRO BAND · sets context in one paragraph */
+  .intro-band { padding: 56px 32px 24px; background: var(--paper); }
+  .intro-inner { max-width: 920px; margin: 0 auto; text-align: center; }
+  .intro-kicker { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--wine); margin-bottom: 18px; }
+  .intro-headline { font-family: var(--font-display); font-weight: 400; font-size: clamp(32px, 4.2vw, 52px); line-height: 1.05; letter-spacing: -0.018em; color: var(--ink); margin: 0 0 18px; }
+  .intro-headline .ital { font-style: italic; color: var(--wine); }
+  .intro-lede { font-family: var(--font-body); font-size: 17px; line-height: 1.55; color: var(--ink-soft); margin: 0 auto; max-width: 720px; }
+  .intro-lede strong { color: var(--ink); font-weight: 500; }
+
+  /* PRODUCT CARDS · two clean cards, equal weight */
+  .product-cards-band { padding: 32px 32px 64px; background: var(--paper); border-bottom: 1px solid var(--rule); }
+  .product-cards-inner { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
+  .product-card { border: 1px solid var(--ink); background: var(--paper); padding: 32px 32px 36px; display: flex; flex-direction: column; }
+  .product-card .pc-kicker { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink); margin-bottom: 14px; }
+  .product-card .pc-name { font-family: var(--font-display); font-weight: 400; font-size: clamp(28px, 3vw, 36px); line-height: 1.1; letter-spacing: -0.012em; color: var(--ink); margin: 0 0 10px; }
+  .product-card .pc-name .ital { font-style: italic; color: var(--wine); }
+  .product-card .pc-tagline { font-family: var(--font-body); font-style: italic; font-size: 17px; line-height: 1.4; color: var(--wine); margin: 0 0 18px; }
+  .product-card .pc-points { list-style: none; padding: 0; margin: 0 0 22px; }
+  .product-card .pc-points li { font-family: var(--font-body); font-size: 15px; line-height: 1.5; color: var(--ink); margin: 0 0 10px; padding-left: 18px; position: relative; }
+  .product-card .pc-points li::before { content: '·'; position: absolute; left: 0; top: 0; color: var(--wine); font-weight: 700; font-size: 18px; line-height: 1; }
+  .product-card .pc-price { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; color: var(--ink-soft); padding: 14px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); margin-bottom: 22px; }
+  .product-card .pc-price strong { color: var(--ink); font-weight: 600; }
+  .product-card .pc-cta { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: auto; }
+
+  /* HOW EACH WORKS · diagrams live here, opt-in scroll */
+  .how-band { padding: 64px 32px 72px; background: var(--paper-deep, #faf8f4); border-bottom: 1px solid var(--rule); }
+  .how-inner { max-width: 1280px; margin: 0 auto; }
+  .how-eyebrow { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine); margin-bottom: 14px; }
+  .how-title { font-family: var(--font-display); font-weight: 400; font-size: clamp(28px, 3vw, 38px); line-height: 1.12; letter-spacing: -0.012em; color: var(--ink); margin: 0 0 12px; }
+  .how-title .ital { font-style: italic; color: var(--wine); }
+  .how-lede { font-family: var(--font-body); font-size: 16px; line-height: 1.55; color: var(--ink-soft); margin: 0 0 36px; max-width: 760px; }
+  .how-grid { display: grid; grid-template-columns: 1fr; gap: 48px; }
+  .how-figure { margin: 0; }
+  .how-figcap { font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 12px; }
+  .how-figcap strong { color: var(--ink); font-weight: 600; }
+  .how-figure .dh-figure { margin: 0; }
+  .how-figure .dh-figure svg { width: 100%; height: auto; display: block; }
+
+  @media (max-width: 900px) {
+    .product-cards-inner { grid-template-columns: 1fr; gap: 18px; }
+    .product-card { padding: 26px 24px 30px; }
+    .intro-band { padding: 40px 20px 16px; }
+    .product-cards-band { padding: 24px 20px 48px; }
+    .how-band { padding: 48px 20px 56px; }
   }
 </style>
 

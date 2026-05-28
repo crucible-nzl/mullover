@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin &middot; CRM &middot; Counsel.day</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f7f9fc">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin-shell.css">
+<style>
+  .crm-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 22px; }
+  .crm-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 22px; }
+  .crm-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 22px; }
+  @media (max-width: 1100px) { .crm-grid-4 { grid-template-columns: repeat(2, 1fr); } .crm-grid-3 { grid-template-columns: 1fr; } .crm-grid-2 { grid-template-columns: 1fr; } }
+
+  .crm-card { background: var(--surface); border: 1px solid var(--border); padding: 16px 18px; }
+  .crm-card .lbl { font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; }
+  .crm-card .v { font-family: var(--font-ui); font-size: 26px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+  .crm-card .sub { font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); }
+  .crm-card .delta { font-family: var(--font-mono); font-size: 11px; padding: 2px 6px; margin-left: 8px; }
+  .crm-card .delta.up { background: #d1fae5; color: #047857; }
+  .crm-card .delta.down { background: #fee2e2; color: #c0392b; }
+  .crm-card.is-loading .v { color: var(--muted); }
+
+  .crm-section { background: var(--surface); border: 1px solid var(--border); padding: 18px 20px; margin-bottom: 18px; }
+  .crm-section h2 { margin: 0 0 6px; font-family: var(--font-ui); font-size: 16px; font-weight: 600; color: var(--ink); }
+  .crm-section .lede { font-family: var(--font-ui); font-size: 13px; color: var(--ink-soft); margin: 0 0 16px; line-height: 1.5; }
+
+  .funnel-row { display: grid; grid-template-columns: 1fr 80px 100px 80px; gap: 14px; padding: 10px 0; border-bottom: 1px dotted var(--rule); align-items: center; font-family: var(--font-mono); font-size: 12px; }
+  .funnel-row:last-child { border-bottom: none; }
+  .funnel-row .label { font-family: var(--font-ui); font-size: 14px; color: var(--ink); }
+  .funnel-row .count { color: var(--ink); font-weight: 600; text-align: right; }
+  .funnel-row .pct { color: var(--accent); text-align: right; }
+  .funnel-row .drop { color: var(--muted); text-align: right; }
+  .funnel-row.head { font-weight: 600; color: var(--muted); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; border-bottom: 1px solid var(--rule); padding-bottom: 8px; }
+
+  .contact-tbl { width: 100%; border-collapse: collapse; }
+  .contact-tbl th, .contact-tbl td { padding: 8px 10px; text-align: left; border-bottom: 1px dotted var(--rule); font-family: var(--font-ui); font-size: 13px; }
+  .contact-tbl th { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; }
+  .contact-tbl td.score { font-family: var(--font-mono); font-weight: 600; }
+  .contact-tbl td.score.hot { color: var(--wine, #722F37); }
+  .contact-tbl td.score.warm { color: #b45309; }
+  .contact-tbl td.score.cold { color: var(--muted); }
+
+  .cohort-tbl { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 11px; }
+  .cohort-tbl th, .cohort-tbl td { padding: 6px 8px; text-align: center; border: 1px solid var(--rule); }
+  .cohort-tbl th { background: var(--surface-2); color: var(--muted); }
+  .cohort-tbl td.heat-0 { background: var(--surface); color: var(--muted); }
+  .cohort-tbl td.heat-1 { background: #fef3c7; color: #92400e; }
+  .cohort-tbl td.heat-2 { background: #fed7aa; color: #9a3412; }
+  .cohort-tbl td.heat-3 { background: #fdba74; color: #7c2d12; }
+  .cohort-tbl td.heat-4 { background: var(--wine, #722F37); color: var(--paper); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">counsel<span class="tld">.day</span> &middot; admin</div>
+  <div class="meta">
+    <a href="/account.html">&larr; User-facing site</a>
+    <span id="adm-identity">&hellip;</span>
+    <a href="#" id="adm-logout">Log out</a>
+  </div>
+</div>
+<nav class="adm-subnav" aria-label="Admin sections">
+  <a href="/admin.html">Overview</a>
+  <a href="/admin-users.html">Users</a>
+  <a href="/admin-crm.html" class="active">CRM</a>
+  <a href="/admin-practitioners.html">Practitioners</a>
+  <a href="/admin-products.html">Products</a>
+  <a href="/admin-journal.html">Journal</a>
+  <a href="/admin-growth.html">Growth</a>
+  <a href="/admin-engagement.html">Engagement</a>
+  <a href="/admin-traffic.html">Traffic</a>
+  <a href="/admin-finance.html">Finance</a>
+  <a href="/admin-verdict-logs.html">Verdict logs</a>
+  <a href="/admin-audit-log.html">Audit log</a>
+  <a href="/admin-chatbot-queries.html">Chatbot</a>
+  <a href="/admin-prompt-editor.html">Prompts</a>
+  <a href="/admin-database.html">Database</a>
+  <a href="/admin-diagnostics.html">Diagnostics</a>
+  <a href="/admin-testing-area.html">Testing</a>
+</nav>
+
+<div class="shell">
+  <h1>CRM</h1>
+  <p class="lede">The customer-relationship view: contacts, the activation funnel, retention cohorts, MRR + LTV + churn, and a hot-lead inbox. Numbers re-compute on page load · click <em>Refresh</em> on any tile if you want it sooner.</p>
+
+  <!-- TOP-LINE KPIs -->
+  <h2 style="margin-top: 20px;">Top-line</h2>
+  <div class="crm-grid-4">
+    <div class="crm-card is-loading"><div class="lbl">Total contacts</div><div class="v" id="kpi-contacts">·</div><div class="sub" id="kpi-contacts-sub">all signed-in users + waitlist</div></div>
+    <div class="crm-card is-loading"><div class="lbl">Paying customers</div><div class="v" id="kpi-paying">·</div><div class="sub" id="kpi-paying-sub">at least one paid decision or active Pro sub</div></div>
+    <div class="crm-card is-loading"><div class="lbl">MRR</div><div class="v" id="kpi-mrr">·</div><div class="sub" id="kpi-mrr-sub">Journal Pro recurring revenue</div></div>
+    <div class="crm-card is-loading"><div class="lbl">LTV (rolling 90d)</div><div class="v" id="kpi-ltv">·</div><div class="sub" id="kpi-ltv-sub">avg revenue per paying contact</div></div>
+  </div>
+
+  <!-- ACTIVE USERS -->
+  <h2>Active users</h2>
+  <div class="crm-grid-3">
+    <div class="crm-card is-loading"><div class="lbl">DAU</div><div class="v" id="kpi-dau">·</div><div class="sub" id="kpi-dau-sub">daily active · sessions in the last 24h</div></div>
+    <div class="crm-card is-loading"><div class="lbl">WAU</div><div class="v" id="kpi-wau">·</div><div class="sub" id="kpi-wau-sub">weekly active · last 7 days</div></div>
+    <div class="crm-card is-loading"><div class="lbl">MAU</div><div class="v" id="kpi-mau">·</div><div class="sub" id="kpi-mau-sub">monthly active · last 30 days</div></div>
+  </div>
+
+  <!-- NEW SIGNUPS -->
+  <h2>New signups</h2>
+  <div class="crm-grid-3">
+    <div class="crm-card is-loading"><div class="lbl">Today</div><div class="v" id="kpi-signups-day">·</div><div class="sub">new accounts in the last 24h</div></div>
+    <div class="crm-card is-loading"><div class="lbl">Last 7 days</div><div class="v" id="kpi-signups-week">·</div><div class="sub">new accounts in the past week</div></div>
+    <div class="crm-card is-loading"><div class="lbl">Last 30 days</div><div class="v" id="kpi-signups-month">·</div><div class="sub">new accounts in the past month</div></div>
+  </div>
+
+  <!-- ACTIVATION FUNNEL -->
+  <h2>Activation funnel · last 30 days</h2>
+  <section class="crm-section">
+    <p class="lede">Where prospective customers drop off between signing up and becoming a paying user. Use the conversion column to find the weakest step.</p>
+    <div class="funnel-row head">
+      <div>Stage</div>
+      <div>Count</div>
+      <div>Conversion %</div>
+      <div>Drop-off</div>
+    </div>
+    <div id="funnel-rows"><div class="funnel-row"><div class="label">Loading funnel…</div><div></div><div></div><div></div></div></div>
+  </section>
+
+  <!-- HOT LEADS -->
+  <h2>Hot leads · signed up but not yet paid</h2>
+  <section class="crm-section">
+    <p class="lede">Recent free-tier users showing engagement signals (entries filed, decisions composed without payment, helper-bot queries). Score = sum of weighted activity in the last 14 days. Hot ≥ 8, Warm 4-7, Cold &lt; 4.</p>
+    <table class="contact-tbl" id="leads-tbl">
+      <thead><tr><th>Email</th><th>Signed up</th><th>Activity</th><th>Last seen</th><th>Score</th></tr></thead>
+      <tbody><tr><td colspan="5" style="text-align: center; color: var(--muted); font-style: italic; padding: 18px;">Loading leads…</td></tr></tbody>
+    </table>
+  </section>
+
+  <!-- RETENTION COHORTS -->
+  <h2>Retention cohorts · monthly</h2>
+  <section class="crm-section">
+    <p class="lede">Each row is the cohort of users who signed up in that month. Each column shows the % of that cohort that came back N months later (active = at least one session, decision compose, or Journal entry).</p>
+    <div style="overflow-x: auto;">
+      <table class="cohort-tbl" id="cohort-tbl">
+        <thead><tr id="cohort-head"><th>Cohort</th><th>Size</th><th>M0</th><th>M1</th><th>M2</th><th>M3</th><th>M4</th><th>M5</th></tr></thead>
+        <tbody><tr><td colspan="8" style="text-align: center; color: var(--muted); padding: 18px;">Loading cohorts…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- CHURN + ARPU -->
+  <h2>Churn + revenue per user</h2>
+  <div class="crm-grid-4">
+    <div class="crm-card is-loading"><div class="lbl">Logo churn (30d)</div><div class="v" id="kpi-churn">·</div><div class="sub" id="kpi-churn-sub">Pro subs cancelled / Pro subs active</div></div>
+    <div class="crm-card is-loading"><div class="lbl">Revenue churn (30d)</div><div class="v" id="kpi-rev-churn">·</div><div class="sub" id="kpi-rev-churn-sub">MRR cancelled / MRR active</div></div>
+    <div class="crm-card is-loading"><div class="lbl">ARPU</div><div class="v" id="kpi-arpu">·</div><div class="sub" id="kpi-arpu-sub">all-time revenue / paying contacts</div></div>
+    <div class="crm-card is-loading"><div class="lbl">Free → Paid rate</div><div class="v" id="kpi-conv-rate">·</div><div class="sub" id="kpi-conv-rate-sub">paying / total contacts</div></div>
+  </div>
+
+  <!-- SEGMENTS -->
+  <h2>Segments</h2>
+  <div class="crm-grid-2">
+    <section class="crm-section">
+      <h2 style="font-size: 14px; margin-bottom: 4px;">By product engagement</h2>
+      <p class="lede">Which slice of the user base is using which product.</p>
+      <ul style="list-style: none; padding: 0; margin: 0; font-family: var(--font-ui); font-size: 14px;">
+        <li style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dotted var(--rule);"><span>Decision-only users</span><strong id="seg-decision-only">·</strong></li>
+        <li style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dotted var(--rule);"><span>Journal-only users</span><strong id="seg-journal-only">·</strong></li>
+        <li style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dotted var(--rule);"><span>Both products</span><strong id="seg-both">·</strong></li>
+        <li style="display: flex; justify-content: space-between; padding: 6px 0;"><span>Inactive (no activity in 60d)</span><strong id="seg-inactive">·</strong></li>
+      </ul>
+    </section>
+    <section class="crm-section">
+      <h2 style="font-size: 14px; margin-bottom: 4px;">By acquisition channel</h2>
+      <p class="lede">Where contacts arrived from. Pulled from GA4 + the practitioner referral codes.</p>
+      <ul style="list-style: none; padding: 0; margin: 0; font-family: var(--font-ui); font-size: 14px;">
+        <li style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dotted var(--rule);"><span>Direct / organic search</span><strong id="acq-direct">·</strong></li>
+        <li style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dotted var(--rule);"><span>Practitioner referral</span><strong id="acq-practitioner">·</strong></li>
+        <li style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dotted var(--rule);"><span>Social / share link</span><strong id="acq-social">·</strong></li>
+        <li style="display: flex; justify-content: space-between; padding: 6px 0;"><span>Unknown</span><strong id="acq-unknown">·</strong></li>
+      </ul>
+    </section>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  fetch('/api/admin/me', { credentials: 'include' })
+    .then(function (r) { if (r.status === 401) { window.location.href = '/signin?next=/admin-crm.html'; return null; } return r.json(); })
+    .then(function (j) { if (j && j.email) document.getElementById('adm-identity').textContent = j.email + ' · admin'; });
+  document.getElementById('adm-logout').addEventListener('click', function (e) { e.preventDefault(); fetch('/api/signout', { method: 'POST', credentials: 'include' }).finally(function () { window.location.href = '/'; }); });
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+  function fmtMoney(usd) { return '$' + (usd || 0).toFixed(2) + ' USD'; }
+  function fmtPct(n) { return (n == null) ? '·' : (n.toFixed(1) + ' %'); }
+  function fmtDate(iso) { if (!iso) return ''; var d = new Date(iso); return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); }
+  function scoreClass(n) { if (n >= 8) return 'hot'; if (n >= 4) return 'warm'; return 'cold'; }
+
+  function setLoaded(id, value, sub) {
+    var el = $(id); if (!el) return;
+    el.textContent = (value == null) ? '·' : value;
+    el.parentElement.classList.remove('is-loading');
+    if (sub != null) { var s = $(id + '-sub'); if (s) s.textContent = sub; }
+  }
+
+  function renderFunnel(stages) {
+    var html = stages.map(function (s, i) {
+      var conv = s.from_top_pct != null ? s.from_top_pct.toFixed(1) + ' %' : '·';
+      var drop = (i > 0 && s.drop_pct != null) ? '-' + s.drop_pct.toFixed(1) + ' %' : '';
+      return '<div class="funnel-row">' +
+        '<div class="label">' + esc(s.label) + '</div>' +
+        '<div class="count">' + s.count + '</div>' +
+        '<div class="pct">' + conv + '</div>' +
+        '<div class="drop">' + drop + '</div>' +
+      '</div>';
+    }).join('');
+    document.getElementById('funnel-rows').innerHTML = html || '<div class="funnel-row"><div class="label">No data.</div><div></div><div></div><div></div></div>';
+  }
+
+  function renderLeads(leads) {
+    var tb = document.querySelector('#leads-tbl tbody');
+    if (!leads || leads.length === 0) {
+      tb.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--muted); font-style: italic; padding: 18px;">No hot leads right now.</td></tr>';
+      return;
+    }
+    tb.innerHTML = leads.map(function (l) {
+      return '<tr>' +
+        '<td>' + esc(l.email) + '</td>' +
+        '<td>' + esc(fmtDate(l.signed_up_at)) + '</td>' +
+        '<td style="font-family: var(--font-mono); font-size: 11px;">' + esc(l.activity || '·') + '</td>' +
+        '<td>' + esc(fmtDate(l.last_seen_at)) + '</td>' +
+        '<td class="score ' + scoreClass(l.score || 0) + '">' + (l.score || 0) + '</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  function renderCohorts(cohorts) {
+    var tb = document.querySelector('#cohort-tbl tbody');
+    if (!cohorts || cohorts.length === 0) {
+      tb.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--muted); padding: 18px;">No cohort data yet (pre-launch).</td></tr>';
+      return;
+    }
+    function heat(n) {
+      if (n == null) return 0;
+      if (n >= 50) return 4;
+      if (n >= 30) return 3;
+      if (n >= 15) return 2;
+      if (n >= 5) return 1;
+      return 0;
+    }
+    tb.innerHTML = cohorts.map(function (c) {
+      var cells = (c.retention_pct_by_month || [])
+        .slice(0, 6)
+        .map(function (p) { return '<td class="heat-' + heat(p) + '">' + (p == null ? '·' : p.toFixed(0) + '%') + '</td>'; })
+        .join('');
+      var pad = '<td class="heat-0">·</td>'.repeat(Math.max(0, 6 - (c.retention_pct_by_month || []).length));
+      return '<tr><td><strong>' + esc(c.cohort_month) + '</strong></td><td>' + c.size + '</td>' + cells + pad + '</tr>';
+    }).join('');
+  }
+
+  function load() {
+    fetch('/api/admin/crm', { credentials: 'include' })
+      .then(function (r) {
+        if (r.status === 401) { window.location.href = '/signin?next=/admin-crm.html'; throw new Error('auth'); }
+        if (r.status === 404) {
+          throw new Error('Admin CRM endpoint not yet configured · /api/admin/crm returns 404. Wire it up to enable live metrics.');
+        }
+        return r.json();
+      })
+      .then(function (d) {
+        if (!d || !d.ok) throw new Error(d && d.message || 'CRM endpoint returned an error.');
+        setLoaded('kpi-contacts', d.contacts.total);
+        setLoaded('kpi-paying', d.contacts.paying, d.contacts.paying + ' of ' + d.contacts.total + ' total contacts');
+        setLoaded('kpi-mrr', fmtMoney(d.revenue.mrr_usd));
+        setLoaded('kpi-ltv', fmtMoney(d.revenue.ltv_90d_usd));
+
+        setLoaded('kpi-dau', d.active.dau);
+        setLoaded('kpi-wau', d.active.wau);
+        setLoaded('kpi-mau', d.active.mau);
+
+        setLoaded('kpi-signups-day', d.signups.day);
+        setLoaded('kpi-signups-week', d.signups.week);
+        setLoaded('kpi-signups-month', d.signups.month);
+
+        renderFunnel(d.funnel || []);
+        renderLeads(d.hot_leads || []);
+        renderCohorts(d.cohorts || []);
+
+        setLoaded('kpi-churn', fmtPct(d.churn.logo_pct));
+        setLoaded('kpi-rev-churn', fmtPct(d.churn.revenue_pct));
+        setLoaded('kpi-arpu', fmtMoney(d.revenue.arpu_usd));
+        setLoaded('kpi-conv-rate', fmtPct(d.revenue.free_to_paid_pct));
+
+        $('seg-decision-only').textContent = d.segments.decision_only;
+        $('seg-journal-only').textContent  = d.segments.journal_only;
+        $('seg-both').textContent          = d.segments.both;
+        $('seg-inactive').textContent      = d.segments.inactive_60d;
+
+        $('acq-direct').textContent       = d.acquisition.direct;
+        $('acq-practitioner').textContent = d.acquisition.practitioner;
+        $('acq-social').textContent       = d.acquisition.social;
+        $('acq-unknown').textContent      = d.acquisition.unknown;
+      })
+      .catch(function (err) {
+        // When the endpoint isn't ready, show a clear hint on every
+        // tile so the operator knows what's missing.
+        ['kpi-contacts','kpi-paying','kpi-mrr','kpi-ltv','kpi-dau','kpi-wau','kpi-mau','kpi-signups-day','kpi-signups-week','kpi-signups-month','kpi-churn','kpi-rev-churn','kpi-arpu','kpi-conv-rate']
+          .forEach(function (id) {
+            var el = $(id); if (!el) return;
+            el.textContent = 'pending';
+            el.parentElement.classList.remove('is-loading');
+            el.style.color = 'var(--muted)';
+          });
+        document.getElementById('funnel-rows').innerHTML = '<div class="funnel-row"><div class="label" style="color: var(--wine, #722F37);">' + esc(err && err.message || 'CRM endpoint unavailable') + '</div><div></div><div></div><div></div></div>';
+        renderLeads([]);
+        renderCohorts([]);
+      });
+  }
+
+  load();
+})();
+</script>
+<script src="/admin-shell.js" defer></script>
+</body>
+</html>

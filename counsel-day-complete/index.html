@@ -1394,9 +1394,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
      scannable. -->
 <section class="intro-band">
   <div class="intro-inner">
-    <div class="intro-kicker">A SEALED-VOTE FAMILY OF TOOLS</div>
-    <h1 class="intro-headline">Two tools. Same idea. <span class="ital">Write today, look back later.</span></h1>
-    <p class="intro-lede">Counsel.day is a sealed-vote system for hard questions. The <strong>Decision</strong> tool helps you settle a joint decision over a season. The <strong>Journal</strong> gives you a Monday verdict on the week you actually lived. Same database, same observational voice, same trust at the layer underneath. Pick the one that fits the question.</p>
+    <div class="intro-kicker">TWO PRODUCTS · ONE SEALED-VOTE METHOD</div>
+    <h1 class="intro-headline">Decide slowly. <span class="ital">See the pattern.</span></h1>
+    <p class="intro-lede"><strong>Counsel.day Decision</strong> settles a hard joint question over a season of sealed votes. <strong>Counsel Journal</strong> reads your evenings back to you · weekly, then monthly. Pick the one that fits.</p>
   </div>
 </section>
 
@@ -1651,50 +1651,53 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </section>
 <style>
-  /* INTRO BAND · sets context in one paragraph */
-  .intro-band { padding: 56px 32px 24px; background: var(--paper); }
-  .intro-inner { max-width: 920px; margin: 0 auto; text-align: center; }
-  .intro-kicker { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--wine); margin-bottom: 18px; }
-  .intro-headline { font-family: var(--font-display); font-weight: 400; font-size: clamp(32px, 4.2vw, 52px); line-height: 1.05; letter-spacing: -0.018em; color: var(--ink); margin: 0 0 18px; }
+  /* INTRO BAND · tight · single line of headline, one-line lede, no
+     wasted vertical space so the product cards land above the fold on
+     a 1080p viewport. */
+  .intro-band { padding: 26px 28px 14px; background: var(--paper); }
+  .intro-inner { max-width: 1620px; margin: 0 auto; text-align: center; }
+  .intro-kicker { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--wine); margin-bottom: 10px; }
+  .intro-headline { font-family: var(--font-display); font-weight: 400; font-size: clamp(34px, 5.2vw, 76px); line-height: 1.02; letter-spacing: -0.02em; color: var(--ink); margin: 0 0 10px; }
   .intro-headline .ital { font-style: italic; color: var(--wine); }
-  .intro-lede { font-family: var(--font-body); font-size: 17px; line-height: 1.55; color: var(--ink-soft); margin: 0 auto; max-width: 720px; }
+  .intro-lede { font-family: var(--font-body); font-size: 17px; line-height: 1.45; color: var(--ink-soft); margin: 0 auto; max-width: 1080px; }
   .intro-lede strong { color: var(--ink); font-weight: 500; }
 
-  /* PRODUCT CARDS · two clean cards, equal weight */
-  .product-cards-band { padding: 32px 32px 64px; background: var(--paper); border-bottom: 1px solid var(--rule); }
-  .product-cards-inner { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
-  .product-card { border: 1px solid var(--ink); background: var(--paper); padding: 32px 32px 36px; display: flex; flex-direction: column; }
-  .product-card .pc-kicker { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink); margin-bottom: 14px; }
-  .product-card .pc-name { font-family: var(--font-display); font-weight: 400; font-size: clamp(28px, 3vw, 36px); line-height: 1.1; letter-spacing: -0.012em; color: var(--ink); margin: 0 0 10px; }
+  /* PRODUCT CARDS · two clean cards, equal weight · above the fold */
+  .product-cards-band { padding: 14px 28px 36px; background: var(--paper); border-bottom: 1px solid var(--rule); }
+  .product-cards-inner { max-width: 1620px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  .product-card { border: 1px solid var(--ink); background: var(--paper); padding: 24px 28px 28px; display: flex; flex-direction: column; }
+  .product-card .pc-kicker { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink); margin-bottom: 10px; }
+  .product-card .pc-name { font-family: var(--font-display); font-weight: 400; font-size: clamp(26px, 2.6vw, 34px); line-height: 1.05; letter-spacing: -0.012em; color: var(--ink); margin: 0 0 6px; }
   .product-card .pc-name .ital { font-style: italic; color: var(--wine); }
-  .product-card .pc-tagline { font-family: var(--font-body); font-style: italic; font-size: 17px; line-height: 1.4; color: var(--wine); margin: 0 0 18px; }
-  .product-card .pc-points { list-style: none; padding: 0; margin: 0 0 22px; }
-  .product-card .pc-points li { font-family: var(--font-body); font-size: 15px; line-height: 1.5; color: var(--ink); margin: 0 0 10px; padding-left: 18px; position: relative; }
-  .product-card .pc-points li::before { content: '·'; position: absolute; left: 0; top: 0; color: var(--wine); font-weight: 700; font-size: 18px; line-height: 1; }
-  .product-card .pc-price { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; color: var(--ink-soft); padding: 14px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); margin-bottom: 22px; }
+  .product-card .pc-tagline { font-family: var(--font-body); font-style: italic; font-size: 16px; line-height: 1.4; color: var(--wine); margin: 0 0 12px; }
+  .product-card .pc-points { list-style: none; padding: 0; margin: 0 0 14px; }
+  .product-card .pc-points li { font-family: var(--font-body); font-size: 14px; line-height: 1.5; color: var(--ink); margin: 0 0 6px; padding-left: 16px; position: relative; }
+  .product-card .pc-points li::before { content: '·'; position: absolute; left: 0; top: 0; color: var(--wine); font-weight: 700; font-size: 16px; line-height: 1; }
+  .product-card .pc-price { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.05em; color: var(--ink-soft); padding: 10px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); margin-bottom: 14px; }
   .product-card .pc-price strong { color: var(--ink); font-weight: 600; }
-  .product-card .pc-cta { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: auto; }
+  .product-card .pc-cta { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: auto; }
 
-  /* HOW EACH WORKS · diagrams live here, opt-in scroll */
-  .how-band { padding: 64px 32px 72px; background: var(--paper-deep, #faf8f4); border-bottom: 1px solid var(--rule); }
-  .how-inner { max-width: 1280px; margin: 0 auto; }
-  .how-eyebrow { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine); margin-bottom: 14px; }
-  .how-title { font-family: var(--font-display); font-weight: 400; font-size: clamp(28px, 3vw, 38px); line-height: 1.12; letter-spacing: -0.012em; color: var(--ink); margin: 0 0 12px; }
+  /* HOW EACH WORKS · big, easy to read, each diagram gets full width */
+  .how-band { padding: 64px 28px 80px; background: var(--paper-deep, #faf8f4); border-bottom: 1px solid var(--rule); }
+  .how-inner { max-width: 1620px; margin: 0 auto; }
+  .how-eyebrow { font-family: var(--font-mono); font-size: 13px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--wine); margin-bottom: 14px; text-align: center; }
+  .how-title { font-family: var(--font-display); font-weight: 400; font-size: clamp(32px, 4vw, 56px); line-height: 1.05; letter-spacing: -0.018em; color: var(--ink); margin: 0 0 14px; text-align: center; }
   .how-title .ital { font-style: italic; color: var(--wine); }
-  .how-lede { font-family: var(--font-body); font-size: 16px; line-height: 1.55; color: var(--ink-soft); margin: 0 0 36px; max-width: 760px; }
-  .how-grid { display: grid; grid-template-columns: 1fr; gap: 48px; }
-  .how-figure { margin: 0; }
-  .how-figcap { font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 12px; }
-  .how-figcap strong { color: var(--ink); font-weight: 600; }
+  .how-lede { font-family: var(--font-body); font-size: 17px; line-height: 1.55; color: var(--ink-soft); margin: 0 auto 56px; max-width: 880px; text-align: center; }
+  .how-grid { display: grid; grid-template-columns: 1fr; gap: 72px; }
+  .how-figure { margin: 0; padding: 36px 36px 40px; background: var(--paper); border: 1px solid var(--rule); }
+  .how-figcap { font-family: var(--font-mono); font-size: 13px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 18px; padding-bottom: 16px; border-bottom: 1px solid var(--rule); }
+  .how-figcap strong { color: var(--wine); font-weight: 700; }
   .how-figure .dh-figure { margin: 0; }
   .how-figure .dh-figure svg { width: 100%; height: auto; display: block; }
 
   @media (max-width: 900px) {
     .product-cards-inner { grid-template-columns: 1fr; gap: 18px; }
-    .product-card { padding: 26px 24px 30px; }
-    .intro-band { padding: 40px 20px 16px; }
-    .product-cards-band { padding: 24px 20px 48px; }
-    .how-band { padding: 48px 20px 56px; }
+    .product-card { padding: 22px 22px 26px; }
+    .intro-band { padding: 22px 18px 10px; }
+    .product-cards-band { padding: 10px 18px 36px; }
+    .how-band { padding: 48px 18px 56px; }
+    .how-figure { padding: 22px 18px 26px; }
   }
 </style>
 

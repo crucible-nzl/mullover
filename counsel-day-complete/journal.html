@@ -30,6 +30,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta property="article:modified_time" content="2026-05-25T19:00:00+12:00">
 <meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/og-image.png">
 <link rel="manifest" href="/manifest.webmanifest">
@@ -185,6 +186,53 @@
       @media (max-width: 900px) {
         .dc-mech { grid-template-columns: 1fr; gap: 12px; }
         .dc-mech-arrow { display: none; }
+      }
+    </style>
+
+    <!-- WHY PAY · the value-prop block. Distinct from the mechanism
+         band above. Answers "why should I pay $4.99 USD/month when other
+         journal apps are free?" Hidden on .is-signed-in (we set that
+         from JS when /api/me returns a user) so paying subscribers
+         aren't shown the pitch every time they open the page. -->
+    <section class="dc-why" id="dc-why-pay" aria-label="Why Counsel Journal">
+      <div class="dc-why-eyebrow">WHY COUNSEL JOURNAL · WHY PAY · WHY NOT THE FREE ONES</div>
+      <h2 class="dc-why-title">Other journal apps put the load on <span class="ital">you.</span></h2>
+      <p class="dc-why-lede">Streaks. Mood emoji. Daily prompts. Color-coded tags. Reminders. The free journal apps work hard to make you feel busy · they don't work to read your week back to you. Counsel Journal does one thing: <strong>you write the day · we read the pattern · weekly and monthly.</strong></p>
+      <div class="dc-why-grid">
+        <div class="dc-why-cell">
+          <div class="dc-why-num">01</div>
+          <h3 class="dc-why-h">An editorial verdict, not a chart.</h3>
+          <p>Every Monday morning, a verdict ships in a real human voice (Claude Opus 4.7) that names <strong>three to five things that kept working</strong>, one or two that strained, the throughline, and one specific question for the week ahead. Other apps give you a mood graph. We give you a paragraph.</p>
+        </div>
+        <div class="dc-why-cell">
+          <div class="dc-why-num">02</div>
+          <h3 class="dc-why-h">The seven-day seal.</h3>
+          <p>The moment you submit tonight's entry, it's sealed for seven days · you can't re-read it, you can't edit it. <strong>Future-you reads what tonight-you actually wrote</strong>, not what you wish you had. Re-reading is editing. The seal removes the option.</p>
+        </div>
+        <div class="dc-why-cell">
+          <div class="dc-why-num">03</div>
+          <h3 class="dc-why-h">Monthly themed verdict on Pro tier.</h3>
+          <p>On the first Monday of every month, a themed deep-read ships that reads the past four weekly verdicts together and names what the <strong>month was actually about</strong> · the shape of it, not the moments. This is the bit you don't get from any other journal app.</p>
+        </div>
+      </div>
+      <p class="dc-why-foot">$4.99 USD/month. Cancel any time from your account · keep access until the period ends.</p>
+    </section>
+    <style>
+      .dc-why { padding: 38px 0 30px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); margin: 36px 0 36px; }
+      .dc-why-eyebrow { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin-bottom: 12px; }
+      .dc-why-title { font-family: var(--font-display); font-weight: 400; font-size: clamp(26px, 3vw, 36px); line-height: 1.1; color: var(--ink); margin: 0 0 14px; letter-spacing: -0.014em; }
+      .dc-why-title .ital { font-style: italic; color: var(--wine); }
+      .dc-why-lede { font-family: var(--font-body); font-size: 17px; line-height: 1.55; color: var(--ink-soft); margin: 0 0 28px; max-width: 760px; }
+      .dc-why-lede strong { color: var(--ink); font-weight: 500; }
+      .dc-why-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 18px; }
+      .dc-why-cell { padding: 20px 22px; background: var(--paper); border: 1px solid var(--rule); display: flex; flex-direction: column; }
+      .dc-why-cell .dc-why-num { font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.18em; color: var(--wine); margin-bottom: 10px; }
+      .dc-why-cell .dc-why-h { font-family: var(--font-display); font-weight: 400; font-size: 19px; line-height: 1.15; color: var(--ink); margin: 0 0 10px; }
+      .dc-why-cell p { font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: var(--ink-soft); margin: 0; }
+      .dc-why-cell p strong { color: var(--ink); font-weight: 500; }
+      .dc-why-foot { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; color: var(--ink-soft); margin: 0; }
+      @media (max-width: 900px) {
+        .dc-why-grid { grid-template-columns: 1fr; }
       }
     </style>
 

@@ -185,6 +185,45 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     text-decoration: none; margin-top: 2px;
   }
   @media (max-width: 720px) { .faq-contact-panel .addresses { grid-template-columns: 1fr; } }
+
+  /* 09 · EXAMPLE-QUESTIONS CAROUSEL · default collapsed.
+     Three tabs (Solo · Couple · Family) over a numbered question list,
+     each row a link to /compose.html?question=… so the visitor can
+     lift the wording directly into the composer. */
+  .eq-row { display: flex; align-items: center; gap: 16px; margin-top: 18px; flex-wrap: wrap; }
+  .eq-toggle { font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; padding: 12px 18px; background: var(--wine); color: var(--paper); border: 1px solid var(--wine); cursor: pointer; border-radius: 0; min-height: 44px; display: inline-flex; align-items: center; gap: 8px; }
+  .eq-toggle:hover { background: var(--wine-deep, #5a242c); border-color: var(--wine-deep, #5a242c); }
+  .eq-toggle .eq-arrow { transition: transform 160ms; display: inline-block; }
+  .eq-toggle[aria-expanded="true"] .eq-arrow { transform: rotate(180deg); }
+  .eq-row-note { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; }
+
+  .eq-carousel { margin-top: 18px; border: 1px solid var(--ink); background: var(--paper); }
+  .eq-tabs { display: flex; border-bottom: 1px solid var(--ink); background: var(--paper-deep); }
+  .eq-tab { flex: 1; padding: 14px 18px; background: transparent; border: 0; border-right: 1px solid var(--rule); color: var(--ink-soft); font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; border-radius: 0; min-height: 48px; }
+  .eq-tab:last-child { border-right: 0; }
+  .eq-tab:hover { color: var(--ink); background: var(--paper); }
+  .eq-tab.is-active { background: var(--paper); color: var(--ink); border-bottom: 2px solid var(--wine); margin-bottom: -1px; }
+
+  .eq-pane { padding: 22px 26px 18px; }
+  .eq-pane-lead { font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: var(--ink-soft); margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px dashed var(--rule); }
+  .eq-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  .eq-list li { display: flex; align-items: baseline; gap: 12px; padding: 10px 4px; border-bottom: 1px dotted var(--rule); }
+  .eq-list li .n { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; color: var(--muted); flex-shrink: 0; min-width: 22px; }
+  .eq-list li a { font-family: var(--font-body); font-size: 15px; line-height: 1.45; color: var(--ink); text-decoration: none; border-bottom: 1px solid transparent; padding-bottom: 1px; }
+  .eq-list li a:hover { color: var(--wine); border-bottom-color: var(--wine); }
+  @media (max-width: 760px) {
+    .eq-list { grid-template-columns: 1fr; }
+    .eq-tab { font-size: 11px; padding: 12px 8px; letter-spacing: 0.08em; }
+    .eq-pane { padding: 18px 18px 14px; }
+  }
+
+  .eq-foot { padding: 18px 26px 22px; border-top: 1px solid var(--rule); background: var(--paper-deep); }
+  .eq-foot-note { font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: var(--ink-soft); margin: 0 0 12px; }
+  .eq-foot-note strong { color: var(--ink); font-weight: 500; font-family: var(--font-display); font-style: italic; }
+  .eq-foot-link { display: inline-block; font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--wine); border-bottom: 1px solid var(--wine); padding: 6px 0 4px; margin-right: 16px; text-decoration: none; min-height: 32px; }
+  .eq-foot-link:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  .eq-foot-close { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 8px 12px; background: transparent; border: 1px solid var(--rule); color: var(--ink-soft); cursor: pointer; border-radius: 0; min-height: 36px; }
+  .eq-foot-close:hover { color: var(--ink); border-color: var(--ink); }
 </style>
 </head>
 <body>
@@ -504,6 +543,157 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
     </section>
 
+    <!-- 09 · A HUNDRED REAL QUESTIONS · the example-questions carousel.
+         Default collapsed. Three tabs · Solo (25), Couple (50), Family (25).
+         Each question links to /compose.html?question=… so a visitor can
+         lift the wording verbatim. The compose page already accepts the
+         ?question= param and pre-fills the textarea. Linked to from
+         /welcome.html step 2 and /compose.html banner (TASK 2). -->
+    <section class="method-stage" id="example-questions" aria-labelledby="eq-title">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow"> 09 · WHAT PEOPLE USE COUNSEL.DAY FOR</div>
+        <h2 class="method-stage-title" id="eq-title">A hundred real questions, <span class="ital">grouped by who decides.</span></h2>
+        <p style="font-family: var(--font-body); font-size: 15px; line-height: 1.55; color: var(--ink-soft); margin: 8px 0 0; max-width: 820px;">25 solo, 50 couple, 25 family. Browse for permission to bring your own · or copy one as a starting point. Every question is editable in the composer before you file.</p>
+      </div>
+
+      <div class="eq-row">
+        <button type="button" id="eq-toggle" class="eq-toggle" aria-expanded="false" aria-controls="eq-carousel">View 100 example questions <span class="eq-arrow" aria-hidden="true">▾</span></button>
+        <span class="eq-row-note">Default hidden · click to expand</span>
+      </div>
+
+      <div class="eq-carousel" id="eq-carousel" hidden>
+        <div class="eq-tabs" role="tablist" aria-label="Question categories">
+          <button type="button" class="eq-tab is-active" role="tab" data-tab="solo" aria-selected="true">Solo · 25</button>
+          <button type="button" class="eq-tab" role="tab" data-tab="couple" aria-selected="false">Couple · 50</button>
+          <button type="button" class="eq-tab" role="tab" data-tab="family" aria-selected="false">Family · 25</button>
+        </div>
+
+        <div class="eq-pane" id="eq-pane-solo" role="tabpanel" data-pane="solo">
+          <div class="eq-pane-lead">A decision you make alone, on your terms. The seal protects future-you from being talked into a story by present-you.</div>
+          <ol class="eq-list">
+            <li><span class="n">01</span><a href="compose.html?question=Should%20I%20leave%20the%20job%20I%20have%20for%20the%20contract%20on%20the%20table%3F">Should I leave the job I have for the contract on the table?</a></li>
+            <li><span class="n">02</span><a href="compose.html?question=Should%20I%20take%20the%20promotion%20if%20it%20means%20moving%20city%3F">Should I take the promotion if it means moving city?</a></li>
+            <li><span class="n">03</span><a href="compose.html?question=Should%20I%20quit%20my%20job%20and%20write%20the%20book%3F">Should I quit my job and write the book?</a></li>
+            <li><span class="n">04</span><a href="compose.html?question=Should%20I%20go%20back%20to%20study%20this%20year%3F">Should I go back to study this year?</a></li>
+            <li><span class="n">05</span><a href="compose.html?question=Should%20I%20move%20to%20a%20new%20country%20for%20a%20year%3F">Should I move to a new country for a year?</a></li>
+            <li><span class="n">06</span><a href="compose.html?question=Should%20I%20stop%20drinking%20entirely%3F">Should I stop drinking entirely?</a></li>
+            <li><span class="n">07</span><a href="compose.html?question=Should%20I%20commit%20to%20weekly%20therapy%3F">Should I commit to weekly therapy?</a></li>
+            <li><span class="n">08</span><a href="compose.html?question=Should%20I%20sell%20the%20house%20and%20rent%3F">Should I sell the house and rent?</a></li>
+            <li><span class="n">09</span><a href="compose.html?question=Should%20I%20take%20the%20surgery%20the%20consultant%20recommended%3F">Should I take the surgery the consultant recommended?</a></li>
+            <li><span class="n">10</span><a href="compose.html?question=Should%20I%20take%20the%20medication%20the%20doctor%20has%20prescribed%3F">Should I take the medication the doctor has prescribed?</a></li>
+            <li><span class="n">11</span><a href="compose.html?question=Should%20I%20delete%20social%20media%20for%20the%20rest%20of%20the%20year%3F">Should I delete social media for the rest of the year?</a></li>
+            <li><span class="n">12</span><a href="compose.html?question=Should%20I%20take%20the%20freelance%20contract%20over%20the%20salary%20role%3F">Should I take the freelance contract over the salary role?</a></li>
+            <li><span class="n">13</span><a href="compose.html?question=Should%20I%20train%20for%20the%20half%20marathon%20next%20year%3F">Should I train for the half marathon next year?</a></li>
+            <li><span class="n">14</span><a href="compose.html?question=Should%20I%20move%20out%20of%20my%20parents%27%20home%20this%20year%3F">Should I move out of my parents' home this year?</a></li>
+            <li><span class="n">15</span><a href="compose.html?question=Should%20I%20leave%20the%20church%20I%20grew%20up%20in%3F">Should I leave the church I grew up in?</a></li>
+            <li><span class="n">16</span><a href="compose.html?question=Should%20I%20sell%20my%20car%20and%20live%20without%20one%3F">Should I sell my car and live without one?</a></li>
+            <li><span class="n">17</span><a href="compose.html?question=Should%20I%20tell%20the%20friend%20the%20difficult%20truth%3F">Should I tell the friend the difficult truth?</a></li>
+            <li><span class="n">18</span><a href="compose.html?question=Should%20I%20cut%20contact%20with%20the%20relative%20who%20hurt%20me%3F">Should I cut contact with the relative who hurt me?</a></li>
+            <li><span class="n">19</span><a href="compose.html?question=Should%20I%20take%20the%20year%20off%20to%20look%20after%20my%20parent%3F">Should I take the year off to look after my parent?</a></li>
+            <li><span class="n">20</span><a href="compose.html?question=Should%20I%20move%20my%20savings%20into%20the%20riskier%20portfolio%3F">Should I move my savings into the riskier portfolio?</a></li>
+            <li><span class="n">21</span><a href="compose.html?question=Should%20I%20freeze%20my%20eggs%20this%20year%3F">Should I freeze my eggs this year?</a></li>
+            <li><span class="n">22</span><a href="compose.html?question=Should%20I%20rent%20the%20studio%20for%20the%20creative%20practice%20I%20keep%20postponing%3F">Should I rent the studio for the creative practice I keep postponing?</a></li>
+            <li><span class="n">23</span><a href="compose.html?question=Should%20I%20take%20the%20long%20flight%20to%20see%20my%20estranged%20parent%20before%20they%20die%3F">Should I take the long flight to see my estranged parent before they die?</a></li>
+            <li><span class="n">24</span><a href="compose.html?question=Should%20I%20close%20the%20side%20business%20I%20have%20been%20carrying%20for%20two%20years%3F">Should I close the side business I have been carrying for two years?</a></li>
+            <li><span class="n">25</span><a href="compose.html?question=Should%20I%20sign%20the%20year%20gym%20contract%20instead%20of%20the%20monthly%20one%3F">Should I sign the year gym contract instead of the monthly one?</a></li>
+          </ol>
+        </div>
+
+        <div class="eq-pane" id="eq-pane-couple" role="tabpanel" data-pane="couple" hidden>
+          <div class="eq-pane-lead">A decision you and your partner are carrying together. Each of you votes privately every evening; the other never sees which way until reveal day.</div>
+          <ol class="eq-list">
+            <li><span class="n">01</span><a href="compose.html?tier=couple&question=Should%20we%20have%20a%20baby%20this%20year%3F">Should we have a baby this year?</a></li>
+            <li><span class="n">02</span><a href="compose.html?tier=couple&question=Should%20we%20try%20for%20a%20second%20child%3F">Should we try for a second child?</a></li>
+            <li><span class="n">03</span><a href="compose.html?tier=couple&question=Should%20we%20stop%20trying%20for%20a%20baby%3F">Should we stop trying for a baby?</a></li>
+            <li><span class="n">04</span><a href="compose.html?tier=couple&question=Should%20we%20try%20one%20more%20cycle%20of%20fertility%20treatment%3F">Should we try one more cycle of fertility treatment?</a></li>
+            <li><span class="n">05</span><a href="compose.html?tier=couple&question=Should%20we%20adopt%3F">Should we adopt?</a></li>
+            <li><span class="n">06</span><a href="compose.html?tier=couple&question=Should%20we%20take%20the%20surrogacy%20option%3F">Should we take the surrogacy option?</a></li>
+            <li><span class="n">07</span><a href="compose.html?tier=couple&question=Should%20we%20get%20married%3F">Should we get married?</a></li>
+            <li><span class="n">08</span><a href="compose.html?tier=couple&question=Should%20we%20sign%20the%20prenup%20their%20family%20is%20asking%20for%3F">Should we sign the prenup their family is asking for?</a></li>
+            <li><span class="n">09</span><a href="compose.html?tier=couple&question=Should%20we%20get%20a%20dog%20this%20year%3F">Should we get a dog this year?</a></li>
+            <li><span class="n">10</span><a href="compose.html?tier=couple&question=Should%20we%20get%20a%20second%20dog%3F">Should we get a second dog?</a></li>
+            <li><span class="n">11</span><a href="compose.html?tier=couple&question=Should%20we%20buy%20the%20house%20we%20put%20the%20offer%20on%3F">Should we buy the house we put the offer on?</a></li>
+            <li><span class="n">12</span><a href="compose.html?tier=couple&question=Should%20we%20sell%20the%20house%20and%20rent%3F">Should we sell the house and rent?</a></li>
+            <li><span class="n">13</span><a href="compose.html?tier=couple&question=Should%20we%20move%20closer%20to%20their%20parents%3F">Should we move closer to their parents?</a></li>
+            <li><span class="n">14</span><a href="compose.html?tier=couple&question=Should%20we%20move%20back%20to%20my%20home%20country%3F">Should we move back to my home country?</a></li>
+            <li><span class="n">15</span><a href="compose.html?tier=couple&question=Should%20we%20move%20overseas%20for%20the%20year%3F">Should we move overseas for the year?</a></li>
+            <li><span class="n">16</span><a href="compose.html?tier=couple&question=Should%20we%20renovate%20the%20kitchen%20or%20move%3F">Should we renovate the kitchen or move?</a></li>
+            <li><span class="n">17</span><a href="compose.html?tier=couple&question=Should%20we%20take%20on%20the%20investment%20property%3F">Should we take on the investment property?</a></li>
+            <li><span class="n">18</span><a href="compose.html?tier=couple&question=Should%20we%20co-sign%20the%20mortgage%20with%20my%20parents%3F">Should we co-sign the mortgage with my parents?</a></li>
+            <li><span class="n">19</span><a href="compose.html?tier=couple&question=Should%20we%20share%20finances%20fully%20from%20now%20on%3F">Should we share finances fully from now on?</a></li>
+            <li><span class="n">20</span><a href="compose.html?tier=couple&question=Should%20we%20keep%20our%20finances%20separate%3F">Should we keep our finances separate?</a></li>
+            <li><span class="n">21</span><a href="compose.html?tier=couple&question=Should%20we%20take%20the%20long-distance%20year%20for%20their%20job%3F">Should we take the long-distance year for their job?</a></li>
+            <li><span class="n">22</span><a href="compose.html?tier=couple&question=Should%20we%20both%20quit%20and%20travel%20for%20a%20year%3F">Should we both quit and travel for a year?</a></li>
+            <li><span class="n">23</span><a href="compose.html?tier=couple&question=Should%20we%20both%20take%20the%20sabbatical%20at%20the%20same%20time%3F">Should we both take the sabbatical at the same time?</a></li>
+            <li><span class="n">24</span><a href="compose.html?tier=couple&question=Should%20we%20start%20a%20business%20together%3F">Should we start a business together?</a></li>
+            <li><span class="n">25</span><a href="compose.html?tier=couple&question=Should%20we%20sell%20the%20business%20we%20built%20together%3F">Should we sell the business we built together?</a></li>
+            <li><span class="n">26</span><a href="compose.html?tier=couple&question=Should%20we%20put%20our%20child%20into%20the%20private%20school%3F">Should we put our child into the private school?</a></li>
+            <li><span class="n">27</span><a href="compose.html?tier=couple&question=Should%20we%20move%20our%20child%20to%20a%20different%20school%20next%20year%3F">Should we move our child to a different school next year?</a></li>
+            <li><span class="n">28</span><a href="compose.html?tier=couple&question=Should%20we%20let%20our%20teen%20take%20the%20gap%20year%3F">Should we let our teen take the gap year?</a></li>
+            <li><span class="n">29</span><a href="compose.html?tier=couple&question=Should%20we%20let%20our%20adult%20child%20move%20back%20in%3F">Should we let our adult child move back in?</a></li>
+            <li><span class="n">30</span><a href="compose.html?tier=couple&question=Should%20we%20lend%20my%20sibling%20the%20money%20they%20asked%20for%3F">Should we lend my sibling the money they asked for?</a></li>
+            <li><span class="n">31</span><a href="compose.html?tier=couple&question=Should%20we%20keep%20hosting%20Christmas%20at%20our%20house%3F">Should we keep hosting Christmas at our house?</a></li>
+            <li><span class="n">32</span><a href="compose.html?tier=couple&question=Should%20we%20say%20no%20to%20the%20family%20holiday%20this%20year%3F">Should we say no to the family holiday this year?</a></li>
+            <li><span class="n">33</span><a href="compose.html?tier=couple&question=Should%20we%20go%20to%20the%20wedding%20that%20clashes%20with%20our%20anniversary%3F">Should we go to the wedding that clashes with our anniversary?</a></li>
+            <li><span class="n">34</span><a href="compose.html?tier=couple&question=Should%20we%20go%20to%20couples%20therapy%3F">Should we go to couples therapy?</a></li>
+            <li><span class="n">35</span><a href="compose.html?tier=couple&question=Should%20we%20end%20couples%20therapy%3F">Should we end couples therapy?</a></li>
+            <li><span class="n">36</span><a href="compose.html?tier=couple&question=Should%20we%20open%20the%20relationship%3F">Should we open the relationship?</a></li>
+            <li><span class="n">37</span><a href="compose.html?tier=couple&question=Should%20we%20end%20this%20relationship%3F">Should we end this relationship?</a></li>
+            <li><span class="n">38</span><a href="compose.html?tier=couple&question=Should%20we%20file%20for%20divorce%3F">Should we file for divorce?</a></li>
+            <li><span class="n">39</span><a href="compose.html?tier=couple&question=Should%20we%20move%20my%20parent%20into%20our%20home%3F">Should we move my parent into our home?</a></li>
+            <li><span class="n">40</span><a href="compose.html?tier=couple&question=Should%20we%20put%20their%20parent%20into%20residential%20care%3F">Should we put their parent into residential care?</a></li>
+            <li><span class="n">41</span><a href="compose.html?tier=couple&question=Should%20we%20tell%20our%20parents%20we%20will%20not%20be%20having%20children%3F">Should we tell our parents we will not be having children?</a></li>
+            <li><span class="n">42</span><a href="compose.html?tier=couple&question=Should%20we%20tell%20the%20family%20we%20are%20leaving%20the%20religion%3F">Should we tell the family we are leaving the religion?</a></li>
+            <li><span class="n">43</span><a href="compose.html?tier=couple&question=Should%20we%20change%20our%20last%20name%20when%20we%20marry%3F">Should we change our last name when we marry?</a></li>
+            <li><span class="n">44</span><a href="compose.html?tier=couple&question=Should%20we%20agree%20on%20the%20same%20parenting%20approach%20this%20year%3F">Should we agree on the same parenting approach this year?</a></li>
+            <li><span class="n">45</span><a href="compose.html?tier=couple&question=Should%20we%20cut%20off%20the%20family%20member%20who%20keeps%20causing%20harm%3F">Should we cut off the family member who keeps causing harm?</a></li>
+            <li><span class="n">46</span><a href="compose.html?tier=couple&question=Should%20we%20accept%20the%20inheritance%20terms%20the%20family%20is%20offering%3F">Should we accept the inheritance terms the family is offering?</a></li>
+            <li><span class="n">47</span><a href="compose.html?tier=couple&question=Should%20we%20take%20the%20early%20retirement%20package%3F">Should we take the early retirement package?</a></li>
+            <li><span class="n">48</span><a href="compose.html?tier=couple&question=Should%20we%20delay%20the%20wedding%20by%20a%20year%3F">Should we delay the wedding by a year?</a></li>
+            <li><span class="n">49</span><a href="compose.html?tier=couple&question=Should%20we%20stop%20drinking%20together%3F">Should we stop drinking together?</a></li>
+            <li><span class="n">50</span><a href="compose.html?tier=couple&question=Should%20we%20stop%20hiding%20the%20relationship%20from%20the%20family%3F">Should we stop hiding the relationship from the family?</a></li>
+          </ol>
+        </div>
+
+        <div class="eq-pane" id="eq-pane-family" role="tabpanel" data-pane="family" hidden>
+          <div class="eq-pane-lead">A decision the whole household is carrying. Three to six participants vote each evening; everyone's votes stay sealed until the final day.</div>
+          <ol class="eq-list">
+            <li><span class="n">01</span><a href="compose.html?tier=family&question=Should%20we%20move%20to%20a%20different%20country%20as%20a%20family%3F">Should we move to a different country as a family?</a></li>
+            <li><span class="n">02</span><a href="compose.html?tier=family&question=Should%20we%20move%20to%20a%20new%20city%20for%20the%20school%20catchment%3F">Should we move to a new city for the school catchment?</a></li>
+            <li><span class="n">03</span><a href="compose.html?tier=family&question=Should%20we%20sell%20the%20family%20home%3F">Should we sell the family home?</a></li>
+            <li><span class="n">04</span><a href="compose.html?tier=family&question=Should%20we%20sell%20the%20holiday%20house%20we%20never%20use%3F">Should we sell the holiday house we never use?</a></li>
+            <li><span class="n">05</span><a href="compose.html?tier=family&question=Should%20we%20get%20a%20family%20dog%3F">Should we get a family dog?</a></li>
+            <li><span class="n">06</span><a href="compose.html?tier=family&question=Should%20we%20take%20the%20year%20off%20and%20travel%20as%20a%20family%3F">Should we take the year off and travel as a family?</a></li>
+            <li><span class="n">07</span><a href="compose.html?tier=family&question=Should%20we%20move%20the%20household%20to%20mostly%20plant-based%20meals%3F">Should we move the household to mostly plant-based meals?</a></li>
+            <li><span class="n">08</span><a href="compose.html?tier=family&question=Should%20we%20agree%20on%20a%20household%20screen-time%20rule%3F">Should we agree on a household screen-time rule?</a></li>
+            <li><span class="n">09</span><a href="compose.html?tier=family&question=Should%20we%20move%20grandma%20into%20our%20house%3F">Should we move grandma into our house?</a></li>
+            <li><span class="n">10</span><a href="compose.html?tier=family&question=Should%20we%20send%20our%20eldest%20to%20boarding%20school%3F">Should we send our eldest to boarding school?</a></li>
+            <li><span class="n">11</span><a href="compose.html?tier=family&question=Should%20we%20host%20the%20foreign%20exchange%20student%20this%20year%3F">Should we host the foreign exchange student this year?</a></li>
+            <li><span class="n">12</span><a href="compose.html?tier=family&question=Should%20we%20get%20a%20second%20car%20or%20share%20one%3F">Should we get a second car or share one?</a></li>
+            <li><span class="n">13</span><a href="compose.html?tier=family&question=Should%20we%20end%20the%20regular%20family%20holiday%20tradition%3F">Should we end the regular family holiday tradition?</a></li>
+            <li><span class="n">14</span><a href="compose.html?tier=family&question=Should%20we%20go%20to%20family%20therapy%20together%3F">Should we go to family therapy together?</a></li>
+            <li><span class="n">15</span><a href="compose.html?tier=family&question=Should%20we%20keep%20the%20family%20business%20going%20to%20the%20next%20generation%3F">Should we keep the family business going to the next generation?</a></li>
+            <li><span class="n">16</span><a href="compose.html?tier=family&question=Should%20we%20close%20the%20family%20business%3F">Should we close the family business?</a></li>
+            <li><span class="n">17</span><a href="compose.html?tier=family&question=Should%20we%20sell%20the%20family%20farm%3F">Should we sell the family farm?</a></li>
+            <li><span class="n">18</span><a href="compose.html?tier=family&question=Should%20we%20agree%20on%20the%20inheritance%20plan%20the%20parents%20have%20proposed%3F">Should we agree on the inheritance plan the parents have proposed?</a></li>
+            <li><span class="n">19</span><a href="compose.html?tier=family&question=Should%20we%20change%20schools%20for%20the%20younger%20siblings%3F">Should we change schools for the younger siblings?</a></li>
+            <li><span class="n">20</span><a href="compose.html?tier=family&question=Should%20we%20hold%20the%20big%20family%20birthday%20the%20eldest%20does%20not%20want%20to%20attend%3F">Should we hold the big family birthday the eldest does not want to attend?</a></li>
+            <li><span class="n">21</span><a href="compose.html?tier=family&question=Should%20we%20move%20Christmas%20to%20a%20different%20relative%27s%20house%3F">Should we move Christmas to a different relative's house?</a></li>
+            <li><span class="n">22</span><a href="compose.html?tier=family&question=Should%20we%20move%20our%20parent%20into%20residential%20care%3F">Should we move our parent into residential care?</a></li>
+            <li><span class="n">23</span><a href="compose.html?tier=family&question=Should%20we%20agree%20to%20be%20vegetarian%20as%20a%20household%3F">Should we agree to be vegetarian as a household?</a></li>
+            <li><span class="n">24</span><a href="compose.html?tier=family&question=Should%20we%20cancel%20the%20family%20WhatsApp%3F">Should we cancel the family WhatsApp?</a></li>
+            <li><span class="n">25</span><a href="compose.html?tier=family&question=Should%20we%20keep%20the%20family%20religion%20in%20the%20next%20generation%20or%20change%3F">Should we keep the family religion in the next generation or change?</a></li>
+          </ol>
+        </div>
+
+        <div class="eq-foot">
+          <p class="eq-foot-note"><strong>None of these fit yours?</strong> Write your own in the composer · the only rule is that it can be answered yes or no, lived with for the duration you set, and that more than one evening of you has something to say about it.</p>
+          <a href="compose.html" class="eq-foot-link">Write your own question in the composer →</a>
+          <button type="button" id="eq-toggle-close" class="eq-foot-close">Hide questions <span aria-hidden="true">▴</span></button>
+        </div>
+      </div>
+    </section>
+
     <div class="faq-contact-panel" id="faq-contact">
       <div class="label">Still have a question</div>
       <h3>Write to us, and we will <span class="ital">write back.</span></h3>
@@ -527,6 +717,85 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </div>
 </main>
+
+<script>
+// 09 · example-questions carousel · toggle expand + tab switching.
+// Default state is collapsed. When a URL hash points at #example-questions
+// or #eq-pane-* we auto-expand and scroll to the section so deep links
+// from /welcome and /compose land on an already-open carousel.
+(function () {
+  var toggle = document.getElementById('eq-toggle');
+  var carousel = document.getElementById('eq-carousel');
+  var closeBtn = document.getElementById('eq-toggle-close');
+  if (!toggle || !carousel) return;
+
+  function setOpen(open) {
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) carousel.removeAttribute('hidden');
+    else carousel.setAttribute('hidden', '');
+    // The button is "<text> <span.eq-arrow>▾</span>" · the text is the
+    // first child node, so swap that nodeValue to flip the label.
+    var labelNode = toggle.firstChild;
+    if (labelNode && labelNode.nodeType === 3) {
+      labelNode.nodeValue = open ? 'Hide 100 example questions ' : 'View 100 example questions ';
+    }
+  }
+  setOpen(false);
+
+  toggle.addEventListener('click', function () {
+    var open = toggle.getAttribute('aria-expanded') === 'true';
+    setOpen(!open);
+    if (!open) carousel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  if (closeBtn) {
+    closeBtn.addEventListener('click', function () {
+      setOpen(false);
+      toggle.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      toggle.focus();
+    });
+  }
+
+  // Tab switching · click a tab, hide siblings, show target.
+  var tabs = carousel.querySelectorAll('.eq-tab');
+  var panes = carousel.querySelectorAll('.eq-pane');
+  function activate(name) {
+    tabs.forEach(function (t) {
+      var on = t.getAttribute('data-tab') === name;
+      t.classList.toggle('is-active', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    panes.forEach(function (p) {
+      var on = p.getAttribute('data-pane') === name;
+      if (on) p.removeAttribute('hidden');
+      else p.setAttribute('hidden', '');
+    });
+  }
+  tabs.forEach(function (t) { t.addEventListener('click', function () { activate(t.getAttribute('data-tab')); }); });
+
+  // Deep-link · #example-questions opens collapsed view scrolled into
+  // place; #eq-pane-solo / -couple / -family open the carousel AND
+  // switch to that tab. Used by /welcome step 2 and /compose hint.
+  function handleHash() {
+    var h = window.location.hash;
+    if (!h) return;
+    if (h === '#example-questions') {
+      setOpen(true);
+      var sec = document.getElementById('example-questions');
+      if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+    var match = h.match(/^#eq-pane-(solo|couple|family)$/);
+    if (match) {
+      setOpen(true);
+      activate(match[1]);
+      var sec2 = document.getElementById('example-questions');
+      if (sec2) sec2.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+  handleHash();
+  window.addEventListener('hashchange', handleHash);
+})();
+</script>
 
 <footer class="colophon">
   <div class="colophon-inner">

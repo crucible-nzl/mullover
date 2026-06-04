@@ -30,7 +30,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   gtag('config', 'G-SX20BZZP59', { 'anonymize_ip': true, 'allow_google_signals': false, 'allow_ad_personalization_signals': false });
 </script>
 
-<title>Decisions insights &middot; Counsel.day</title>
+<title>Decisions insights · Counsel.day</title>
 <meta name="description" content="Patterns across all your unsealed Counsel.day decisions. Recurring themes, your decision vocabulary, and the trajectory of decisions you have already made.">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#ffffff">
@@ -126,7 +126,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <main id="main-content">
   <header class="di-head">
     <div class="di-head-inner">
-      <div class="di-eyebrow">File &middot; Multi-decision dashboard</div>
+      <div class="di-eyebrow">File · Multi-decision dashboard</div>
       <h1 class="di-title">Patterns across the decisions you have already <span class="ital">made.</span></h1>
       <p class="di-lede">Once you have two or more sealed records, the recurring themes and the words you keep returning to appear here. Patterns become visible at scale, not in a single decision.</p>
     </div>
@@ -137,19 +137,19 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <div id="di-content" style="display: none;">
 
       <section class="di-panel">
-        <div class="di-panel-eyebrow">File &middot; Decisions</div>
+        <div class="di-panel-eyebrow">File · Decisions</div>
         <h2 class="di-panel-title">Every unsealed record on your account.</h2>
         <div class="di-decision-grid" id="di-decisions"></div>
       </section>
 
       <section class="di-panel" id="di-themes-panel">
-        <div class="di-panel-eyebrow">File &middot; Recurring themes</div>
+        <div class="di-panel-eyebrow">File · Recurring themes</div>
         <h2 class="di-panel-title">Themes that appear in more than one decision.</h2>
         <div id="di-themes"></div>
       </section>
 
       <section class="di-panel" id="di-vocab-panel">
-        <div class="di-panel-eyebrow">File &middot; Decision vocabulary</div>
+        <div class="di-panel-eyebrow">File · Decision vocabulary</div>
         <h2 class="di-panel-title">The words you tend to use across all your records.</h2>
         <div class="di-vocab-fp" id="di-vocab"></div>
       </section>
@@ -205,7 +205,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       </div>
     </div>
     <div class="colophon-bottom">
-      <div>&copy; 2026 Counsel.day &middot; USD pricing worldwide</div>
+      <div>&copy; 2026 Counsel.day · USD pricing worldwide</div>
     </div>
   </div>
 </footer>
@@ -240,9 +240,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       // Decisions list
       var grid = document.getElementById('di-decisions');
       grid.innerHTML = (d.decisions || []).map(function (dec) {
-        var themes = (dec.top_themes || []).map(function (t) { return escapeHtml(t.name); }).join(' &middot; ');
+        var themes = (dec.top_themes || []).map(function (t) { return escapeHtml(t.name); }).join(' · ');
         return '<div class="di-decision">' +
-                 '<div class="meta">' + escapeHtml(dec.tier) + ' &middot; opened ' + escapeHtml(fmtDate(dec.unseals_at)) + '</div>' +
+                 '<div class="meta">' + escapeHtml(dec.tier) + ' · opened ' + escapeHtml(fmtDate(dec.unseals_at)) + '</div>' +
                  '<p class="q">' + escapeHtml(dec.question) + '</p>' +
                  (dec.synthesis_preview ? '<p class="prev">' + escapeHtml(dec.synthesis_preview) + '</p>' : '') +
                  (themes ? '<p class="themes">' + themes + '</p>' : '') +

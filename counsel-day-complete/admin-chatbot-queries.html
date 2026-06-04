@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Admin &middot; Chatbot queries &middot; Counsel.day</title>
+<title>Admin · Chatbot queries · Counsel.day</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#f7f9fc">
 <link rel="icon" href="/favicon.ico" sizes="any">
@@ -42,7 +42,7 @@
 <body>
 
 <div class="topbar">
-  <div class="brand">counsel<span class="tld">.day</span> &middot; admin</div>
+  <div class="brand">counsel<span class="tld">.day</span> · admin</div>
   <div class="meta">
     <a href="/account.html">&larr; User-facing site</a>
     <span id="adm-identity">&hellip;</span>
@@ -74,10 +74,10 @@
   <div id="adm-error" class="status-banner is-error" style="display:none;"></div>
 
   <div class="grid-4">
-    <div class="card"><div class="label">Total turns</div><div class="value" id="m-total">&middot;</div><div class="sub">all-time</div></div>
-    <div class="card"><div class="label">Last 7 days</div><div class="value" id="m-7d">&middot;</div><div class="sub" id="m-7d-sub">recent volume</div></div>
-    <div class="card"><div class="label">Escalation rate</div><div class="value" id="m-esc-rate">&middot;</div><div class="sub" id="m-esc-sub">KB-gap signal</div></div>
-    <div class="card"><div class="label">Avg tokens / turn</div><div class="value" id="m-avg-tok">&middot;</div><div class="sub">prompt + reply</div></div>
+    <div class="card"><div class="label">Total turns</div><div class="value" id="m-total">·</div><div class="sub">all-time</div></div>
+    <div class="card"><div class="label">Last 7 days</div><div class="value" id="m-7d">·</div><div class="sub" id="m-7d-sub">recent volume</div></div>
+    <div class="card"><div class="label">Escalation rate</div><div class="value" id="m-esc-rate">·</div><div class="sub" id="m-esc-sub">KB-gap signal</div></div>
+    <div class="card"><div class="label">Avg tokens / turn</div><div class="value" id="m-avg-tok">·</div><div class="sub">prompt + reply</div></div>
   </div>
 
   <div class="cq-controls">
@@ -100,7 +100,7 @@
       <thead>
         <tr>
           <th>When</th>
-          <th>Question &middot; Reply</th>
+          <th>Question · Reply</th>
         </tr>
       </thead>
       <tbody id="cq-tbody">
@@ -152,8 +152,8 @@
         '<div class="q">' + escapeHtml(r.question) + '</div>' +
         '<div class="r">' + escapeHtml(r.reply) + '</div>' +
         '<div class="meta">' +
-          (r.escalated ? '<span class="escalated">ESCALATED &middot; </span>' : '') +
-          (r.tokensInput + r.tokensOutput) + ' tokens &middot; ' + r.durationMs + 'ms' +
+          (r.escalated ? '<span class="escalated">ESCALATED · </span>' : '') +
+          (r.tokensInput + r.tokensOutput) + ' tokens · ' + r.durationMs + 'ms' +
         '</div>' +
       '</td>' +
     '</tr>';

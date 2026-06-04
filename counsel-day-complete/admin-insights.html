@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Admin &middot; Insights &middot; Counsel.day</title>
+<title>Admin · Insights · Counsel.day</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#f7f9fc">
 <link rel="icon" href="/favicon.ico" sizes="any">
@@ -45,7 +45,7 @@
 <body>
 
 <div class="topbar">
-  <div class="brand">counsel<span class="tld">.day</span> &middot; admin</div>
+  <div class="brand">counsel<span class="tld">.day</span> · admin</div>
   <div class="meta">
     <a href="/account.html">&larr; User-facing site</a>
     <span id="adm-identity">&hellip;</span>
@@ -140,7 +140,7 @@
         var next = c[stages[i + 1].id] || 0;
         var conv = pct(next, n);
         var drop = n - next;
-        html += '<div class="ins-funnel-drop">&darr; ' + conv + '% advance &middot; ' + fmtNum(drop) + ' drop off</div>';
+        html += '<div class="ins-funnel-drop">&darr; ' + conv + '% advance · ' + fmtNum(drop) + ' drop off</div>';
       }
     });
     host.innerHTML = html;
@@ -201,7 +201,7 @@
     months.forEach(function (cm) {
       var size = sizeMap[cm] || 0;
       var label = cm.slice(0, 7); // YYYY-MM
-      html += '<div class="row"><span class="row-label">' + label + ' &middot; ' + size + '</span>';
+      html += '<div class="row"><span class="row-label">' + label + ' · ' + size + '</span>';
       for (var m = 0; m < maxMonths; m++) {
         var v = (activityMap[cm] && activityMap[cm][m]) || 0;
         var ret = size > 0 ? v / size : 0;

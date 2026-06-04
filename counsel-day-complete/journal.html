@@ -141,15 +141,17 @@
       <h1>Record your evening. <span class="ital">See the pattern.</span></h1>
       <p class="sub">Type or <strong>speak</strong> for thirty to a hundred-and-eighty seconds each evening. We seal it for seven days · you cannot re-read it. Every Monday morning a verdict reads the week. Every first Monday of the month, a themed verdict reads the four weeks together.</p>
       <div class="dc-hero-cta">
-        <a href="#dc-compose-block" class="dc-hero-btn">Start tonight's entry ↓</a>
-        <span class="dc-hero-meta">$4.99 USD/month · cancel any time</span>
+        <a href="#dc-compose-block" id="dc-hero-start" class="dc-hero-btn">Start tonight's entry ↓</a>
+        <span class="dc-hero-meta" id="dc-hero-meta">$4.99 USD/month · cancel any time</span>
       </div>
     </div>
 
     <!-- THREE-STEP MECHANISM · the USP at a glance · tonight, Monday,
          first Monday of the month. Each step labelled with what you do
-         and what you get back. -->
-    <section class="dc-mech" id="about" aria-label="How Counsel Journal works">
+         and what you get back.
+         JS collapses this into an accordion summary for active
+         subscribers · they've already read the pitch. -->
+    <section class="dc-mech" id="about" data-collapse-for-sub aria-label="How Counsel Journal works">
       <div class="dc-mech-step">
         <div class="dc-mech-num">01 · TONIGHT</div>
         <h3 class="dc-mech-h">Record the day.</h3>
@@ -175,6 +177,39 @@
       .dc-hero-btn:hover { background: var(--wine-deep); }
       .dc-hero-meta { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; color: var(--muted); }
 
+      /* TASK 2 · Recent-entries strip + vault link. Mirrors the
+         /vault.html row pattern in miniature so a user lands on
+         /journal.html, sees the entries they've filed, and can either
+         file again here or click through to the full vault for
+         playback + search. */
+      .dc-entries { padding: 28px 0 18px; }
+      .dc-vault-link, .dc-vault-link-foot { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--wine); border-bottom: 1px solid var(--wine); padding-bottom: 1px; text-decoration: none; }
+      .dc-vault-link:hover, .dc-vault-link-foot:hover { color: var(--ink); border-bottom-color: var(--ink); }
+      .dc-entries-list { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+      .dc-entry-row { display: grid; grid-template-columns: 120px 1fr 110px; gap: 16px; align-items: center; padding: 12px 16px; border: 1px solid var(--rule); background: var(--paper); }
+      .dc-entry-row.is-sealed { border-color: var(--wine); background: linear-gradient(0deg, var(--paper-deep) 0%, var(--paper) 100%); }
+      .dc-entry-row .e-date { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--wine); }
+      .dc-entry-row .e-snippet { font-family: var(--font-body); font-size: 14px; line-height: 1.5; color: var(--ink); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+      .dc-entry-row.is-sealed .e-snippet { color: var(--ink-soft); font-style: italic; }
+      .dc-entry-row .e-status { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); text-align: right; }
+      .dc-entry-row.is-sealed .e-status { color: var(--wine); }
+      .dc-entries-foot { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--rule); text-align: right; }
+      @media (max-width: 700px) {
+        .dc-entry-row { grid-template-columns: 90px 1fr; }
+        .dc-entry-row .e-status { display: none; }
+      }
+
+      /* TASK 5 · Subscriber-collapsed sections. The summary button
+         replaces the section's visible content with a single clickable
+         row; clicking expands the original content (matched by .is-open). */
+      .cd-sub-collapsed > *:not(.cd-sub-collapsed-summary) { display: none; }
+      .cd-sub-collapsed.is-open > * { display: block; }
+      .cd-sub-collapsed.is-open .cd-sub-collapsed-arrow { transform: rotate(90deg); }
+      .cd-sub-collapsed-summary { width: 100%; display: flex; align-items: center; gap: 10px; padding: 14px 18px; background: var(--paper-deep); border: 1px solid var(--rule); cursor: pointer; font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); text-align: left; border-radius: 0; }
+      .cd-sub-collapsed-summary:hover { border-color: var(--ink); color: var(--ink); }
+      .cd-sub-collapsed-arrow { font-family: var(--font-mono); font-size: 14px; color: var(--wine); transition: transform 120ms; display: inline-block; }
+      .cd-sub-collapsed-hint { margin-left: auto; font-size: 10px; letter-spacing: 0.08em; color: var(--muted); font-weight: 400; }
+
       .dc-mech { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 18px; align-items: stretch; margin: 0 0 40px; }
       .dc-mech-step { padding: 22px 22px 24px; background: var(--paper); border: 1px solid var(--ink); display: flex; flex-direction: column; }
       .dc-mech-num { font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin-bottom: 10px; }
@@ -191,10 +226,9 @@
 
     <!-- WHY PAY · the value-prop block. Distinct from the mechanism
          band above. Answers "why should I pay $4.99 USD/month when other
-         journal apps are free?" Hidden on .is-signed-in (we set that
-         from JS when /api/me returns a user) so paying subscribers
-         aren't shown the pitch every time they open the page. -->
-    <section class="dc-why" id="dc-why-pay" aria-label="Why Counsel Journal">
+         journal apps are free?" data-collapse-for-sub tells the JS to
+         turn this into a one-line accordion summary for paying users. -->
+    <section class="dc-why" id="dc-why-pay" data-collapse-for-sub aria-label="Why Counsel Journal">
       <div class="dc-why-eyebrow">WHY COUNSEL JOURNAL · WHY PAY · WHY NOT THE FREE ONES</div>
       <h2 class="dc-why-title">Other journal apps put the load on <span class="ital">you.</span></h2>
       <p class="dc-why-lede">Streaks. Mood emoji. Daily prompts. Color-coded tags. Reminders. The free journal apps work hard to make you feel busy · they don't work to read your week back to you. Counsel Journal does one thing: <strong>you write the day · we read the pattern · weekly and monthly.</strong></p>
@@ -243,6 +277,23 @@
       <div id="dc-sealed-text">You filed tonight's entry. It opens for you on <strong id="dc-sealed-when">…</strong>.</div>
     </div>
 
+    <!-- TASK 6 · ADDITIONAL ENTRY · hidden by default. Shown when a user
+         with an already-sealed entry clicks the hero "add another" button.
+         Files via the same /api/daily POST as the primary composer with
+         an additional=true flag the API can use to bypass the
+         one-entry-per-day uniqueness check. -->
+    <section class="dc-compose" id="dc-additional-block" style="display: none;">
+      <div class="lbl">ADD ANOTHER ENTRY · <span id="dc-additional-date">…</span></div>
+      <h2>Something else <span class="ital">you want to add?</span></h2>
+      <p style="font-family: var(--font-body); font-size: 14px; line-height: 1.5; color: var(--ink-soft); margin: 0 0 12px;">You've already filed tonight's primary entry · it's sealed and the weekly verdict will read it on the next Monday. If something else came up after, you can add a second entry below. It seals on the same seven-day timer as the first and feeds into the same verdict.</p>
+      <textarea id="dc-additional-text" placeholder="A second short entry · what came up since you filed the first." maxlength="4000" aria-label="Additional reflection"></textarea>
+      <div class="meta-row">
+        <span class="count"><span id="dc-additional-count">0</span> / 4000 chars</span>
+        <span class="seal-note">Sealed for 7 days the moment you submit · same as the primary entry.</span>
+        <button type="button" class="submit" id="dc-additional-submit">Seal additional entry</button>
+      </div>
+    </section>
+
     <section class="dc-compose" id="dc-compose-block">
       <div class="lbl">TONIGHT · <span id="dc-today-date">…</span></div>
       <h2>How was <span class="ital">today?</span></h2>
@@ -258,6 +309,24 @@
         <span class="count"><span id="dc-count">0</span> / 4000 chars</span>
         <span class="seal-note">Sealed for 7 days the moment you submit. No re-reading.</span>
         <button type="button" class="submit" id="dc-submit">Seal tonight's entry</button>
+      </div>
+    </section>
+
+    <!-- TASK 2 · YOUR RECENT ENTRIES · render the user's own vault rows
+         inline on this page (the same shape /decisions uses to show all
+         decisions on the dashboard). Sealed entries appear as locked
+         rows; opened entries show the date + first line. Hidden until
+         /api/journal/vault returns at least one entry. The full
+         management UI (player, transcript, filters, search) stays at
+         /vault.html · this is the at-a-glance strip. -->
+    <section class="dc-entries" id="dc-entries-block" style="display: none;" aria-label="Your recent journal entries">
+      <div class="dc-section-label" style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+        <span>YOUR RECENT ENTRIES</span>
+        <a href="/vault.html" class="dc-vault-link">Open the full vault →</a>
+      </div>
+      <div id="dc-entries-list" class="dc-entries-list"></div>
+      <div class="dc-entries-foot">
+        <a href="/vault.html" class="dc-vault-link-foot">See every entry · search · play back unsealed audio →</a>
       </div>
     </section>
 
@@ -401,6 +470,51 @@
     countEl.textContent = textEl.value.length;
   });
 
+  // TASK 6 · Additional-entry composer · character counter + submit.
+  // Posts to /api/daily with an `additional: true` flag the API can
+  // treat as a second entry for the same date (bypassing the unique
+  // (user_id, entry_date) check). The server-side handler also needs
+  // updating · see /api/daily POST.
+  var addText = document.getElementById('dc-additional-text');
+  var addCount = document.getElementById('dc-additional-count');
+  var addSubmit = document.getElementById('dc-additional-submit');
+  var addDateLbl = document.getElementById('dc-additional-date');
+  if (addText && addCount) {
+    addText.addEventListener('input', function () { addCount.textContent = addText.value.length; });
+  }
+  if (addDateLbl) addDateLbl.textContent = fmtLongDate(new Date().toISOString().slice(0, 10)).toUpperCase();
+  if (addSubmit) {
+    addSubmit.addEventListener('click', function () {
+      var text = (addText && addText.value || '').trim();
+      if (text.length < 1) { showMsg('err', 'Write at least one sentence.'); return; }
+      if (text.length > 4000) { showMsg('err', 'Keep the additional entry under 4000 characters.'); return; }
+      addSubmit.disabled = true;
+      addSubmit.textContent = 'Sealing…';
+      fetch('/api/daily', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ text_content: text, additional: true }),
+      })
+        .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+        .then(function (res) {
+          if (res.status === 201 || res.status === 200) {
+            showMsg('ok', res.body.message || 'Additional entry sealed.');
+            addText.value = '';
+            addCount.textContent = '0';
+            // Reload so the entries list / verdicts pick up the new row
+            load();
+          } else if (res.status === 401) {
+            window.location.href = '/signin?next=/journal.html';
+          } else {
+            showMsg('err', (res.body && res.body.message) || 'Could not file the additional entry.');
+          }
+        })
+        .catch(function () { showMsg('err', 'Network error. Try again in a moment.'); })
+        .finally(function () { addSubmit.disabled = false; addSubmit.textContent = 'Seal additional entry'; });
+    });
+  }
+
   // Submit
   submitBtn.addEventListener('click', function () {
     var text = textEl.value.trim();
@@ -434,6 +548,34 @@
       .catch(function () { showMsg('err', 'Network error. Try again in a moment.'); })
       .finally(function () { submitBtn.disabled = false; submitBtn.textContent = 'Seal tonight\'s entry'; });
   });
+
+  // TASK 2 · render the user's last 5 vault entries inline below the
+  // composer. Sealed entries show as locked rows with the opens-date.
+  function renderEntriesStrip(entries) {
+    var block = document.getElementById('dc-entries-block');
+    var list = document.getElementById('dc-entries-list');
+    if (!block || !list) return;
+    if (!entries || entries.length === 0) { block.style.display = 'none'; return; }
+    var top = entries.slice(0, 5);
+    list.innerHTML = top.map(function (e) {
+      var sealed = e.is_sealed === true;
+      if (sealed) {
+        var opens = e.unseals_at ? fmtLongDate(e.unseals_at.slice(0, 10)) : '…';
+        return '<div class="dc-entry-row is-sealed">' +
+          '<div class="e-date">' + escapeHtml(fmtLongDate(e.entry_date)) + '</div>' +
+          '<div class="e-snippet">Filed and saved · sealed until ' + escapeHtml(opens) + '. Your recording is in the vault.</div>' +
+          '<div class="e-status">Sealed</div>' +
+        '</div>';
+      }
+      var snippet = (e.text_content || e.transcript || '').slice(0, 200);
+      return '<div class="dc-entry-row">' +
+        '<div class="e-date">' + escapeHtml(fmtLongDate(e.entry_date)) + '</div>' +
+        '<div class="e-snippet">' + escapeHtml(snippet) + (snippet.length === 200 ? '…' : '') + '</div>' +
+        '<div class="e-status">Unsealed</div>' +
+      '</div>';
+    }).join('');
+    block.style.display = 'block';
+  }
 
   function renderVerdicts(verdicts) {
     // Specimens · shown only while the user has zero real verdicts.
@@ -552,11 +694,17 @@
       // and the user's decisions list · one fetch, two pieces of data.
       fetch('/api/me', { credentials: 'include' })
         .then(function (r) { return r.json().catch(function () { return { ok: true, user: {}, decisions: [] }; }); }),
+      // TASK 2 · fetch the vault so we can render the recent-entries
+      // strip inline. On 401 we just return an empty list (anonymous
+      // visitor case is handled by the /api/daily branch).
+      fetch('/api/journal/vault', { credentials: 'include' })
+        .then(function (r) { if (r.status === 401) return { ok: true, entries: [] }; return r.json().catch(function () { return { ok: true, entries: [] }; }); }),
     ])
       .then(function (results) {
         var entryRes = results[0];
         var verdictRes = results[1];
         var meRes = results[2];
+        var vaultRes = results[3];
         // Anonymous visitor · render the public marketing view and stop.
         if (entryRes && entryRes.anonymous) { renderPublicMarketingView(); return; }
         if (!entryRes || !entryRes.ok) return;
@@ -576,12 +724,64 @@
         if (upsellEl) upsellEl.style.display = isPro ? 'none' : '';
         if (activeEl) activeEl.style.display = isPro ? '' : 'none';
 
+        // TASK 2 · render the recent-entries strip (top 5) below the
+        // composer. Hides itself if the user has zero entries.
+        renderEntriesStrip(vaultRes && vaultRes.entries ? vaultRes.entries : []);
+
+        // TASK 1 + 5 · Subscriber-only adjustments. Once we know the
+        // user is paying we hide the price-CTA meta line and turn the
+        // mechanism + why-pay sections into one-line summaries (click
+        // to expand). They've already seen the pitch · they don't need
+        // it every time they file an entry.
+        if (isPro) {
+          var heroMeta = document.getElementById('dc-hero-meta');
+          if (heroMeta) heroMeta.style.display = 'none';
+          document.querySelectorAll('[data-collapse-for-sub]').forEach(function (sec) {
+            if (sec.dataset.cdCollapsed === '1') return;
+            sec.dataset.cdCollapsed = '1';
+            sec.classList.add('cd-sub-collapsed');
+            // Pick a summary line · for the mechanism band use the
+            // existing aria-label, for the why-pay band use the H2.
+            var label = sec.getAttribute('aria-label') || (sec.querySelector('h2') ? sec.querySelector('h2').textContent.trim() : 'More about Counsel Journal');
+            var summary = document.createElement('button');
+            summary.type = 'button';
+            summary.className = 'cd-sub-collapsed-summary';
+            summary.setAttribute('aria-expanded', 'false');
+            summary.innerHTML = '<span class="cd-sub-collapsed-arrow" aria-hidden="true">▸</span> <span>' + label + '</span> <span class="cd-sub-collapsed-hint">expand</span>';
+            summary.addEventListener('click', function () {
+              var open = sec.classList.toggle('is-open');
+              summary.setAttribute('aria-expanded', open ? 'true' : 'false');
+            });
+            sec.insertBefore(summary, sec.firstChild);
+          });
+        }
+
         // sealed-today banner
         if (entryRes.sealed_today) {
           sealedBanner.classList.add('is-shown');
           composeBlock.style.display = 'none';
           var when = new Date(entryRes.sealed_today.unseals_at);
           sealedWhen.textContent = fmtLongDate(when.toISOString().slice(0, 10));
+          // TASK 6 · "Start tonight's entry" button needs a sensible
+          // behaviour when tonight is already sealed. Re-label it,
+          // change the target to a small overlay that offers an
+          // additional-entry option, and keep it visible at the top of
+          // the page so subscribers can scroll back to it.
+          var startBtn = document.getElementById('dc-hero-start');
+          if (startBtn) {
+            startBtn.textContent = 'You filed tonight · add another? ↓';
+            startBtn.setAttribute('href', '#dc-additional-block');
+            startBtn.addEventListener('click', function (e) {
+              e.preventDefault();
+              var addBlock = document.getElementById('dc-additional-block');
+              if (addBlock) {
+                addBlock.style.display = 'block';
+                addBlock.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                var addText = document.getElementById('dc-additional-text');
+                if (addText) setTimeout(function () { addText.focus(); }, 200);
+              }
+            });
+          }
         } else {
           sealedBanner.classList.remove('is-shown');
           composeBlock.style.display = '';

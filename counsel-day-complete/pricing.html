@@ -161,6 +161,21 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   .compare-table td.no  { color: var(--subtle); }
   .compare-table td .price { font-family: var(--font-display); font-size: 18px; font-weight: 500; color: var(--ink); }
   @media (max-width: 720px) { .compare-table { font-size: 13px; } .compare-table th, .compare-table td { padding: 10px 12px; } }
+
+  /* TASK 8 · Signed-in pricing banner · sits above the title once we
+     know who the visitor is and what they've paid for. Three states:
+     paid (wine pill), comped (green pill), free (paper pill with hint
+     about whether either product is upgrade-eligible). */
+  .pr-signed-in-banner { display: flex; align-items: center; gap: 16px; padding: 14px 18px; border: 1px solid var(--wine); background: var(--paper); margin: 8px 0 22px; }
+  .pr-banner-pill { font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; padding: 6px 10px; background: var(--wine); color: var(--paper); align-self: flex-start; }
+  .pr-banner-pill.is-comped { background: #0f6b3e; }
+  .pr-banner-pill.is-free { background: var(--paper-deep); color: var(--ink-soft); border: 1px solid var(--rule); }
+  .pr-banner-body { flex: 1; }
+  .pr-banner-line { font-family: var(--font-body); font-size: 15px; line-height: 1.45; color: var(--ink); }
+  .pr-banner-line-2 { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; color: var(--muted); text-transform: uppercase; margin-top: 4px; }
+  .pr-banner-cta { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--wine); border-bottom: 1px solid var(--wine); padding-bottom: 1px; text-decoration: none; }
+  .pr-banner-cta:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  @media (max-width: 720px) { .pr-signed-in-banner { flex-wrap: wrap; } }
 </style>
 </head>
 <body>
@@ -197,6 +212,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <a href="index.html">← Return to overview</a>
       <span>·</span>
       <span>Pricing</span>
+    </div>
+
+    <!-- TASK 8 · Signed-in banner. Hidden by default. JS fills it with
+         "You are on [plan]" + a quick link to /account.html. We do NOT
+         hide the rest of the page · paying users still need to compare
+         tiers / see Journal pricing while they read about Decision. -->
+    <div id="pr-signed-in-banner" class="pr-signed-in-banner" style="display: none;" role="status" aria-live="polite">
+      <div class="pr-banner-pill" id="pr-banner-pill">YOUR PLAN</div>
+      <div class="pr-banner-body">
+        <div class="pr-banner-line" id="pr-banner-line">…</div>
+        <div class="pr-banner-line pr-banner-line-2" id="pr-banner-line-2"></div>
+      </div>
+      <div class="pr-banner-actions">
+        <a href="/account.html" class="pr-banner-cta">Manage in account →</a>
+      </div>
     </div>
 
     <header class="method-page-head">
@@ -534,6 +564,49 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </div>
 </footer>
+
+<script>
+// TASK 8 · Signed-in pricing banner. Calls /api/me, fills the banner.
+// On 401 (anonymous visitor) the banner stays hidden and the page
+// renders as the public marketing pitch.
+(function () {
+  var banner = document.getElementById('pr-signed-in-banner');
+  if (!banner) return;
+  fetch('/api/me', { credentials: 'include', headers: { accept: 'application/json' } })
+    .then(function (r) { if (r.status === 401) return null; return r.json().catch(function () { return null; }); })
+    .then(function (res) {
+      if (!res || !res.ok || !res.user) return;
+      var u = res.user;
+      var pill = document.getElementById('pr-banner-pill');
+      var line = document.getElementById('pr-banner-line');
+      var line2 = document.getElementById('pr-banner-line-2');
+      var first = u.first_name ? (u.first_name + ', here is') : 'Here is';
+      // Three tiered states. Comped > Paid > Free.
+      if (u.comp_unlimited) {
+        pill.textContent = 'COMPED · BOTH';
+        pill.classList.add('is-comped');
+        line.innerHTML = '<strong>' + first + ' your current Counsel.day status:</strong> you have been comped on <strong>both products</strong> (Decision and Counsel Journal) · ' + escHtml(u.comp_reason || 'granted by Counsel.day') + '. You can compose any decision and use Counsel Journal at no charge.';
+        line2.textContent = 'No subscription · no per-decision fee · comped while granted';
+      } else if (u.daily_pro_active) {
+        pill.textContent = 'JOURNAL SUBSCRIBED';
+        line.innerHTML = '<strong>' + first + ' your current Counsel.day status:</strong> you are subscribed to <strong>Counsel Journal at $4.99 USD/month</strong>. Decisions are billed separately, per decision, at compose time.';
+        var renews = u.daily_pro_renews_at ? new Date(u.daily_pro_renews_at) : null;
+        line2.textContent = renews && !isNaN(renews.getTime())
+          ? ('Renews ' + renews.toLocaleDateString('en-NZ', { day: '2-digit', month: 'short', year: 'numeric' }) + ' · cancel any time in your account')
+          : 'Recurring monthly · cancel any time in your account';
+      } else {
+        pill.textContent = 'FREE TIER';
+        pill.classList.add('is-free');
+        line.innerHTML = '<strong>' + first + ' your current Counsel.day status:</strong> no active subscription. Counsel.day Decision is pay-per-decision (first Solo is free); Counsel Journal is $4.99 USD/month if you want the evening reflection layer.';
+        line2.textContent = 'Sign up for Counsel Journal below · or compose a decision at any time';
+      }
+      banner.style.display = 'flex';
+    })
+    .catch(function () { /* leave hidden on error */ });
+
+  function escHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+})();
+</script>
 
 <a class="go-to-top" id="go-to-top" href="#top" aria-label="Go to top of page">
   <svg viewBox="0 0 24 24" aria-hidden="true" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>

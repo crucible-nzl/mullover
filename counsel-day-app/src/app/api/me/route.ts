@@ -48,6 +48,26 @@ export async function GET(req: Request) {
           AND ds.status = 'active'
           AND ds.current_period_end > NOW()
       )`,
+      // Renewal date for the active daily subscription · null if none.
+      // The /account page uses this to show "Renews 10 Jun 2026 · cancel
+      // any time" on the Journal tile.
+      dailyProRenewsAt: sql<Date | null>`(
+        SELECT ds.current_period_end FROM daily_subscriptions ds
+        WHERE ds.user_id = ${schema.users.id}
+          AND ds.status = 'active'
+          AND ds.current_period_end > NOW()
+        ORDER BY ds.current_period_end DESC
+        LIMIT 1
+      )`,
+      // TASK 3 · "Comped" status · an admin-granted unlimited-access flag
+      // covering BOTH products (Decision and Journal). When true the
+      // account page replaces the price line with a "Comped · free for
+      // [reason]" tile state on both products. Reason is shown verbatim
+      // so the user knows why they have free access (early-supporter,
+      // partner, support gift, etc.).
+      compUnlimited: schema.users.compUnlimited,
+      compReason: schema.users.compReason,
+      compGrantedAt: schema.users.compGrantedAt,
     })
     .from(schema.users)
     .where(eq(schema.users.id, session.userId))
@@ -102,6 +122,10 @@ export async function GET(req: Request) {
         has_password: user.hasPassword,
         has_stripe_customer: user.hasStripeCustomer,
         daily_pro_active: !!user.dailyProActive,
+        daily_pro_renews_at: user.dailyProRenewsAt,
+        comp_unlimited: !!user.compUnlimited,
+        comp_reason: user.compReason,
+        comp_granted_at: user.compGrantedAt,
         created_at: user.createdAt,
       },
       decisions,

@@ -435,6 +435,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       .sub-tile-status.is-paid    { background: var(--wine); color: var(--paper); }
       .sub-tile-status.is-free    { background: var(--paper-deep); color: var(--ink-soft); border: 1px solid var(--rule); }
       .sub-tile-status.is-loading { color: var(--muted); font-weight: 600; border: 1px dashed var(--rule); }
+      /* TASK 3 · Comped pill · admin-granted free unlimited access on both products. */
+      .sub-tile-status.is-comped { background: #0f6b3e; color: var(--paper); border-radius: 0; }
+      .sub-tile.is-comped { border-color: #0f6b3e; }
       .sub-tile-name { font-family: var(--font-display); font-weight: 400; font-size: 22px; line-height: 1.15; color: var(--ink); margin: 0 0 10px; }
       .sub-tile-detail { font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: var(--ink-soft); margin: 0 0 14px; flex: 1; }
       .sub-tile-renewal { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; margin-bottom: 14px; }
@@ -773,6 +776,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       var mktEl = document.getElementById('cd-input-marketing');
       if (mktEl) mktEl.checked = !!u.marketing_consent;
 
+      // TASK 3 · Comped state · admin-granted unlimited access. When
+      // u.comp_unlimited is true we OVERRIDE both tiles with a green
+      // "Comped" pill, replace the price/renewal copy with the reason
+      // line, and skip the upgrade/portal CTAs. Cancel button stays
+      // hidden because there's nothing to cancel.
+      var isComped = !!u.comp_unlimited;
+      var compReason = u.comp_reason || 'Granted by Counsel.day';
+
       // Subscription card · render the real plan, not the placeholder.
       // IMPORTANT: "Active subscription" ≠ "Decision style" (above).
       //   · Decision style is a preference (how you usually decide).
@@ -804,10 +815,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       // Decision tile status pill · always 'pay-per-decision' for the
       // current product (no recurring sub on the Decision side). If
       // a legacy consumer_annual sub is still active, mark it paid.
+      // Comped wins over everything else · TASK 3.
       var decStatusEl = document.getElementById('cd-decision-status');
       if (decStatusEl) {
         decStatusEl.className = 'sub-tile-status';
-        if (plan === 'consumer_annual' || plan === 'solo' || plan === 'couple' || plan === 'family') {
+        if (isComped) {
+          decStatusEl.classList.add('is-comped');
+          decStatusEl.textContent = 'Comped · unlimited · free';
+          if (nameEl) nameEl.textContent = 'Counsel.day Decision · comped';
+          if (detailEl) detailEl.textContent = 'You have been granted free unlimited Counsel.day Decisions · ' + compReason + '. Compose any decision (Solo, Couple, Family) at no charge.';
+          if (renewalEl) renewalEl.textContent = 'No charge · comped by Counsel.day · ' + compReason;
+          if (ctaEl) ctaEl.textContent = 'Compose a decision';
+          var ctaLink = ctaEl ? ctaEl.closest('a') : null;
+          if (ctaLink) ctaLink.setAttribute('href', '/compose.html');
+          if (portalEl) portalEl.style.display = 'none';
+        } else if (plan === 'consumer_annual' || plan === 'solo' || plan === 'couple' || plan === 'family') {
           decStatusEl.classList.add('is-paid');
           decStatusEl.textContent = 'Paid · ' + plan;
         } else {
@@ -831,7 +853,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       var dailyActive = !!u.daily_pro_active;
       var dailyRenewsAt = u.daily_pro_renews_at || null;
 
-      if (dailyActive) {
+      // TASK 3 · Comped wins for the Journal tile too. Show a single
+      // "Comped" pill, no Stripe portal, no cancel, and a clear note
+      // that the user has free unlimited Journal access.
+      if (isComped) {
+        if (dTile) dTile.classList.add('is-comped');
+        if (dStatus) { dStatus.className = 'sub-tile-status is-comped'; dStatus.textContent = 'Comped · unlimited · free'; }
+        if (dName) dName.textContent = 'Counsel Journal · comped';
+        if (dDetail) dDetail.textContent = 'You have been granted free unlimited Counsel Journal access · ' + compReason + '. Nightly entry (text or voice), seven-day seal, weekly Monday verdict, monthly themed verdict, unlimited history. No charge while comped.';
+        if (dRenewal) dRenewal.textContent = 'No renewal · comped by Counsel.day · ' + compReason;
+        if (dActions) dActions.innerHTML = '<a href="journal.html" class="btn-text">Open the Journal</a>';
+      } else if (dailyActive) {
         if (dTile) dTile.classList.add('is-active');
         if (dStatus) {
           dStatus.className = 'sub-tile-status is-paid';

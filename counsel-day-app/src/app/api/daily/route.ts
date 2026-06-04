@@ -48,6 +48,12 @@ const postSchema = z.object({
   text_content: z.string().trim().min(MIN_TEXT_LEN).max(MAX_TEXT_LEN),
   entry_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   attached_decision_id: z.string().uuid().nullable().optional(),
+  // TASK 6 · "I already filed tonight, but something else came up."
+  // When this flag is true, we skip the existing-row UPDATE path and
+  // INSERT a new row for the same entry_date. The schema's
+  // (user_id, entry_date) index is non-unique so multiple rows per date
+  // are allowed.
+  additional: z.boolean().optional(),
 });
 
 export async function POST(req: Request) {
@@ -72,6 +78,7 @@ export async function POST(req: Request) {
   const { text_content } = parsed.data;
   const entryDate = parsed.data.entry_date ?? todayUtcDate();
   const attachedDecisionId = parsed.data.attached_decision_id ?? null;
+  const isAdditional = parsed.data.additional === true;
 
   // Reject entries dated more than 1 day in the past (back-dating
   // breaks the seal-clock contract) or any future date.
@@ -109,15 +116,20 @@ export async function POST(req: Request) {
 
   // Has this user already filed for this date? If yes, UPDATE the text
   // but PRESERVE sealed_at/unseals_at (editing doesn't restart the seal).
-  const existing = await db
-    .select({ id: schema.journalEntries.id, unsealsAt: schema.journalEntries.unsealsAt })
-    .from(schema.journalEntries)
-    .where(and(
-      eq(schema.journalEntries.userId, session.userId),
-      eq(schema.journalEntries.entryDate, entryDate),
-      isNull(schema.journalEntries.deletedAt),
-    ))
-    .limit(1);
+  // When `additional` is true, we skip this lookup entirely and INSERT
+  // a fresh row so the user ends up with two entries for the same date,
+  // each on its own seven-day seal.
+  const existing = isAdditional
+    ? []
+    : await db
+        .select({ id: schema.journalEntries.id, unsealsAt: schema.journalEntries.unsealsAt })
+        .from(schema.journalEntries)
+        .where(and(
+          eq(schema.journalEntries.userId, session.userId),
+          eq(schema.journalEntries.entryDate, entryDate),
+          isNull(schema.journalEntries.deletedAt),
+        ))
+        .limit(1);
 
   const wordCount = text_content.trim().split(/\s+/).filter(Boolean).length;
 

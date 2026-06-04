@@ -108,6 +108,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   .vault-row-head .play-btn { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 9px 14px; border: 1px solid var(--ink); background: var(--paper); color: var(--ink); cursor: pointer; border-radius: 0; min-height: 36px; }
   .vault-row.is-open .vault-row-head .play-btn { background: var(--ink); color: var(--paper); }
   .vault-row.is-text-only .vault-row-head .play-btn { background: var(--paper-deep); color: var(--muted); border-style: dashed; cursor: default; }
+  /* TASK 4 · sealed-entry styling. The row is fully visible (so users
+     know it exists) but the play/view button is locked and the body
+     opens to a "you'll see this on [date]" message instead of content. */
+  .vault-row.is-sealed { border-color: var(--wine); background: linear-gradient(0deg, var(--paper-deep) 0%, var(--paper) 100%); }
+  .vault-row.is-sealed .vault-row-head .play-btn { background: var(--paper-deep); color: var(--wine); border-color: var(--wine); cursor: not-allowed; }
+  .vault-row.is-sealed .vault-row-head .dur { color: var(--wine); }
+  .vault-seal-pill { display: inline-block; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; padding: 2px 8px; background: var(--wine); color: var(--paper); margin-right: 8px; vertical-align: middle; }
 
   .vault-row-body { display: none; padding: 20px 22px 24px; border-top: 1px solid var(--rule); background: var(--paper-deep); }
   .vault-row.is-open .vault-row-body { display: block; }
@@ -347,7 +354,37 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     }
     listEl.innerHTML = slice.map(function (e, i) {
       var isTextOnly = !e.audio_url;
+      var isSealed = e.is_sealed === true;
       var preview = (e.transcript || e.text_content || '').slice(0, 240);
+      // TASK 4 · Sealed entries render as a distinct row · the existence
+      // of the entry is visible (so users know their recording was
+      // saved) but the body remains locked until unseals_at. Clicking a
+      // sealed row tells them when it opens; play/view buttons stay
+      // disabled until the seal lifts.
+      if (isSealed) {
+        var unsealDate = e.unseals_at ? fmtDate(e.unseals_at.slice(0, 10)) : '…';
+        var sealLine = (isTextOnly ? 'Typed entry' : 'Voice entry · ' + fmtDur(e.duration_seconds)) +
+          ' · sealed for 7 days · opens <strong>' + esc(unsealDate) + '</strong>';
+        return '<article class="vault-row is-sealed" data-id="' + esc(e.id) + '" aria-label="Sealed entry filed ' + esc(fmtDate(e.entry_date)) + '">' +
+          '<div class="vault-row-head" data-toggle>' +
+            '<div class="date">' + esc(fmtDate(e.entry_date)) + '</div>' +
+            '<div class="preview"><span class="vault-seal-pill">SEALED</span> Filed and saved · the content stays locked until the seven-day seal opens.</div>' +
+            '<div class="dur">' + esc(unsealDate) + '</div>' +
+            '<button type="button" class="play-btn" disabled aria-disabled="true">Sealed</button>' +
+          '</div>' +
+          '<div class="vault-row-body">' +
+            '<div class="vault-player-fallback">' + sealLine + '. ' +
+              'The journal\'s seal exists so future-you reads what tonight-you actually wrote, not what you wish you had.' +
+            '</div>' +
+            '<div class="vault-row-meta">' +
+              '<span class="item">Filed <strong>' + esc(fmtDate(e.entry_date)) + '</strong></span>' +
+              '<span class="item">Opens <strong>' + esc(unsealDate) + '</strong></span>' +
+              (e.duration_seconds != null ? '<span class="item">Length <strong>' + fmtDur(e.duration_seconds) + '</strong></span>' : '') +
+              (e.word_count != null ? '<span class="item">Words <strong>' + e.word_count + '</strong></span>' : '') +
+            '</div>' +
+          '</div>' +
+        '</article>';
+      }
       return '<article class="vault-row' + (isTextOnly ? ' is-text-only' : '') + '" data-id="' + esc(e.id) + '">' +
         '<div class="vault-row-head" data-toggle>' +
           '<div class="date">' + esc(fmtDate(e.entry_date)) + '</div>' +

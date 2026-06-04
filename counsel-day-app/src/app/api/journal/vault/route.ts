@@ -63,23 +63,46 @@ export async function GET(req: Request) {
     .where(and(...conditions))
     .orderBy(desc(schema.journalEntries.entryDate));
 
-  // Only return entries whose seal has opened (unseals_at in the past)
-  // so users cannot listen back to tonight's entry. Matches the
-  // contract on /api/daily.
+  // TASK 4 · The vault now lists ALL entries, including sealed ones.
+  // For sealed entries we send back only the metadata (date, seal
+  // timestamps, duration, word count, is_sealed:true) and DROP the
+  // text_content, transcript, and audio flag. The user can see the
+  // entry exists ("yes my recording is safe") without breaking the
+  // seal contract. The /playback endpoint also rejects unsealed
+  // entries server-side so a hand-crafted request cannot pull the
+  // sealed audio.
   const now = new Date();
-  const entries = rows
-    .filter((r) => (r.unsealsAt ?? new Date(0)) <= now)
-    .map((r) => ({
+  const entries = rows.map((r) => {
+    const sealed = (r.unsealsAt ?? new Date(0)) > now;
+    if (sealed) {
+      return {
+        id: r.id,
+        entry_date: r.entryDate,
+        is_sealed: true,
+        text_content: null,
+        transcript: null,
+        audio_url: r.audioUrl ? true : null,  // present-but-locked flag for the UI
+        duration_seconds: r.durationSeconds != null ? Number(r.durationSeconds) : null,
+        word_count: r.wordCount,
+        language: r.language,
+        sealed_at: r.sealedAt,
+        unseals_at: r.unsealsAt,
+      };
+    }
+    return {
       id: r.id,
       entry_date: r.entryDate,
+      is_sealed: false,
       text_content: r.textContent,
       transcript: r.transcript,
-      audio_url: r.audioUrl ? true : null,  // boolean flag · real URL fetched on demand
+      audio_url: r.audioUrl ? true : null,
       duration_seconds: r.durationSeconds != null ? Number(r.durationSeconds) : null,
       word_count: r.wordCount,
       language: r.language,
       sealed_at: r.sealedAt,
-    }));
+      unseals_at: r.unsealsAt,
+    };
+  });
 
   return NextResponse.json({
     ok: true,

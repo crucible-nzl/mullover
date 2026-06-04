@@ -42,6 +42,17 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="stylesheet" href="/fonts/fonts.css">
 <link rel="stylesheet" href="styles-i8.css">
+<style>
+  /* TASK 13 · this page's lede + body paragraphs were capped at 980px
+     / 1280px by the shared .method-page-lede / .method-stage-body
+     rules. The H1 sits at the wider cap, so the body underneath ended
+     mid-page on a laptop and read narrower than the title. Page-scoped
+     override: paragraphs use the full inner width (1320px container
+     minus padding). */
+  .method-page-lede { max-width: 1180px; }
+  .method-stage-body { max-width: 1180px; }
+  .method-stage-body p { max-width: none; }
+</style>
 </head>
 <body>
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>

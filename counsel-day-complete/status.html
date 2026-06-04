@@ -157,10 +157,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     color: var(--ink);
   }
   .incident-empty .text .ital { font-style: italic; color: var(--wine); }
+  /* The auto-update note sits below the incident list. Previously had
+     a 760px max-width which forced a wrap on most viewports · TASK 10
+     drops the cap so the line uses the full page width and stays one
+     line on a laptop. Still wraps on mobile where the viewport is
+     narrower than the line itself. */
   .status-footnote {
     font-family: var(--font-body); font-size: 15px;
     line-height: 1.6; color: var(--muted);
-    margin-top: 28px; max-width: 760px;
+    margin-top: 28px;
   }
   .status-footnote a { color: var(--wine); }
 </style>

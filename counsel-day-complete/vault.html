@@ -116,6 +116,42 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   .vault-row.is-sealed .vault-row-head .dur { color: var(--wine); }
   .vault-seal-pill { display: inline-block; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; padding: 2px 8px; background: var(--wine); color: var(--paper); margin-right: 8px; vertical-align: middle; }
 
+  /* TASK 6 · Reading-mode styles · timeline view with verdicts inline.
+     Designed to read like a printed journal · month bands on top,
+     weekly verdict at the top of each week-group, entries inside. */
+  .rm-month-band { margin: 40px 0 22px; padding: 18px 0 0; border-top: 2px solid var(--ink); }
+  .rm-month-band:first-of-type { margin-top: 8px; border-top: 0; }
+  .rm-month-eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine); margin-bottom: 6px; }
+  .rm-month-title { font-family: var(--font-display); font-weight: 400; font-size: clamp(28px, 3.4vw, 38px); line-height: 1.12; color: var(--ink); margin: 0 0 14px; }
+  .rm-month-empty { font-family: var(--font-body); font-size: 14px; color: var(--muted); font-style: italic; margin: 0 0 18px; padding: 12px 16px; background: var(--paper-deep); border-left: 3px solid var(--rule); }
+  .rm-week { margin-bottom: 30px; }
+  .rm-week-head { margin: 10px 0 12px; padding-bottom: 6px; border-bottom: 1px dashed var(--rule); }
+  .rm-week-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); }
+  .rm-verdict { padding: 18px 22px; margin-bottom: 14px; background: var(--paper); border: 1px solid var(--ink); }
+  .rm-verdict-weekly { background: var(--paper); }
+  .rm-verdict-monthly { background: var(--wine-soft); border-color: var(--wine); }
+  .rm-v-eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine); margin-bottom: 6px; }
+  .rm-v-title { font-family: var(--font-display); font-weight: 400; font-size: 24px; line-height: 1.18; color: var(--ink); margin: 0 0 12px; }
+  .rm-v-title .ital { font-style: italic; color: var(--wine); }
+  .rm-v-body { font-family: var(--font-body); font-size: 15px; line-height: 1.6; color: var(--ink); }
+  .rm-v-block { margin-bottom: 12px; }
+  .rm-v-block-h { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.12em; color: var(--ink-soft); text-transform: uppercase; margin-bottom: 4px; }
+  .rm-v-body ul { margin: 0; padding-left: 18px; }
+  .rm-v-body p { margin: 0; }
+  .rm-v-q { font-family: var(--font-display); font-style: italic; color: var(--wine); font-size: 18px; }
+  .rm-entries { display: flex; flex-direction: column; gap: 12px; }
+  .rm-entry { padding: 14px 18px; background: var(--paper); border: 1px solid var(--rule); }
+  .rm-entry-head { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; margin-bottom: 6px; }
+  .rm-entry-date { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--wine); }
+  .rm-entry-dur { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+  .rm-entry-pill { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.1em; padding: 2px 7px; background: var(--wine); color: var(--paper); text-transform: uppercase; }
+  .rm-entry-body { font-family: var(--font-body); font-size: 15px; line-height: 1.65; color: var(--ink); }
+  .rm-entry-locked { font-family: var(--font-body); font-size: 14px; color: var(--ink-soft); font-style: italic; margin: 4px 0 0; }
+  .rm-entry-sealed { border-color: var(--wine); background: linear-gradient(0deg, var(--paper-deep) 0%, var(--paper) 100%); }
+  .rm-entry-audio { margin-top: 10px; }
+  .rm-entry-play { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 7px 12px; background: var(--paper); color: var(--ink); border: 1px solid var(--ink); cursor: pointer; border-radius: 0; min-height: 32px; }
+  .rm-entry-play:hover { background: var(--ink); color: var(--paper); }
+
   .vault-row-body { display: none; padding: 20px 22px 24px; border-top: 1px solid var(--rule); background: var(--paper-deep); }
   .vault-row.is-open .vault-row-body { display: block; }
   .vault-player { margin-bottom: 16px; }
@@ -211,7 +247,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       Some of your entries were typed (not spoken) · those rows show the text but have no audio to play back.
     </div>
 
-    <div class="vault-filter">
+    <!-- TASK 6 · View mode + filter row. "Reading" mode groups entries
+         by week, weaves the Monday verdict for that week to the top of
+         each group, and prepends the monthly themed verdict at the
+         start of each month. "List" is the prior flat reverse-chrono
+         render with filters + search. Default is Reading because that
+         is the new physical-journal-style experience. -->
+    <div class="vault-viewmode" role="tablist" aria-label="Vault view mode" style="display: flex; gap: 0; margin-bottom: 18px; border: 1px solid var(--ink); align-self: flex-start;">
+      <button type="button" data-view="reading" class="vault-vbtn is-on" role="tab" aria-selected="true" style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; padding: 9px 18px; background: var(--ink); color: var(--paper); border: 0; cursor: pointer; min-height: 40px;">Reading mode</button>
+      <button type="button" data-view="list" class="vault-vbtn" role="tab" aria-selected="false" style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; padding: 9px 18px; background: var(--paper); color: var(--ink); border: 0; border-left: 1px solid var(--ink); cursor: pointer; min-height: 40px;">List + search</button>
+    </div>
+
+    <div class="vault-filter" id="vault-filter-row">
       <span class="lbl">Filter</span>
       <button type="button" data-filter="all" class="is-on">All</button>
       <button type="button" data-filter="week">This week</button>
@@ -262,7 +309,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <h3 class="colophon-col-h">Counsel Journal</h3>
         <a href="journal.html">Open the Journal</a>
         <a href="journal.html#about">What it is</a>
-        <a href="pricing.html#the-daily">$4.99 USD/month</a>
+        <a href="pricing.html#the-daily">Pricing</a>
       </div>
       <div class="colophon-col">
         <h5>Support</h5>
@@ -301,7 +348,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   var bannerFree = document.getElementById('vault-banner-free');
   var bannerTextOnly = document.getElementById('vault-banner-text-only');
 
-  var state = { entries: [], filter: 'all', search: '', page: 0, pageSize: 20, isPro: false };
+  var state = { entries: [], verdicts: [], filter: 'all', search: '', page: 0, pageSize: 20, isPro: false, view: 'reading' };
 
   function fmtDate(iso) {
     if (!iso) return '';
@@ -334,7 +381,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     });
   }
 
+  // TASK 6 · Render dispatcher · the reading-mode view groups entries
+  // by week with the Monday verdict prepended, and a monthly themed
+  // verdict band at the start of each month. List view stays the
+  // existing flat reverse-chrono player layout for search + filter.
   function render() {
+    if (state.view === 'reading') {
+      renderReadingMode();
+      return;
+    }
+    renderListMode();
+  }
+
+  function renderListMode() {
     var filtered = applyFilters();
     var start = state.page * state.pageSize;
     var slice = filtered.slice(start, start + state.pageSize);
@@ -403,6 +462,140 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     nextBtn.disabled = (state.page + 1) * state.pageSize >= filtered.length;
   }
 
+  // TASK 6 · Reading-mode renderer · timeline view grouped by week.
+  // Each week-group leads with the Monday verdict for that week if
+  // one exists (the cron writes weekly verdicts into journal_verdicts);
+  // each month boundary leads with the themed monthly verdict if one
+  // exists. Entries inside a week-group sit reverse-chronological.
+  function isoMonday(dateStr) {
+    var d = new Date(dateStr);
+    var day = d.getDay();
+    var diff = (day === 0 ? -6 : 1 - day);
+    d.setDate(d.getDate() + diff);
+    return d.toISOString().slice(0, 10);
+  }
+  function fmtLongMonth(dateStr) {
+    var d = new Date(dateStr);
+    return ['January','February','March','April','May','June','July','August','September','October','November','December'][d.getMonth()] + ' ' + d.getFullYear();
+  }
+  function fmtWeekRange(startIso, endIso) {
+    var a = new Date(startIso); var b = new Date(endIso);
+    var sameMonth = a.getMonth() === b.getMonth();
+    var M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    if (sameMonth) return 'Week of ' + a.getDate() + ' to ' + b.getDate() + ' ' + M[b.getMonth()] + ' ' + b.getFullYear();
+    return 'Week of ' + a.getDate() + ' ' + M[a.getMonth()] + ' to ' + b.getDate() + ' ' + M[b.getMonth()] + ' ' + b.getFullYear();
+  }
+
+  function renderReadingMode() {
+    pagerEl.style.display = 'none';
+    if (!state.entries || state.entries.length === 0) {
+      listEl.innerHTML = '<div class="vault-empty">No entries yet. <a href="journal.html" style="color: var(--wine); border-bottom: 1px solid var(--wine);">File your first entry →</a></div>';
+      return;
+    }
+    // Group entries by their iso-monday (the Monday of their week)
+    var weeks = {};
+    state.entries.forEach(function (e) {
+      var k = isoMonday(e.entry_date);
+      if (!weeks[k]) weeks[k] = { weekStart: k, entries: [] };
+      weeks[k].entries.push(e);
+    });
+    // Map verdicts to their week-key. journalVerdicts.weekStartsOn is a
+    // Monday too · use it directly. monthly verdicts share the same
+    // weekStartsOn but kind === 'monthly_themed'.
+    var weeklyByKey = {};
+    var monthlyByMonth = {};
+    (state.verdicts || []).forEach(function (v) {
+      var k = (v.week_starts_on || '').slice(0, 10);
+      if (!k) return;
+      if (v.kind === 'monthly_themed' || v.kind === 'monthly') {
+        var mk = k.slice(0, 7);
+        monthlyByMonth[mk] = v;
+      } else {
+        weeklyByKey[k] = v;
+      }
+    });
+    // Order keys desc (newest first)
+    var weekKeys = Object.keys(weeks).sort().reverse();
+    var html = '';
+    var seenMonths = {};
+    weekKeys.forEach(function (k) {
+      var monthKey = k.slice(0, 7);
+      if (!seenMonths[monthKey]) {
+        seenMonths[monthKey] = true;
+        html += '<div class="rm-month-band">' +
+          '<div class="rm-month-eyebrow">MONTH BOUNDARY</div>' +
+          '<h2 class="rm-month-title">' + esc(fmtLongMonth(k)) + '</h2>';
+        var mv = monthlyByMonth[monthKey];
+        if (mv) {
+          html += '<article class="rm-verdict rm-verdict-monthly">' +
+            '<div class="rm-v-eyebrow">MONTHLY THEMED VERDICT · FIRST MONDAY OF ' + esc(fmtLongMonth(k).toUpperCase()) + '</div>' +
+            '<h3 class="rm-v-title">What the <span class="ital">month</span> was about.</h3>' +
+            renderVerdictBody(mv) +
+            '</article>';
+        } else {
+          html += '<p class="rm-month-empty">No monthly themed verdict for this month yet · they ship on the first Monday once four weekly verdicts exist.</p>';
+        }
+        html += '</div>';
+      }
+      var wk = weeks[k];
+      // The end of the week is iso-monday + 6 days
+      var endDate = new Date(k); endDate.setDate(endDate.getDate() + 6);
+      var endIso = endDate.toISOString().slice(0, 10);
+      html += '<section class="rm-week" aria-label="' + esc(fmtWeekRange(k, endIso)) + '">' +
+        '<header class="rm-week-head">' +
+          '<div class="rm-week-eyebrow">' + esc(fmtWeekRange(k, endIso)) + '</div>' +
+        '</header>';
+      var wv = weeklyByKey[k];
+      if (wv) {
+        html += '<article class="rm-verdict rm-verdict-weekly">' +
+          '<div class="rm-v-eyebrow">MONDAY VERDICT · ' + esc(fmtWeekRange(k, endIso).toUpperCase()) + '</div>' +
+          '<h3 class="rm-v-title">What the <span class="ital">week</span> was about.</h3>' +
+          renderVerdictBody(wv) +
+          '</article>';
+      }
+      // Entries inside the week, reverse chronological
+      wk.entries.sort(function (a, b) { return (b.entry_date || '').localeCompare(a.entry_date || ''); });
+      html += '<div class="rm-entries">';
+      wk.entries.forEach(function (e) {
+        html += renderReadingEntry(e);
+      });
+      html += '</div></section>';
+    });
+    listEl.innerHTML = html;
+  }
+
+  function renderVerdictBody(v) {
+    var positives = (v.positives || []).map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('');
+    var strains = (v.strains || []).map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('');
+    return '<div class="rm-v-body">' +
+      (positives ? '<div class="rm-v-block"><div class="rm-v-block-h">WHAT KEPT WORKING</div><ul>' + positives + '</ul></div>' : '') +
+      (strains   ? '<div class="rm-v-block"><div class="rm-v-block-h">WHAT KEPT STRAINING</div><ul>' + strains + '</ul></div>' : '') +
+      (v.throughline ? '<div class="rm-v-block"><div class="rm-v-block-h">THROUGHLINE</div><p>' + esc(v.throughline) + '</p></div>' : '') +
+      (v.question_for_next ? '<div class="rm-v-block"><div class="rm-v-block-h">A QUESTION FOR THE WEEK AHEAD</div><p class="rm-v-q">' + esc(v.question_for_next) + '</p></div>' : '') +
+    '</div>';
+  }
+
+  function renderReadingEntry(e) {
+    var isSealed = e.is_sealed === true;
+    var isTextOnly = !e.audio_url;
+    if (isSealed) {
+      var unsealDate = e.unseals_at ? fmtDate(e.unseals_at.slice(0, 10)) : '…';
+      return '<article class="rm-entry rm-entry-sealed" data-id="' + esc(e.id) + '">' +
+        '<header class="rm-entry-head"><div class="rm-entry-date">' + esc(fmtDate(e.entry_date)) + '</div><div class="rm-entry-pill">SEALED · opens ' + esc(unsealDate) + '</div></header>' +
+        '<p class="rm-entry-locked">Filed and saved. The body stays locked until the seven-day seal opens.</p>' +
+      '</article>';
+    }
+    var body = e.text_content || e.transcript || '';
+    return '<article class="rm-entry" data-id="' + esc(e.id) + '">' +
+      '<header class="rm-entry-head"><div class="rm-entry-date">' + esc(fmtDate(e.entry_date)) + '</div>' +
+        (e.duration_seconds != null ? '<div class="rm-entry-dur">' + esc(fmtDur(e.duration_seconds)) + (isTextOnly ? '' : ' · voice') + '</div>' : '') +
+      '</header>' +
+      '<div class="rm-entry-body">' + esc(body).replace(/\n/g, '<br>') + '</div>' +
+      (isTextOnly ? '' :
+        '<div class="rm-entry-audio" data-player-for="' + esc(e.id) + '"><button type="button" class="rm-entry-play" data-play="' + esc(e.id) + '">Play audio ▶</button></div>') +
+    '</article>';
+  }
+
   function lazyLoadAudio(entryId, container) {
     container.innerHTML = '<div class="vault-player-fallback">Requesting playback link…</div>';
     fetch('/api/journal/vault/' + encodeURIComponent(entryId) + '/playback', { credentials: 'include' })
@@ -423,16 +616,29 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   }
 
   listEl.addEventListener('click', function (ev) {
+    // List-mode rows · expand+collapse
     var head = ev.target.closest('[data-toggle]');
-    if (!head) return;
-    var row = head.closest('.vault-row');
-    if (!row) return;
-    var wasOpen = row.classList.toggle('is-open');
-    if (wasOpen) {
-      var playerEl = row.querySelector('[data-player-for]');
-      if (playerEl && !playerEl.dataset.loaded) {
-        playerEl.dataset.loaded = '1';
-        lazyLoadAudio(playerEl.getAttribute('data-player-for'), playerEl);
+    if (head) {
+      var row = head.closest('.vault-row');
+      if (!row) return;
+      var wasOpen = row.classList.toggle('is-open');
+      if (wasOpen) {
+        var playerEl = row.querySelector('[data-player-for]');
+        if (playerEl && !playerEl.dataset.loaded) {
+          playerEl.dataset.loaded = '1';
+          lazyLoadAudio(playerEl.getAttribute('data-player-for'), playerEl);
+        }
+      }
+      return;
+    }
+    // Reading-mode entry · click the Play audio button to lazy-load.
+    var playBtn = ev.target.closest('[data-play]');
+    if (playBtn) {
+      var entryId = playBtn.getAttribute('data-play');
+      var container = playBtn.parentElement;
+      if (!container.dataset.loaded) {
+        container.dataset.loaded = '1';
+        lazyLoadAudio(entryId, container);
       }
     }
   });
@@ -450,17 +656,42 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   prevBtn.addEventListener('click', function () { if (state.page > 0) { state.page--; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); } });
   nextBtn.addEventListener('click', function () { state.page++; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
 
+  // TASK 6 · View-mode toggle · Reading | List. Reading hides the
+  // filter row + pager (those are list-mode affordances) and runs the
+  // grouped renderer.
+  var viewBtns = document.querySelectorAll('.vault-vbtn[data-view]');
+  var filterRow = document.getElementById('vault-filter-row');
+  function applyViewMode() {
+    viewBtns.forEach(function (b) {
+      var on = b.getAttribute('data-view') === state.view;
+      b.classList.toggle('is-on', on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+      if (on) { b.style.background = 'var(--ink)'; b.style.color = 'var(--paper)'; }
+      else    { b.style.background = 'var(--paper)'; b.style.color = 'var(--ink)'; }
+    });
+    if (filterRow) filterRow.style.display = state.view === 'list' ? 'flex' : 'none';
+  }
+  viewBtns.forEach(function (b) {
+    b.addEventListener('click', function () { state.view = b.getAttribute('data-view'); state.page = 0; applyViewMode(); render(); });
+  });
+  applyViewMode();
+
   Promise.all([
     fetch('/api/journal/vault', { credentials: 'include' }).then(function (r) {
       if (r.status === 401) { window.location.href = '/signin?next=/vault.html'; throw new Error('redirect'); }
       return r.json();
     }),
     fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json().catch(function () { return { ok: true, user: {} }; }); }),
+    // TASK 6 · Fetch verdicts in parallel so reading-mode can weave
+    // them between the entries. /api/daily/verdicts returns both
+    // weekly and monthly_themed kinds in descending date order.
+    fetch('/api/daily/verdicts?limit=60', { credentials: 'include' }).then(function (r) { return r.json().catch(function () { return { ok: true, verdicts: [] }; }); }),
   ])
     .then(function (results) {
-      var v = results[0]; var me = results[1];
+      var v = results[0]; var me = results[1]; var ve = results[2] || { verdicts: [] };
       if (!v || !v.ok) { emptyEl.textContent = (v && v.message) || 'Could not load the vault.'; return; }
       state.entries = v.entries || [];
+      state.verdicts = (ve && ve.verdicts) || [];
       state.isPro = !!(me && me.user && me.user.daily_pro_active);
       bannerFree.style.display = state.isPro ? 'none' : 'block';
       var hasTextOnly = state.entries.some(function (e) { return !e.audio_url && (e.text_content || e.transcript); });

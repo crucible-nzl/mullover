@@ -247,6 +247,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <label for="cd-section-jump" style="font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.12em; color: var(--ink-soft); text-transform: uppercase;">Jump to section</label>
       <select id="cd-section-jump" style="font-family: var(--font-body); font-size: 14px; padding: 9px 14px; border: 1px solid var(--ink); background: var(--paper); color: var(--ink); border-radius: 0; min-width: 240px; cursor: pointer;">
         <option value="decisions-mgmt">Your decisions</option>
+        <option value="journal-mgmt">Your Counsel Journal</option>
         <option value="profile">Profile</option>
         <option value="security">Security</option>
         <option value="subscription">Subscription</option>
@@ -293,6 +294,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div style="margin-top: 18px;">
         <a href="/compose.html" class="btn" style="background: var(--wine); color: var(--paper); border-color: var(--wine);">Compose a new decision</a>
         <a href="/decisions.html" class="btn-text" style="margin-left: 18px; color: var(--ink-soft); border-bottom: 1px solid var(--ink-soft);">See full registry</a>
+      </div>
+    </section>
+
+    <!-- TASK 2 · YOUR COUNSEL JOURNAL · equal-weight peer of "Your
+         decisions" above. Shows the last 5 entries inline (mirrors the
+         /journal hero) with a status pill for the subscription state.
+         Links into the Journal composer, the Vault, and the journal
+         subscription tile on the Subscription section below. -->
+    <section class="method-stage" id="journal-mgmt">
+      <div class="method-stage-head">
+        <div class="method-stage-eyebrow">Your Counsel Journal</div>
+        <h2 class="method-stage-title">Your evening reflection <span class="ital">at a glance.</span></h2>
+        <p style="font-family: var(--font-body); font-size: 16px; line-height: 1.55; color: var(--ink-soft); margin: 8px 0 0; max-width: 820px;">A quick view of your last few entries plus the subscription state · full vault at <a href="/vault.html" style="color: var(--wine); border-bottom: 1px solid var(--wine);">/vault</a> · file tonight's entry at <a href="/journal.html" style="color: var(--wine); border-bottom: 1px solid var(--wine);">/journal</a>.</p>
+      </div>
+      <div id="cd-acct-journal-state" role="status" aria-live="polite" style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 12px 16px; border: 1px solid var(--rule); background: var(--paper-deep); margin-bottom: 14px;">
+        <span id="cd-acct-journal-pill" style="font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.12em; padding: 6px 10px; background: var(--paper-deep); color: var(--ink-soft); border: 1px solid var(--rule); text-transform: uppercase;">Loading…</span>
+        <span id="cd-acct-journal-summary" style="font-family: var(--font-body); font-size: 14px; line-height: 1.5; color: var(--ink); flex: 1;">…</span>
+      </div>
+      <div id="cd-acct-journal-entries"><p style="font-family: var(--font-body); font-style: italic; color: var(--muted);">Loading recent entries…</p></div>
+      <div style="margin-top: 18px;">
+        <a href="/journal.html" class="btn" style="background: var(--wine); color: var(--paper); border-color: var(--wine);">File tonight's entry</a>
+        <a href="/vault.html" class="btn-text" style="margin-left: 18px; color: var(--ink-soft); border-bottom: 1px solid var(--ink-soft);">Open the full vault</a>
       </div>
     </section>
 
@@ -376,6 +399,30 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <p style="font-family: var(--font-body); font-size: 15px; line-height: 1.55; color: var(--ink-soft); margin: 8px 0 0; max-width: 820px;">Two products, billed independently. The flagship decision tool is paid per decision at compose time, no subscription. Counsel Journal is a separate, optional monthly subscription for the themed monthly verdict.</p>
       </div>
 
+      <!-- TASK 3 · Subscription summary strip · gives a one-glance answer
+           to "what am I actually paying this month?" before the two
+           product tiles below. Three slots: Decision (variable per
+           decision), Journal (fixed $4.99 if subscribed, $0 if comped /
+           not), Total. Comped accounts get a green "FREE · COMPED"
+           summary card spanning both columns. -->
+      <div id="cd-sub-summary" class="sub-summary" role="status" aria-live="polite">
+        <div class="sub-summary-cell">
+          <div class="sub-summary-k">Decision</div>
+          <div class="sub-summary-v" id="cd-sum-decision">…</div>
+          <div class="sub-summary-n" id="cd-sum-decision-note">pay-per-decision · no recurring charge</div>
+        </div>
+        <div class="sub-summary-cell">
+          <div class="sub-summary-k">Counsel Journal</div>
+          <div class="sub-summary-v" id="cd-sum-journal">…</div>
+          <div class="sub-summary-n" id="cd-sum-journal-note">monthly subscription</div>
+        </div>
+        <div class="sub-summary-cell sub-summary-total">
+          <div class="sub-summary-k">This month</div>
+          <div class="sub-summary-v" id="cd-sum-total">…</div>
+          <div class="sub-summary-n" id="cd-sum-total-note">USD · receipts in billing history</div>
+        </div>
+      </div>
+
       <div class="sub-grid">
 
         <!-- LEFT TILE · Counsel.day · per-decision -->
@@ -428,7 +475,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       .sub-tile-status.is-loading { color: var(--muted); font-weight: 600; border: 1px dashed var(--rule); }
       /* TASK 3 · Comped pill · admin-granted free unlimited access on both products. */
       .sub-tile-status.is-comped { background: #0f6b3e; color: var(--paper); border-radius: 0; }
-      .sub-tile.is-comped { border-color: #0f6b3e; }
+      .sub-tile.is-comped { border-color: #0f6b3e; background: linear-gradient(0deg, #ecfdf5 0%, var(--paper) 100%); }
+      .sub-tile.is-comped::before { content: 'COMPED'; position: absolute; top: 12px; right: 14px; font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.18em; color: #0f6b3e; padding: 3px 7px; border: 1px solid #0f6b3e; background: rgba(255,255,255,0.85); }
+      /* Subscription summary strip · sits above the tile grid. */
+      .sub-summary { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 22px; }
+      .sub-summary-cell { border: 1px solid var(--rule); background: var(--paper); padding: 14px 18px; display: flex; flex-direction: column; gap: 4px; }
+      .sub-summary-cell.sub-summary-total { border-color: var(--ink); background: var(--paper-deep); }
+      .sub-summary-cell.is-comped { border-color: #0f6b3e; background: linear-gradient(0deg, #ecfdf5 0%, var(--paper) 100%); }
+      .sub-summary-k { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+      .sub-summary-v { font-family: var(--font-display); font-size: 22px; font-weight: 400; color: var(--ink); line-height: 1.15; }
+      .sub-summary-v.is-comped { color: #0f6b3e; font-style: italic; }
+      .sub-summary-n { font-family: var(--font-body); font-size: 12px; color: var(--ink-soft); line-height: 1.4; }
+      @media (max-width: 720px) { .sub-summary { grid-template-columns: 1fr; } }
       .sub-tile-name { font-family: var(--font-display); font-weight: 400; font-size: 22px; line-height: 1.15; color: var(--ink); margin: 0 0 10px; }
       .sub-tile-detail { font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: var(--ink-soft); margin: 0 0 14px; flex: 1; }
       .sub-tile-renewal { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; margin-bottom: 14px; }
@@ -477,13 +535,40 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <section class="method-stage" id="prompts">
       <div class="method-stage-head">
         <div class="method-stage-eyebrow">Evening prompt</div>
-        <h2 class="method-stage-title">When we ask you to <span class="ital">vote.</span></h2>
+        <h2 class="method-stage-title">When we ask you to <span class="ital">vote (and reflect).</span></h2>
+        <p style="font-family: var(--font-body); font-size: 15px; line-height: 1.55; color: var(--ink-soft); margin: 8px 0 0; max-width: 820px;">One reminder, two possible actions. The vote prompt is for active Counsel.day Decisions; the Journal prompt is for your evening reflection entry. Toggle either independently · if you have both running we send a single combined prompt.</p>
       </div>
       <div class="acct-form-row">
         <div class="label">Evening reminder
           <span class="hint">The time we send your daily push or email</span>
         </div>
-        <div class="value"><input type="time" value="20:30" aria-label="Evening reminder time"></div>
+        <div class="value"><input type="time" value="20:30" id="cd-prompt-time" aria-label="Evening reminder time"></div>
+      </div>
+      <!-- TASK 4 · Two independent prompts in one slot. Decision-vote
+           is on by default for accounts with an active decision; Journal
+           is on by default for paid Journal subscribers. -->
+      <div class="acct-form-row">
+        <div class="label">Decision vote prompt
+          <span class="hint">"Tonight's vote is ready" · only fires if you have an active decision</span>
+        </div>
+        <div class="value">
+          <label style="display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-body); font-size: 14px;">
+            <input type="checkbox" id="cd-prompt-decision" checked>
+            <span>Prompt me to vote in the evening</span>
+          </label>
+        </div>
+      </div>
+      <div class="acct-form-row">
+        <div class="label">Counsel Journal prompt
+          <span class="hint">"Record tonight's entry" · for your evening reflection, sealed for seven days</span>
+        </div>
+        <div class="value">
+          <label style="display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-body); font-size: 14px;">
+            <input type="checkbox" id="cd-prompt-journal" checked>
+            <span>Prompt me to file my Journal entry</span>
+          </label>
+          <p style="font-family: var(--font-body); font-size: 12px; color: var(--muted); margin: 6px 0 0;">If both prompts are on, we send ONE combined reminder at the time above with both actions linked.</p>
+        </div>
       </div>
       <div class="acct-form-row">
         <div class="label">Weekdays to prompt
@@ -775,6 +860,45 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       var isComped = !!u.comp_unlimited;
       var compReason = u.comp_reason || 'Granted by Counsel.day';
 
+      // TASK 3 · Subscription summary strip · one-glance view of what
+      // this account is paying. Three states · COMPED (green, both
+      // products $0), JOURNAL-SUBSCRIBED ($4.99/month Journal + variable
+      // decision charges), or FREE TIER (decisions are pay-per-decision,
+      // no Journal sub). The strip sits above the two product tiles and
+      // doesn't replace them · the tiles still own the management UX.
+      try {
+        var sumDecisionEl = document.getElementById('cd-sum-decision');
+        var sumDecisionNoteEl = document.getElementById('cd-sum-decision-note');
+        var sumJournalEl = document.getElementById('cd-sum-journal');
+        var sumJournalNoteEl = document.getElementById('cd-sum-journal-note');
+        var sumTotalEl = document.getElementById('cd-sum-total');
+        var sumTotalNoteEl = document.getElementById('cd-sum-total-note');
+        var sumSummaryEl = document.getElementById('cd-sub-summary');
+        if (isComped) {
+          if (sumDecisionEl) { sumDecisionEl.textContent = '$0.00 USD'; sumDecisionEl.classList.add('is-comped'); }
+          if (sumDecisionNoteEl) sumDecisionNoteEl.textContent = 'Comped · unlimited · ' + compReason;
+          if (sumJournalEl) { sumJournalEl.textContent = '$0.00 USD'; sumJournalEl.classList.add('is-comped'); }
+          if (sumJournalNoteEl) sumJournalNoteEl.textContent = 'Comped · unlimited · ' + compReason;
+          if (sumTotalEl) { sumTotalEl.textContent = '$0.00 USD'; sumTotalEl.classList.add('is-comped'); }
+          if (sumTotalNoteEl) sumTotalNoteEl.textContent = 'No charge while comped';
+          sumSummaryEl.querySelectorAll('.sub-summary-cell').forEach(function (c) { c.classList.add('is-comped'); });
+        } else {
+          if (sumDecisionEl) sumDecisionEl.textContent = 'pay-per-decision';
+          if (sumDecisionNoteEl) sumDecisionNoteEl.textContent = 'First Solo free · paid Solo $9.99 · Couple $15.99 · Family $29.99';
+          if (u.daily_pro_active) {
+            if (sumJournalEl) sumJournalEl.textContent = '$4.99 USD';
+            if (sumJournalNoteEl) sumJournalNoteEl.textContent = 'Recurring monthly · cancel any time';
+            if (sumTotalEl) sumTotalEl.textContent = '$4.99 USD + decisions';
+            if (sumTotalNoteEl) sumTotalNoteEl.textContent = 'Journal subscription plus any decision charges this month';
+          } else {
+            if (sumJournalEl) sumJournalEl.textContent = '$0.00 USD';
+            if (sumJournalNoteEl) sumJournalNoteEl.textContent = 'Not subscribed · $4.99 USD/month if you start';
+            if (sumTotalEl) sumTotalEl.textContent = 'pay-per-decision only';
+            if (sumTotalNoteEl) sumTotalNoteEl.textContent = 'No recurring charges · billed only when you compose';
+          }
+        }
+      } catch (_) {}
+
       // Subscription card · render the real plan, not the placeholder.
       // IMPORTANT: "Active subscription" ≠ "Decision style" (above).
       //   · Decision style is a preference (how you usually decide).
@@ -1053,6 +1177,63 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     }
   });
   load();
+})();
+</script>
+<script>
+/* TASK 2 · Your Counsel Journal section hydrator. Calls /api/me for
+   subscription state (daily_pro_active / comp_unlimited) and
+   /api/journal/vault for the last 5 entries · renders an at-a-glance
+   strip mirroring what the Journal page already shows. */
+(function () {
+  var pill = document.getElementById('cd-acct-journal-pill');
+  var summary = document.getElementById('cd-acct-journal-summary');
+  var entries = document.getElementById('cd-acct-journal-entries');
+  if (!pill || !entries) return;
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+  function fmtDate(s) {
+    if (!s) return '·';
+    try { var d = new Date(s); var M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return d.getDate() + ' ' + M[d.getMonth()] + ' ' + d.getFullYear(); } catch (e) { return s; }
+  }
+  Promise.all([
+    fetch('/api/me', { credentials: 'include' }).then(function (r) { return r.json().catch(function () { return { ok: true, user: {} }; }); }),
+    fetch('/api/journal/vault', { credentials: 'include' }).then(function (r) { if (r.status === 401) return { ok: true, entries: [] }; return r.json().catch(function () { return { ok: true, entries: [] }; }); }),
+  ]).then(function (results) {
+    var u = (results[0] && results[0].user) || {};
+    var v = results[1] || { entries: [] };
+    if (u.comp_unlimited) {
+      pill.textContent = 'COMPED · UNLIMITED · FREE';
+      pill.style.background = '#0f6b3e'; pill.style.color = 'var(--paper)'; pill.style.borderColor = '#0f6b3e';
+      summary.innerHTML = 'You have been granted free unlimited Counsel Journal access · ' + esc(u.comp_reason || 'granted by Counsel.day') + '. <a href="#subscription" style="color: var(--wine); border-bottom: 1px solid var(--wine);">Manage on the Subscription tile →</a>';
+    } else if (u.daily_pro_active) {
+      pill.textContent = 'JOURNAL ACTIVE · $4.99 USD / MONTH';
+      pill.style.background = 'var(--wine)'; pill.style.color = 'var(--paper)'; pill.style.borderColor = 'var(--wine)';
+      var renews = u.daily_pro_renews_at ? new Date(u.daily_pro_renews_at) : null;
+      summary.innerHTML = 'Counsel Journal subscription is active. ' + (renews && !isNaN(renews.getTime()) ? 'Renews ' + esc(fmtDate(renews.toISOString())) : 'Recurring monthly') + ' · <a href="#subscription" style="color: var(--wine); border-bottom: 1px solid var(--wine);">Manage on the Subscription tile →</a>';
+    } else {
+      pill.textContent = 'NOT SUBSCRIBED';
+      pill.style.background = 'var(--paper-deep)'; pill.style.color = 'var(--ink-soft)'; pill.style.borderColor = 'var(--rule)';
+      summary.innerHTML = 'Counsel Journal is a $4.99 USD / month subscription. <a href="#subscription" style="color: var(--wine); border-bottom: 1px solid var(--wine);">Subscribe on the Subscription tile →</a>';
+    }
+    var list = (v.entries || []).slice(0, 5);
+    if (list.length === 0) {
+      entries.innerHTML = '<p style="font-family: var(--font-body); font-size: 14px; color: var(--muted);">No entries yet. <a href="/journal.html" style="color: var(--wine); border-bottom: 1px solid var(--wine);">File your first entry →</a></p>';
+      return;
+    }
+    var rows = list.map(function (e) {
+      var sealed = e.is_sealed === true;
+      var snippet = sealed ? 'Sealed · opens ' + esc(e.unseals_at ? fmtDate(e.unseals_at) : '…') : ((e.text_content || e.transcript || '').slice(0, 220) || '·');
+      return '<div style="display: grid; grid-template-columns: 130px 1fr 90px; gap: 14px; align-items: baseline; padding: 10px 4px; border-bottom: 1px dotted var(--rule);">' +
+        '<div style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--wine); text-transform: uppercase;">' + esc(fmtDate(e.entry_date)) + '</div>' +
+        '<div style="font-family: var(--font-body); font-size: 14px; line-height: 1.5; color: ' + (sealed ? 'var(--ink-soft); font-style: italic' : 'var(--ink)') + '; overflow: hidden;">' + esc(snippet) + '</div>' +
+        '<div style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; color: ' + (sealed ? 'var(--wine)' : 'var(--muted)') + '; text-transform: uppercase; text-align: right;">' + (sealed ? 'Sealed' : 'Unsealed') + '</div>' +
+      '</div>';
+    }).join('');
+    entries.innerHTML = rows;
+  }).catch(function () {
+    pill.textContent = 'UNAVAILABLE';
+    summary.textContent = 'Could not load Counsel Journal state right now.';
+    entries.innerHTML = '';
+  });
 })();
 </script>
 <script>

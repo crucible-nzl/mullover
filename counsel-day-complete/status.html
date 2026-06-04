@@ -168,6 +168,23 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     margin-top: 28px;
   }
   .status-footnote a { color: var(--wine); }
+
+  /* TASK 8 · Live-probe pills · operational (green), degraded (amber),
+     down (red), unconfigured (slate · operator must wire). */
+  .cd-status-pill { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px; border-radius: 0; }
+  .cd-status-pill::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .cd-status-pill.operational { background: #d1fae5; color: #047857; }
+  .cd-status-pill.degraded    { background: #fef3c7; color: #92400e; }
+  .cd-status-pill.down        { background: #fee2e2; color: #b91c1c; }
+  .cd-status-pill.unconfigured { background: var(--paper-deep); color: var(--ink-soft); border: 1px solid var(--rule); }
+  .cd-status-pill-large { padding: 12px 18px; border: 1px solid var(--ink); background: var(--paper); }
+  .cd-status-pill-large.operational { background: #d1fae5; border-color: #047857; color: #065f46; }
+  .cd-status-pill-large.degraded    { background: #fef3c7; border-color: #92400e; color: #78350f; }
+  .cd-status-pill-large.down        { background: #fee2e2; border-color: #b91c1c; color: #7f1d1d; }
+  .cd-status-pill-large.partial     { background: var(--wine-soft); border-color: var(--wine); color: var(--ink); }
+  .cd-status-pill-large.cd-status-loading { background: var(--paper-deep); border-style: dashed; color: var(--muted); }
+  .cd-status-pill-large strong { font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: 18px; }
+  .cd-status-note { font-family: var(--font-body); font-style: italic; color: var(--muted); font-size: 13px; margin-top: 4px; display: block; }
 </style>
 </head>
 <body>
@@ -217,99 +234,47 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
     </div>
 
-    <section class="method-stage">
+    <!-- TASK 8 · The UptimeRobot status page sets X-Frame-Options:
+         deny, so embedding it via <iframe> was always going to fail
+         (the browser surfaces "refused to connect"). We now probe each
+         service ourselves via /api/status and render the result here
+         natively. The independent UptimeRobot monitor is kept as an
+         external link below for the 90-day uptime audit trail. -->
+    <section class="method-stage" id="live-probe">
       <div class="method-stage-head">
-        <div class="method-stage-eyebrow">LIVE UPTIME · INDEPENDENT THIRD-PARTY MONITOR</div>
-        <h2 class="method-stage-title">Real-time monitoring by <span class="ital">UptimeRobot.</span></h2>
+        <div class="method-stage-eyebrow">LIVE PROBE · UPDATED EVERY 30 SECONDS</div>
+        <h2 class="method-stage-title">Right now, <span class="ital">how is each piece holding up?</span></h2>
       </div>
       <div class="method-stage-body">
-        <p>The status page below is hosted and updated by UptimeRobot · an independent uptime-monitoring service. They probe our homepage, our API, and our admin endpoint every five minutes from outside our network. If a single probe fails, an incident opens automatically; we are paged. The 90-day history is public, including any incidents we caused ourselves.</p>
+        <p>Our own server probes every dependency Counsel.day relies on · the database, Stripe, the AI verdict pipeline, the Whisper transcription, the R2 audio vault, the email gateway, and the cron jobs that ship the weekly + monthly verdicts. Each row below was last checked seconds ago. For the 90-day external uptime audit, see the independent UptimeRobot monitor link beneath.</p>
       </div>
 
-      <div style="margin: 24px 0; border: 1px solid var(--ink); background: var(--paper); padding: 0; overflow: hidden;">
-        <iframe
-          src="https://stats.uptimerobot.com/HcILrYOdXA"
-          title="Counsel.day live uptime status (UptimeRobot)"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          style="width: 100%; min-height: 720px; border: 0; display: block;"></iframe>
+      <div id="cd-status-summary" style="display: flex; gap: 14px; flex-wrap: wrap; margin: 18px 0 12px;" role="status" aria-live="polite">
+        <div class="cd-status-pill-large cd-status-loading"><strong id="cd-status-overall">Probing…</strong><span id="cd-status-overall-note" style="display: block; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; color: var(--muted); margin-top: 2px;">Loading service health</span></div>
+        <div style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--muted); align-self: center; text-transform: uppercase;">Last checked: <span id="cd-status-checked">·</span></div>
       </div>
 
-      <p style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; margin-top: 14px;">
-        Cannot see the embed? Open <a href="https://stats.uptimerobot.com/HcILrYOdXA" target="_blank" rel="noopener" style="color: var(--wine);">stats.uptimerobot.com/HcILrYOdXA</a> directly.
-      </p>
-    </section>
-
-    <section class="method-stage">
-      <div class="method-stage-head">
-        <div class="method-stage-eyebrow">CURRENT STATUS BY SERVICE</div>
-        <h2 class="method-stage-title">Per-service operational <span class="ital">health.</span></h2>
-      </div>
-
-      <div class="duration-table">
+      <div class="duration-table" id="cd-status-table">
         <div class="duration-row head">
           <div class="duration-cell">Service</div>
           <div class="duration-cell">What it does</div>
           <div class="duration-cell" style="text-align: right;">Status</div>
         </div>
-        <div class="duration-row status-svc">
-          <div class="duration-cell">
-            <div class="duration-class">Surface 01</div>
-            <div class="duration-name">Marketing site</div>
-          </div>
-          <div class="duration-cell duration-examples">The public counsel.day pages, including this status page.</div>
-          <div class="duration-cell status-cell"><span class="status-pill live">Operational</span></div>
-        </div>
-        <div class="duration-row status-svc">
-          <div class="duration-cell">
-            <div class="duration-class">Surface 02</div>
-            <div class="duration-name">Application</div>
-          </div>
-          <div class="duration-cell duration-examples">The signed-in product: the evening vote, the dashboard, the verdict view.</div>
-          <div class="duration-cell status-cell"><span class="status-pill live">Operational</span></div>
-        </div>
-        <div class="duration-row status-svc">
-          <div class="duration-cell">
-            <div class="duration-class">Service 03</div>
-            <div class="duration-name">Authentication</div>
-          </div>
-          <div class="duration-cell duration-examples">Sign-in, sign-up, password reset, multi-factor authentication.</div>
-          <div class="duration-cell status-cell"><span class="status-pill live">Operational</span></div>
-        </div>
-        <div class="duration-row status-svc">
-          <div class="duration-cell">
-            <div class="duration-class">Service 04</div>
-            <div class="duration-name">Payments</div>
-          </div>
-          <div class="duration-cell duration-examples">Subscription billing, plan changes, invoicing. Processed in USD worldwide.</div>
-          <div class="duration-cell status-cell"><span class="status-pill live">Operational</span></div>
-        </div>
-        <div class="duration-row status-svc">
-          <div class="duration-cell">
-            <div class="duration-class">Service 05</div>
-            <div class="duration-name">Email delivery</div>
-          </div>
-          <div class="duration-cell duration-examples">Transactional email: invites, evening reminders, verdict notifications.</div>
-          <div class="duration-cell status-cell"><span class="status-pill live">Operational</span></div>
-        </div>
-        <div class="duration-row status-svc">
-          <div class="duration-cell">
-            <div class="duration-class">Service 06</div>
-            <div class="duration-name">Verdict pipeline</div>
-          </div>
-          <div class="duration-cell duration-examples">The analysis run that opens both verdicts and the five-layer synthesis on the final evening.</div>
-          <div class="duration-cell status-cell"><span class="status-pill live">Operational</span></div>
-        </div>
-        <div class="duration-row status-svc">
-          <div class="duration-cell">
-            <div class="duration-class">Service 07</div>
-            <div class="duration-name">Database</div>
-          </div>
-          <div class="duration-cell duration-examples">Primary Postgres, with row-level security and the sealed read path. Encrypted backups in two EU regions.</div>
-          <div class="duration-cell status-cell"><span class="status-pill live">Operational</span></div>
+        <div class="duration-row" id="cd-status-loading-row">
+          <div class="duration-cell" style="grid-column: 1 / -1; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; padding: 24px;">Probing services…</div>
         </div>
       </div>
+
+      <p style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; margin-top: 14px;">
+        External 90-day uptime: <a href="https://stats.uptimerobot.com/HcILrYOdXA" target="_blank" rel="noopener" style="color: var(--wine);">stats.uptimerobot.com →</a>
+      </p>
     </section>
+
+    <!-- The previous hard-coded service table here was replaced by the
+         live-probe section above (TASK 8 + 9 · 2026-06-05). Kept the
+         section anchor only so the colophon link to #status-services
+         still works · the live probe is what the user sees. -->
+    <span id="status-services" aria-hidden="true"></span>
 
     <section class="method-stage">
       <div class="method-stage-head">
@@ -330,6 +295,89 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   </div>
 </main>
+<script>
+// TASK 8 + 9 · Live-probe hydration · calls /api/status and renders
+// each service as a row with a green/amber/red/slate pill. Refresh
+// every 30 seconds so a visitor sitting on the page sees an outage
+// transition. /api/status is publicly cacheable for 30s so the
+// repeated calls cost very little.
+(function () {
+  var table = document.getElementById('cd-status-table');
+  var loadingRow = document.getElementById('cd-status-loading-row');
+  var overall = document.getElementById('cd-status-overall');
+  var overallNote = document.getElementById('cd-status-overall-note');
+  var overallPill = overall.closest('.cd-status-pill-large');
+  var checkedEl = document.getElementById('cd-status-checked');
+  if (!table || !overall) return;
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+  function fmtTime(iso) { try { var d = new Date(iso); return d.toLocaleTimeString(); } catch (e) { return iso; } }
+  function statusLabel(s) { return s === 'unconfigured' ? 'Unconfigured' : (s.charAt(0).toUpperCase() + s.slice(1)); }
+  function overallLabel(o) {
+    if (o === 'operational') return { text: 'All systems operational', note: 'Everything is running normally.' };
+    if (o === 'degraded')    return { text: 'Degraded performance', note: 'One or more services are slow or partially failing.' };
+    if (o === 'down')        return { text: 'Service disruption', note: 'One or more services are down.' };
+    if (o === 'partial')     return { text: 'Partial · unconfigured services', note: 'Live customer paths are operational; some services are pending configuration.' };
+    return { text: 'Unknown', note: 'Probe returned an unexpected overall state.' };
+  }
+
+  function paint(res) {
+    if (!res || !res.ok) {
+      overallPill.className = 'cd-status-pill-large down';
+      overall.textContent = 'Probe failed';
+      overallNote.textContent = 'Could not reach /api/status. The static page is up but the backend probe did not respond.';
+      checkedEl.textContent = 'just now';
+      if (loadingRow) loadingRow.remove();
+      return;
+    }
+    var ov = overallLabel(res.overall);
+    overallPill.className = 'cd-status-pill-large ' + res.overall;
+    overall.textContent = ov.text;
+    overallNote.textContent = ov.note + '  ·  ' + (res.summary.operational || 0) + ' operational, ' +
+      (res.summary.degraded || 0) + ' degraded, ' + (res.summary.down || 0) + ' down, ' +
+      (res.summary.unconfigured || 0) + ' unconfigured';
+    checkedEl.textContent = fmtTime(res.generated_at);
+
+    // Re-render the table · keep the header row, replace the rest.
+    var head = table.querySelector('.duration-row.head');
+    table.innerHTML = '';
+    if (head) table.appendChild(head);
+    (res.services || []).forEach(function (s) {
+      var row = document.createElement('div');
+      row.className = 'duration-row status-svc';
+      row.innerHTML =
+        '<div class="duration-cell">' +
+          '<div class="duration-class">' + esc(s.id.toUpperCase()) + '</div>' +
+          '<div class="duration-name">' + esc(s.name) + '</div>' +
+        '</div>' +
+        '<div class="duration-cell duration-examples">' + esc(s.what_it_does) +
+          (s.note ? '<span class="cd-status-note">Note · ' + esc(s.note) + '</span>' : '') +
+        '</div>' +
+        '<div class="duration-cell status-cell">' +
+          '<span class="cd-status-pill ' + esc(s.status) + '">' + esc(statusLabel(s.status)) + '</span>' +
+        '</div>';
+      table.appendChild(row);
+    });
+  }
+
+  function probe() {
+    fetch('/api/status', { credentials: 'omit', cache: 'no-store' })
+      .then(function (r) { return r.json(); })
+      .then(paint)
+      .catch(function () { paint(null); });
+  }
+  probe();
+  // Re-probe every 30 seconds while the tab is visible. Cap to ~60
+  // minutes of background activity to avoid runaway requests on a
+  // forgotten tab.
+  var ticks = 0;
+  setInterval(function () {
+    if (document.visibilityState !== 'visible') return;
+    if (++ticks > 120) return; // ~60 min at 30s
+    probe();
+  }, 30000);
+})();
+</script>
 
 <footer class="colophon">
   <div class="colophon-inner">

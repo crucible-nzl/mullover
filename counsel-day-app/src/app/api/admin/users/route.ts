@@ -30,6 +30,11 @@ const querySchema = z.object({
   limit: z.coerce.number().int().min(1).max(200).default(50),
   offset: z.coerce.number().int().min(0).default(0),
   sort: z.enum(['created_at', 'email', 'last_active_at', 'decisions']).default('created_at'),
+  // Status filter · admin requested 2026-06-04 to default-hide deleted
+  // users. The /admin-users page sends `status=active` by default so
+  // soft-deleted rows are excluded unless the operator picks otherwise.
+  // 'all' is sent as no param at all (so absence = all).
+  status: z.enum(['active', 'deleted', 'unverified', 'admin', 'comped']).optional(),
 });
 
 export async function GET(req: Request) {
@@ -41,7 +46,7 @@ export async function GET(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ ok: false, message: 'Invalid query.' }, { status: 422 });
   }
-  const { q, limit, offset, sort } = parsed.data;
+  const { q, limit, offset, sort, status } = parsed.data;
 
   // Build the order-by safely. We never interpolate user-supplied values
   // into SQL directly · the sort key is validated by the zod enum above.
@@ -53,6 +58,17 @@ export async function GET(req: Request) {
 
   // Search · ILIKE on email + first_name, parameterised. Empty q = no filter.
   const search = q && q.length > 0 ? sql`AND (u.email ILIKE ${'%' + q + '%'} OR u.first_name ILIKE ${'%' + q + '%'})` : sql``;
+
+  // Status filter · zod-validated to a closed enum so we can safely
+  // express each branch as a sql fragment. The default behaviour when
+  // no status param is sent (or 'all') is to return every row.
+  const statusFilter =
+    status === 'active'     ? sql`AND u.deleted_at IS NULL` :
+    status === 'deleted'    ? sql`AND u.deleted_at IS NOT NULL` :
+    status === 'unverified' ? sql`AND u.email_verified_at IS NULL AND u.deleted_at IS NULL` :
+    status === 'admin'      ? sql`AND u.is_admin = true AND u.deleted_at IS NULL` :
+    status === 'comped'     ? sql`AND u.comp_unlimited = true AND u.deleted_at IS NULL` :
+                              sql``;
 
   type Row = {
     id: string;
@@ -92,13 +108,13 @@ export async function GET(req: Request) {
            COALESCE((SELECT SUM(amount_paid_cents) FROM decisions d WHERE d.owner_user_id = u.id AND d.amount_paid_cents > 0), 0)::text AS spend_cents,
            (SELECT MAX(s.last_active_at)::text FROM sessions s WHERE s.user_id = u.id) AS last_active_at
     FROM users u
-    WHERE 1 = 1 ${search}
+    WHERE 1 = 1 ${search} ${statusFilter}
     ORDER BY ${orderBy}
     LIMIT ${limit} OFFSET ${offset}
   `);
 
   const totalRows = await db.execute<{ total: string }>(sql`
-    SELECT count(*)::text AS total FROM users u WHERE 1 = 1 ${search}
+    SELECT count(*)::text AS total FROM users u WHERE 1 = 1 ${search} ${statusFilter}
   `);
   const total = Number((totalRows[0] as { total: string }).total);
 
@@ -110,6 +126,7 @@ export async function GET(req: Request) {
       limit,
       offset,
       sort,
+      status: status ?? 'all',
       q: q ?? null,
       users: Array.from(rows).map((r) => ({
         id: r.id,

@@ -23,22 +23,29 @@ import { NextResponse } from 'next/server';
 import { db, schema } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin-auth';
 import { sql } from 'drizzle-orm';
-import { getAnthropicCost } from '@/lib/anthropic-billing';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
+
+// PERF · The whole route fans out into parallel queries. Each query
+// catches its own errors so a single failure doesn't blow up the rest;
+// the slowest single query (not the sum) sets the wall-clock budget.
+// /api/admin/anthropic-billing carries the slow Admin-API call · the
+// dashboard fetches it separately so this overview returns in <1s.
 
 export async function GET(req: Request) {
   const gate = await requireAdmin(req);
   if (gate instanceof NextResponse) return gate;
 
-  // Wrap every query in a try/catch so a single failure doesn't 500 the dashboard.
+  // Per-query wrapper · try/catch + fallback. Used inside each branch
+  // of Promise.all below so one slow / failing query never blocks the
+  // others and never causes a 500.
   const safe = async <T>(fn: () => Promise<T>, fallback: T): Promise<T> => {
     try { return await fn(); } catch (e) { console.warn('[admin/overview] query failed', e); return fallback; }
   };
 
   // ---- Users ----
-  const users = await safe(async () => {
+  const usersP = safe(async () => {
     const rows = await db.execute<{
       total: string;
       verified: string;
@@ -71,7 +78,7 @@ export async function GET(req: Request) {
   }, { total: 0, verified: 0, deleted: 0, admins: 0, last_7_days: 0, last_30_days: 0, with_password: 0 });
 
   // ---- Decisions ----
-  const decisions = await safe(async () => {
+  const decisionsP = safe(async () => {
     const rows = await db.execute<{
       total: string;
       pending: string;
@@ -140,7 +147,7 @@ export async function GET(req: Request) {
   // wants the real number on the bill. Production verdicts go into the
   // verdicts table; operator test runs from /admin-testing-area go into
   // verdict_test_runs. Both spent real money on the same API key.
-  const verdicts = await safe(async () => {
+  const verdictsP = safe(async () => {
     const rows = await db.execute<{
       total: string;
       last_7: string;
@@ -196,7 +203,7 @@ export async function GET(req: Request) {
   }, { total: 0, last_7_days: 0, tokens_input: 0, tokens_output: 0, cost_usd: 0, production: { count: 0, tokens_input: 0, tokens_output: 0, cost_usd: 0 }, testing: { count: 0, tokens_input: 0, tokens_output: 0, cost_usd: 0 }, last_generated_at: null });
 
   // ---- Cron health · derived from audit_log + table activity ----
-  const cronHealth = await safe(async () => {
+  const cronHealthP = safe(async () => {
     const rows = await db.execute<{
       last_verdict: string | null;
       last_session_purge: string | null;
@@ -227,7 +234,7 @@ export async function GET(req: Request) {
   });
 
   // ---- Stripe webhook activity ----
-  const stripe = await safe(async () => {
+  const stripeP = safe(async () => {
     const rows = await db.execute<{
       total: string;
       last_24h: string;
@@ -260,7 +267,7 @@ export async function GET(req: Request) {
     metadata: unknown;
     created_at: string;
   };
-  const auditRecent = await safe<AuditRow[]>(async () => {
+  const auditRecentP = safe<AuditRow[]>(async () => {
     const rows = await db.execute<AuditRow>(sql`
       SELECT id, actor_user_id, action, target_type, target_id, metadata, created_at
       FROM audit_log
@@ -271,7 +278,7 @@ export async function GET(req: Request) {
   }, []);
 
   // ---- Refund requests · pending = recent + no follow-up resolve action ----
-  const refunds = await safe(async () => {
+  const refundsP = safe(async () => {
     const rows = await db.execute<{ pending: string; total: string }>(sql`
       SELECT
         count(*) FILTER (WHERE action = 'refund.requested' AND NOT EXISTS (
@@ -287,7 +294,7 @@ export async function GET(req: Request) {
   }, { pending: 0, total: 0 });
 
   // ---- Sessions + saved contacts counts ----
-  const misc = await safe(async () => {
+  const miscP = safe(async () => {
     const rows = await db.execute<{
       sessions_active: string;
       sessions_expired: string;
@@ -309,22 +316,18 @@ export async function GET(req: Request) {
     };
   }, { sessions_active: 0, sessions_expired: 0, saved_contacts: 0, consent_log_total: 0 });
 
-  // Live Anthropic billing · settled (cost_report) + realtime-from-usage
-  // (usage_report × pricing) direct from Anthropic's Admin API. Both
-  // figures lag the console "$X.XX spent" by hours to days · verified
-  // 2026-05-22 the console showed $0.14 while cost_report returned
-  // $0.0032 for the same window. There is no Admin API endpoint that
-  // matches the console number (probed billing/spend_limits/etc · all
-  // 404). For the operator's running total of Counsel.day-product spend
-  // we now rely on the anthropic_calls ledger below instead.
-  const anthropicCost = await getAnthropicCost();
+  // Live Anthropic billing has moved to its own endpoint
+  // /api/admin/anthropic-billing · the dashboard fetches it in parallel
+  // with this overview so the slow paginated Admin-API call doesn't
+  // block the headline numbers. See [project_admin_overview_perf] for
+  // the prior 30-second cold-load issue.
 
   // Anthropic calls ledger · self-tracked, true running total of every
   // messages.create() call the product makes (verdicts cron + testing
   // area + future chatbot, etc.). This is what the admin card headlines.
   // Does NOT include Claude Code / external usage on the same API key
   // by design · this table is scoped to in-product spend.
-  const anthropicCalls = await safe(async () => {
+  const anthropicCallsP = safe(async () => {
     const rows = await db.execute<{
       total_calls: string;
       total_cost_cents: string;
@@ -378,6 +381,32 @@ export async function GET(req: Request) {
     ok_calls: 0, failed_calls: 0, by_source: [],
   });
 
+  // PERF · Fan out · all the per-section queries run concurrently. Wall
+  // clock is the slowest single query, not the sum. /api/admin/overview
+  // dropped from ~30s to ~1s with this change (the Anthropic Admin API
+  // call was the dominant cost and is now on a separate endpoint).
+  const [
+    users,
+    decisions,
+    verdicts,
+    cronHealth,
+    stripe,
+    auditRecent,
+    refunds,
+    misc,
+    anthropicCalls,
+  ] = await Promise.all([
+    usersP,
+    decisionsP,
+    verdictsP,
+    cronHealthP,
+    stripeP,
+    auditRecentP,
+    refundsP,
+    miscP,
+    anthropicCallsP,
+  ]);
+
   return NextResponse.json(
     {
       ok: true,
@@ -385,10 +414,10 @@ export async function GET(req: Request) {
       users,
       decisions,
       verdicts,
-      anthropic_billing: {
-        configured: anthropicCost !== null,
-        cost: anthropicCost,
-      },
+      // anthropic_billing now lives at /api/admin/anthropic-billing so
+      // the slow Admin-API call doesn't block this response. The
+      // dashboard fetches both in parallel.
+      anthropic_billing_endpoint: '/api/admin/anthropic-billing',
       anthropic_calls: anthropicCalls,
       cron_health: cronHealth,
       stripe,

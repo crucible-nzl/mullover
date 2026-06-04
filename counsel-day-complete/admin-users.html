@@ -197,6 +197,15 @@
       <option value="last_active_at">Last active</option>
       <option value="decisions">Decision count</option>
     </select>
+    <!-- Status filter · default "active" hides soft-deleted users. -->
+    <select id="u-status" aria-label="Filter by status">
+      <option value="active" selected>Status · Active only</option>
+      <option value="all">Status · All (incl. deleted)</option>
+      <option value="deleted">Status · Deleted only</option>
+      <option value="unverified">Status · Unverified only</option>
+      <option value="admin">Status · Admins only</option>
+      <option value="comped">Status · Comped only</option>
+    </select>
     <span class="count" id="u-count">…</span>
   </div>
 
@@ -251,12 +260,15 @@
     } catch (e) { return s; }
   }
 
-  var state = { q: '', sort: 'created_at', limit: 50, offset: 0, total: 0 };
+  // status default is 'active' · soft-deleted users are hidden until
+  // the operator explicitly picks "All" or "Deleted only".
+  var state = { q: '', sort: 'created_at', status: 'active', limit: 50, offset: 0, total: 0 };
 
   function load() {
     var params = new URLSearchParams();
     if (state.q) params.set('q', state.q);
     params.set('sort', state.sort);
+    if (state.status && state.status !== 'all') params.set('status', state.status);
     params.set('limit', String(state.limit));
     params.set('offset', String(state.offset));
     fetch('/api/admin/users?' + params.toString(), { credentials: 'include' })
@@ -338,6 +350,7 @@
     }, 250);
   });
   $('u-sort').addEventListener('change', function (e) { state.sort = e.target.value; state.offset = 0; load(); });
+  $('u-status').addEventListener('change', function (e) { state.status = e.target.value; state.offset = 0; load(); });
   $('u-prev').addEventListener('click', function () { state.offset = Math.max(0, state.offset - state.limit); load(); });
   $('u-next').addEventListener('click', function () { state.offset += state.limit; load(); });
 

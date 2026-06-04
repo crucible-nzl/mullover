@@ -405,13 +405,30 @@
   });
 
   // ---- Helpers ----
-  function set(id, val) { var el = document.getElementById(id); if (el) el.textContent = (val == null ? '·' : String(val)); }
+  function set(id, val, opts) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    if (val == null) { el.textContent = '·'; return; }
+    if (opts && opts.html === true) { el.innerHTML = String(val); return; }
+    el.textContent = String(val);
+  }
   function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
   function fmtTs(s) { if (!s) return '·'; try { return new Date(s).toLocaleString(); } catch (e) { return s; } }
   function showErr(msg) { var el = document.getElementById('adm-error'); el.style.display = 'block'; el.textContent = msg; }
 
   // ---- Overview ----
+  // PERF · Two parallel fetches. /api/admin/overview returns sub-second
+  // because every internal DB query now runs in Promise.all instead of
+  // sequentially. The Anthropic Admin-API call (5-15s on a cold cache)
+  // is on its own endpoint and updates the billing card asynchronously.
   function loadOverview() {
+    // Kick off Anthropic billing immediately · it's the slow one. The
+    // overview render uses a placeholder for the billing sub-line and
+    // patches it when this promise resolves.
+    var billingPromise = fetch('/api/admin/anthropic-billing', { credentials: 'include' })
+      .then(function (r) { return r.json().catch(function () { return { ok: true, configured: false, cost: null }; }); })
+      .catch(function () { return { ok: true, configured: false, cost: null }; });
+
     fetch('/api/admin/overview', { credentials: 'include' })
       .then(function (r) {
         if (r.status === 401 || r.status === 403) { window.location.href = '/signin?next=/admin.html'; throw new Error('redirect'); }
@@ -457,20 +474,34 @@
         }
         var calls = d.anthropic_calls || { total_cost_usd: 0, total_calls: 0, last_7d_cost_usd: 0,
           total_tokens_input: 0, total_tokens_output: 0, failed_calls: 0 };
-        var billing = d.anthropic_billing || { configured: false, cost: null };
         set('m-v-cost', formatUsd(calls.total_cost_usd) + ' USD');
 
+        // Render the in-product ledger numbers immediately. The
+        // Admin-API "settled" figure arrives via billingPromise; we
+        // append it once it lands so the page doesn't wait.
         var subBits = [];
         subBits.push(calls.total_calls.toLocaleString() + ' call(s)');
         var totalTokens = (calls.total_tokens_input || 0) + (calls.total_tokens_output || 0);
         subBits.push(totalTokens.toLocaleString() + ' tokens');
         subBits.push('7d ' + formatUsd(calls.last_7d_cost_usd));
         if (calls.failed_calls > 0) subBits.push(calls.failed_calls + ' failed');
-        if (billing.configured && billing.cost && typeof billing.cost.settled_usd === 'number') {
-          subBits.push('Anthropic API settled ' + formatUsd(billing.cost.settled_usd));
-        }
-        set('m-v-tokens', subBits.join(' · '));
+        subBits.push('<span style="color: var(--muted);">Anthropic API settled · loading…</span>');
+        set('m-v-tokens', subBits.join(' · '), { html: true });
         set('m-v-last', fmtTs(d.verdicts.last_generated_at));
+
+        // Patch the Admin-API settled figure once /api/admin/anthropic-billing returns.
+        billingPromise.then(function (b) {
+          var billing = b || { configured: false, cost: null };
+          var liveBits = subBits.slice(0, -1);  // drop the loading placeholder
+          if (billing.configured && billing.cost && typeof billing.cost.settled_usd === 'number') {
+            liveBits.push('Anthropic API settled ' + formatUsd(billing.cost.settled_usd));
+          } else if (billing.error === 'fetch_failed') {
+            liveBits.push('<span style="color: var(--muted);">Anthropic API · fetch failed</span>');
+          } else if (!billing.configured) {
+            liveBits.push('<span style="color: var(--muted);">Anthropic API · not configured</span>');
+          }
+          set('m-v-tokens', liveBits.join(' · '), { html: true });
+        });
 
         // Stripe / refunds / misc
         set('m-stripe-total', d.stripe.total_events_dedupe.toLocaleString());

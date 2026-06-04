@@ -93,18 +93,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     </div>
   </div>
 </nav>
-<script>
-  (function () {
-    var toggle = document.getElementById('cd-nav-toggle');
-    var bar = toggle && toggle.closest('.nav-bar');
-    if (!toggle || !bar) return;
-    toggle.addEventListener('click', function () {
-      var open = bar.classList.toggle('menu-open');
-      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-      toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
-    });
-  })();
-</script>
+<!-- Burger-menu wiring lives in /nav-toggle.js · loaded once per page.
+     Do NOT add an inline <script> here · two handlers on the same toggle
+     fire twice per click, opening then immediately closing the menu. -->
 <!-- /CD:PARTIAL:nav-app -->
 
 <main id="main-content">

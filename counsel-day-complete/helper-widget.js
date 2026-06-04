@@ -290,8 +290,8 @@
     // ---------------- EXAMPLE QUESTIONS · the FAQ section 09 carousel ----------------
     {
       tags: ['Decision', 'Brand'],
-      keywords: ['questions', 'example', 'examples', 'sample', 'samples', 'ideas', 'starter', 'starters', 'suggestion', 'suggestions', 'prompts', 'ask', 'kind', 'sort', 'types', 'what', 'whatcanthistool', 'what kind'],
-      q: 'What questions are good examples for Counsel.day?',
+      keywords: ['questions', 'example', 'examples', 'sample', 'samples', 'ideas', 'starter', 'starters', 'suggestion', 'suggestions', 'prompts', 'ask', 'kind', 'sort', 'types', 'what', 'whatcanthistool', 'what kind', 'some'],
+      q: 'What are some example questions?',
       a: 'There are a hundred real example questions on the FAQ page · 25 Solo, 50 Couple, 25 Family. Which group fits the decision you are carrying?\n\n· SOLO · a decision you make alone (career move, surgery, big purchase, hard truth to tell a friend).\n· COUPLE · two partners decide together (have a child, move overseas, sell the house, go to therapy).\n· FAMILY · a whole household decides (three to six people · move country, sell the family home, send a child to boarding school).\n\nFull list: https://counsel.day/faq.html#example-questions\n\nNone of those fit? Write your own in the composer · the only rule is that it can be answered yes or no and that more than one evening of you has something to say about it.'
     },
     {
@@ -311,6 +311,76 @@
       keywords: ['family', 'household', 'kids', 'children', 'parents', 'questions', 'example', 'examples', 'sample', 'samples', 'home', 'multigeneration'],
       q: 'Show me example Family questions.',
       a: 'Five from the Family set (full 25 at https://counsel.day/faq.html#eq-pane-family):\n\n· Should we move to a different country as a family?\n· Should we sell the family home?\n· Should we get a family dog?\n· Should we send our eldest to boarding school?\n· Should we move our parent into residential care?\n\nFamily decisions cost $29.99 USD each · three to six participants vote nightly.'
+    },
+
+    // ---------------- ACCOUNT · BILLING · SUBSCRIPTION MANAGEMENT ----------------
+    {
+      tags: ['Billing', 'Tech'],
+      keywords: ['comped', 'comp', 'free', 'unlimited', 'granted', 'gift', 'practitioner', 'partner'],
+      q: 'I see "Comped" on my account · what does that mean?',
+      a: 'A comped account has been granted free unlimited access by Counsel.day. The reason appears on your account page · usually you are an early supporter, partner, practitioner, or were granted free access for support reasons.\n\nWhile comped, you pay $0.00 USD for both products · compose any decision (Solo, Couple, Family) at no charge and use Counsel Journal without a subscription. There is nothing to cancel · the comp can be revoked or reinstated by an admin. See your status on https://counsel.day/account.html.'
+    },
+    {
+      tags: ['Billing', 'Tech'],
+      keywords: ['cancel', 'subscription', 'stop', 'unsubscribe', 'end', 'journal'],
+      q: 'How do I cancel my Counsel Journal subscription?',
+      a: 'Open https://counsel.day/account.html and find the Counsel Journal tile in the Subscription section. Two options:\n\n· "Cancel subscription" · cancels at the end of the current billing period. You keep access until then; no further charges.\n· "Manage in Stripe" · opens the Stripe portal where you can also update your card, download invoices, or cancel from there.\n\nCancellations are reversible from the Stripe portal until the period closes.'
+    },
+    {
+      tags: ['Billing', 'Tech'],
+      keywords: ['plan', 'summary', 'paying', 'this month', 'total', 'spending', 'cost', 'overview'],
+      q: 'How do I see what I am paying right now?',
+      a: 'On https://counsel.day/account.html the "Your current plan and renewal" section opens with a three-cell summary strip: Decision (pay-per-decision), Counsel Journal (subscription state and renewal date), and "This month" (current total).\n\nFor receipts and full billing history, open https://counsel.day/billing.html · per-decision charges and Journal renewals appear in one place.'
+    },
+    {
+      tags: ['Billing'],
+      keywords: ['refund', 'money', 'back', 'decision', 'mistake', 'change mind'],
+      q: 'Can I refund a decision?',
+      a: 'Two automatic-refund cases:\n\n1) BEFORE the first vote lands · full refund, instant, no questions. The decision is cancelled and any invites withdrawn.\n2) IF an invitee does not accept within 7 days · automatic full refund. The decision is cancelled.\n\nAfter the first vote, the decision must run to completion · the seal is a contract. For exceptional cases (a clear product failure, an emergency) email support@counsel.day with the decision ID.'
+    },
+
+    // ---------------- SECURITY · MFA · ACCOUNT MANAGEMENT ----------------
+    {
+      tags: ['Privacy', 'Tech'],
+      keywords: ['mfa', 'two factor', '2fa', 'security', 'totp', 'authenticator', 'protect'],
+      q: 'How do I enable two-factor authentication (MFA)?',
+      a: 'Open https://counsel.day/account.html under "Security" and click Enable MFA. We support TOTP authenticator apps (Google Authenticator, 1Password, Authy, etc.).\n\nFor admin accounts: destructive admin actions (promote, demote, delete a user) require a FRESH MFA challenge · within five minutes of the action · even if you are already signed in. For non-admin accounts MFA is optional but recommended.'
+    },
+    {
+      tags: ['Tech'],
+      keywords: ['session', 'sign out', 'device', 'logout', 'logged in', 'devices'],
+      q: 'How do I sign out from another device?',
+      a: 'On https://counsel.day/account.html under "Devices and sessions" you see every active session · device label, last-active timestamp, and a "Revoke" button. Click Revoke and that session is killed; the device has to sign back in.\n\nIf you suspect unauthorised access, click "Sign out everywhere" to kill every session at once (you stay signed in on your current device).'
+    },
+
+    // ---------------- VAULT · SEALED ENTRIES · READING-MODE ----------------
+    {
+      tags: ['Journal'],
+      keywords: ['vault', 'sealed', 'opens', 'cant see', 'where is my entry', 'missing', 'lost'],
+      q: 'My latest Journal entry is showing as "sealed" · is it lost?',
+      a: 'No · it is saved and safe. Every entry seals for seven days the moment you submit. During those seven days the vault shows the row with a "SEALED · opens [date]" badge instead of the body. You cannot re-read it · that is the point. The seal removes the option so future-you reads what tonight-you actually wrote, not what you wish you had.\n\nOnce the seven days elapse the body unlocks · the text appears, the audio plays back, and that entry feeds into the next Monday verdict. Vault page: https://counsel.day/vault.html.'
+    },
+    {
+      tags: ['Journal'],
+      keywords: ['vault', 'audio', 'playback', 'replay', 'listen', 'recording'],
+      q: 'How do I play back a Journal audio recording?',
+      a: 'On https://counsel.day/vault.html · each entry is a row. Click an unsealed row to expand it · the audio player and full transcript appear together. We sign a short-lived URL to your R2-hosted audio file at click time so the raw audio URL never sits in the client.\n\nSealed entries (within the seven-day window) show a locked badge instead of the player · the seal is enforced server-side too, so a hand-crafted request cannot bypass it.'
+    },
+
+    // ---------------- HELPER BOT MECHANICS · so it can explain itself ----------------
+    {
+      tags: ['Brand', 'Tech'],
+      keywords: ['bot', 'helper', 'chatbot', 'llm', 'ai', 'how this works', 'how do you work'],
+      q: 'How does this Helper bot actually work?',
+      a: 'Entirely in your browser. There is no paid LLM behind this widget · no Claude or OpenAI call when you ask a question. The answers come from a built-in knowledge base of around 40 Q/A entries that ship as part of /helper-widget.js. A keyword-weighted scorer picks the best matching entry and renders it; related entries appear as follow-up chips.\n\nThe upside is that answers come back in milliseconds and cost nothing to serve. The downside is that we cannot answer free-form questions outside the index · for those, email support@counsel.day.'
+    },
+
+    // ---------------- STATUS / OPERATIONAL ----------------
+    {
+      tags: ['Tech'],
+      keywords: ['status', 'uptime', 'down', 'outage', 'incident', 'health', 'broken', 'working'],
+      q: 'Is Counsel.day up? How do I check status?',
+      a: 'Open https://counsel.day/status.html · the page lists every service (web, API, database, Stripe webhooks, Anthropic verdict generation, R2 audio storage, Whisper transcription, email) with its current state and last-checked timestamp. Incidents in the last 30 days are listed below.\n\nFor release-related downtime, the https://counsel.day/changelog.html lists every ship.'
     }
   ];
 
@@ -372,8 +442,11 @@
     '.cd-help-launcher-btn .ico { display: inline-block; width: 18px; height: 18px; flex-shrink: 0; }',
     '.cd-help-launcher-btn .ico svg { width: 100%; height: 100%; display: block; }',
 
-    /* 570 × 810 · 50% bigger than the prior 380 × 540 widget */
-    '.cd-help-drawer { position: fixed; right: 22px; bottom: 22px; z-index: 9999; width: 570px; max-width: calc(100vw - 36px); height: 810px; max-height: calc(100vh - 36px); background: var(--paper, #ffffff); border: 1px solid var(--ink, #1c1a17); display: none; flex-direction: column; box-shadow: 0 10px 36px rgba(0,0,0,0.18); font-family: var(--font-body, ui-serif, serif); }',
+    /* 712 × 1012 · TASK 5 (2026-06-05) bump · further 25% bigger than
+       the prior 570 × 810 widget (which was itself 50% bigger than the
+       original 380 × 540). Caps via max-width/height so it still fits
+       a phone in landscape. */
+    '.cd-help-drawer { position: fixed; right: 22px; bottom: 22px; z-index: 9999; width: 712px; max-width: calc(100vw - 36px); height: 1012px; max-height: calc(100vh - 36px); background: var(--paper, #ffffff); border: 1px solid var(--ink, #1c1a17); display: none; flex-direction: column; box-shadow: 0 10px 36px rgba(0,0,0,0.18); font-family: var(--font-body, ui-serif, serif); }',
     '.cd-help-drawer.is-open { display: flex; }',
     '.cd-help-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 18px; background: var(--ink, #1c1a17); color: var(--paper, #ffffff); }',
     '.cd-help-head-l { display: flex; align-items: center; gap: 10px; }',
@@ -441,15 +514,18 @@
 
   // Build the initial-state chip grid · 8 starter questions across
   // both products. The user can click a chip OR type their own.
+  // TASK 5 · "Can I refund a decision?" is moved into the umbrella
+  // refund entry; "What are some example questions?" takes the lead
+  // chip since the carousel is the most-clicked surface right now.
   var STARTER_QS = [
-    'What questions are good examples for Counsel.day?',
+    'What are some example questions?',
     'How does a Counsel.day decision actually work?',
     'How much does the Couple tier cost?',
     'How much does Counsel Journal cost?',
     'How does Counsel Journal work day-to-day?',
-    'Can I refund a decision?',
     'Does this replace therapy?',
-    'What does Counsel.day do with my data?'
+    'What does Counsel.day do with my data?',
+    'How do I cancel my Counsel Journal subscription?'
   ];
 
   drawer.innerHTML =

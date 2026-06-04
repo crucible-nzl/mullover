@@ -285,6 +285,32 @@
       keywords: ['founder', 'james', 'who', 'team', 'company'],
       q: 'Who is behind Counsel.day?',
       a: 'James Graham (data executive · not a clinician). Counsel.day is built solo. The product is pre-launch as of mid-2026.\n\nJames is reachable at admin@counsel.day for anything that doesn\'t fit support@. The codebase is in active development; you may see frequent ship notes.'
+    },
+
+    // ---------------- EXAMPLE QUESTIONS · the FAQ section 09 carousel ----------------
+    {
+      tags: ['Decision', 'Brand'],
+      keywords: ['questions', 'example', 'examples', 'sample', 'samples', 'ideas', 'starter', 'starters', 'suggestion', 'suggestions', 'prompts', 'ask', 'kind', 'sort', 'types', 'what', 'whatcanthistool', 'what kind'],
+      q: 'What questions are good examples for Counsel.day?',
+      a: 'There are a hundred real example questions on the FAQ page · 25 Solo, 50 Couple, 25 Family. Which group fits the decision you are carrying?\n\n· SOLO · a decision you make alone (career move, surgery, big purchase, hard truth to tell a friend).\n· COUPLE · two partners decide together (have a child, move overseas, sell the house, go to therapy).\n· FAMILY · a whole household decides (three to six people · move country, sell the family home, send a child to boarding school).\n\nFull list: https://counsel.day/faq.html#example-questions\n\nNone of those fit? Write your own in the composer · the only rule is that it can be answered yes or no and that more than one evening of you has something to say about it.'
+    },
+    {
+      tags: ['Decision'],
+      keywords: ['solo', 'questions', 'example', 'examples', 'sample', 'samples', 'alone', 'personal', 'individual'],
+      q: 'Show me example Solo questions.',
+      a: 'Five from the Solo set (full 25 at https://counsel.day/faq.html#eq-pane-solo):\n\n· Should I leave the job I have for the contract on the table?\n· Should I quit my job and write the book?\n· Should I move to a new country for a year?\n· Should I take the surgery the consultant recommended?\n· Should I take the long flight to see my estranged parent before they die?\n\nSolo decisions cost $9.99 USD each · your first Solo is free. Every example is editable in the composer before you file.'
+    },
+    {
+      tags: ['Decision'],
+      keywords: ['couple', 'partner', 'partners', 'two', 'questions', 'example', 'examples', 'sample', 'samples', 'relationship', 'spouse', 'husband', 'wife', 'us'],
+      q: 'Show me example Couple questions.',
+      a: 'Five from the Couple set (full 50 at https://counsel.day/faq.html#eq-pane-couple):\n\n· Should we have a baby this year?\n· Should we sell the house and rent?\n· Should we move overseas for the year?\n· Should we go to couples therapy?\n· Should we file for divorce?\n\nCouple decisions cost $15.99 USD each · two participants vote nightly, every vote stays sealed until reveal day.'
+    },
+    {
+      tags: ['Decision'],
+      keywords: ['family', 'household', 'kids', 'children', 'parents', 'questions', 'example', 'examples', 'sample', 'samples', 'home', 'multigeneration'],
+      q: 'Show me example Family questions.',
+      a: 'Five from the Family set (full 25 at https://counsel.day/faq.html#eq-pane-family):\n\n· Should we move to a different country as a family?\n· Should we sell the family home?\n· Should we get a family dog?\n· Should we send our eldest to boarding school?\n· Should we move our parent into residential care?\n\nFamily decisions cost $29.99 USD each · three to six participants vote nightly.'
     }
   ];
 
@@ -324,9 +350,11 @@
     }).filter(function (x) { return x.score > 0; });
     scored.sort(function (a, b) { return b.score - a.score; });
     if (scored.length === 0 || scored[0].score < 3) return null;
-    // Return top match + up to 2 alternatives if their score is at least
+    // Return top match + up to 4 alternatives if their score is at least
     // half of the top score · gives the user a chance to disambiguate.
-    var alts = scored.slice(1, 3).filter(function (x) { return x.score >= scored[0].score * 0.5; });
+    // 4 (was 2) so the example-questions entry can fan out Solo / Couple
+    // / Family chips alongside other related entries.
+    var alts = scored.slice(1, 5).filter(function (x) { return x.score >= scored[0].score * 0.5; });
     return { top: scored[0].entry, alts: alts.map(function (x) { return x.entry; }) };
   }
 
@@ -414,12 +442,12 @@
   // Build the initial-state chip grid · 8 starter questions across
   // both products. The user can click a chip OR type their own.
   var STARTER_QS = [
+    'What questions are good examples for Counsel.day?',
     'How does a Counsel.day decision actually work?',
     'How much does the Couple tier cost?',
     'How much does Counsel Journal cost?',
     'How does Counsel Journal work day-to-day?',
     'Can I refund a decision?',
-    'Where are my recordings stored?',
     'Does this replace therapy?',
     'What does Counsel.day do with my data?'
   ];
@@ -475,8 +503,22 @@
     if (e.key === 'Escape' && drawer.classList.contains('is-open')) closeDrawer();
   });
 
+  // Render answer text into HTML paragraphs. URLs are auto-linked
+  // AFTER esc() so the answers can include https://counsel.day/… and
+  // friends and the user can click through (e.g. to the FAQ example-
+  // questions carousel) without losing the same-origin context.
   function paragraphs(text) {
-    return String(text || '').split(/\n\n+/).map(function (p) { return '<p>' + esc(p).replace(/\n/g, '<br>') + '</p>'; }).join('');
+    var urlRe = /(https?:\/\/[A-Za-z0-9._~:/?#\[\]@!$&'()*+,;=%-]+)/g;
+    return String(text || '').split(/\n\n+/).map(function (p) {
+      var safe = esc(p).replace(/\n/g, '<br>');
+      var linked = safe.replace(urlRe, function (m) {
+        // Local links open in-place · external open in a new tab so the
+        // helper drawer state isn't lost.
+        var external = m.indexOf('counsel.day') === -1;
+        return '<a href="' + m + '"' + (external ? ' target="_blank" rel="noopener"' : '') + ' style="color: var(--wine, #722F37); border-bottom: 1px solid var(--wine, #722F37); padding-bottom: 1px; text-decoration: none;">' + m + '</a>';
+      });
+      return '<p>' + linked + '</p>';
+    }).join('');
   }
 
   function appendMsg(role, html) {

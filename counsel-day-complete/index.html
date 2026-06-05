@@ -1396,6 +1396,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
      scannable. -->
 <section class="intro-band">
   <div class="intro-inner">
+    <!-- Q1 · "Your first Solo decision is FREE" pill sits ABOVE the H1
+         so the value-prop hits in the first second. Linked to /signup
+         so a cold visitor can act on it without scrolling. -->
+    <a href="signup.html" class="intro-free-pill" aria-label="Your first Solo decision is free · sign up">
+      <span class="dot" aria-hidden="true"></span>
+      <span class="text"><strong>Your first Solo decision is FREE.</strong> No card required.</span>
+      <span class="arrow" aria-hidden="true">→</span>
+    </a>
     <div class="intro-kicker">TWO PRODUCTS · ONE SEALED-VOTE METHOD</div>
     <h1 class="intro-headline">Decide slowly. <span class="ital">See the pattern.</span></h1>
     <p class="intro-lede"><strong>Counsel.day Decision</strong> settles a hard joint question over a season of sealed votes. <strong>Counsel Journal</strong> reads your evenings back to you · weekly, then monthly. Pick the one that fits.</p>
@@ -1658,6 +1666,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
      a 1080p viewport. */
   .intro-band { padding: 26px 28px 14px; background: var(--paper); }
   .intro-inner { max-width: 1620px; margin: 0 auto; text-align: center; }
+  /* Q1 · "First Solo decision is FREE" pill · sits above the H1 so the
+     value-prop lands before the visitor reads anything else. Wine
+     background, paper text, dot-pulse to draw the eye. */
+  .intro-free-pill { display: inline-flex; align-items: center; gap: 10px; padding: 10px 18px; margin: 0 auto 14px; background: var(--wine); color: var(--paper); text-decoration: none; font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; border: 1px solid var(--wine); transition: background 120ms, transform 120ms; }
+  .intro-free-pill:hover { background: var(--wine-deep, #5a242c); transform: translateY(-1px); }
+  .intro-free-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: #fff; opacity: 0.9; animation: cd-pulse 1.8s ease-in-out infinite; }
+  .intro-free-pill .text { letter-spacing: 0.04em; }
+  .intro-free-pill .text strong { font-weight: 700; }
+  .intro-free-pill .arrow { font-size: 14px; }
+  @keyframes cd-pulse { 0%, 100% { opacity: 0.9; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
+  @media (prefers-reduced-motion: reduce) { .intro-free-pill .dot { animation: none; } }
   .intro-kicker { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--wine); margin-bottom: 10px; }
   .intro-headline { font-family: var(--font-display); font-weight: 400; font-size: clamp(34px, 5.2vw, 76px); line-height: 1.02; letter-spacing: -0.02em; color: var(--ink); margin: 0 0 10px; }
   .intro-headline .ital { font-style: italic; color: var(--wine); }

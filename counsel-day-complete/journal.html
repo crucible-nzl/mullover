@@ -62,6 +62,38 @@
   .dc-compose button.submit:disabled { opacity: 0.5; cursor: not-allowed; }
 
   /* Sealed-today banner */
+  /* H3 · First-Monday themed-verdict banner */
+  .dc-monday-banner { display: flex; flex-direction: column; gap: 6px; padding: 18px 22px; background: var(--wine); color: var(--paper); margin-bottom: 22px; text-decoration: none; border: 1px solid var(--wine); transition: background 120ms; }
+  .dc-monday-banner:hover { background: var(--wine-deep, #5a242c); }
+  .dc-monday-lbl { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.85; }
+  .dc-monday-text { font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
+  .dc-monday-text strong { font-family: var(--font-display); font-style: italic; font-weight: 400; }
+  .dc-monday-arrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.9; }
+
+  /* Q3 · Calendar tile · 30-day grid · physical-journal feel */
+  .dc-cal { padding: 22px 24px; margin-bottom: 26px; background: var(--paper); border: 1px solid var(--rule); }
+  .dc-cal-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
+  .dc-cal-eyebrow { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine); }
+  .dc-cal-legend { display: flex; gap: 14px; flex-wrap: wrap; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; color: var(--ink-soft); text-transform: uppercase; }
+  .dc-cal-legend .lg { display: inline-flex; align-items: center; gap: 6px; }
+  .dc-cal-legend .sq { display: inline-block; width: 12px; height: 12px; border: 1px solid var(--rule); border-radius: 0; }
+  .dc-cal-legend .lg-filed .sq { background: var(--ink); border-color: var(--ink); }
+  .dc-cal-legend .lg-sealed .sq { background: var(--wine); border-color: var(--wine); }
+  .dc-cal-legend .lg-skip .sq { background: var(--paper); border-color: var(--rule); border-style: dashed; }
+  .dc-cal-grid { display: grid; grid-template-columns: repeat(15, 1fr); gap: 4px; }
+  .dc-cal-day { aspect-ratio: 1 / 1; border: 1px solid var(--rule); display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); position: relative; }
+  .dc-cal-day .d { font-size: 10px; letter-spacing: 0.04em; }
+  .dc-cal-day.is-filed { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .dc-cal-day.is-sealed { background: var(--wine); color: var(--paper); border-color: var(--wine); }
+  .dc-cal-day.is-today { outline: 2px solid var(--wine); outline-offset: 1px; }
+  .dc-cal-day.is-future { opacity: 0.3; border-style: dotted; }
+  .dc-cal-stats { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--rule); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; color: var(--ink-soft); text-transform: uppercase; display: flex; gap: 22px; flex-wrap: wrap; }
+  .dc-cal-stats strong { color: var(--wine); font-weight: 700; }
+  @media (max-width: 760px) {
+    .dc-cal-grid { grid-template-columns: repeat(10, 1fr); }
+    .dc-cal-day .d { font-size: 9px; }
+  }
+
   .dc-sealed-banner { padding: 18px 22px; background: var(--wine-soft); border-left: 3px solid var(--wine); margin-bottom: 30px; font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: var(--ink); display: none; }
   .dc-sealed-banner.is-shown { display: block; }
   .dc-sealed-banner .lbl { font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin-bottom: 6px; }
@@ -271,6 +303,32 @@
     </style>
 
     <div id="dc-msg" class="dc-msg" role="alert" aria-live="polite"></div>
+
+    <!-- H3 · First-Monday themed-verdict banner · shown only when it's
+         the first Monday of the month AND a themed verdict for last
+         month exists. Wine band with deep-read link. Hidden by default;
+         JS unhides on init when both conditions match. -->
+    <a href="#dc-verdicts-block" id="dc-monday-banner" class="dc-monday-banner" style="display: none;" aria-label="Open the monthly themed verdict">
+      <div class="dc-monday-lbl">FIRST MONDAY · THEMED VERDICT READY</div>
+      <div class="dc-monday-text">Your themed verdict for <strong id="dc-monday-month">last month</strong> is open. It reads the past four weekly verdicts together and names what the month was about.</div>
+      <div class="dc-monday-arrow">Read the themed verdict →</div>
+    </a>
+
+    <!-- Q3 · Calendar tile · 30-day grid showing filed/sealed/skipped per
+         day so a Journal subscriber can see at a glance whether they've
+         been consistent. Hidden until at least one entry exists. -->
+    <section class="dc-cal" id="dc-cal-block" style="display: none;" aria-label="Your last 30 days">
+      <div class="dc-cal-head">
+        <div class="dc-cal-eyebrow" id="dc-cal-eyebrow">YOUR LAST 30 DAYS</div>
+        <div class="dc-cal-legend">
+          <span class="lg lg-filed"><span class="sq"></span>filed · unsealed</span>
+          <span class="lg lg-sealed"><span class="sq"></span>filed · sealed</span>
+          <span class="lg lg-skip"><span class="sq"></span>skipped</span>
+        </div>
+      </div>
+      <div class="dc-cal-grid" id="dc-cal-grid" role="grid" aria-readonly="true"></div>
+      <div class="dc-cal-stats" id="dc-cal-stats"></div>
+    </section>
 
     <div class="dc-sealed-banner" id="dc-sealed-today">
       <div class="lbl">TONIGHT'S ENTRY · ALREADY SEALED</div>
@@ -549,6 +607,85 @@
       .finally(function () { submitBtn.disabled = false; submitBtn.textContent = 'Seal tonight\'s entry'; });
   });
 
+  // Q3 · render the 30-day calendar tile · one square per day across
+  // the trailing 30 days. Filled when an entry exists, wine when the
+  // entry is still sealed, dashed-empty when skipped. The today square
+  // gets a wine outline regardless of state.
+  function renderCalendarTile(entries) {
+    var block = document.getElementById('dc-cal-block');
+    var grid = document.getElementById('dc-cal-grid');
+    var stats = document.getElementById('dc-cal-stats');
+    var eyebrow = document.getElementById('dc-cal-eyebrow');
+    if (!block || !grid) return;
+    if (!entries || entries.length === 0) { block.style.display = 'none'; return; }
+    // Build a {YYYY-MM-DD: {sealed: bool}} map · entry_date is ISO date.
+    var byDate = {};
+    entries.forEach(function (e) {
+      if (!e.entry_date) return;
+      var k = e.entry_date.slice(0, 10);
+      byDate[k] = { sealed: e.is_sealed === true };
+    });
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    var todayIso = today.toISOString().slice(0, 10);
+    var html = '';
+    var filed = 0, sealed = 0, skipped = 0;
+    // 30 days, oldest first
+    for (var i = 29; i >= 0; i--) {
+      var d = new Date(today); d.setDate(d.getDate() - i);
+      var iso = d.toISOString().slice(0, 10);
+      var hit = byDate[iso];
+      var cls = 'dc-cal-day';
+      if (iso === todayIso) cls += ' is-today';
+      if (hit) {
+        if (hit.sealed) { cls += ' is-sealed'; sealed++; }
+        else { cls += ' is-filed'; filed++; }
+      } else {
+        cls += ' is-skip'; skipped++;
+      }
+      var day = d.getDate();
+      var monthLbl = (d.getDate() === 1 || i === 29) ? ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()] : '';
+      html += '<div class="' + cls + '" title="' + iso + '" aria-label="' + iso + (hit ? (hit.sealed ? ' sealed entry' : ' filed entry') : ' no entry') + '">' +
+        (monthLbl ? '<div class="d" style="font-size: 8px; opacity: 0.65;">' + monthLbl + '</div>' : '') +
+        '<div class="d">' + day + '</div>' +
+      '</div>';
+    }
+    grid.innerHTML = html;
+    if (stats) {
+      var totalEntered = filed + sealed;
+      stats.innerHTML = '<span><strong>' + totalEntered + '</strong> of 30 days entered</span>' +
+        '<span><strong>' + sealed + '</strong> still sealed</span>' +
+        '<span><strong>' + filed + '</strong> unsealed</span>' +
+        '<span><strong>' + skipped + '</strong> skipped</span>';
+    }
+    if (eyebrow) eyebrow.textContent = 'YOUR LAST 30 DAYS · ' + totalEntered + ' OF 30';
+    block.style.display = 'block';
+  }
+
+  // H3 · render the first-Monday themed-verdict banner. Triggers when:
+  //   1. Today is a Monday
+  //   2. Today's date is between 1 and 7 (i.e. the FIRST Monday)
+  //   3. A monthly themed verdict for the prior month exists in the
+  //      verdicts list (kind === 'monthly_themed' or 'monthly').
+  function renderMondayBanner(verdicts) {
+    var banner = document.getElementById('dc-monday-banner');
+    var monthEl = document.getElementById('dc-monday-month');
+    if (!banner) return;
+    var now = new Date();
+    var dow = now.getDay();         // 0 = Sun, 1 = Mon
+    var date = now.getDate();
+    if (dow !== 1 || date > 7) return;
+    var lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    var lastMonthKey = lastMonth.toISOString().slice(0, 7);
+    var match = (verdicts || []).find(function (v) {
+      if (v.kind !== 'monthly_themed' && v.kind !== 'monthly') return false;
+      var k = (v.week_starts_on || '').slice(0, 7);
+      return k === lastMonthKey;
+    });
+    if (!match) return;
+    if (monthEl) monthEl.textContent = ['January','February','March','April','May','June','July','August','September','October','November','December'][lastMonth.getMonth()] + ' ' + lastMonth.getFullYear();
+    banner.style.display = 'flex';
+  }
+
   // TASK 2 · render the user's last 5 vault entries inline below the
   // composer. Sealed entries show as locked rows with the opens-date.
   function renderEntriesStrip(entries) {
@@ -728,6 +865,14 @@
         // composer. Hides itself if the user has zero entries.
         renderEntriesStrip(vaultRes && vaultRes.entries ? vaultRes.entries : []);
 
+        // Q3 · render the 30-day calendar tile from vault entries.
+        renderCalendarTile(vaultRes && vaultRes.entries ? vaultRes.entries : []);
+
+        // H3 · first-Monday themed-verdict banner · show only when
+        // today is the first Monday of the month AND a monthly_themed
+        // verdict for last month exists in the verdicts list.
+        renderMondayBanner((verdictRes && verdictRes.verdicts) || []);
+
         // TASK 1 + 5 · Subscriber-only adjustments. Once we know the
         // user is paying we hide the price-CTA meta line and turn the
         // mechanism + why-pay sections into one-line summaries (click
@@ -804,7 +949,7 @@
 })();
 </script>
 <script src="ga4.js" defer></script>
-<script src="/nav-toggle.js" defer></script>
+<script src="/nav-toggle.js?v=20260605" defer></script>
 <script src="/voice-input.js" defer></script>
 <script>
   /* Voice-to-text on the daily-entry textarea. No decision_id is

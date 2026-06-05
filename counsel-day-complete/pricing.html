@@ -176,6 +176,24 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   .pr-banner-cta { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--wine); border-bottom: 1px solid var(--wine); padding-bottom: 1px; text-decoration: none; }
   .pr-banner-cta:hover { color: var(--ink); border-bottom-color: var(--ink); }
   @media (max-width: 720px) { .pr-signed-in-banner { flex-wrap: wrap; } }
+
+  /* H6 · Product walkthrough video on /pricing · seal-then-reveal */
+  .pricing-video { margin: 36px 0 50px; padding: 28px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  .pricing-video-head { max-width: 820px; margin: 0 auto 22px; text-align: center; }
+  .pricing-video-eyebrow { font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine); margin-bottom: 8px; }
+  .pricing-video-h { font-family: var(--font-display); font-weight: 400; font-size: clamp(26px, 3.4vw, 38px); line-height: 1.12; color: var(--ink); margin: 0 0 12px; }
+  .pricing-video-h .ital { font-style: italic; color: var(--wine); }
+  .pricing-video-sub { font-family: var(--font-body); font-size: 16px; line-height: 1.55; color: var(--ink-soft); margin: 0; max-width: 720px; margin-left: auto; margin-right: auto; }
+  .pricing-video-frame { max-width: 960px; margin: 0 auto; background: var(--ink); border: 1px solid var(--ink); aspect-ratio: 16 / 9; position: relative; overflow: hidden; }
+  .pricing-video-el { width: 100%; height: 100%; display: block; background: var(--ink); }
+  .pricing-video-fallback { color: var(--paper); padding: 22px; font-family: var(--font-body); font-size: 14px; text-align: center; }
+  .pricing-video-transcript-wrap { max-width: 820px; margin: 18px auto 0; }
+  .pricing-video-transcript-wrap summary { cursor: pointer; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--wine); padding: 10px 0; }
+  .pricing-video-transcript-wrap summary:hover { color: var(--wine-deep, #5a242c); }
+  .pricing-video-transcript { padding: 18px 22px; background: var(--paper-deep); border-left: 3px solid var(--wine); font-family: var(--font-body); font-size: 15px; line-height: 1.6; color: var(--ink); margin-top: 8px; }
+  .pricing-video-transcript p { margin: 0 0 12px; }
+  .pricing-video-transcript p:last-child { margin-bottom: 0; }
+  .pricing-video-transcript strong { font-family: var(--font-mono); color: var(--wine); font-size: 13px; letter-spacing: 0.05em; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -257,6 +275,48 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </a>
       </div>
     </header>
+
+    <!-- H6 · 60-second product video · seal-then-reveal mechanism.
+         Best converter for any product like this · the explanation is
+         hard in text. Sits between the two-product jump nav and the
+         pricing detail bands so a cold visitor sees the mechanism in
+         motion before they decide which tier to read about.
+         The <video> element is wired with native controls, a poster
+         frame, and a transcript drawer below for accessibility. Drop
+         your recording into /counsel-day-complete/seal-then-reveal.mp4
+         (H.264 1080p, AAC audio, target 8MB or less for fast play).
+         Until then, the poster shows a "Video coming soon" frame and
+         the transcript stays as the editorial copy below. -->
+    <section class="pricing-video" id="pricing-video" aria-label="Product walkthrough">
+      <div class="pricing-video-head">
+        <div class="pricing-video-eyebrow">60 SECONDS · WATCH THE MECHANISM</div>
+        <h2 class="pricing-video-h">How the <span class="ital">seal-then-reveal</span> actually works.</h2>
+        <p class="pricing-video-sub">A two-partner Couple decision, sped up · thirty evenings on the left rail, the sealed vote slips behind them, the reveal animation at the close, the verdict that opens.</p>
+      </div>
+      <div class="pricing-video-frame">
+        <video
+          controls
+          preload="metadata"
+          playsinline
+          poster="seal-then-reveal.poster.svg"
+          aria-describedby="pricing-video-transcript"
+          class="pricing-video-el">
+          <source src="seal-then-reveal.mp4" type="video/mp4">
+          <p class="pricing-video-fallback">Your browser cannot play HTML5 video. The transcript below covers the same content.</p>
+        </video>
+      </div>
+      <details class="pricing-video-transcript-wrap">
+        <summary>Read the transcript (for accessibility and quick-skim)</summary>
+        <div id="pricing-video-transcript" class="pricing-video-transcript">
+          <p><strong>0:00</strong> · Two partners open Counsel.day. One question · "Should we move overseas for the year?" The composer asks for a duration · they pick thirty days.</p>
+          <p><strong>0:08</strong> · Evening one. Each partner sees the same prompt at 19:00 local. They tap one of four options · strong yes / lean yes / lean no / strong no. They write a one-line note if a note comes. Submit. The vote seals.</p>
+          <p><strong>0:18</strong> · Evening seven. Both have voted six of seven nights. Neither has seen the other's vote. The strip across the top shows seven sealed envelopes per partner · no contents visible.</p>
+          <p><strong>0:30</strong> · Evening twenty-eight. The trajectories on each side have diverged · one partner's votes have firmed toward yes, the other's drifted toward no. Neither knows this yet.</p>
+          <p><strong>0:42</strong> · Final evening. The reveal. Both envelopes open simultaneously. The two trajectories show side by side. The themes underneath surface · one mentioned schools eleven times, the other mentioned the language barrier nine times. The synthesis paragraph from Claude Opus 4.7 names what the disagreement is actually about.</p>
+          <p><strong>0:58</strong> · One specific next conversation · written as a real question they can take to the table. The decision stays with them. The structure was Counsel.day's.</p>
+        </div>
+      </details>
+    </section>
 
     <!-- ============================================================ -->
     <!-- PRODUCT 01 · PER-DECISION PRICING                             -->
@@ -656,7 +716,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 <script src="pwa.js" defer></script>
 <script src="ga4.js" defer></script>
-<script src="/nav-toggle.js" defer></script>
+<script src="/nav-toggle.js?v=20260605" defer></script>
 <script src="/helper-widget.js" defer></script>
 </body>
 </html>

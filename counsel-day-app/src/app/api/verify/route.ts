@@ -83,10 +83,12 @@ export async function GET(req: Request) {
   const session = await createSession(userId, ctx);
   const cookie = buildSessionCookie(session.id, session.expiresAt);
 
-  // First-time verifiers see /welcome (three-step onboarding +
-  // question templates). Returning users (magic-link sign-in) go
+  // First-time verifiers land on /welcome STEP 2 (the question picker)
+  // because step 1 is an explainer they already read on /signup.html ·
+  // skipping it saves a click and gets the user to the productive part
+  // of onboarding immediately. Returning users (magic-link sign-in) go
   // straight to /account.
-  const dest = isFirstVerify ? '/welcome.html' : '/account?welcome=1';
+  const dest = isFirstVerify ? '/welcome.html?step=2' : '/account?welcome=1';
   const res = NextResponse.redirect(`${BASE}${dest}`, { status: 302 });
   res.headers.set('set-cookie', cookie);
   return res;

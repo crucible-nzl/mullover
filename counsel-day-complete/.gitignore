@@ -21,3 +21,14 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+# H1 · Hashed asset copies produced by scripts/hash-assets.py
+# Pattern: <name>.<10hex>.<ext> · e.g. nav-toggle.a1b2c3d4e5.js
+nav-toggle.*.js
+helper-widget.*.js
+ga4.*.js
+pwa.*.js
+!nav-toggle.js
+!helper-widget.js
+!ga4.js
+!pwa.js

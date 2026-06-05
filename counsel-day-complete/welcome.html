@@ -299,7 +299,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   ];
 
   // ---- State ----
-  var state = { step: 1, cat: 'all', question: '', time: '19:00' };
+  // Q5 · honour ?step=N (and #step-N) on init so post-verify redirects
+  // can land users directly on the question picker without making them
+  // re-read the step-1 explainer.
+  function readInitialStep() {
+    try {
+      var p = new URLSearchParams(window.location.search).get('step');
+      var n = p ? parseInt(p, 10) : NaN;
+      if (isFinite(n) && n >= 1 && n <= 3) return n;
+      var h = (window.location.hash || '').match(/^#step-(\d+)$/);
+      if (h) { var nh = parseInt(h[1], 10); if (nh >= 1 && nh <= 3) return nh; }
+    } catch (_) {}
+    return 1;
+  }
+  var state = { step: readInitialStep(), cat: 'all', question: '', time: '19:00' };
 
   // ---- Step nav ----
   window.goStep = function (n) {
@@ -382,10 +395,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     if (state.time) params.set('prompt_time', state.time);
     window.location.href = 'compose.html?' + params.toString();
   });
+
+  // Q5 · Honour the initial step computed from ?step= or #step- · do
+  // this AFTER the goStep function is defined so the navigation runs
+  // with full state. We only call goStep when the requested step isn't
+  // the default 1 to avoid an unnecessary reflow.
+  if (state.step !== 1 && typeof window.goStep === 'function') {
+    window.goStep(state.step);
+  }
 })();
 </script>
 <script src="pwa.js" defer></script>
 <script src="ga4.js" defer></script>
-<script src="/nav-toggle.js" defer></script>
+<script src="/nav-toggle.js?v=20260605" defer></script>
 </body>
 </html>

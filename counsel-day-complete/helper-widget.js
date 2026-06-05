@@ -456,6 +456,18 @@
     '.cd-help-close:hover { border-color: rgba(255,255,255,0.6); }',
 
     '.cd-help-body { flex: 1; overflow-y: auto; padding: 18px 20px; }',
+    /* H4 · KB search bar inside the drawer body. */
+    '.cd-help-searchbar { display: flex; gap: 8px; align-items: center; margin: -4px 0 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--rule, #e3dfd9); }',
+    '.cd-help-search { flex: 1; padding: 9px 11px; font-family: var(--font-body, ui-serif, serif); font-size: 14px; border: 1px solid var(--rule, #e3dfd9); background: var(--paper, #ffffff); color: var(--ink, #1c1a17); border-radius: 0; }',
+    '.cd-help-search:focus { outline: none; border-color: var(--wine, #722F37); }',
+    '.cd-help-search-clear { font-family: var(--font-mono, ui-monospace, monospace); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 8px 10px; background: transparent; color: var(--ink-soft, #38332f); border: 1px solid var(--rule, #e3dfd9); cursor: pointer; border-radius: 0; min-height: 36px; }',
+    '.cd-help-search-clear:hover { color: var(--wine, #722F37); border-color: var(--wine, #722F37); }',
+    '.cd-help-search-results { display: flex; flex-direction: column; gap: 6px; padding: 4px 0 8px; }',
+    '.cd-help-search-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; background: var(--paper, #fff); border: 1px solid var(--rule, #e3dfd9); border-left: 3px solid transparent; cursor: pointer; text-align: left; }',
+    '.cd-help-search-row:hover { border-color: var(--wine, #722F37); border-left-color: var(--wine, #722F37); background: var(--wine-soft, #f6e8e9); }',
+    '.cd-help-search-row .q { font-family: var(--font-body, ui-serif, serif); font-size: 14px; line-height: 1.45; color: var(--ink, #1c1a17); flex: 1; }',
+    '.cd-help-search-row .tags { font-family: var(--font-mono, ui-monospace, monospace); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted, #8a847d); flex-shrink: 0; }',
+    '.cd-help-search-empty { font-family: var(--font-body, ui-serif, serif); font-size: 13px; color: var(--muted, #8a847d); font-style: italic; padding: 14px 12px; text-align: center; }',
     '.cd-help-empty { font-family: var(--font-body, ui-serif, serif); font-size: 14px; line-height: 1.55; color: var(--ink-soft, #38332f); }',
     '.cd-help-empty p { margin: 0 0 10px; }',
     '.cd-help-empty .lead { font-family: var(--font-display, ui-serif, serif); font-weight: 400; font-size: 19px; color: var(--ink); margin-bottom: 6px; }',
@@ -537,6 +549,14 @@
       '<button type="button" class="cd-help-close" id="cd-help-close" aria-label="Close helper">Close</button>' +
     '</div>' +
     '<div class="cd-help-body" id="cd-help-body">' +
+      // H4 · Search bar at the top of the body · filters the KB by
+      // keyword. Sits above the empty state so it's the first surface
+      // a returning user reaches for.
+      '<div class="cd-help-searchbar">' +
+        '<input type="search" class="cd-help-search" id="cd-help-search" placeholder="Search the help index · pricing, refunds, MFA, vault…" aria-label="Search helper index">' +
+        '<button type="button" class="cd-help-search-clear" id="cd-help-search-clear" aria-label="Clear search">Clear</button>' +
+      '</div>' +
+      '<div class="cd-help-search-results" id="cd-help-search-results" style="display: none;"></div>' +
       '<div class="cd-help-empty" id="cd-help-empty">' +
         '<p class="lead">Ask about Counsel.day.</p>' +
         '<p>Factual questions · pricing, the sealed-vote method, billing, refunds, the Journal, privacy. Answers come from a built-in index, not a paid LLM, so this widget stays free to run and ships in milliseconds.</p>' +
@@ -560,6 +580,70 @@
   var form = $('#cd-help-form', drawer);
   var input = $('#cd-help-input', drawer);
   var closeBtn = $('#cd-help-close', drawer);
+  // H4 · KB search bar
+  var searchEl = $('#cd-help-search', drawer);
+  var searchClearEl = $('#cd-help-search-clear', drawer);
+  var searchResultsEl = $('#cd-help-search-results', drawer);
+
+  function runSearch(query) {
+    var q = String(query || '').trim();
+    if (!q) {
+      searchResultsEl.style.display = 'none';
+      searchResultsEl.innerHTML = '';
+      if (emptyEl) emptyEl.style.display = '';
+      return;
+    }
+    // Use the same tokenizer + scorer the chat side uses, but rank ALL
+    // KB entries (not just the top one). Show top 8 with primary tag.
+    var tokens = tokenize(q);
+    if (tokens.length === 0) {
+      searchResultsEl.style.display = 'block';
+      searchResultsEl.innerHTML = '<div class="cd-help-search-empty">Type something more specific · "pricing", "refund", "vault audio"…</div>';
+      if (emptyEl) emptyEl.style.display = 'none';
+      return;
+    }
+    var ranked = KB.map(function (entry) {
+      var score = 0;
+      tokens.forEach(function (t) { if (entry._bag[t]) score += entry._bag[t] * Math.min(t.length, 6); });
+      return { entry: entry, score: score };
+    }).filter(function (x) { return x.score > 0; });
+    ranked.sort(function (a, b) { return b.score - a.score; });
+    var top = ranked.slice(0, 8);
+    if (top.length === 0) {
+      searchResultsEl.style.display = 'block';
+      searchResultsEl.innerHTML = '<div class="cd-help-search-empty">No matches. Try "pricing", "refund", "mfa", "vault" · or email support@counsel.day.</div>';
+      if (emptyEl) emptyEl.style.display = 'none';
+      return;
+    }
+    searchResultsEl.innerHTML = top.map(function (m) {
+      var tag = (m.entry.tags && m.entry.tags[0]) || '';
+      return '<button type="button" class="cd-help-search-row" data-q="' + esc(m.entry.q) + '">' +
+        '<span class="q">' + esc(m.entry.q) + '</span>' +
+        (tag ? '<span class="tags">' + esc(tag) + '</span>' : '') +
+      '</button>';
+    }).join('');
+    searchResultsEl.style.display = 'flex';
+    if (emptyEl) emptyEl.style.display = 'none';
+  }
+
+  if (searchEl) {
+    var searchDebounce = null;
+    searchEl.addEventListener('input', function () {
+      if (searchDebounce) clearTimeout(searchDebounce);
+      var v = searchEl.value;
+      searchDebounce = setTimeout(function () { runSearch(v); }, 120);
+    });
+    searchEl.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); runSearch(searchEl.value); }
+    });
+  }
+  if (searchClearEl) {
+    searchClearEl.addEventListener('click', function () {
+      if (searchEl) searchEl.value = '';
+      runSearch('');
+      if (searchEl) searchEl.focus();
+    });
+  }
 
   function openDrawer() {
     drawer.classList.add('is-open');
@@ -650,6 +734,17 @@
     if (chip) {
       var q = chip.getAttribute('data-q') || chip.textContent.trim();
       input.value = q;
+      form.requestSubmit();
+      return;
+    }
+    // H4 · Search-result rows trigger the same answer flow as chips.
+    var searchRow = e.target.closest('.cd-help-search-row');
+    if (searchRow) {
+      var sq = searchRow.getAttribute('data-q') || searchRow.textContent.trim();
+      // Clear the search bar + results so the chat takes over.
+      if (searchEl) searchEl.value = '';
+      runSearch('');
+      input.value = sq;
       form.requestSubmit();
       return;
     }

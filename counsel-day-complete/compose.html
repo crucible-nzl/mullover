@@ -96,6 +96,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   .compose-field textarea.q-input:focus { outline: none; border-color: var(--wine); }
   .compose-field textarea.q-input::placeholder { font-style: italic; color: var(--subtle); }
 
+  /* Q4 · Draft resume banner · sits above the form when a localStorage
+     draft exists. Slate background, wine resume button, ghost discard. */
+  .cd-draft-banner { display: flex; align-items: center; gap: 22px; padding: 16px 22px; background: var(--paper-deep); border: 1px solid var(--rule); border-left: 4px solid var(--wine); margin: 0 0 26px; flex-wrap: wrap; }
+  .cd-draft-text { flex: 1; min-width: 220px; font-family: var(--font-body); font-size: 14px; line-height: 1.5; color: var(--ink); }
+  .cd-draft-text strong { font-weight: 500; }
+  .cd-draft-preview { display: block; color: var(--ink-soft); font-style: italic; margin-top: 4px; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+  .cd-draft-actions { display: flex; gap: 12px; align-items: center; }
+  .cd-draft-btn-primary { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 9px 14px; background: var(--wine); color: var(--paper); border: 1px solid var(--wine); cursor: pointer; border-radius: 0; min-height: 36px; }
+  .cd-draft-btn-primary:hover { background: var(--wine-deep, #5a242c); }
+  .cd-draft-btn-text { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 9px 10px; background: transparent; color: var(--ink-soft); border: 1px solid var(--rule); cursor: pointer; border-radius: 0; min-height: 36px; }
+  .cd-draft-btn-text:hover { color: var(--wine); border-color: var(--wine); }
+  .cd-draft-saving { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin-left: 12px; opacity: 0; transition: opacity 200ms; }
+  .cd-draft-saving.is-shown { opacity: 1; }
+
   .compose-field select.fmt-select { width: 100%; max-width: 480px; padding: 14px 16px; border: 1px solid var(--rule); background: var(--paper); font-family: var(--font-body); font-size: 16px; color: var(--ink); appearance: none; -webkit-appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--ink) 50%), linear-gradient(135deg, var(--ink) 50%, transparent 50%); background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; }
   .compose-field select.fmt-select:focus { outline: none; border-color: var(--wine); }
 
@@ -181,6 +195,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- /CD:PARTIAL:nav-app -->
 
 <main id="main-content">
+  <!-- Q4 · Draft resume banner · shown when localStorage has an
+       unfinished compose from this browser. Three actions: resume
+       (default), discard (clears the draft), dismiss (hides banner
+       but keeps draft for next visit). -->
+  <div id="cd-draft-banner" class="cd-draft-banner" style="display: none;" role="status" aria-live="polite">
+    <div class="cd-draft-text">
+      <strong>You have a draft from <span id="cd-draft-when">earlier</span>.</strong>
+      <span class="cd-draft-preview" id="cd-draft-preview"></span>
+    </div>
+    <div class="cd-draft-actions">
+      <button type="button" id="cd-draft-resume" class="cd-draft-btn-primary">Resume draft</button>
+      <button type="button" id="cd-draft-discard" class="cd-draft-btn-text">Discard</button>
+    </div>
+  </div>
+
   <form class="compose-shell" id="compose-form" onsubmit="return fileDecision(event)">
 
     <div class="compose-bread">
@@ -550,6 +579,8 @@ function fileDecision(e) {
     if (window.CounselDayPWA && typeof window.CounselDayPWA.markEngaged === 'function') {
       window.CounselDayPWA.markEngaged();
     }
+    // Q4 · Successful file · clear the localStorage draft.
+    try { localStorage.removeItem('cd:compose-draft'); } catch (_) {}
     if (res.body.checkout_required) {
       /* Tier may have been auto-upgraded server-side (e.g. user picked
          Solo Free but added a partner email → backend returns
@@ -740,6 +771,103 @@ function saveDraft() {
     }
   });
 </script>
-<script src="/nav-toggle.js" defer></script>
+<script>
+/* Q4 · Draft auto-save · localStorage-only · survives tab close, browser
+   restart, accidental navigation. Three integration points:
+   1. On every form field change, write the full form state to
+      localStorage under "cd:compose-draft" (debounced 400ms).
+   2. On page load, if a draft exists, show the resume banner and
+      offer to repopulate the form.
+   3. The submit success path (in fileDecision) clears the draft.
+
+   Per-browser only · no cross-device sync. If users want that, we add
+   a /api/decisions/draft endpoint later. */
+(function () {
+  var KEY = 'cd:compose-draft';
+  var banner = document.getElementById('cd-draft-banner');
+  var bResume = document.getElementById('cd-draft-resume');
+  var bDiscard = document.getElementById('cd-draft-discard');
+  var bWhen = document.getElementById('cd-draft-when');
+  var bPreview = document.getElementById('cd-draft-preview');
+  var form = document.getElementById('compose-form');
+  if (!form) return;
+  var savingEl = null;
+
+  function readForm() {
+    var q = (document.getElementById('q-input') || {}).value || '';
+    var tier = (form.querySelector('input[name="tier"]:checked') || {}).value || '';
+    var format = (form.querySelector('select[name="format"]') || {}).value || '';
+    var duration = (form.querySelector('input[name="duration"]:checked') || {}).value || '';
+    var partner = (form.querySelector('input[name="partner_email"]') || {}).value || '';
+    var pulse = !!((document.getElementById('pulse-mode') || {}).checked);
+    return { q: q, tier: tier, format: format, duration: duration, partner: partner, pulse: pulse };
+  }
+  function writeForm(d) {
+    if (!d) return;
+    var qInput = document.getElementById('q-input');
+    if (qInput && d.q) { qInput.value = d.q.slice(0, 240); if (typeof updatePreview === 'function') updatePreview(); }
+    if (d.tier) {
+      var rt = form.querySelector('input[name="tier"][value="' + d.tier.replace(/[^a-z_]/g, '') + '"]');
+      if (rt) { rt.checked = true; var lbl = rt.closest('.tier-radio'); if (lbl) { form.querySelectorAll('.tier-radio').forEach(function (x) { x.classList.remove('selected'); }); lbl.classList.add('selected'); } }
+    }
+    if (d.format) { var sel = form.querySelector('select[name="format"]'); if (sel) sel.value = d.format; }
+    if (d.duration) {
+      var rd = form.querySelector('input[name="duration"][value="' + parseInt(d.duration, 10) + '"]');
+      if (rd) { rd.checked = true; var dlbl = rd.closest('.dur-radio'); if (dlbl) { form.querySelectorAll('.dur-radio').forEach(function (x) { x.classList.remove('selected'); }); dlbl.classList.add('selected'); } }
+    }
+    if (d.partner != null) { var pi = form.querySelector('input[name="partner_email"]'); if (pi) pi.value = d.partner; }
+    if (typeof d.pulse === 'boolean') { var pm = document.getElementById('pulse-mode'); if (pm) pm.checked = d.pulse; }
+  }
+  function fmtAgo(ts) {
+    var diff = Math.max(0, Date.now() - ts);
+    var m = Math.floor(diff / 60000);
+    if (m < 1) return 'just now';
+    if (m < 60) return m + ' minute' + (m === 1 ? '' : 's') + ' ago';
+    var h = Math.floor(m / 60);
+    if (h < 24) return h + ' hour' + (h === 1 ? '' : 's') + ' ago';
+    var d = Math.floor(h / 24);
+    return d + ' day' + (d === 1 ? '' : 's') + ' ago';
+  }
+
+  // Restore draft prompt on load. If the form already has a question
+  // pre-filled (from a ?question= URL param coming from FAQ or
+  // /welcome), skip the resume banner so the user's explicit choice
+  // wins over a stale draft.
+  var preFilled = (document.getElementById('q-input') || {}).value;
+  var raw = null;
+  try { raw = localStorage.getItem(KEY); } catch (_) {}
+  if (raw && !preFilled) {
+    try {
+      var parsed = JSON.parse(raw);
+      if (parsed && parsed.data && parsed.data.q && parsed.data.q.length >= 4) {
+        if (bWhen) bWhen.textContent = fmtAgo(parsed.ts || Date.now());
+        if (bPreview) bPreview.textContent = '"' + parsed.data.q.slice(0, 140) + (parsed.data.q.length > 140 ? '…' : '') + '"';
+        banner.style.display = 'flex';
+        if (bResume) bResume.addEventListener('click', function () { writeForm(parsed.data); banner.style.display = 'none'; });
+        if (bDiscard) bDiscard.addEventListener('click', function () {
+          if (!window.confirm('Discard this draft? You cannot get it back.')) return;
+          try { localStorage.removeItem(KEY); } catch (_) {}
+          banner.style.display = 'none';
+        });
+      }
+    } catch (_) {}
+  }
+
+  // Auto-save on every field change · debounced 400ms.
+  var saveTimer = null;
+  function scheduleSave() {
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () {
+      var d = readForm();
+      if (!d.q || d.q.length < 4) { return; }
+      try { localStorage.setItem(KEY, JSON.stringify({ ts: Date.now(), data: d })); } catch (_) {}
+    }, 400);
+  }
+  // Bind to inputs · use bubbling capture so dynamically wired radios trigger too.
+  form.addEventListener('input', scheduleSave, true);
+  form.addEventListener('change', scheduleSave, true);
+})();
+</script>
+<script src="/nav-toggle.js?v=20260605" defer></script>
 </body>
 </html>

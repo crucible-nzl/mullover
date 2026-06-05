@@ -152,6 +152,31 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   .rm-entry-play { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 7px 12px; background: var(--paper); color: var(--ink); border: 1px solid var(--ink); cursor: pointer; border-radius: 0; min-height: 32px; }
   .rm-entry-play:hover { background: var(--ink); color: var(--paper); }
 
+  /* H5 · Playlist mode · single audio player walks unsealed voice
+     entries in chronological order. Designed for "binge listen to last
+     week" usage. Auto-advance on "ended" event. */
+  .vault-playlist { display: none; flex-direction: column; gap: 18px; padding: 22px 24px; background: var(--paper); border: 1px solid var(--ink); }
+  .vault-playlist-now { padding-bottom: 18px; border-bottom: 1px solid var(--rule); }
+  .vault-playlist-eyebrow { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine); margin-bottom: 6px; }
+  .vault-playlist-date { font-family: var(--font-display); font-weight: 400; font-size: 26px; line-height: 1.15; color: var(--ink); margin: 0 0 14px; }
+  .vault-playlist-player { margin-bottom: 14px; }
+  .vault-playlist-player audio { width: 100%; max-width: 100%; }
+  .vault-playlist-transcript { font-family: var(--font-body); font-size: 15px; line-height: 1.65; color: var(--ink); white-space: pre-wrap; }
+  .vault-playlist-controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 10px 0; border-bottom: 1px dashed var(--rule); }
+  .vault-pl-btn { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 9px 14px; background: var(--paper); color: var(--ink); border: 1px solid var(--ink); cursor: pointer; border-radius: 0; min-height: 36px; }
+  .vault-pl-btn:hover:not(:disabled) { background: var(--ink); color: var(--paper); }
+  .vault-pl-btn:disabled { color: var(--muted); border-color: var(--rule); cursor: not-allowed; }
+  .vault-pl-pos { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; color: var(--ink-soft); text-transform: uppercase; flex: 1; }
+  .vault-pl-auto { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; color: var(--ink-soft); display: inline-flex; align-items: center; gap: 6px; text-transform: uppercase; }
+  .vault-playlist-queue { display: flex; flex-direction: column; gap: 4px; max-height: 320px; overflow-y: auto; }
+  .vault-pl-q-row { display: grid; grid-template-columns: 110px 1fr 60px; gap: 10px; align-items: center; padding: 8px 10px; border: 1px solid transparent; cursor: pointer; }
+  .vault-pl-q-row:hover { background: var(--paper-deep); border-color: var(--rule); }
+  .vault-pl-q-row.is-current { background: var(--wine-soft); border-color: var(--wine); }
+  .vault-pl-q-row .d { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--wine); }
+  .vault-pl-q-row .t { font-family: var(--font-body); font-size: 14px; line-height: 1.45; color: var(--ink); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; }
+  .vault-pl-q-row .l { font-family: var(--font-mono); font-size: 11px; color: var(--muted); text-align: right; }
+  .vault-playlist-empty { font-family: var(--font-body); font-style: italic; color: var(--muted); padding: 30px 0; text-align: center; }
+
   .vault-row-body { display: none; padding: 20px 22px 24px; border-top: 1px solid var(--rule); background: var(--paper-deep); }
   .vault-row.is-open .vault-row-body { display: block; }
   .vault-player { margin-bottom: 16px; }
@@ -256,6 +281,27 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="vault-viewmode" role="tablist" aria-label="Vault view mode" style="display: flex; gap: 0; margin-bottom: 18px; border: 1px solid var(--ink); align-self: flex-start;">
       <button type="button" data-view="reading" class="vault-vbtn is-on" role="tab" aria-selected="true" style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; padding: 9px 18px; background: var(--ink); color: var(--paper); border: 0; cursor: pointer; min-height: 40px;">Reading mode</button>
       <button type="button" data-view="list" class="vault-vbtn" role="tab" aria-selected="false" style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; padding: 9px 18px; background: var(--paper); color: var(--ink); border: 0; border-left: 1px solid var(--ink); cursor: pointer; min-height: 40px;">List + search</button>
+      <button type="button" data-view="playlist" class="vault-vbtn" role="tab" aria-selected="false" style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; padding: 9px 18px; background: var(--paper); color: var(--ink); border: 0; border-left: 1px solid var(--ink); cursor: pointer; min-height: 40px;">Playlist</button>
+    </div>
+
+    <!-- H5 · Playlist mode · single audio player that walks the week.
+         Hidden unless state.view === 'playlist'. JS hydrates the queue
+         from unsealed voice entries and binds the audio "ended" event
+         to advance automatically to the next entry. -->
+    <div class="vault-playlist" id="vault-playlist" style="display: none;">
+      <div class="vault-playlist-now">
+        <div class="vault-playlist-eyebrow" id="vault-pl-eyebrow">NOW PLAYING · ·</div>
+        <h3 class="vault-playlist-date" id="vault-pl-date">·</h3>
+        <div class="vault-playlist-player" id="vault-pl-player"></div>
+        <div class="vault-playlist-transcript" id="vault-pl-transcript"></div>
+      </div>
+      <div class="vault-playlist-controls">
+        <button type="button" id="vault-pl-prev" class="vault-pl-btn">‹ Previous</button>
+        <span id="vault-pl-pos" class="vault-pl-pos">·</span>
+        <button type="button" id="vault-pl-next" class="vault-pl-btn">Next ›</button>
+        <label class="vault-pl-auto"><input type="checkbox" id="vault-pl-auto" checked> Auto-advance</label>
+      </div>
+      <div class="vault-playlist-queue" id="vault-pl-queue"></div>
     </div>
 
     <div class="vault-filter" id="vault-filter-row">
@@ -388,6 +434,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   function render() {
     if (state.view === 'reading') {
       renderReadingMode();
+      return;
+    }
+    if (state.view === 'playlist') {
+      renderPlaylistMode();
       return;
     }
     renderListMode();
@@ -564,6 +614,115 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     listEl.innerHTML = html;
   }
 
+  // H5 · Playlist mode · single audio player walking the unsealed
+  // voice entries newest-first. Auto-advance binds to the audio
+  // element's "ended" event; manual prev/next + queue-click also
+  // available. Sealed and text-only entries are skipped.
+  var plState = { queue: [], idx: 0, current: null, audioEl: null };
+  function buildPlaylistQueue() {
+    return (state.entries || [])
+      .filter(function (e) { return !e.is_sealed && e.audio_url; })
+      .sort(function (a, b) { return (b.entry_date || '').localeCompare(a.entry_date || ''); });
+  }
+  function renderPlaylistMode() {
+    var playlistEl = document.getElementById('vault-playlist');
+    if (!playlistEl) return;
+    plState.queue = buildPlaylistQueue();
+    if (plState.queue.length === 0) {
+      playlistEl.innerHTML = '<div class="vault-playlist-empty">No unsealed voice entries yet. Voice entries become playable once the seven-day seal lifts. <a href="journal.html" style="color: var(--wine); border-bottom: 1px solid var(--wine);">File a voice entry →</a></div>';
+      return;
+    }
+    // Re-render the shell from the original HTML if it was wiped.
+    if (!playlistEl.querySelector('#vault-pl-eyebrow')) {
+      playlistEl.innerHTML =
+        '<div class="vault-playlist-now">' +
+          '<div class="vault-playlist-eyebrow" id="vault-pl-eyebrow">NOW PLAYING · ·</div>' +
+          '<h3 class="vault-playlist-date" id="vault-pl-date">·</h3>' +
+          '<div class="vault-playlist-player" id="vault-pl-player"></div>' +
+          '<div class="vault-playlist-transcript" id="vault-pl-transcript"></div>' +
+        '</div>' +
+        '<div class="vault-playlist-controls">' +
+          '<button type="button" id="vault-pl-prev" class="vault-pl-btn">‹ Previous</button>' +
+          '<span id="vault-pl-pos" class="vault-pl-pos">·</span>' +
+          '<button type="button" id="vault-pl-next" class="vault-pl-btn">Next ›</button>' +
+          '<label class="vault-pl-auto"><input type="checkbox" id="vault-pl-auto" checked> Auto-advance</label>' +
+        '</div>' +
+        '<div class="vault-playlist-queue" id="vault-pl-queue"></div>';
+      wirePlaylistControls();
+    }
+    plState.idx = Math.min(plState.idx, plState.queue.length - 1);
+    if (plState.idx < 0) plState.idx = 0;
+    renderPlaylistQueue();
+    loadPlaylistAtIndex(plState.idx);
+  }
+  function renderPlaylistQueue() {
+    var queueEl = document.getElementById('vault-pl-queue');
+    if (!queueEl) return;
+    queueEl.innerHTML = plState.queue.map(function (e, i) {
+      var snippet = (e.transcript || e.text_content || '').slice(0, 100);
+      var dur = (e.duration_seconds != null ? fmtDur(e.duration_seconds) : '·');
+      return '<div class="vault-pl-q-row' + (i === plState.idx ? ' is-current' : '') + '" data-pl-idx="' + i + '">' +
+        '<div class="d">' + esc(fmtDate(e.entry_date)) + '</div>' +
+        '<div class="t">' + esc(snippet) + (snippet.length === 100 ? '…' : '') + '</div>' +
+        '<div class="l">' + esc(dur) + '</div>' +
+      '</div>';
+    }).join('');
+  }
+  function loadPlaylistAtIndex(i) {
+    if (i < 0 || i >= plState.queue.length) return;
+    plState.idx = i;
+    var e = plState.queue[i];
+    plState.current = e;
+    var eyebrow = document.getElementById('vault-pl-eyebrow');
+    var dateEl = document.getElementById('vault-pl-date');
+    var playerEl = document.getElementById('vault-pl-player');
+    var transcriptEl = document.getElementById('vault-pl-transcript');
+    var posEl = document.getElementById('vault-pl-pos');
+    var prevBtn = document.getElementById('vault-pl-prev');
+    var nextBtn = document.getElementById('vault-pl-next');
+    if (eyebrow) eyebrow.textContent = 'NOW PLAYING · ENTRY ' + (i + 1) + ' OF ' + plState.queue.length;
+    if (dateEl) dateEl.textContent = fmtDate(e.entry_date);
+    if (transcriptEl) transcriptEl.textContent = e.transcript || e.text_content || '';
+    if (posEl) posEl.textContent = (i + 1) + ' / ' + plState.queue.length;
+    if (prevBtn) prevBtn.disabled = i === 0;
+    if (nextBtn) nextBtn.disabled = i === plState.queue.length - 1;
+    renderPlaylistQueue();
+    if (playerEl) {
+      playerEl.innerHTML = '<div class="vault-player-fallback">Requesting playback link…</div>';
+      fetch('/api/journal/vault/' + encodeURIComponent(e.id) + '/playback', { credentials: 'include' })
+        .then(function (r) { if (r.status === 503) return r.json().then(function (j) { throw new Error(j.message || 'Vault not configured.'); }); return r.json(); })
+        .then(function (j) {
+          if (j && j.url) {
+            playerEl.innerHTML = '<audio controls autoplay preload="metadata" src="' + j.url + '" id="vault-pl-audio"></audio>';
+            plState.audioEl = document.getElementById('vault-pl-audio');
+            if (plState.audioEl) {
+              plState.audioEl.addEventListener('ended', function () {
+                var auto = document.getElementById('vault-pl-auto');
+                if (auto && auto.checked && plState.idx < plState.queue.length - 1) {
+                  loadPlaylistAtIndex(plState.idx + 1);
+                }
+              });
+            }
+          } else {
+            playerEl.innerHTML = '<div class="vault-player-fallback">No audio link returned.</div>';
+          }
+        })
+        .catch(function (err) { playerEl.innerHTML = '<div class="vault-player-fallback">' + esc(err.message || 'Could not load audio.') + '</div>'; });
+    }
+  }
+  function wirePlaylistControls() {
+    var prev = document.getElementById('vault-pl-prev');
+    var next = document.getElementById('vault-pl-next');
+    var queueEl = document.getElementById('vault-pl-queue');
+    if (prev) prev.addEventListener('click', function () { if (plState.idx > 0) loadPlaylistAtIndex(plState.idx - 1); });
+    if (next) next.addEventListener('click', function () { if (plState.idx < plState.queue.length - 1) loadPlaylistAtIndex(plState.idx + 1); });
+    if (queueEl) queueEl.addEventListener('click', function (e) {
+      var row = e.target.closest('[data-pl-idx]');
+      if (!row) return;
+      loadPlaylistAtIndex(parseInt(row.getAttribute('data-pl-idx'), 10));
+    });
+  }
+
   function renderVerdictBody(v) {
     var positives = (v.positives || []).map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('');
     var strains = (v.strains || []).map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('');
@@ -670,6 +829,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       else    { b.style.background = 'var(--paper)'; b.style.color = 'var(--ink)'; }
     });
     if (filterRow) filterRow.style.display = state.view === 'list' ? 'flex' : 'none';
+    // H5 · Toggle the playlist container vs the list/reading container.
+    var playlistEl = document.getElementById('vault-playlist');
+    if (playlistEl) playlistEl.style.display = state.view === 'playlist' ? 'flex' : 'none';
+    if (listEl) listEl.style.display = state.view === 'playlist' ? 'none' : '';
   }
   viewBtns.forEach(function (b) {
     b.addEventListener('click', function () { state.view = b.getAttribute('data-view'); state.page = 0; applyViewMode(); render(); });
@@ -714,7 +877,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 <script src="pwa.js" defer></script>
 <script src="ga4.js" defer></script>
-<script src="/nav-toggle.js" defer></script>
+<script src="/nav-toggle.js?v=20260605" defer></script>
 <script src="/helper-widget.js" defer></script>
 </body>
 </html>

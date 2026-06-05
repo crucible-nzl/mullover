@@ -208,6 +208,16 @@ jobs:
         run: |
           pwsh ./counsel-day-complete/scripts/brand-verify.ps1
 
+      # H1 · Hash long-cached JS assets so we can ship with immutable
+      # Cache-Control: max-age=31536000 without ever serving stale code.
+      # Replaces /nav-toggle.js with /nav-toggle.<hash>.js (and similar
+      # for helper-widget.js, ga4.js, pwa.js) in every HTML reference,
+      # and ships the hashed copies alongside the originals. Browsers
+      # automatically refetch when the filename changes. Idempotent.
+      - name: Hash assets for cache-busting
+        if: steps.detect.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        run: python3 ./counsel-day-complete/scripts/hash-assets.py
+
       - name: Configure SSH
         if: steps.detect.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
         env:

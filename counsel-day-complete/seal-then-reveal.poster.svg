@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  H6 · Placeholder poster for the seal-then-reveal product walkthrough.
+  Stays in place until /counsel-day-complete/seal-then-reveal.mp4 is
+  recorded and dropped in alongside this file. Brand iteration 8 ·
+  paper white background, wine accent #722F37, Newsreader display.
+
+  The MP4 spec for the actual recording:
+    · 1920x1080 (16:9), H.264 high profile, 30fps
+    · AAC mono audio (or no audio · use the transcript fallback)
+    · Target file size ≤ 8MB so first-paint is fast (the page is
+      preload=metadata, not auto-play, so the file is fetched only
+      when the user clicks play)
+    · Duration ≤ 60s · the transcript on the page maps to the
+      timestamps; keep them in sync if you re-cut
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid meet">
+  <rect width="1920" height="1080" fill="#ffffff"/>
+  <!-- Subtle ruled background · paper-deep tone -->
+  <g opacity="0.06" stroke="#1c1a17" stroke-width="1" fill="none">
+    <line x1="0" y1="200" x2="1920" y2="200"/>
+    <line x1="0" y1="400" x2="1920" y2="400"/>
+    <line x1="0" y1="600" x2="1920" y2="600"/>
+    <line x1="0" y1="800" x2="1920" y2="800"/>
+  </g>
+  <!-- Wine eyebrow -->
+  <text x="960" y="380" text-anchor="middle"
+        font-family="ui-monospace, 'Geist Mono', monospace"
+        font-size="22" letter-spacing="6" fill="#722F37" font-weight="600">
+    60 SECONDS · WATCH THE MECHANISM
+  </text>
+  <!-- Headline -->
+  <text x="960" y="500" text-anchor="middle"
+        font-family="Newsreader, ui-serif, serif"
+        font-size="84" fill="#1c1a17" font-weight="400">
+    Seal-then-reveal.
+  </text>
+  <text x="960" y="560" text-anchor="middle"
+        font-family="Newsreader, ui-serif, serif"
+        font-size="32" font-style="italic" fill="#722F37">
+    Click play to watch.
+  </text>
+  <!-- Centred play triangle -->
+  <g transform="translate(960, 720)">
+    <circle r="64" fill="none" stroke="#722F37" stroke-width="3"/>
+    <polygon points="-22,-30 -22,30 32,0" fill="#722F37"/>
+  </g>
+  <!-- Footer note -->
+  <text x="960" y="900" text-anchor="middle"
+        font-family="ui-monospace, 'Geist Mono', monospace"
+        font-size="16" letter-spacing="4" fill="#8a847d">
+    COUNSEL.DAY · TRANSCRIPT BELOW IF AUDIO IS UNAVAILABLE
+  </text>
+</svg>

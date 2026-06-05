@@ -112,6 +112,29 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   @media (prefers-reduced-motion: reduce) { .ds-tonight-dot { animation: none; } }
   @media (max-width: 600px) { .ds-tonight-cta { padding: 12px 16px; font-size: 14px; } .ds-tonight-arrow { font-size: 11px; padding: 5px 10px; } }
 
+  /* H2 · Empty-state onboarding card · shown when the user has zero
+     decisions. This is the highest-conversion surface on the signed-in
+     side · the moment a new user lands on /decisions and sees nothing,
+     they need a clear answer to "what now?" */
+  .ds-onboard { padding: 36px 40px; background: var(--paper); border: 1px solid var(--wine); }
+  .ds-onboard-eyebrow { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine); margin-bottom: 10px; }
+  .ds-onboard-h { font-family: var(--font-display); font-weight: 400; font-size: 32px; line-height: 1.12; color: var(--ink); margin: 0 0 14px; }
+  .ds-onboard-h .ital { font-style: italic; color: var(--wine); }
+  .ds-onboard-p { font-family: var(--font-body); font-size: 16px; line-height: 1.55; color: var(--ink-soft); margin: 0 0 20px; max-width: 720px; }
+  .ds-onboard-cta-row { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; margin-bottom: 32px; padding-bottom: 26px; border-bottom: 1px dashed var(--rule); }
+  .ds-onboard-btn-primary { background: var(--wine); color: var(--paper); border-color: var(--wine); padding: 14px 22px; }
+  .ds-onboard-btn-primary:hover { background: var(--wine-deep, #5a242c); }
+  .ds-onboard-link { color: var(--ink-soft); border-bottom: 1px solid var(--ink-soft); padding-bottom: 1px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; }
+  .ds-onboard-link:hover { color: var(--wine); border-bottom-color: var(--wine); }
+  .ds-onboard-examples-h { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .ds-onboard-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr; gap: 0; }
+  .ds-onboard-list li { border-bottom: 1px dotted var(--rule); padding: 12px 0; }
+  .ds-onboard-list li:last-child { border-bottom: 0; }
+  .ds-onboard-list li a { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; font-family: var(--font-body); font-size: 16px; line-height: 1.5; color: var(--ink); text-decoration: none; padding: 2px 4px; border-radius: 0; }
+  .ds-onboard-list li a:hover { color: var(--wine); }
+  .ds-onboard-list li a .t { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--wine); padding: 2px 8px; border: 1px solid var(--wine); flex-shrink: 0; }
+  @media (max-width: 600px) { .ds-onboard { padding: 24px 22px; } .ds-onboard-h { font-size: 26px; } .ds-onboard-list li a { flex-direction: column; align-items: flex-start; gap: 6px; } }
+
   .ds-actions-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; gap: 18px; flex-wrap: wrap; }
   .ds-actions-row .count-line { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
 
@@ -619,7 +642,33 @@ function applyFilter(btn) {
       current = d.decisions || [];
       updateCounts(current);
       if (current.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="padding: 40px; text-align: center; font-family: var(--font-body); color: var(--ink-soft);"><p style="margin: 0 0 18px;">You have not filed any decisions yet.</p><a href="/compose.html" class="btn">Compose your first decision</a></td></tr>';
+        // H2 · Onboarding empty-state · this is the conversion moment.
+        // Replace the one-line empty with a card that:
+        //   1. Names the value (first Solo decision is free)
+        //   2. Shows 5 real example questions inline · click any to
+        //      jump to /compose with the question pre-filled
+        //   3. Offers "compose your own" as the primary CTA
+        tbody.innerHTML = '<tr><td colspan="7" style="padding: 0;">' +
+          '<div class="ds-onboard">' +
+            '<div class="ds-onboard-eyebrow">YOU HAVE NOT FILED A DECISION YET</div>' +
+            '<h3 class="ds-onboard-h">Your first Solo decision is <span class="ital">free.</span></h3>' +
+            '<p class="ds-onboard-p">No card. No subscription. One private vote each evening for the duration you set. A verdict at the close. Start with a question of your own · or copy one from the five below.</p>' +
+            '<div class="ds-onboard-cta-row">' +
+              '<a href="compose.html" class="btn ds-onboard-btn-primary">Compose my first decision →</a>' +
+              '<a href="faq.html#example-questions" class="btn-text ds-onboard-link">Browse 100 example questions</a>' +
+            '</div>' +
+            '<div class="ds-onboard-examples">' +
+              '<div class="ds-onboard-examples-h">START FROM ONE OF THESE</div>' +
+              '<ol class="ds-onboard-list">' +
+                '<li><a href="compose.html?question=Should%20we%20have%20a%20baby%20this%20year%3F&tier=couple">Should we have a baby this year? <span class="t">Couple</span></a></li>' +
+                '<li><a href="compose.html?question=Should%20we%20buy%20the%20house%20we%20put%20the%20offer%20on%3F&tier=couple">Should we buy the house we put the offer on? <span class="t">Couple</span></a></li>' +
+                '<li><a href="compose.html?question=Should%20I%20leave%20the%20job%20I%20have%20for%20the%20contract%20on%20the%20table%3F">Should I leave the job for the contract on the table? <span class="t">Solo</span></a></li>' +
+                '<li><a href="compose.html?question=Should%20we%20move%20to%20a%20different%20country%20as%20a%20family%3F&tier=family">Should we move to a different country as a family? <span class="t">Family</span></a></li>' +
+                '<li><a href="compose.html?question=Should%20I%20commit%20to%20weekly%20therapy%3F">Should I commit to weekly therapy? <span class="t">Solo</span></a></li>' +
+              '</ol>' +
+            '</div>' +
+          '</div>' +
+        '</td></tr>';
         return;
       }
       sortList('filed_desc');

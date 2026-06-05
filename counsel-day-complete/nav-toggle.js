@@ -42,14 +42,47 @@
       }
     }
 
+    // Belt-and-braces · clone-and-replace the button before wiring.
+    // Cloning copies attributes but NOT event listeners, so any stray
+    // handler that landed via a cached HTML snapshot, a service-worker
+    // race, or a partial-sync collision is gone before we attach the
+    // real one. We then swap the original with the clone so the rest
+    // of the page sees the same button (same id/classes/aria).
+    var fresh = toggle.cloneNode(true);
+    toggle.parentNode.replaceChild(fresh, toggle);
+    toggle = fresh;
+
     // The CSS targets `.nav-bar.menu-open .nav-links` so we don't need
     // to add IDs to existing .nav-links elements.
     if (toggle.dataset.cdWired === '1') return;
     toggle.dataset.cdWired = '1';
-    toggle.addEventListener('click', function () {
+    toggle.addEventListener('click', function (e) {
+      // stopImmediatePropagation halts any other listener that, despite
+      // the clone-and-replace, somehow got attached after us · e.g. a
+      // late-running script that re-finds the button by id. Without
+      // this, a second listener could re-toggle .menu-open within the
+      // same click event and the menu opens-then-closes.
+      e.stopImmediatePropagation();
       var open = bar.classList.toggle('menu-open');
       toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
       toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    });
+
+    // Close on Escape (keyboard accessibility) + on outside click.
+    // Both are no-ops when the menu is already closed.
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && bar.classList.contains('menu-open')) {
+        bar.classList.remove('menu-open');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.setAttribute('aria-label', 'Open menu');
+      }
+    });
+    document.addEventListener('click', function (e) {
+      if (!bar.classList.contains('menu-open')) return;
+      if (bar.contains(e.target)) return;
+      bar.classList.remove('menu-open');
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', 'Open menu');
     });
   }
 

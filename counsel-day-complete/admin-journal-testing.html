@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin · Journal testing · Counsel.day</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f7f9fc">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin-shell.css">
+<style>
+  /* Journal-testing scoped styles · mirrors /admin-testing-area visual
+     language but adapted for journal entries (one big body per day,
+     not vote direction + note). */
+  .jt-help { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); padding: 14px 18px; font-size: 13px; line-height: 1.55; color: var(--ink-soft); margin-bottom: 22px; }
+  .jt-help strong { color: var(--ink); }
+  .jt-help code { font-family: var(--font-mono); font-size: 12px; background: var(--surface-2); padding: 1px 6px; }
+
+  .jt-modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 22px; }
+  @media (max-width: 800px) { .jt-modes { grid-template-columns: 1fr; } }
+  .jt-mode { background: var(--surface); border: 1px solid var(--border); padding: 14px 18px; cursor: pointer; text-align: left; }
+  .jt-mode.active { border-color: var(--accent); background: var(--surface); box-shadow: inset 3px 0 0 var(--accent); }
+  .jt-mode .name { font-family: var(--font-ui); font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+  .jt-mode .meta { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 6px; }
+  .jt-mode .desc { font-family: var(--font-body); font-size: 12px; line-height: 1.45; color: var(--ink-soft); }
+
+  .jt-config { background: var(--surface); border: 1px solid var(--border); padding: 18px 22px; margin-bottom: 18px; display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 18px; }
+  @media (max-width: 900px) { .jt-config { grid-template-columns: 1fr; } }
+  .jt-field label { display: block; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .jt-field input, .jt-field select { font-family: var(--font-ui); font-size: 14px; padding: 8px 11px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); width: 100%; }
+
+  .jt-presets { background: var(--surface-2); border: 1px solid var(--border); padding: 12px 16px; margin-bottom: 18px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .jt-presets .lbl { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-right: 6px; }
+  .jt-presets button { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; padding: 6px 12px; background: var(--surface); border: 1px solid var(--border); color: var(--ink-soft); cursor: pointer; }
+  .jt-presets button:hover { color: var(--accent); border-color: var(--accent); }
+
+  .jt-entries { background: var(--surface); border: 1px solid var(--border); padding: 18px 22px; margin-bottom: 18px; }
+  .jt-entries h3 { margin: 0 0 14px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); display: flex; justify-content: space-between; align-items: baseline; }
+  .jt-entries h3 .count { color: var(--accent); }
+  .jt-day { display: grid; grid-template-columns: 110px 1fr; gap: 14px; padding: 12px 0; border-bottom: 1px dotted var(--rule); align-items: start; }
+  .jt-day:last-child { border-bottom: 0; }
+  .jt-day .date { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; color: var(--accent); text-transform: uppercase; padding-top: 7px; }
+  .jt-day textarea { width: 100%; font-family: var(--font-body); font-size: 13px; line-height: 1.5; padding: 8px 11px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); min-height: 60px; resize: vertical; box-sizing: border-box; }
+  .jt-day textarea:focus { outline: none; border-color: var(--accent); }
+
+  .jt-prompts { background: var(--surface); border: 1px solid var(--border); padding: 18px 22px; margin-bottom: 18px; }
+  .jt-prompts summary { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); cursor: pointer; padding: 4px 0; }
+  .jt-prompts textarea { width: 100%; font-family: var(--font-mono); font-size: 11px; padding: 10px 14px; border: 1px solid var(--rule); background: var(--surface-2); color: var(--ink); min-height: 140px; resize: vertical; box-sizing: border-box; margin-top: 10px; line-height: 1.45; }
+  .jt-prompts textarea:focus { outline: none; border-color: var(--accent); }
+  .jt-prompts .label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin: 14px 0 4px; display: block; }
+
+  .jt-actions { display: flex; gap: 14px; align-items: center; margin-bottom: 22px; }
+  .jt-actions .btn { background: var(--accent); color: var(--surface); border: none; font-family: var(--font-ui); font-size: 14px; font-weight: 500; padding: 11px 24px; cursor: pointer; }
+  .jt-actions .btn:hover { filter: brightness(1.1); }
+  .jt-actions .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .jt-actions .btn-ghost { background: var(--ink); }
+  .jt-actions .btn-clear { background: transparent; color: var(--ink-soft); border: 1px solid var(--border); padding: 11px 18px; }
+  .jt-status { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+
+  .jt-result { background: var(--surface); border: 1px solid var(--border); padding: 22px 26px; margin-top: 22px; display: none; }
+  .jt-result.show { display: block; }
+  .jt-result h2 { margin: 0 0 4px; font-family: var(--font-ui); font-size: 17px; font-weight: 600; color: var(--ink); }
+  .jt-result .meta { font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-bottom: 18px; }
+  .jt-result .meta span { margin-right: 18px; }
+  .jt-result .meta strong { color: var(--ink); }
+  .jt-verdict { background: var(--paper); padding: 22px 26px; border: 1px solid var(--rule); margin-bottom: 18px; }
+  .jt-verdict h3 { margin: 0 0 10px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
+  .jt-verdict ul { margin: 0 0 16px; padding-left: 22px; font-family: var(--font-body); font-size: 14px; line-height: 1.6; color: var(--ink); }
+  .jt-verdict ul li { margin-bottom: 5px; }
+  .jt-verdict .throughline { font-family: var(--font-body); font-size: 15px; line-height: 1.65; color: var(--ink); margin: 0 0 16px; padding: 0; }
+  .jt-verdict .question { font-family: var(--font-display); font-size: 18px; font-style: italic; color: var(--ink); margin: 0; padding: 12px 0 0; border-top: 1px dashed var(--rule); }
+  .jt-intermediate { margin-top: 14px; }
+  .jt-intermediate details { background: var(--surface-2); border: 1px solid var(--rule); padding: 12px 16px; margin-bottom: 8px; }
+  .jt-intermediate summary { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); cursor: pointer; }
+  .jt-intermediate .v { margin-top: 12px; font-family: var(--font-body); font-size: 13px; line-height: 1.55; color: var(--ink); }
+  .jt-intermediate .v strong { color: var(--accent); font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; display: block; margin-bottom: 4px; }
+
+  .jt-recent { margin-top: 36px; }
+  .jt-recent h2 { font-family: var(--font-ui); font-size: 15px; font-weight: 600; color: var(--ink); margin: 0 0 14px; }
+  .jt-recent table { width: 100%; border-collapse: collapse; font-size: 12px; font-family: var(--font-mono); }
+  .jt-recent th, .jt-recent td { padding: 9px 12px; border-bottom: 1px solid var(--rule); text-align: left; }
+  .jt-recent th { background: var(--surface-2); color: var(--muted); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-size: 10px; }
+  .jt-recent td.cost { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">counsel<span class="tld">.day</span> · admin</div>
+  <div class="meta">
+    <a href="/account.html">← User-facing site</a>
+    <span id="adm-identity">…</span>
+    <a href="#" id="adm-logout">Log out</a>
+  </div>
+</div>
+<nav class="adm-subnav" aria-label="Admin sections">
+  <a href="/admin.html">Overview</a>
+  <a href="/admin-users.html">Users</a>
+  <a href="/admin-crm.html">CRM</a>
+  <a href="/admin-practitioners.html">Practitioners</a>
+  <a href="/admin-products.html">Products</a>
+  <a href="/admin-journal.html">Journal</a>
+  <a href="/admin-growth.html">Growth</a>
+  <a href="/admin-engagement.html">Engagement</a>
+  <a href="/admin-traffic.html">Traffic</a>
+  <a href="/admin-finance.html">Finance</a>
+  <a href="/admin-verdict-logs.html">Verdict logs</a>
+  <a href="/admin-audit-log.html">Audit log</a>
+  <a href="/admin-database.html">Database</a>
+  <a href="/admin-diagnostics.html">Diagnostics</a>
+  <a href="/admin-testing-area.html">Testing area</a>
+  <a href="/admin-journal-testing.html" class="active">Journal testing</a>
+</nav>
+
+<div class="shell">
+  <h1>Journal testing · run a verdict on fixture entries</h1>
+
+  <div class="jt-help">
+    <strong>What this does:</strong> Hands operator-supplied fixture entries to the production Counsel-Journal verdict pipeline · same Claude model, same system prompt as production. Nothing is written to a real user's vault. The cost lands in <code>anthropic_calls</code> with <code>source = journal_testing_area</code> so it shows up in the admin spend report.<br>
+    <strong>The current production prompt</strong> enforces <strong>positives-first</strong> · 3-5 specific positives lead the verdict; strains are named only when CLEARLY recurring (3+ mentions or pattern). Use the test page to see how the prompt handles edge cases · solid weeks, mixed weeks, hard months.
+  </div>
+
+  <!-- Mode picker · weekly / monthly_full / monthly_direct -->
+  <div class="jt-modes" id="jt-modes">
+    <button type="button" class="jt-mode active" data-mode="weekly">
+      <div class="name">Weekly verdict</div>
+      <div class="meta">7 entries · 1 Claude call</div>
+      <div class="desc">The standard Monday-morning verdict on the past seven days. Tests the weekly prompt exactly as production uses it.</div>
+    </button>
+    <button type="button" class="jt-mode" data-mode="monthly_full_pipeline">
+      <div class="name">Monthly · full pipeline</div>
+      <div class="meta">30 entries · 5 Claude calls</div>
+      <div class="desc">Matches production exactly · 30 entries become four weekly verdicts, then the four weekly verdicts become one monthly themed verdict. Most faithful, most expensive.</div>
+    </button>
+    <button type="button" class="jt-mode" data-mode="monthly_direct">
+      <div class="name">Monthly · direct</div>
+      <div class="meta">30 entries · 1 Claude call</div>
+      <div class="desc">30 entries → 1 verdict in a single call. Cheaper, useful for fast prompt iteration · output diverges from production (which always uses the full pipeline).</div>
+    </button>
+  </div>
+
+  <!-- Setup · fixture label + start date + model -->
+  <div class="jt-config">
+    <div class="jt-field">
+      <label for="jt-fixture-label">Fixture label (optional)</label>
+      <input type="text" id="jt-fixture-label" placeholder="solid week / stressful week / burnout pattern…" maxlength="120">
+    </div>
+    <div class="jt-field">
+      <label for="jt-start-date">Start date</label>
+      <input type="date" id="jt-start-date">
+    </div>
+    <div class="jt-field">
+      <label for="jt-model">Anthropic model</label>
+      <select id="jt-model">
+        <option value="">Default (VERDICT_MODEL from env)</option>
+        <option value="claude-sonnet-4-6">claude-sonnet-4-6</option>
+        <option value="claude-opus-4-7">claude-opus-4-7</option>
+        <option value="claude-haiku-4-5-20251001">claude-haiku-4-5</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Preset fixtures · populate textareas with stock content -->
+  <div class="jt-presets">
+    <span class="lbl">Load preset:</span>
+    <button type="button" data-preset="solid">Solid week</button>
+    <button type="button" data-preset="mixed">Mixed week</button>
+    <button type="button" data-preset="stressful">Stressful week</button>
+    <button type="button" data-preset="recovery">Recovery month</button>
+    <button type="button" data-preset="ambitious">Ambitious month</button>
+    <button type="button" data-preset="clear">Clear all</button>
+  </div>
+
+  <!-- Entry grid · 7 or 30 days, generated from JS based on mode + start date -->
+  <div class="jt-entries">
+    <h3><span>Daily entries</span> <span class="count" id="jt-count">7 days</span></h3>
+    <div id="jt-day-grid"></div>
+  </div>
+
+  <!-- Optional prompt override -->
+  <details class="jt-prompts">
+    <summary>Override system prompts for this run (advanced)</summary>
+    <span class="label">Weekly system prompt</span>
+    <textarea id="jt-prompt-weekly" placeholder="Leave blank to use the production resolved prompt"></textarea>
+    <span class="label">Monthly themed system prompt (used for monthly modes)</span>
+    <textarea id="jt-prompt-monthly" placeholder="Leave blank to use the production resolved prompt"></textarea>
+  </details>
+
+  <div class="jt-actions">
+    <button type="button" id="jt-run" class="btn">Run verdict</button>
+    <button type="button" id="jt-clear" class="btn-clear">Clear entries</button>
+    <span class="jt-status" id="jt-status">Ready · pick a mode, fill entries (or load a preset), then run.</span>
+  </div>
+
+  <!-- Result panel -->
+  <div class="jt-result" id="jt-result">
+    <h2 id="jt-result-h">Verdict</h2>
+    <div class="meta">
+      <span>Mode <strong id="jt-r-mode">·</strong></span>
+      <span>Model <strong id="jt-r-model">·</strong></span>
+      <span>Calls <strong id="jt-r-calls">·</strong></span>
+      <span>Tokens <strong id="jt-r-tokens">·</strong></span>
+      <span>Cost <strong id="jt-r-cost">·</strong></span>
+      <span>Elapsed <strong id="jt-r-elapsed">·</strong></span>
+    </div>
+    <div class="jt-verdict">
+      <h3>What kept working</h3>
+      <ul id="jt-r-positives"></ul>
+      <h3 id="jt-r-strains-h">What kept straining</h3>
+      <ul id="jt-r-strains"></ul>
+      <h3>Throughline</h3>
+      <p class="throughline" id="jt-r-throughline"></p>
+      <h3>One question for the week ahead</h3>
+      <p class="question" id="jt-r-question"></p>
+    </div>
+    <div class="jt-intermediate" id="jt-r-intermediate"></div>
+  </div>
+
+  <!-- Recent runs -->
+  <div class="jt-recent">
+    <h2>Recent test runs · last 25</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>When</th>
+          <th>Mode</th>
+          <th>Label</th>
+          <th>Calls</th>
+          <th>Tokens</th>
+          <th>Cost</th>
+          <th>Throughline (head)</th>
+        </tr>
+      </thead>
+      <tbody id="jt-recent-rows">
+        <tr><td colspan="7" style="text-align: center; padding: 24px; color: var(--muted);">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+(function () {
+  // ---------- State ----------
+  var state = {
+    mode: 'weekly',
+    days: 7,
+    startDate: defaultStartDate(),
+    entries: {},  // { 'YYYY-MM-DD': 'text' }
+  };
+
+  // ---------- Helpers ----------
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+  function defaultStartDate() {
+    var d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() - 7);
+    return d.toISOString().slice(0, 10);
+  }
+  function fmtIso(iso) {
+    try { var d = new Date(iso); return d.toLocaleDateString('en-NZ', { day: '2-digit', month: 'short', year: 'numeric' }); } catch (e) { return iso; }
+  }
+  function daysList(startIso, count) {
+    var out = [];
+    var d = new Date(startIso);
+    for (var i = 0; i < count; i++) {
+      out.push(d.toISOString().slice(0, 10));
+      d.setDate(d.getDate() + 1);
+    }
+    return out;
+  }
+
+  // ---------- Render entry grid ----------
+  function renderGrid() {
+    var grid = $('jt-day-grid');
+    var days = daysList(state.startDate, state.days);
+    grid.innerHTML = days.map(function (iso) {
+      var v = esc(state.entries[iso] || '');
+      return '<div class="jt-day">' +
+        '<div class="date">' + esc(iso) + '</div>' +
+        '<textarea data-date="' + esc(iso) + '" placeholder="What did the writer write on ' + esc(iso) + '?">' + v + '</textarea>' +
+      '</div>';
+    }).join('');
+    grid.querySelectorAll('textarea[data-date]').forEach(function (t) {
+      t.addEventListener('input', function () { state.entries[t.getAttribute('data-date')] = t.value; });
+    });
+    $('jt-count').textContent = state.days + ' days';
+  }
+
+  // ---------- Mode switch ----------
+  $('jt-modes').addEventListener('click', function (e) {
+    var btn = e.target.closest('.jt-mode');
+    if (!btn) return;
+    $('jt-modes').querySelectorAll('.jt-mode').forEach(function (b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    state.mode = btn.getAttribute('data-mode');
+    state.days = state.mode === 'weekly' ? 7 : 30;
+    renderGrid();
+  });
+
+  // ---------- Start date ----------
+  $('jt-start-date').value = state.startDate;
+  $('jt-start-date').addEventListener('change', function () {
+    state.startDate = $('jt-start-date').value || defaultStartDate();
+    renderGrid();
+  });
+
+  // ---------- Presets ----------
+  var PRESETS = {
+    solid: [
+      'Morning walk before the laptop. Got the proposal draft done in two hours instead of four. Lunch with Alex was easy. Bed at 10.',
+      'Walk again. Therapy session was useful · noticed the pattern about cancelling on weekends. Cooked. Bed at 10.',
+      'Slept badly but pushed through. Run at 5pm. The garden gave me an hour of quiet. Read a chapter.',
+      'Long meeting morning but the afternoon opened up. Wrote for two hours. Beautiful evening light.',
+      'Big day on the project. Tired but the satisfying kind. Pasta. Movie with M.',
+      'Slept in. Coffee in the garden. Friend over for lunch. Walked along the harbour after.',
+      'Quiet Sunday. Read, made bread, walked. Pleased with the week.'
+    ],
+    mixed: [
+      'Slow morning. Skipped the walk. Got distracted on the project. Bed late.',
+      'Better. Walk + coffee with M. Productive afternoon. Bed at 10.',
+      'Hard day. Argument with R. Couldn\'t focus. Reading helped.',
+      'Therapy. Talked about the argument. Walked after. Calmer.',
+      'Solid · the proposal landed. Out for dinner with friends.',
+      'Easy Saturday. Beach with the kids. Late dinner.',
+      'Did nothing useful. Felt the week catching up. Bed by 9.'
+    ],
+    stressful: [
+      'Deadline tomorrow. Worked late. No walk, no exercise. Bed at midnight.',
+      'Deadline shipped. Drained. Slept in. Skipped lunch. Glass of wine at 6.',
+      'Argument about money. Couldn\'t sleep.',
+      'Pulled it together. Walk in the morning. Better.',
+      'Another hard one at work. Came home short with the kids.',
+      'Tried to recover. Beach. Helped a bit.',
+      'Bad sleep. Anxious about the week ahead. Couldn\'t settle.'
+    ],
+    recovery: [
+      'Day 1 off. Slept well for the first time in weeks. Slow morning.',
+      'Walk. Read. Cooked. Surprisingly calm.',
+      'Saw the doctor. Reassuring. Coffee with M after.',
+      'Garden all morning. Hot soup. Early bed.',
+      'Friend over for lunch. Talked for hours.',
+      'Beach. Cold but beautiful. Long bath after.',
+      'Easy Sunday. Pleased with how this week went.',
+      'Back to work but eased in. Walk before opening the laptop.',
+      'Good day. The proposal moved forward. Felt clear-headed.',
+      'Therapy. Talked about how this week felt different.',
+      'Steady. Run at 6. Pasta. Movie.',
+      'Friday and not exhausted for once.',
+      'Saturday market. Kids. Late lunch in the sun.',
+      'Slept in. Walked. Read.',
+      'Back to it. Calm.',
+      'Solid morning. Got the new section done.',
+      'Long meeting day but didn\'t derail me.',
+      'Walk. Lunch with Alex. Bed by 10.',
+      'Productive. Cooked. Read.',
+      'Friday · drinks with the team. Easy.',
+      'Long sleep. Big breakfast. Walked.',
+      'Sunday quiet. Bread. Garden. Book.',
+      'Monday and not dreading it for once.',
+      'Run morning. Therapy. Felt grounded.',
+      'Wrote for three hours. Pleased.',
+      'Quiet day. Cooked. Bed early.',
+      'Friday again. Out for dinner.',
+      'Saturday with the kids. Beach.',
+      'Sunday: read all afternoon. Calm.',
+      'Pleased with the month. Steadier than the last.'
+    ],
+    ambitious: [
+      'Started the new project. Long day but the structure works.',
+      'Coffee with the designer · she\'s in. Pushed the deck forward.',
+      'Run in the morning. Wrote 1500 words on the proposal.',
+      'Hard day. Got stuck on the data piece. Walked in the evening to reset.',
+      'Better. Solved it. Late dinner.',
+      'Saturday: writing all morning. Beach in the afternoon.',
+      'Sunday: rest. Bread. Read the new book.',
+      'Monday: big presentation. Went well.',
+      'Walked after. Therapy. Talked about pacing.',
+      'Solid day. Three calls, all useful.',
+      'Friday · drinks. Easy.',
+      'Saturday: ran 10k. Tired but good.',
+      'Sunday: family lunch. Late afternoon nap.',
+      'Monday: distracted. Couldn\'t focus.',
+      'Better. Walked early. Got the report drafted.',
+      'Big meeting at 3. Carried it.',
+      'Therapy. Talked about saying no.',
+      'Solid Friday. Cooked. Movie.',
+      'Saturday: market + writing.',
+      'Sunday: rest. Reading.',
+      'Monday: new client call. Promising.',
+      'Walked. Wrote. Slept well.',
+      'Long day but the energy is there.',
+      'Pulled an evening with R about money. Hard but cleared.',
+      'Solid day. Wrote in the morning.',
+      'Friday: drinks with old colleagues.',
+      'Saturday: long run + nap.',
+      'Sunday: bread + book + early bed.',
+      'Monday: feeling the pace. Walked early.',
+      'End of month. Done a lot. Slept well last night.'
+    ]
+  };
+  document.querySelector('.jt-presets').addEventListener('click', function (e) {
+    var btn = e.target.closest('button[data-preset]');
+    if (!btn) return;
+    var name = btn.getAttribute('data-preset');
+    if (name === 'clear') {
+      state.entries = {};
+      renderGrid();
+      $('jt-status').textContent = 'Entries cleared.';
+      return;
+    }
+    var content = PRESETS[name];
+    if (!content) return;
+    // Adapt content length to mode · weekly takes first 7, monthly takes 30
+    var needed = state.days;
+    var days = daysList(state.startDate, needed);
+    state.entries = {};
+    for (var i = 0; i < needed; i++) {
+      state.entries[days[i]] = content[i % content.length];
+    }
+    renderGrid();
+    $('jt-status').textContent = 'Loaded preset: ' + name + ' (' + needed + ' days)';
+  });
+
+  // ---------- Clear ----------
+  $('jt-clear').addEventListener('click', function () {
+    if (!window.confirm('Clear all entry text?')) return;
+    state.entries = {};
+    renderGrid();
+  });
+
+  // ---------- Run ----------
+  $('jt-run').addEventListener('click', function () {
+    var days = daysList(state.startDate, state.days);
+    var filled = days
+      .map(function (d) { return { entry_date: d, text_content: (state.entries[d] || '').trim() }; })
+      .filter(function (e) { return e.text_content.length > 0; });
+    if (state.mode === 'weekly' && filled.length < 3) {
+      $('jt-status').textContent = 'Weekly mode needs at least 3 filled entries.';
+      return;
+    }
+    if (state.mode !== 'weekly' && filled.length < 28) {
+      $('jt-status').textContent = 'Monthly modes need at least 28 entries. Currently ' + filled.length + '.';
+      return;
+    }
+    var btn = $('jt-run');
+    btn.disabled = true;
+    var origLabel = btn.textContent;
+    btn.textContent = 'Running…';
+    $('jt-status').textContent = 'Calling Anthropic…';
+
+    var body = {
+      kind: state.mode,
+      fixture_label: $('jt-fixture-label').value || undefined,
+      entries: filled,
+      ai_model: $('jt-model').value || undefined,
+      prompt_override: $('jt-prompt-weekly').value || undefined,
+      monthly_prompt_override: $('jt-prompt-monthly').value || undefined,
+    };
+
+    fetch('/api/admin/journal-testing/run-verdict', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+      .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+      .then(function (res) {
+        btn.disabled = false;
+        btn.textContent = origLabel;
+        if (res.status !== 200 || !res.body || !res.body.ok) {
+          $('jt-status').textContent = 'Failed: ' + (res.body && res.body.message ? res.body.message : 'HTTP ' + res.status);
+          return;
+        }
+        renderResult(res.body);
+        loadRecent();
+        $('jt-status').textContent = 'Done · cost $' + (res.body.cost_cents / 100).toFixed(4) + ' · saved to recent runs.';
+      })
+      .catch(function (err) {
+        btn.disabled = false;
+        btn.textContent = origLabel;
+        $('jt-status').textContent = 'Network error: ' + (err.message || 'unknown');
+      });
+  });
+
+  // ---------- Render result ----------
+  function renderResult(r) {
+    $('jt-result').classList.add('show');
+    $('jt-r-mode').textContent = r.mode;
+    $('jt-r-model').textContent = r.model;
+    $('jt-r-calls').textContent = r.anthropic_call_count;
+    $('jt-r-tokens').textContent = (r.tokens_input + r.tokens_output).toLocaleString();
+    $('jt-r-cost').textContent = '$' + (r.cost_cents / 100).toFixed(4);
+    $('jt-r-elapsed').textContent = (r.elapsed_ms / 1000).toFixed(2) + 's';
+    var pos = r.verdict.positives || [];
+    var str = r.verdict.strains || [];
+    $('jt-r-positives').innerHTML = pos.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') || '<li style="color: var(--muted); font-style: italic;">(none surfaced)</li>';
+    if (str.length === 0) {
+      $('jt-r-strains-h').style.display = 'none';
+      $('jt-r-strains').style.display = 'none';
+    } else {
+      $('jt-r-strains-h').style.display = '';
+      $('jt-r-strains').style.display = '';
+      $('jt-r-strains').innerHTML = str.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('');
+    }
+    $('jt-r-throughline').textContent = r.verdict.throughline;
+    $('jt-r-question').textContent = r.verdict.question_for_next;
+
+    var inter = $('jt-r-intermediate');
+    if (r.intermediate_verdicts && r.intermediate_verdicts.length > 0) {
+      inter.innerHTML = '<h3 style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin: 10px 0;">Intermediate weekly verdicts (the four that produced the monthly synthesis)</h3>' +
+        r.intermediate_verdicts.map(function (v, i) {
+          return '<details><summary>Week ' + (i + 1) + ' · ' + esc(v.week_starts_on) + ' to ' + esc(v.week_ends_on) + '</summary>' +
+            '<div class="v"><strong>Positives</strong>' +
+              '<ul style="margin: 0 0 10px; padding-left: 20px;">' + v.positives.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul>' +
+              (v.strains.length ? '<strong>Strains</strong><ul style="margin: 0 0 10px; padding-left: 20px;">' + v.strains.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul>' : '') +
+              '<strong>Throughline</strong><p style="margin: 0 0 10px;">' + esc(v.throughline) + '</p>' +
+              '<strong>Question</strong><p style="margin: 0; font-style: italic;">' + esc(v.question_for_next) + '</p>' +
+            '</div>' +
+          '</details>';
+        }).join('');
+    } else {
+      inter.innerHTML = '';
+    }
+    window.scrollTo({ top: $('jt-result').offsetTop - 60, behavior: 'smooth' });
+  }
+
+  // ---------- Recent runs table ----------
+  function loadRecent() {
+    fetch('/api/admin/journal-testing/recent', { credentials: 'include' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.ok) { $('jt-recent-rows').innerHTML = '<tr><td colspan="7" style="text-align:center; color: var(--muted); padding: 18px;">Could not load.</td></tr>'; return; }
+        if (!d.runs || d.runs.length === 0) {
+          $('jt-recent-rows').innerHTML = '<tr><td colspan="7" style="text-align:center; color: var(--muted); padding: 18px;">No test runs yet.</td></tr>';
+          return;
+        }
+        $('jt-recent-rows').innerHTML = d.runs.map(function (r) {
+          var when = new Date(r.createdAt).toLocaleString('en-NZ');
+          var thr = (r.throughline || '').slice(0, 100);
+          return '<tr>' +
+            '<td>' + esc(when) + '</td>' +
+            '<td>' + esc(r.kind) + '</td>' +
+            '<td>' + esc(r.fixtureLabel || '·') + '</td>' +
+            '<td>' + r.anthropicCallCount + '</td>' +
+            '<td>' + ((r.tokensInput || 0) + (r.tokensOutput || 0)).toLocaleString() + '</td>' +
+            '<td class="cost">$' + (r.costCents / 100).toFixed(4) + '</td>' +
+            '<td style="font-family: var(--font-body); color: var(--ink); max-width: 320px;">' + esc(thr) + (thr.length === 100 ? '…' : '') + '</td>' +
+          '</tr>';
+        }).join('');
+      })
+      .catch(function () { $('jt-recent-rows').innerHTML = '<tr><td colspan="7" style="text-align:center; color: var(--muted); padding: 18px;">Could not load.</td></tr>'; });
+  }
+
+  // ---------- Init ----------
+  renderGrid();
+  loadRecent();
+})();
+</script>
+<script src="/admin-shell.js" defer></script>
+</body>
+</html>

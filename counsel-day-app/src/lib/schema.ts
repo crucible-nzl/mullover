@@ -309,6 +309,43 @@ export const verdictTestRuns = pgTable(
 );
 
 // ---------------------------------------------------------------------------
+// JOURNAL VERDICT TEST RUNS · admin testing harness for Journal verdicts.
+// Parallel to verdict_test_runs but scoped to Counsel Journal. The /admin-
+// journal-testing page lets operators paste fixture entries (7 or 30 days)
+// and run the verdict generator in three modes: weekly, monthly via the
+// full 4-weekly pipeline, or monthly direct from the entries.
+// See migration 0031_journal_verdict_test_runs.sql for the table contract.
+// ---------------------------------------------------------------------------
+export const journalVerdictTestRuns = pgTable(
+  'journal_verdict_test_runs',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    kind: text('kind').notNull(),                                    // 'weekly' | 'monthly_full_pipeline' | 'monthly_direct'
+    fixtureLabel: text('fixture_label'),
+    entriesJson: jsonb('entries_json').notNull(),
+
+    aiModel: text('ai_model').notNull(),
+    promptUsed: text('prompt_used').notNull(),
+    monthlyPromptUsed: text('monthly_prompt_used'),
+
+    positivesJson: jsonb('positives_json').notNull().default([]),
+    strainsJson: jsonb('strains_json').notNull().default([]),
+    throughline: text('throughline').notNull(),
+    questionForNext: text('question_for_next').notNull(),
+
+    intermediateVerdictsJson: jsonb('intermediate_verdicts_json'),
+
+    tokensInput: integer('tokens_input').notNull().default(0),
+    tokensOutput: integer('tokens_output').notNull().default(0),
+    costCents: integer('cost_cents').notNull().default(0),
+    anthropicCallCount: integer('anthropic_call_count').notNull().default(1),
+
+    triggeredByUserId: uuid('triggered_by_user_id').notNull().references(() => users.id, { onDelete: 'restrict' }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  }
+);
+
+// ---------------------------------------------------------------------------
 // ANTHROPIC CALLS · self-tracked ledger of every messages.create() call.
 // Anthropic's Admin API has multi-hour ingestion lag; this table is the
 // single source of truth for what Counsel.day has actually spent in the

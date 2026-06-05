@@ -19,6 +19,7 @@ import { sendPushToUser } from '../lib/push';
 import { getAnthropic, VERDICT_MODEL, VERDICT_SYSTEM_PROMPT } from '../lib/anthropic';
 import { callAnthropic } from '../lib/anthropic-call';
 import { resolvePrompt } from '../lib/prompts';
+import { JOURNAL_WEEKLY_VERDICT_SYSTEM_DEFAULT } from '../lib/journal-prompts';
 import { runSecurityAudit, type AuditSnapshot } from '../lib/security-audit';
 import { narrateVerdict } from '../lib/tts';
 import { spawn } from 'node:child_process';
@@ -1078,7 +1079,9 @@ async function emailJournalVerdict(
   });
 }
 
-const JOURNAL_WEEKLY_VERDICT_SYSTEM_DEFAULT = `You are the Counsel.day editorial voice writing a weekly verdict on a user's daily journal entries. You are observational, not advisory. You quote the user's own phrasing back to them. You do not give advice, you do not diagnose, you do not coach. You name what is recurring, what is working, what is straining. You write one specific concrete question for the week ahead. No bullet points in the throughline; one prose paragraph of 2-4 sentences. Never use the words "feel", "you should", "you might consider", "try to", "remember to". Lead with what is working before what is straining.`;
+// Prompts live in src/lib/journal-prompts.ts so the production cron and
+// the admin testing harness use exactly the same defaults. Imported at
+// top of this file.
 
 async function weeklyDigest() {
   const opsEmail = process.env.OPS_DIGEST_EMAIL ?? 'admin@counsel.day';

@@ -26,9 +26,12 @@ on:
       - '.gitignore'
   workflow_dispatch:
 
-concurrency:
-  group: deploy-production
-  cancel-in-progress: false  # Never cancel a mid-flight production deploy
+# Workflow-level concurrency is INTENTIONALLY removed. The two jobs
+# below (deploy-app + deploy-static) own their own concurrency groups
+# so a stuck app deploy can't block a static deploy (which is what
+# 2026-06-06 04:54 hit · PR #2's app deploy waited 7h on environment
+# approval, blocking every subsequent merge's static deploy behind the
+# shared deploy-production lock).
 
 permissions:
   contents: read
@@ -38,8 +41,15 @@ jobs:
     name: Deploy counsel-day-app (Next.js)
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # Optional: gate behind a GitHub Environment with manual approval
-    # for the first month. Uncomment once the environment is configured:
+    # App deploys queue strictly · never cancel a build that may be
+    # half-way through restarting systemd. Per-job concurrency overrides
+    # any workflow-level group.
+    concurrency:
+      group: deploy-app-production
+      cancel-in-progress: false
+    # Gated behind a GitHub Environment with manual approval. The
+    # approval queue is what blocks app deploys when no reviewer is
+    # around · static deploys are now independent of this.
     environment: production
 
     steps:
@@ -112,6 +122,12 @@ jobs:
 
       - name: Deploy app
         if: steps.detect.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        # Step-level timeout · job timeout is 15 min, but the SSH chain
+        # was hanging for 7+ hours on a previous run because the step
+        # never returned. Step timeout forces failure within 10 minutes
+        # of step start so a stuck deploy fails fast and the job runner
+        # is freed for the next merge.
+        timeout-minutes: 10
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
@@ -125,13 +141,18 @@ jobs:
           # Excludes preserve node_modules, .next build cache, secrets,
           # git data, and the runtime .git-rev sha file.
           cd counsel-day-app
-          ssh -i ~/.ssh/id_ed25519 "$SSH_USER@$SSH_HOST" "sudo mkdir -p /opt/counsel-day-app && sudo chown -R deploy:deploy /opt/counsel-day-app"
-          rsync -e "ssh -i ~/.ssh/id_ed25519" -az --delete \
+          # ConnectTimeout caps the initial SSH handshake; ServerAlive
+          # detects a dropped connection mid-command. Without these, a
+          # network blip can hang the run for the full job timeout.
+          export ANSIBLE_SSH_ARGS=""
+          SSH_OPTS="-o ConnectTimeout=15 -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -i ~/.ssh/id_ed25519"
+          ssh $SSH_OPTS "$SSH_USER@$SSH_HOST" "sudo mkdir -p /opt/counsel-day-app && sudo chown -R deploy:deploy /opt/counsel-day-app"
+          rsync -e "ssh $SSH_OPTS" -az --delete \
             --exclude='node_modules' --exclude='.next' \
             --exclude='.env' --exclude='.env.local' \
             --exclude='.git' --exclude='.git-rev' \
             ./ "$SSH_USER@$SSH_HOST:/opt/counsel-day-app/"
-          ssh -i ~/.ssh/id_ed25519 "$SSH_USER@$SSH_HOST" "
+          ssh $SSH_OPTS "$SSH_USER@$SSH_HOST" "
             set -e
             cd /opt/counsel-day-app
             # Record the deployed git sha so /api/health (lib/version.ts)
@@ -169,6 +190,12 @@ jobs:
     name: Deploy counsel-day-complete (static site)
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # Static deploys auto-cancel any in-flight static run on the same
+    # ref · the latest commit's HTML is always what we want on the box.
+    # Independent of the app deploy's strict-queue concurrency group.
+    concurrency:
+      group: deploy-static-production
+      cancel-in-progress: true
 
     steps:
       - name: Checkout
@@ -232,22 +259,29 @@ jobs:
 
       - name: Push static
         if: steps.detect.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        # Step-level timeout · static deploy completes in ~20s on a
+        # healthy network. 5 min is generous; a stuck SSH connection
+        # fails fast and the runner is freed for the next merge.
+        timeout-minutes: 5
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
         run: |
+          SSH_OPTS="-o ConnectTimeout=15 -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -i ~/.ssh/id_ed25519"
           tar -czf - -C counsel-day-complete \
             --exclude='scripts' --exclude='engineering' --exclude='ops' . \
-            | ssh -i ~/.ssh/id_ed25519 "$SSH_USER@$SSH_HOST" \
+            | ssh $SSH_OPTS "$SSH_USER@$SSH_HOST" \
               'sudo tar -xzf - -C /var/www/counsel.day && sudo chown deploy:deploy /var/www/counsel.day/sitemap.xml || true'
 
       - name: Regenerate sitemap
         if: steps.detect.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        timeout-minutes: 3
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
         run: |
-          ssh -i ~/.ssh/id_ed25519 "$SSH_USER@$SSH_HOST" 'sudo systemctl start counsel-day-sitemap.service'
+          ssh -o ConnectTimeout=15 -o ServerAliveInterval=30 -i ~/.ssh/id_ed25519 \
+            "$SSH_USER@$SSH_HOST" 'sudo systemctl start counsel-day-sitemap.service'
 
       # Sync Caddyfile + reload Caddy if it changed. The repo's
       # counsel-day-complete/ops/Caddyfile is the source of truth;

@@ -42,9 +42,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent  # counsel-day-complete/
 
 # Assets to content-address. Paths are relative to ROOT.
+# helper-widget.js is NOT hashed because it is loaded by
+# helper-widget-loader.js at runtime via a dynamic <script> insertion ·
+# the loader hard-codes the filename, so a hashed copy would never be
+# requested. The loader IS hashed, which is what catches cache replay.
 TRACKED = [
     "nav-toggle.js",
-    "helper-widget.js",
+    "helper-widget-loader.js",
     "ga4.js",
     "pwa.js",
 ]

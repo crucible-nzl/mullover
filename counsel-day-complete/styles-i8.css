@@ -1377,3 +1377,86 @@ section { padding: 30px 32px; border-bottom: 1px solid var(--rule); }
   body { padding-bottom: max(0px, env(safe-area-inset-bottom)); }
   .nav-inner { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
 }
+
+/* ---------- UTILITY CLASSES (B1 · inline-style extraction) ----------
+   Added 2026-06-05 to retire the three most-repeated inline style
+   patterns across the site (totalling ~65 occurrences before this
+   change). Use these classes on every new component instead of writing
+   the equivalent inline style. The patterns are:
+
+   .u-wine-link · wine-coloured anchor with a 1px wine underline that
+     turns ink on hover. Replaces:
+       style="color: var(--wine); border-bottom: 1px solid var(--wine);"
+     plus the variants that add padding-bottom: 1px and text-decoration: none.
+
+   .u-eyebrow · mono uppercase wine eyebrow line above a heading.
+     Replaces:
+       style="font-family: var(--font-mono); font-size: 11px;
+              letter-spacing: 0.14em; text-transform: uppercase;
+              color: var(--wine); margin-bottom: 10px;"
+
+   .u-btn-wine · wine-filled button utility. Replaces:
+       style="background: var(--wine); color: var(--paper);
+              border-color: var(--wine);"
+     when used on an <a class="btn">.
+
+   .u-mono-meta · small mono-font metadata text. Replaces the
+     letter-spaced uppercase mono pattern used for status pills,
+     footnotes, and meta rows.
+
+   These don't force a redesign · they're additive utilities. Older
+   inline styles continue to work; new code uses the classes. */
+.u-wine-link {
+  color: var(--wine);
+  text-decoration: none;
+  border-bottom: 1px solid var(--wine);
+  padding-bottom: 1px;
+  transition: color 120ms, border-bottom-color 120ms;
+}
+.u-wine-link:hover,
+.u-wine-link:focus-visible { color: var(--ink); border-bottom-color: var(--ink); }
+
+.u-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--wine);
+  margin-bottom: 10px;
+  display: block;
+}
+.u-eyebrow.is-muted { color: var(--muted); }
+
+.u-btn-wine {
+  background: var(--wine);
+  color: var(--paper);
+  border: 1px solid var(--wine);
+  transition: background 120ms;
+}
+.u-btn-wine:hover,
+.u-btn-wine:focus-visible { background: var(--wine-deep, #5a242c); border-color: var(--wine-deep, #5a242c); color: var(--paper); }
+
+.u-mono-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.u-mono-meta strong { color: var(--ink); font-weight: 700; }
+
+/* Card · subtle background, rule border, no decoration. Many inline
+   product/section panels are this exact shape. */
+.u-card {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 16px 18px;
+}
+.u-card.is-deep { background: var(--paper-deep); }
+.u-card.is-ink-edge { border-color: var(--ink); }
+
+/* Flex/grid helpers (handful of inline display patterns that recur) */
+.u-flex-row { display: flex; gap: 12px; align-items: center; }
+.u-flex-row.is-wrap { flex-wrap: wrap; }
+.u-flex-col { display: flex; flex-direction: column; gap: 12px; }

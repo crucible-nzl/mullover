@@ -462,7 +462,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 '<p style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin: 30px 0 12px;">The conversation that follows</p>' +
                 '<blockquote style="border-left: 3px solid var(--wine); padding: 6px 0 6px 20px; margin: 0; font-style: italic; color: var(--ink);">' + (verdict.next_conversation_prompt || '') + '</blockquote>'
                 : '') +
-              '<p style="margin: 28px 0 0; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;"><a href="verdict-report.html?id=' + encodeURIComponent(id) + '" style="color: var(--wine); border-bottom: 1px solid var(--wine); padding-bottom: 1px; text-decoration: none;">Open the full report &rarr;</a> · trajectory, themes, word cloud, sentiment, re-delivery</p>' +
+              '<p style="margin: 28px 0 0; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;"><a href="verdict-report.html?id=' + encodeURIComponent(id) + '" class="u-wine-link">Open the full report &rarr;</a> · trajectory, themes, word cloud, sentiment, re-delivery</p>' +
             '</div>');
           var s = document.getElementById('cd-synth');
           if (s) s.textContent = verdict.synthesis_text || '';

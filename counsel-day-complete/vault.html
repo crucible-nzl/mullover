@@ -539,7 +539,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   function renderReadingMode() {
     pagerEl.style.display = 'none';
     if (!state.entries || state.entries.length === 0) {
-      listEl.innerHTML = '<div class="vault-empty">No entries yet. <a href="journal.html" style="color: var(--wine); border-bottom: 1px solid var(--wine);">File your first entry →</a></div>';
+      listEl.innerHTML = '<div class="vault-empty">No entries yet. <a href="journal.html" class="u-wine-link">File your first entry →</a></div>';
       return;
     }
     // Group entries by their iso-monday (the Monday of their week)
@@ -629,7 +629,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     if (!playlistEl) return;
     plState.queue = buildPlaylistQueue();
     if (plState.queue.length === 0) {
-      playlistEl.innerHTML = '<div class="vault-playlist-empty">No unsealed voice entries yet. Voice entries become playable once the seven-day seal lifts. <a href="journal.html" style="color: var(--wine); border-bottom: 1px solid var(--wine);">File a voice entry →</a></div>';
+      playlistEl.innerHTML = '<div class="vault-playlist-empty">No unsealed voice entries yet. Voice entries become playable once the seven-day seal lifts. <a href="journal.html" class="u-wine-link">File a voice entry →</a></div>';
       return;
     }
     // Re-render the shell from the original HTML if it was wiped.
@@ -867,7 +867,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       document.getElementById('vault-stat-words').textContent = words.toLocaleString();
 
       if (state.entries.length === 0) {
-        listEl.innerHTML = '<div class="vault-empty">No recordings yet. <a href="journal.html" style="color: var(--wine); border-bottom: 1px solid var(--wine);">File your first entry →</a></div>';
+        listEl.innerHTML = '<div class="vault-empty">No recordings yet. <a href="journal.html" class="u-wine-link">File your first entry →</a></div>';
         return;
       }
       render();

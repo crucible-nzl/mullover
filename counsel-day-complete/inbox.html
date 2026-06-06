@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COUNSEL.DAY · ANALYTICS HEAD SNIPPET · single source of truth -->
+<!-- Order is load-bearing: Consent Mode v2 defaults MUST be set BEFORE -->
+<!-- GTM and gtag load, or the first pageview ships before user choice. -->
+<!-- This block is injected into every public HTML <head> by             -->
+<!-- scripts/inject-analytics.py. Brand-verify Check 12 enforces.        -->
+
+<!-- Preconnect to GA endpoints · saves ~100ms first-load handshake -->
+<link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+<link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
+
+<!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage':         'denied',
+    'ad_user_data':       'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage':  'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage':   'granted',
+    'wait_for_update':    500
+  });
+  // Honour Global Privacy Control + Do-Not-Track before any tag fires.
+  if (navigator.globalPrivacyControl === true ||
+      navigator.doNotTrack === '1' || navigator.doNotTrack === 'yes' ||
+      window.doNotTrack === '1' || navigator.msDoNotTrack === '1') {
+    gtag('consent', 'update', {
+      'ad_storage':         'denied',
+      'ad_user_data':       'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage':  'denied'
+    });
+  }
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Analytics 4 (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-SX20BZZP59', {
+    'anonymize_ip': true,
+    'allow_google_signals': false,
+    'allow_ad_personalization_signals': false
+  });
+</script>
+<!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
+
+<title>Inbox · Counsel.day</title>
+<meta name="description" content="Every verdict ready to read · weekly Journal verdicts, monthly themed verdicts, and Decision verdicts as they close.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="styles-i8.css">
+<style>
+  /* B5 · Inbox layout · single column of cards · newest first ·
+     decision and journal items distinguished by left-rail colour. */
+  .ibx-shell { max-width: 1080px; margin: 0 auto; padding: 30px 32px 60px; }
+  .ibx-head { padding-bottom: 22px; border-bottom: 1px solid var(--ink); margin-bottom: 28px; }
+  .ibx-head .ttl { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine); margin-bottom: 12px; }
+  .ibx-head h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(34px, 4.4vw, 50px); line-height: 1.05; color: var(--ink); margin: 0; }
+  .ibx-head h1 .ital { font-style: italic; color: var(--wine); }
+  .ibx-head .sub { font-family: var(--font-body); font-size: 16px; line-height: 1.55; color: var(--ink-soft); margin: 12px 0 0; max-width: 760px; }
+
+  .ibx-filter { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
+  .ibx-filter button { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 8px 14px; background: var(--paper); border: 1px solid var(--rule); color: var(--ink-soft); cursor: pointer; border-radius: 0; min-height: 36px; }
+  .ibx-filter button.is-on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .ibx-filter button:hover:not(.is-on) { color: var(--wine); border-color: var(--wine); }
+
+  .ibx-list { display: flex; flex-direction: column; gap: 12px; }
+  .ibx-card { display: block; padding: 18px 22px; border: 1px solid var(--rule); border-left: 4px solid var(--wine); background: var(--paper); text-decoration: none; color: inherit; transition: border-color 120ms, background 120ms; }
+  .ibx-card:hover { background: var(--paper-deep); border-color: var(--ink); border-left-color: var(--wine-deep, #5a242c); }
+  .ibx-card.is-decision { border-left-color: var(--ink); }
+  .ibx-card.is-monthly { border-left-color: var(--wine); background: linear-gradient(0deg, var(--wine-soft) 0%, var(--paper) 100%); }
+  .ibx-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; margin-bottom: 6px; flex-wrap: wrap; }
+  .ibx-card-kind { font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine); }
+  .ibx-card.is-decision .ibx-card-kind { color: var(--ink); }
+  .ibx-card-when { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; color: var(--muted); text-transform: uppercase; }
+  .ibx-card-title { font-family: var(--font-display); font-weight: 400; font-size: 20px; line-height: 1.2; color: var(--ink); margin: 0 0 8px; }
+  .ibx-card-preview { font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: var(--ink-soft); margin: 0 0 8px; }
+  .ibx-card-cta { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--wine); }
+
+  .ibx-empty { padding: 60px 22px; text-align: center; border: 1px dashed var(--rule); background: var(--paper); }
+  .ibx-empty h2 { font-family: var(--font-display); font-weight: 400; font-size: 22px; color: var(--ink); margin: 0 0 8px; }
+  .ibx-empty p { font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: var(--ink-soft); margin: 0 0 18px; }
+
+  .ibx-load-more { display: block; margin: 24px auto 0; padding: 12px 22px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; background: var(--paper); color: var(--ink); border: 1px solid var(--ink); cursor: pointer; border-radius: 0; min-height: 40px; }
+  .ibx-load-more:hover { background: var(--ink); color: var(--paper); }
+  .ibx-load-more:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  @media (max-width: 600px) { .ibx-shell { padding: 22px 18px 40px; } .ibx-card { padding: 14px 16px; } .ibx-card-title { font-size: 18px; } }
+</style>
+</head>
+<body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<!-- CD:PARTIAL:nav-app -->
+<nav class="nav-bar" aria-label="Primary site navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
+    <button type="button" class="nav-toggle" id="cd-nav-toggle" aria-controls="cd-nav-links" aria-expanded="false" aria-label="Open menu">
+      <span class="nav-toggle-bar"></span>
+      <span class="nav-toggle-bar"></span>
+      <span class="nav-toggle-bar"></span>
+    </button>
+    <div class="nav-links" id="cd-nav-links">
+      <a href="decisions.html">Your decisions</a>
+      <a href="vote-today.html">Tonight's vote</a>
+      <a href="journal.html">Journal</a>
+      <a href="vault.html">Vault</a>
+      <a href="inbox.html">Inbox</a>
+      <a href="compose.html">Compose</a>
+      <a href="account.html">Account</a>
+      <a href="help.html">Help</a>
+    </div>
+    <div class="nav-cta">
+      <a href="account.html" class="btn-text" id="cd-nav-name">Account</a>
+    </div>
+  </div>
+</nav>
+<!-- Burger-menu wiring lives in /nav-toggle.js · loaded once per page.
+     Do NOT add an inline <script> here · two handlers on the same toggle
+     fire twice per click, opening then immediately closing the menu. -->
+<!-- /CD:PARTIAL:nav-app -->
+
+<main id="main-content" class="ibx-shell">
+
+  <div class="ibx-head">
+    <div class="ttl">YOUR INBOX · VERDICTS ACROSS BOTH PRODUCTS</div>
+    <h1>Everything that's <span class="ital">opened</span> for you.</h1>
+    <p class="sub">Every Decision verdict and every Counsel Journal weekly + monthly verdict, newest first. Click any card to read it in full. Older verdicts stay forever · this is the spine of your Counsel.day history.</p>
+  </div>
+
+  <div class="ibx-filter" role="tablist" aria-label="Filter inbox">
+    <button type="button" data-filter="all" class="is-on" role="tab" aria-selected="true">All</button>
+    <button type="button" data-filter="decision" role="tab" aria-selected="false">Decision verdicts</button>
+    <button type="button" data-filter="journal_weekly" role="tab" aria-selected="false">Journal · weekly</button>
+    <button type="button" data-filter="journal_monthly" role="tab" aria-selected="false">Journal · monthly</button>
+  </div>
+
+  <div id="ibx-list" class="ibx-list">
+    <div class="ibx-empty"><h2>Loading…</h2></div>
+  </div>
+
+  <button type="button" id="ibx-more" class="ibx-load-more" style="display: none;">Load older</button>
+
+</main>
+
+<!-- CD:PARTIAL:colophon -->
+<footer class="colophon">
+  <div class="colophon-inner">
+    <div class="colophon-top">
+      <div>
+        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+        <p class="colophon-tagline">Two products. Counsel.day Decision is for solo, couples, and families facing a hard joint decision · one private vote each evening on the same question, for a duration you set, sealed until the final day. Counsel Journal is the standalone reflection tool · one minute every evening, a verdict on Monday, a themed verdict every month. Worldwide, priced in USD.</p>
+      </div>
+      <div class="colophon-col">
+        <h5>The app</h5>
+        <a href="decisions.html">Your decisions</a>
+        <a href="vote-today.html">Tonight's vote</a>
+        <a href="journal.html">Journal</a>
+        <a href="compose.html">Compose</a>
+        <a href="account.html">Your account</a>
+        <a href="billing.html">Billing</a>
+      </div>
+      <div class="colophon-col">
+        <h3 class="colophon-col-h">The decision tool</h3>
+        <a href="method.html">The method</a>
+        <a href="why-time.html">Why time</a>
+        <a href="verdict.html">A real verdict</a>
+        <a href="pricing.html">Pricing</a>
+      </div>
+      <div class="colophon-col">
+        <h3 class="colophon-col-h">Counsel Journal</h3>
+        <a href="journal.html">Open the Journal</a>
+        <a href="journal.html#about">What it is</a>
+        <a href="pricing.html#the-daily">Pricing</a>
+      </div>
+      <div class="colophon-col">
+        <h5>Support</h5>
+        <a href="help.html">Help</a>
+        <a href="helper.html">Helper bot</a>
+        <a href="correspondence.html">Correspondence</a>
+        <a href="contact.html">Contact</a>
+        <a href="faq.html">FAQ</a>
+        <a href="status.html">Status</a>
+      </div>
+      <div class="colophon-col">
+        <h3 class="colophon-col-h">The fine print</h3>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="refunds.html">Refunds</a>
+      </div>
+    </div>
+    <div class="colophon-bottom">
+      <div>&copy; 2026 Counsel.day · USD pricing worldwide</div>
+    </div>
+  </div>
+</footer>
+<script src="/helper-widget-loader.js" defer></script>
+<!-- /CD:PARTIAL:colophon -->
+
+<script>
+(function () {
+  var listEl = document.getElementById('ibx-list');
+  var moreBtn = document.getElementById('ibx-more');
+  var filterBtns = document.querySelectorAll('.ibx-filter button[data-filter]');
+  var state = { items: [], filter: 'all', nextCursor: null, loading: false };
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+  function fmtWhen(iso) {
+    try {
+      var d = new Date(iso);
+      var now = new Date();
+      var diffMs = now - d;
+      var diffH = diffMs / 36e5;
+      if (diffH < 1) return Math.max(1, Math.floor(diffMs / 6e4)) + ' min ago';
+      if (diffH < 24) return Math.floor(diffH) + ' hr ago';
+      var diffD = Math.floor(diffH / 24);
+      if (diffD < 7) return diffD + ' day' + (diffD === 1 ? '' : 's') + ' ago';
+      return d.toLocaleDateString('en-NZ', { day: '2-digit', month: 'short', year: 'numeric' });
+    } catch (e) { return iso; }
+  }
+
+  function applyFilter() {
+    var filtered = state.filter === 'all'
+      ? state.items
+      : state.items.filter(function (it) {
+          if (state.filter === 'decision') return it.kind === 'decision_verdict';
+          return it.kind === state.filter;
+        });
+    if (filtered.length === 0) {
+      listEl.innerHTML = '<div class="ibx-empty"><h2>No verdicts yet.</h2><p>Your Decision verdicts and Counsel Journal verdicts will appear here as they ship. <a href="decisions.html" class="u-wine-link">Open a decision</a> or <a href="journal.html" class="u-wine-link">file a journal entry</a> to get started.</p></div>';
+      return;
+    }
+    listEl.innerHTML = filtered.map(function (it) {
+      var label = it.kind === 'decision_verdict' ? 'DECISION · VERDICT'
+                : it.kind === 'journal_monthly'  ? 'COUNSEL JOURNAL · MONTHLY THEMED'
+                : 'COUNSEL JOURNAL · WEEKLY';
+      var modClass = it.kind === 'decision_verdict' ? ' is-decision'
+                   : it.kind === 'journal_monthly'  ? ' is-monthly'
+                   : '';
+      return '<a class="ibx-card' + modClass + '" href="' + esc(it.link) + '">' +
+        '<div class="ibx-card-head">' +
+          '<span class="ibx-card-kind">' + label + '</span>' +
+          '<span class="ibx-card-when">' + esc(fmtWhen(it.generated_at)) + '</span>' +
+        '</div>' +
+        '<h2 class="ibx-card-title">' + esc(it.title) + '</h2>' +
+        (it.preview ? '<p class="ibx-card-preview">' + esc(it.preview) + (it.preview.length === 220 ? '…' : '') + '</p>' : '') +
+        '<div class="ibx-card-cta">Open →</div>' +
+      '</a>';
+    }).join('');
+  }
+
+  function load() {
+    state.loading = true;
+    var url = '/api/me/inbox' + (state.nextCursor ? '?cursor=' + encodeURIComponent(state.nextCursor) : '');
+    fetch(url, { credentials: 'include' })
+      .then(function (r) {
+        if (r.status === 401) { window.location.href = '/signin?next=/inbox.html'; return null; }
+        return r.json();
+      })
+      .then(function (d) {
+        state.loading = false;
+        if (!d || !d.ok) { listEl.innerHTML = '<div class="ibx-empty"><h2>Could not load.</h2><p>The inbox endpoint did not respond. Reload the page or come back later.</p></div>'; return; }
+        state.items = state.items.concat(d.items || []);
+        state.nextCursor = d.next_cursor || null;
+        moreBtn.style.display = state.nextCursor ? 'block' : 'none';
+        applyFilter();
+      })
+      .catch(function () {
+        state.loading = false;
+        listEl.innerHTML = '<div class="ibx-empty"><h2>Could not load.</h2><p>Network error · refresh to retry.</p></div>';
+      });
+  }
+
+  filterBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      filterBtns.forEach(function (x) { x.classList.remove('is-on'); x.setAttribute('aria-selected', 'false'); });
+      b.classList.add('is-on');
+      b.setAttribute('aria-selected', 'true');
+      state.filter = b.getAttribute('data-filter');
+      applyFilter();
+    });
+  });
+
+  moreBtn.addEventListener('click', function () {
+    if (state.loading || !state.nextCursor) return;
+    moreBtn.disabled = true;
+    moreBtn.textContent = 'Loading…';
+    load();
+    setTimeout(function () {
+      moreBtn.disabled = false;
+      moreBtn.textContent = 'Load older';
+    }, 800);
+  });
+
+  load();
+})();
+</script>
+<script src="/pwa.js" defer></script>
+<script src="ga4.js" defer></script>
+<script src="/nav-toggle.js" defer></script>
+<script src="/helper-widget-loader.js" defer></script>
+</body>
+</html>

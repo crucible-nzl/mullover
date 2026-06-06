@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin · Practitioner pipeline · Counsel.day</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f7f9fc">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/admin-shell.css">
+<style>
+  /* Kanban-style pipeline view · one column per outreach_stage.
+     Horizontal scroll on narrow viewports. */
+  .pp-help { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); padding: 14px 18px; font-size: 13px; line-height: 1.55; color: var(--ink-soft); margin-bottom: 18px; }
+  .pp-help strong { color: var(--ink); }
+  .pp-summary { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+  .pp-summary .cell { background: var(--surface); border: 1px solid var(--border); padding: 10px 14px; flex: 0 0 auto; }
+  .pp-summary .lbl { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .pp-summary .val { font-family: var(--font-display); font-size: 20px; font-weight: 500; color: var(--ink); }
+
+  .pp-board { display: grid; grid-template-columns: repeat(7, minmax(280px, 1fr)); gap: 12px; padding-bottom: 18px; overflow-x: auto; }
+  @media (max-width: 1400px) { .pp-board { grid-template-columns: repeat(7, 280px); } }
+  .pp-col { background: var(--surface-2); border: 1px solid var(--border); display: flex; flex-direction: column; min-height: 200px; }
+  .pp-col-head { padding: 10px 14px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .pp-col-head .name { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+  .pp-col-head .count { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--ink); }
+  .pp-col-body { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+
+  .pp-card { background: var(--surface); border: 1px solid var(--rule); padding: 10px 12px; cursor: pointer; transition: border-color 120ms; }
+  .pp-card:hover { border-color: var(--accent); }
+  .pp-card .name { font-family: var(--font-ui); font-weight: 600; font-size: 13px; color: var(--ink); margin-bottom: 4px; }
+  .pp-card .meta { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; }
+  .pp-card .preview { font-family: var(--font-body); font-size: 12px; line-height: 1.4; color: var(--ink-soft); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .pp-card .last { font-family: var(--font-mono); font-size: 10px; color: var(--accent); margin-top: 6px; }
+
+  /* Detail drawer */
+  .pp-drawer { position: fixed; right: 0; top: 0; bottom: 0; width: min(520px, 100vw); background: var(--surface); border-left: 1px solid var(--border); padding: 22px 26px; overflow-y: auto; z-index: 100; box-shadow: -6px 0 24px rgba(0,0,0,0.12); transform: translateX(100%); transition: transform 200ms ease; }
+  .pp-drawer.is-open { transform: translateX(0); }
+  .pp-drawer h2 { font-family: var(--font-ui); font-size: 17px; font-weight: 600; color: var(--ink); margin: 0 0 4px; }
+  .pp-drawer .role { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+  .pp-drawer .close { float: right; background: none; border: 1px solid var(--rule); padding: 4px 10px; font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); cursor: pointer; }
+  .pp-drawer .field { margin-bottom: 14px; }
+  .pp-drawer .field label { display: block; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .pp-drawer .field .v { font-family: var(--font-body); font-size: 13px; line-height: 1.5; color: var(--ink); }
+  .pp-drawer select, .pp-drawer textarea { width: 100%; padding: 8px 11px; font-family: var(--font-ui); font-size: 13px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); box-sizing: border-box; }
+  .pp-drawer textarea { font-family: var(--font-body); min-height: 90px; resize: vertical; line-height: 1.45; }
+  .pp-drawer .actions { display: flex; gap: 10px; align-items: center; margin-top: 18px; }
+  .pp-drawer .btn { background: var(--accent); color: var(--surface); border: none; font-family: var(--font-ui); font-size: 13px; font-weight: 500; padding: 9px 18px; cursor: pointer; }
+  .pp-drawer .btn-ghost { background: var(--ink); }
+  .pp-drawer .btn-touch { background: var(--surface); color: var(--ink); border: 1px solid var(--ink); }
+  .pp-status { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">counsel<span class="tld">.day</span> · admin</div>
+  <div class="meta">
+    <a href="/account.html">← User-facing site</a>
+    <span id="adm-identity">…</span>
+    <a href="#" id="adm-logout">Log out</a>
+  </div>
+</div>
+<nav class="adm-subnav" aria-label="Admin sections">
+  <a href="/admin.html">Overview</a>
+  <a href="/admin-users.html">Users</a>
+  <a href="/admin-crm.html">CRM</a>
+  <a href="/admin-practitioners.html">Practitioners</a>
+  <a href="/admin-practitioner-pipeline.html" class="active">Pipeline</a>
+  <a href="/admin-products.html">Products</a>
+  <a href="/admin-journal.html">Journal</a>
+  <a href="/admin-growth.html">Growth</a>
+  <a href="/admin-engagement.html">Engagement</a>
+  <a href="/admin-traffic.html">Traffic</a>
+  <a href="/admin-finance.html">Finance</a>
+  <a href="/admin-verdict-logs.html">Verdict logs</a>
+  <a href="/admin-audit-log.html">Audit log</a>
+  <a href="/admin-database.html">Database</a>
+  <a href="/admin-diagnostics.html">Diagnostics</a>
+  <a href="/admin-testing-area.html">Testing area</a>
+  <a href="/admin-journal-testing.html">Journal testing</a>
+</nav>
+
+<div class="shell">
+  <h1>Practitioner pipeline · sales board</h1>
+  <div class="pp-help">
+    <strong>What this is:</strong> Every practitioner lead, grouped by where it sits in the outreach funnel. Inbound applications via <code>/apply-practitioner.html</code> + quickleads from <code>/counsellors.html</code> + future cold-outbound entries all land here. Click any card to update stage, add notes, mark contacted, or attach tags.
+  </div>
+
+  <div class="pp-summary" id="pp-summary"></div>
+  <div class="pp-board" id="pp-board"></div>
+</div>
+
+<aside class="pp-drawer" id="pp-drawer" aria-hidden="true">
+  <button type="button" class="close" id="pp-drawer-close">Close</button>
+  <div id="pp-drawer-body"></div>
+</aside>
+
+<script>
+(function () {
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+  function fmtAgo(iso) {
+    if (!iso) return '·';
+    try {
+      var d = new Date(iso);
+      var diffMs = Date.now() - d.getTime();
+      var diffH = diffMs / 36e5;
+      if (diffH < 1) return Math.max(1, Math.floor(diffMs / 6e4)) + 'm ago';
+      if (diffH < 24) return Math.floor(diffH) + 'h ago';
+      var diffD = Math.floor(diffH / 24);
+      if (diffD < 30) return diffD + 'd ago';
+      return d.toLocaleDateString('en-NZ');
+    } catch (e) { return iso; }
+  }
+
+  var STAGE_NAMES = {
+    new: 'NEW LEAD',
+    contacted: 'CONTACTED',
+    replied: 'REPLIED',
+    meeting_set: 'MEETING SET',
+    converted: 'CONVERTED',
+    declined: 'DECLINED',
+    dormant: 'DORMANT 60d+',
+  };
+
+  var state = { data: null };
+
+  function load() {
+    fetch('/api/admin/practitioner-pipeline', { credentials: 'include' })
+      .then(function (r) {
+        if (r.status === 401 || r.status === 403) { window.location.href = '/signin?next=/admin-practitioner-pipeline.html'; return null; }
+        return r.json();
+      })
+      .then(function (d) {
+        if (!d || !d.ok) { $('pp-board').innerHTML = '<p style="color: var(--muted);">Could not load.</p>'; return; }
+        state.data = d;
+        render();
+      })
+      .catch(function () { $('pp-board').innerHTML = '<p style="color: var(--muted);">Network error.</p>'; });
+  }
+
+  function render() {
+    var d = state.data;
+    var summary = '';
+    d.stages.forEach(function (s) {
+      summary += '<div class="cell"><div class="lbl">' + esc(STAGE_NAMES[s] || s) + '</div><div class="val">' + (d.counts[s] || 0) + '</div></div>';
+    });
+    summary += '<div class="cell"><div class="lbl">TOTAL</div><div class="val">' + d.total + '</div></div>';
+    $('pp-summary').innerHTML = summary;
+
+    var board = '';
+    d.stages.forEach(function (s) {
+      board += '<div class="pp-col" data-stage="' + s + '">' +
+        '<div class="pp-col-head"><span class="name">' + esc(STAGE_NAMES[s] || s) + '</span><span class="count">' + (d.counts[s] || 0) + '</span></div>' +
+        '<div class="pp-col-body">';
+      (d.by_stage[s] || []).forEach(function (r) {
+        var preview = (r.notes || r.outreach_notes || '').slice(0, 100);
+        board += '<div class="pp-card" data-id="' + esc(r.id) + '">' +
+          '<div class="name">' + esc(r.first_name) + ' ' + esc(r.last_name) + ' · ' + esc(r.role) + '</div>' +
+          '<div class="meta">' + esc(r.source.replace(/_/g, ' ')) + ' · ' + esc(r.email) + '</div>' +
+          (preview ? '<div class="preview">' + esc(preview) + '</div>' : '') +
+          '<div class="last">' + (r.last_contacted_at ? 'Last contacted ' + fmtAgo(r.last_contacted_at) : 'Filed ' + fmtAgo(r.created_at)) + '</div>' +
+        '</div>';
+      });
+      board += '</div></div>';
+    });
+    $('pp-board').innerHTML = board;
+
+    // Wire card clicks
+    document.querySelectorAll('.pp-card').forEach(function (card) {
+      card.addEventListener('click', function () { openDrawer(card.getAttribute('data-id')); });
+    });
+  }
+
+  function findById(id) {
+    var d = state.data;
+    for (var i = 0; i < d.stages.length; i++) {
+      var s = d.stages[i];
+      var arr = d.by_stage[s] || [];
+      for (var j = 0; j < arr.length; j++) if (arr[j].id === id) return arr[j];
+    }
+    return null;
+  }
+
+  function openDrawer(id) {
+    var row = findById(id);
+    if (!row) return;
+    var drawer = $('pp-drawer');
+    var body = $('pp-drawer-body');
+    body.innerHTML =
+      '<h2>' + esc(row.first_name) + ' ' + esc(row.last_name) + '</h2>' +
+      '<div class="role">' + esc(row.role) + ' · ' + esc(row.country) + '</div>' +
+      '<div class="field"><label>Email</label><div class="v">' + esc(row.email) + '</div></div>' +
+      '<div class="field"><label>Source</label><div class="v">' + esc(row.source) + '</div></div>' +
+      '<div class="field"><label>Application status</label><div class="v">' + esc(row.status) + '</div></div>' +
+      (row.notes ? '<div class="field"><label>Their message</label><div class="v">' + esc(row.notes) + '</div></div>' : '') +
+      '<div class="field"><label>Outreach stage</label>' +
+        '<select id="pp-stage">' +
+          state.data.stages.map(function (s) { return '<option value="' + s + '"' + (row.outreach_stage === s ? ' selected' : '') + '>' + esc(STAGE_NAMES[s] || s) + '</option>'; }).join('') +
+        '</select>' +
+      '</div>' +
+      '<div class="field"><label>Internal notes</label><textarea id="pp-notes">' + esc(row.outreach_notes || '') + '</textarea></div>' +
+      '<div class="field"><label>Filed</label><div class="v">' + esc(new Date(row.created_at).toLocaleString('en-NZ')) + '</div></div>' +
+      '<div class="field"><label>Last contacted</label><div class="v">' + (row.last_contacted_at ? esc(new Date(row.last_contacted_at).toLocaleString('en-NZ')) : '<span style="color: var(--muted);">never</span>') + '</div></div>' +
+      '<div class="actions">' +
+        '<button type="button" class="btn" id="pp-save">Save changes</button>' +
+        '<button type="button" class="btn-touch" id="pp-touch">Mark contacted now</button>' +
+        '<span class="pp-status" id="pp-save-status"></span>' +
+      '</div>';
+    drawer.classList.add('is-open');
+    drawer.setAttribute('aria-hidden', 'false');
+
+    $('pp-save').addEventListener('click', function () {
+      var stage = $('pp-stage').value;
+      var notes = $('pp-notes').value;
+      patchAndReload({ id: id, outreach_stage: stage, outreach_notes: notes });
+    });
+    $('pp-touch').addEventListener('click', function () {
+      patchAndReload({ id: id, bump_last_contacted: true });
+    });
+  }
+
+  function patchAndReload(payload) {
+    $('pp-save-status').textContent = 'Saving…';
+    fetch('/api/admin/practitioner-pipeline', {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d && d.ok) {
+          $('pp-save-status').textContent = 'Saved.';
+          load();
+          setTimeout(function () { $('pp-save-status').textContent = ''; }, 1500);
+        } else {
+          $('pp-save-status').textContent = 'Failed.';
+        }
+      })
+      .catch(function () { $('pp-save-status').textContent = 'Network error.'; });
+  }
+
+  $('pp-drawer-close').addEventListener('click', function () {
+    $('pp-drawer').classList.remove('is-open');
+    $('pp-drawer').setAttribute('aria-hidden', 'true');
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      $('pp-drawer').classList.remove('is-open');
+      $('pp-drawer').setAttribute('aria-hidden', 'true');
+    }
+  });
+
+  load();
+})();
+</script>
+<script src="/admin-shell.js" defer></script>
+</body>
+</html>

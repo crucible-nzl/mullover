@@ -563,12 +563,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
       <div class="eq-carousel" id="eq-carousel" hidden>
         <div class="eq-tabs" role="tablist" aria-label="Question categories">
-          <button type="button" class="eq-tab is-active" role="tab" data-tab="solo" aria-selected="true">Solo · 25</button>
-          <button type="button" class="eq-tab" role="tab" data-tab="couple" aria-selected="false">Couple · 50</button>
-          <button type="button" class="eq-tab" role="tab" data-tab="family" aria-selected="false">Family · 25</button>
+          <button type="button" id="eq-tab-solo"   class="eq-tab is-active" role="tab" data-tab="solo"   aria-selected="true"  aria-controls="eq-pane-solo"   tabindex="0">Solo · 25</button>
+          <button type="button" id="eq-tab-couple" class="eq-tab"           role="tab" data-tab="couple" aria-selected="false" aria-controls="eq-pane-couple" tabindex="-1">Couple · 50</button>
+          <button type="button" id="eq-tab-family" class="eq-tab"           role="tab" data-tab="family" aria-selected="false" aria-controls="eq-pane-family" tabindex="-1">Family · 25</button>
         </div>
 
-        <div class="eq-pane" id="eq-pane-solo" role="tabpanel" data-pane="solo">
+        <div class="eq-pane" id="eq-pane-solo" role="tabpanel" aria-labelledby="eq-tab-solo" data-pane="solo">
           <div class="eq-pane-lead">A decision you make alone, on your terms. The seal protects future-you from being talked into a story by present-you.</div>
           <ol class="eq-list">
             <li><span class="n">01</span><a href="compose.html?question=Should%20I%20leave%20the%20job%20I%20have%20for%20the%20contract%20on%20the%20table%3F">Should I leave the job I have for the contract on the table?</a></li>
@@ -599,7 +599,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </ol>
         </div>
 
-        <div class="eq-pane" id="eq-pane-couple" role="tabpanel" data-pane="couple" hidden>
+        <div class="eq-pane" id="eq-pane-couple" role="tabpanel" aria-labelledby="eq-tab-couple" data-pane="couple" hidden>
           <div class="eq-pane-lead">A decision you and your partner are carrying together. Each of you votes privately every evening; the other never sees which way until reveal day.</div>
           <ol class="eq-list">
             <li><span class="n">01</span><a href="compose.html?tier=couple&question=Should%20we%20have%20a%20baby%20this%20year%3F">Should we have a baby this year?</a></li>
@@ -655,7 +655,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </ol>
         </div>
 
-        <div class="eq-pane" id="eq-pane-family" role="tabpanel" data-pane="family" hidden>
+        <div class="eq-pane" id="eq-pane-family" role="tabpanel" aria-labelledby="eq-tab-family" data-pane="family" hidden>
           <div class="eq-pane-lead">A decision the whole household is carrying. Three to six participants vote each evening; everyone's votes stay sealed until the final day.</div>
           <ol class="eq-list">
             <li><span class="n">01</span><a href="compose.html?tier=family&question=Should%20we%20move%20to%20a%20different%20country%20as%20a%20family%3F">Should we move to a different country as a family?</a></li>
@@ -755,14 +755,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     });
   }
 
-  // Tab switching · click a tab, hide siblings, show target.
+  // Tab switching · click a tab, hide siblings, show target. B3 a11y ·
+  // roving tabindex (only the active tab is focusable via Tab), arrow
+  // keys move focus between tabs, Home/End jump to first/last.
   var tabs = carousel.querySelectorAll('.eq-tab');
   var panes = carousel.querySelectorAll('.eq-pane');
-  function activate(name) {
+  function activate(name, focus) {
     tabs.forEach(function (t) {
       var on = t.getAttribute('data-tab') === name;
       t.classList.toggle('is-active', on);
       t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.setAttribute('tabindex', on ? '0' : '-1');
+      if (on && focus) t.focus();
     });
     panes.forEach(function (p) {
       var on = p.getAttribute('data-pane') === name;
@@ -770,7 +774,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       else p.setAttribute('hidden', '');
     });
   }
-  tabs.forEach(function (t) { t.addEventListener('click', function () { activate(t.getAttribute('data-tab')); }); });
+  tabs.forEach(function (t, i) {
+    t.addEventListener('click', function () { activate(t.getAttribute('data-tab')); });
+    t.addEventListener('keydown', function (e) {
+      var key = e.key;
+      var n = tabs.length;
+      var target = null;
+      if (key === 'ArrowRight') target = tabs[(i + 1) % n];
+      else if (key === 'ArrowLeft') target = tabs[(i - 1 + n) % n];
+      else if (key === 'Home') target = tabs[0];
+      else if (key === 'End') target = tabs[n - 1];
+      if (target) {
+        e.preventDefault();
+        activate(target.getAttribute('data-tab'), true);
+      }
+    });
+  });
 
   // Deep-link · #example-questions opens collapsed view scrolled into
   // place; #eq-pane-solo / -couple / -family open the carousel AND

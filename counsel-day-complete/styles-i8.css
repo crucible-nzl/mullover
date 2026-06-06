@@ -75,10 +75,39 @@ a:hover { color: var(--wine-deep); }
 .skip-link {
   position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden;
 }
-.skip-link:focus {
-  left: 16px; top: 16px; width: auto; height: auto; padding: 8px 14px;
-  background: var(--ink); color: var(--paper); z-index: 100;
-  font-family: var(--font-ui); font-size: 13px; text-decoration: none;
+.skip-link:focus,
+.skip-link:focus-visible {
+  left: 16px; top: 16px; width: auto; height: auto; padding: 10px 16px;
+  background: var(--ink); color: var(--paper); z-index: 10000;
+  font-family: var(--font-ui); font-size: 14px; text-decoration: none;
+  outline: 3px solid var(--wine); outline-offset: 2px;
+}
+
+/* ---------- A11y · global focus-visible ring (B3) ----------
+   Single canonical focus style applied to every interactive element
+   that doesn't override it. Wine outline, 2px, 2px offset so it
+   reads against both paper and ink backgrounds. Uses :focus-visible
+   so the ring only appears for keyboard/programmatic focus, not for
+   mouse clicks (which would be noisy). */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--wine);
+  outline-offset: 2px;
+  border-radius: 0;
+}
+/* Mute the default focus ring on mouse click so the keyboard ring stays
+   meaningful · :focus without :focus-visible only fires on click. */
+a:focus:not(:focus-visible),
+button:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+select:focus:not(:focus-visible),
+textarea:focus:not(:focus-visible) {
+  outline: none;
 }
 
 /* ---------- LEGACY SUPPRESSION ----------

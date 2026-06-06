@@ -304,6 +304,47 @@
 
     <div id="dc-msg" class="dc-msg" role="alert" aria-live="polite"></div>
 
+    <!-- B4 · PWA install banner · shown only when (a) the user has
+         filed 3+ entries on this account, (b) they haven't dismissed
+         the banner before, (c) the app is not already installed. JS
+         hydrates visibility on init. Two flavours · Android Chrome
+         gets a real Install button (uses the captured
+         beforeinstallprompt); iOS gets visual instructions for Share
+         → Add to Home Screen. -->
+    <div id="dc-install-banner" class="dc-install-banner" style="display: none;" role="status" aria-live="polite">
+      <div class="dc-install-content">
+        <div class="dc-install-eyebrow">INSTALL COUNSEL JOURNAL</div>
+        <h3 class="dc-install-h">Add the Journal to your <span class="ital">home screen.</span></h3>
+        <p class="dc-install-p" id="dc-install-copy">Three entries in · you're using the Journal. Install it as an app and tonight's prompt opens in one tap, no browser tab, no URL bar.</p>
+        <div class="dc-install-actions">
+          <button type="button" id="dc-install-btn" class="dc-install-btn-primary">Install app</button>
+          <button type="button" id="dc-install-dismiss" class="dc-install-btn-dismiss">Not now</button>
+        </div>
+        <div id="dc-install-ios-hint" class="dc-install-ios-hint" style="display: none;">
+          <strong>On iOS:</strong> tap <svg viewBox="0 0 24 24" width="18" height="18" style="display: inline-block; vertical-align: middle; margin: 0 4px;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><rect x="4" y="14" width="16" height="7" rx="1"/></svg> Share, then <strong>Add to Home Screen</strong>. iOS doesn't let us trigger the install for you.
+        </div>
+      </div>
+    </div>
+
+    <style>
+      /* B4 · PWA install banner · paper background with wine left rail
+         so it sits inside the journal flow without competing with the
+         Monday themed-verdict banner above (which is wine-filled). */
+      .dc-install-banner { display: flex; gap: 16px; padding: 18px 22px; background: var(--paper); border: 1px solid var(--rule); border-left: 4px solid var(--wine); margin-bottom: 22px; }
+      .dc-install-content { flex: 1; }
+      .dc-install-eyebrow { font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine); margin-bottom: 6px; }
+      .dc-install-h { font-family: var(--font-display); font-weight: 400; font-size: 22px; line-height: 1.18; color: var(--ink); margin: 0 0 8px; }
+      .dc-install-h .ital { font-style: italic; color: var(--wine); }
+      .dc-install-p { font-family: var(--font-body); font-size: 14px; line-height: 1.5; color: var(--ink-soft); margin: 0 0 12px; }
+      .dc-install-actions { display: flex; gap: 12px; align-items: center; }
+      .dc-install-btn-primary { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 10px 16px; background: var(--wine); color: var(--paper); border: 1px solid var(--wine); cursor: pointer; border-radius: 0; min-height: 38px; }
+      .dc-install-btn-primary:hover { background: var(--wine-deep, #5a242c); }
+      .dc-install-btn-dismiss { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 10px 12px; background: transparent; color: var(--ink-soft); border: 1px solid var(--rule); cursor: pointer; border-radius: 0; min-height: 38px; }
+      .dc-install-btn-dismiss:hover { color: var(--wine); border-color: var(--wine); }
+      .dc-install-ios-hint { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--rule); font-family: var(--font-body); font-size: 13px; line-height: 1.5; color: var(--ink-soft); }
+      .dc-install-ios-hint strong { color: var(--ink); font-weight: 500; }
+    </style>
+
     <!-- H3 · First-Monday themed-verdict banner · shown only when it's
          the first Monday of the month AND a themed verdict for last
          month exists. Wine band with deep-read link. Hidden by default;
@@ -596,6 +637,16 @@
           showMsg('ok', res.body.message || 'Sealed.');
           textEl.value = '';
           countEl.textContent = '0';
+          // B4 · Bump the local entries-filed counter and mark engaged
+          // for the PWA installer. The install banner reads this on
+          // next page load and shows when count >= 3.
+          try {
+            var n = parseInt(window.localStorage.getItem('cd:journal-entries-filed') || '0', 10) + 1;
+            window.localStorage.setItem('cd:journal-entries-filed', String(n));
+          } catch (_) {}
+          if (window.CounselDayPWA && typeof window.CounselDayPWA.markEngaged === 'function') {
+            window.CounselDayPWA.markEngaged();
+          }
           load();
         } else if (res.status === 401) {
           window.location.href = '/signin?next=/journal.html';
@@ -666,6 +717,58 @@
   //   2. Today's date is between 1 and 7 (i.e. the FIRST Monday)
   //   3. A monthly themed verdict for the prior month exists in the
   //      verdicts list (kind === 'monthly_themed' or 'monthly').
+  // B4 · PWA install banner · show when (a) the user has filed 3+
+  // entries, (b) they haven't dismissed the banner before, (c) the app
+  // is not already installed (display-mode: standalone), (d) they're
+  // not on the helper / signin / signup pages. Two flavours · Android
+  // Chrome uses the real beforeinstallprompt via CounselDayPWA;
+  // iOS users get visual Share-Sheet instructions inline (Safari can't
+  // be prompted programmatically).
+  function maybeShowInstallBanner(entriesCount) {
+    var banner = document.getElementById('dc-install-banner');
+    if (!banner) return;
+    if (entriesCount < 3) return;
+    // Already installed (matchMedia returns true when launched from a
+    // home-screen icon or Add to Dock app)
+    if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return;
+    if (window.navigator && window.navigator.standalone === true) return;  // iOS
+    // User-dismissed
+    try { if (window.localStorage.getItem('cd:install-dismissed') === '1') return; } catch (_) {}
+    // Detect iOS · no beforeinstallprompt support
+    var ua = window.navigator && navigator.userAgent || '';
+    var isIos = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+    var hint = document.getElementById('dc-install-ios-hint');
+    var installBtn = document.getElementById('dc-install-btn');
+    if (isIos) {
+      if (hint) hint.style.display = 'block';
+      if (installBtn) installBtn.style.display = 'none';
+    }
+    banner.style.display = 'flex';
+    var dismissBtn = document.getElementById('dc-install-dismiss');
+    if (dismissBtn) dismissBtn.addEventListener('click', function () {
+      try { window.localStorage.setItem('cd:install-dismissed', '1'); } catch (_) {}
+      banner.style.display = 'none';
+    });
+    if (installBtn) installBtn.addEventListener('click', function () {
+      var pwa = window.CounselDayPWA;
+      if (!pwa) { banner.style.display = 'none'; return; }
+      pwa.markEngaged();
+      // pwa.js wires its own install buttons by class · clicking those
+      // triggers the real beforeinstallprompt. We dispatch a synthetic
+      // click on any visible Install button it has registered to reuse
+      // that wired path.
+      var native = document.querySelector('[data-cd-install]');
+      if (native) {
+        try { native.click(); } catch (_) {}
+      } else {
+        if (installBtn) {
+          installBtn.disabled = true;
+          installBtn.textContent = 'Browser does not support install';
+        }
+      }
+    });
+  }
+
   function renderMondayBanner(verdicts) {
     var banner = document.getElementById('dc-monday-banner');
     var monthEl = document.getElementById('dc-monday-month');
@@ -872,6 +975,15 @@
         // today is the first Monday of the month AND a monthly_themed
         // verdict for last month exists in the verdicts list.
         renderMondayBanner((verdictRes && verdictRes.verdicts) || []);
+
+        // B4 · PWA install banner · prefer the vault count (canonical) ·
+        // fall back to the local "entries filed in this browser" counter.
+        var totalEntries = (vaultRes && vaultRes.entries) ? vaultRes.entries.length : 0;
+        try {
+          var localCount = parseInt(window.localStorage.getItem('cd:journal-entries-filed') || '0', 10);
+          if (localCount > totalEntries) totalEntries = localCount;
+        } catch (_) {}
+        maybeShowInstallBanner(totalEntries);
 
         // TASK 1 + 5 · Subscriber-only adjustments. Once we know the
         // user is paying we hide the price-CTA meta line and turn the

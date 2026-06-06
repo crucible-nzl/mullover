@@ -89,6 +89,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 .wc-btn[disabled] { opacity: 0.45; cursor: not-allowed; }
 .wc-skip { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); text-decoration: none; border-bottom: 1px solid transparent; padding-bottom: 1px; }
 .wc-skip:hover { color: var(--wine); border-bottom-color: var(--wine); }
+
+/* Strategic 2/3 · A/B test on step 2 · simple variant. Hides the
+   category buttons and suggested-question grid; promotes the custom
+   input as the primary action and the FAQ link as the secondary. */
+body.is-variant-simple .wc-cat,
+body.is-variant-simple .wc-qs { display: none !important; }
+body.is-variant-simple .wc-body-control { display: none !important; }
+body.is-variant-simple .wc-body-simple { display: block !important; }
+body.is-variant-simple .wc-custom-label-control { display: none !important; }
+body.is-variant-simple .wc-custom-label-simple { display: inline !important; }
+body.is-variant-simple .wc-custom { margin-top: 22px; }
+body.is-variant-simple .wc-custom input { font-size: 18px; padding: 14px 16px; min-height: 56px; }
 </style>
 </head>
 <body>
@@ -111,6 +123,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       <a href="vote-today.html">Tonight's vote</a>
       <a href="journal.html">Journal</a>
       <a href="vault.html">Vault</a>
+      <a href="inbox.html">Inbox</a>
       <a href="compose.html">Compose</a>
       <a href="account.html">Account</a>
       <a href="help.html">Help</a>
@@ -167,11 +180,19 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     </section>
 
     <!-- STEP 2 · question -->
+    <!-- Strategic 2/3 · A/B test on this step. Variant assignment runs
+         inline above (sets body.is-variant-simple when the user is in
+         the simple cohort). The simple variant CSS (also above) hides
+         .wc-cat and .wc-qs · the user sees only "write your own" plus
+         the FAQ link. The skip-to-composer link is promoted to a
+         primary button in the simple variant. Both variants fire
+         GA4 events tagged with ab_variant so we can compare. -->
     <section class="wc-step" id="wc-step-2" aria-labelledby="wc-step-2-title">
       <div class="wc-eyebrow">Step 2 of 3 · Your question</div>
       <h2 class="wc-title" id="wc-step-2-title">What deserves more than one <span class="ital">evening?</span></h2>
-      <p class="wc-body">Pick a starter below or write your own. Every word is editable in the composer · these are starting points, not a fixed menu.</p>
-      <p class="wc-body" style="margin-top: -6px; font-size: 14px; color: var(--ink-soft);">If you want a wider sweep before deciding, we have a hundred real questions over on the FAQ · 25 solo, 50 couple, 25 family. <a href="faq.html#example-questions" style="color: var(--wine); border-bottom: 1px solid var(--wine); padding-bottom: 1px; text-decoration: none;">Browse the 100 example questions →</a> · then come back here, or compose your own straight away.</p>
+      <p class="wc-body wc-body-control">Pick a starter below or write your own. Every word is editable in the composer · these are starting points, not a fixed menu.</p>
+      <p class="wc-body wc-body-simple" style="display: none;">Type the question you are carrying. One sentence is enough · everything is editable in the composer.</p>
+      <p class="wc-body" style="margin-top: -6px; font-size: 14px; color: var(--ink-soft);">If you want a wider sweep before deciding, we have a hundred real questions over on the FAQ · 25 solo, 50 couple, 25 family. <a href="faq.html#example-questions" class="u-wine-link">Browse the 100 example questions →</a> · then come back here, or compose your own straight away.</p>
 
       <div class="wc-cat" id="wc-cat" role="tablist" aria-label="Category">
         <button type="button" class="wc-catbtn is-active" data-cat="all">All</button>
@@ -186,7 +207,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       <div class="wc-qs" id="wc-qs"></div>
 
       <div class="wc-custom">
-        <label for="wc-custom-input">Or write your own</label>
+        <label for="wc-custom-input"><span class="wc-custom-label-control">Or write your own</span><span class="wc-custom-label-simple" style="display: none;">Your question</span></label>
         <input id="wc-custom-input" type="text" placeholder="Should we &hellip;" maxlength="240">
       </div>
 
@@ -241,7 +262,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <h3 class="colophon-col-h">Counsel Journal</h3>
         <a href="journal.html">Open the Journal</a>
         <a href="journal.html#about">What it is</a>
-        <a href="pricing.html#the-daily">$4.99 USD/month</a>
+        <a href="pricing.html#the-daily">Pricing</a>
       </div>
       <div class="colophon-col">
         <h5>Support</h5>
@@ -264,7 +285,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     </div>
   </div>
 </footer>
-<script src="/helper-widget.js" defer></script>
+<script src="/helper-widget-loader.js" defer></script>
 <!-- /CD:PARTIAL:colophon -->
 
 <script>
@@ -298,6 +319,36 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     { cat: 'health', q: 'Should we get the dog?' },
   ];
 
+  // ---- A/B variant assignment ----
+  // Strategic 2/3 · Welcome step 2 A/B. Cookie-based · two cohorts:
+  //   control       · original three-decisions step 2
+  //   simple_step2  · only the custom input + FAQ link visible
+  // Assignment is sticky for 30 days via cookie cd_ab_variant. Visitors
+  // who came through /o.html already have a cookie from the rotator;
+  // we respect that. Brand-new visitors get a 50/50 coin flip.
+  var variant;
+  try {
+    var m = document.cookie.match(/(?:^|;\s*)cd_ab_variant=([^;]+)/);
+    if (m) {
+      variant = decodeURIComponent(m[1]).slice(0, 24);
+    } else {
+      variant = Math.random() < 0.5 ? 'control' : 'simple_step2';
+      var thirtyDays = 60 * 60 * 24 * 30;
+      document.cookie = 'cd_ab_variant=' + variant + '; Max-Age=' + thirtyDays + '; Path=/; SameSite=Lax; Secure';
+    }
+  } catch (_) { variant = 'control'; }
+  if (variant === 'simple_step2') {
+    document.body.classList.add('is-variant-simple');
+  }
+  // Tag every gtag call for this page with the variant (ga4.js does
+  // this too for cookie-set variants, but we set it here to cover the
+  // case where the cookie was just minted on this page).
+  try { if (typeof gtag === 'function') gtag('set', { ab_variant: variant }); } catch (_) {}
+
+  function fireStepEvent(step) {
+    try { if (typeof gtag === 'function') gtag('event', 'welcome_step_completed', { ab_variant: variant, step: step, surface: 'welcome' }); } catch (_) {}
+  }
+
   // ---- State ----
   // Q5 · honour ?step=N (and #step-N) on init so post-verify redirects
   // can land users directly on the question picker without making them
@@ -316,6 +367,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   // ---- Step nav ----
   window.goStep = function (n) {
+    // Fire the step-completion event for the step we're LEAVING, so we
+    // can compute completion rate per cohort. Skip on initial render
+    // (state.step === undefined or === n).
+    if (state.step && state.step !== n) fireStepEvent(state.step);
     state.step = n;
     document.querySelectorAll('.wc-step').forEach(function (s) { s.classList.remove('is-current'); });
     var el = document.getElementById('wc-step-' + n);

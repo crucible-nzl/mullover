@@ -75,10 +75,39 @@ a:hover { color: var(--wine-deep); }
 .skip-link {
   position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden;
 }
-.skip-link:focus {
-  left: 16px; top: 16px; width: auto; height: auto; padding: 8px 14px;
-  background: var(--ink); color: var(--paper); z-index: 100;
-  font-family: var(--font-ui); font-size: 13px; text-decoration: none;
+.skip-link:focus,
+.skip-link:focus-visible {
+  left: 16px; top: 16px; width: auto; height: auto; padding: 10px 16px;
+  background: var(--ink); color: var(--paper); z-index: 10000;
+  font-family: var(--font-ui); font-size: 14px; text-decoration: none;
+  outline: 3px solid var(--wine); outline-offset: 2px;
+}
+
+/* ---------- A11y · global focus-visible ring (B3) ----------
+   Single canonical focus style applied to every interactive element
+   that doesn't override it. Wine outline, 2px, 2px offset so it
+   reads against both paper and ink backgrounds. Uses :focus-visible
+   so the ring only appears for keyboard/programmatic focus, not for
+   mouse clicks (which would be noisy). */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--wine);
+  outline-offset: 2px;
+  border-radius: 0;
+}
+/* Mute the default focus ring on mouse click so the keyboard ring stays
+   meaningful · :focus without :focus-visible only fires on click. */
+a:focus:not(:focus-visible),
+button:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+select:focus:not(:focus-visible),
+textarea:focus:not(:focus-visible) {
+  outline: none;
 }
 
 /* ---------- LEGACY SUPPRESSION ----------
@@ -1377,3 +1406,86 @@ section { padding: 30px 32px; border-bottom: 1px solid var(--rule); }
   body { padding-bottom: max(0px, env(safe-area-inset-bottom)); }
   .nav-inner { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
 }
+
+/* ---------- UTILITY CLASSES (B1 · inline-style extraction) ----------
+   Added 2026-06-05 to retire the three most-repeated inline style
+   patterns across the site (totalling ~65 occurrences before this
+   change). Use these classes on every new component instead of writing
+   the equivalent inline style. The patterns are:
+
+   .u-wine-link · wine-coloured anchor with a 1px wine underline that
+     turns ink on hover. Replaces:
+       style="color: var(--wine); border-bottom: 1px solid var(--wine);"
+     plus the variants that add padding-bottom: 1px and text-decoration: none.
+
+   .u-eyebrow · mono uppercase wine eyebrow line above a heading.
+     Replaces:
+       style="font-family: var(--font-mono); font-size: 11px;
+              letter-spacing: 0.14em; text-transform: uppercase;
+              color: var(--wine); margin-bottom: 10px;"
+
+   .u-btn-wine · wine-filled button utility. Replaces:
+       style="background: var(--wine); color: var(--paper);
+              border-color: var(--wine);"
+     when used on an <a class="btn">.
+
+   .u-mono-meta · small mono-font metadata text. Replaces the
+     letter-spaced uppercase mono pattern used for status pills,
+     footnotes, and meta rows.
+
+   These don't force a redesign · they're additive utilities. Older
+   inline styles continue to work; new code uses the classes. */
+.u-wine-link {
+  color: var(--wine);
+  text-decoration: none;
+  border-bottom: 1px solid var(--wine);
+  padding-bottom: 1px;
+  transition: color 120ms, border-bottom-color 120ms;
+}
+.u-wine-link:hover,
+.u-wine-link:focus-visible { color: var(--ink); border-bottom-color: var(--ink); }
+
+.u-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--wine);
+  margin-bottom: 10px;
+  display: block;
+}
+.u-eyebrow.is-muted { color: var(--muted); }
+
+.u-btn-wine {
+  background: var(--wine);
+  color: var(--paper);
+  border: 1px solid var(--wine);
+  transition: background 120ms;
+}
+.u-btn-wine:hover,
+.u-btn-wine:focus-visible { background: var(--wine-deep, #5a242c); border-color: var(--wine-deep, #5a242c); color: var(--paper); }
+
+.u-mono-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.u-mono-meta strong { color: var(--ink); font-weight: 700; }
+
+/* Card · subtle background, rule border, no decoration. Many inline
+   product/section panels are this exact shape. */
+.u-card {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 16px 18px;
+}
+.u-card.is-deep { background: var(--paper-deep); }
+.u-card.is-ink-edge { border-color: var(--ink); }
+
+/* Flex/grid helpers (handful of inline display patterns that recur) */
+.u-flex-row { display: flex; gap: 12px; align-items: center; }
+.u-flex-row.is-wrap { flex-wrap: wrap; }
+.u-flex-col { display: flex; flex-direction: column; gap: 12px; }

@@ -368,17 +368,145 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <h2 class="method-stage-title">How to apply to the referral <span class="ital">program.</span></h2>
       </div>
       <div class="method-stage-body">
-        <p>Fill in the <strong><a href="apply-practitioner.html?kind=counsellor" style="color: var(--wine); border-bottom: 1px solid var(--wine);">program application form</a></strong> · five minutes, no commitment. We reply within one business day. If the fit looks right, we send you a one-page program agreement; once signed, your referral code is issued and the discount + share start on the next billing cycle.</p>
+        <p>Fill in the <strong><a href="apply-practitioner.html?kind=counsellor" class="u-wine-link">program application form</a></strong> · five minutes, no commitment. We reply within one business day. If the fit looks right, we send you a one-page program agreement; once signed, your referral code is issued and the discount + share start on the next billing cycle.</p>
         <p>There is no fee to join and no minimum referral commitment. You can leave the program at any time; we honour outstanding payouts for any active accounts you referred.</p>
       </div>
     </section>
+
+    <!-- Strategic batch · inline lead-capture quickform · five fields,
+         lower friction than the full /apply-practitioner form. Lands
+         in practitioner_applications with source='counsellors_page',
+         outreach_stage='new'. The full form is still linked below for
+         practitioners who prefer to fill the longer application. -->
+    <section class="ql" id="ql-form-section" aria-label="Quick contact form">
+      <div class="ql-head">
+        <div class="ql-eyebrow">QUICK START · 30 SECONDS</div>
+        <h2 class="ql-h">Tell us who you are. We'll reply in a <span class="ital">business day.</span></h2>
+        <p class="ql-sub">Five fields. No commitment. We follow up with a short conversation, send the program agreement if there's a fit, and your referral code goes live.</p>
+      </div>
+      <form id="ql-form" class="ql-form" novalidate>
+        <div class="ql-row">
+          <label class="ql-field">
+            <span class="ql-lbl">First name</span>
+            <input type="text" name="first_name" required maxlength="80" autocomplete="given-name">
+          </label>
+          <label class="ql-field">
+            <span class="ql-lbl">Last name</span>
+            <input type="text" name="last_name" required maxlength="80" autocomplete="family-name">
+          </label>
+        </div>
+        <div class="ql-row">
+          <label class="ql-field">
+            <span class="ql-lbl">Email</span>
+            <input type="email" name="email" required maxlength="200" autocomplete="email">
+          </label>
+          <label class="ql-field">
+            <span class="ql-lbl">You are a</span>
+            <select name="practice_kind" required>
+              <option value="">Choose one</option>
+              <option value="counsellor">Counsellor</option>
+              <option value="therapist">Therapist</option>
+              <option value="coach">Coach</option>
+              <option value="mediator">Mediator</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+        </div>
+        <label class="ql-field">
+          <span class="ql-lbl">What about Counsel.day interests you? (1-3 sentences is plenty)</span>
+          <textarea name="message" required maxlength="2000" rows="4" placeholder="A line about your practice and where Counsel.day might fit · partnership counselling, fertility, life transitions, etc."></textarea>
+        </label>
+        <!-- Honeypot · hidden field bots fill, real humans skip -->
+        <label class="ql-honeypot" aria-hidden="true" tabindex="-1">
+          Company URL · leave blank
+          <input type="text" name="company_url" tabindex="-1" autocomplete="off">
+        </label>
+        <div class="ql-actions">
+          <button type="submit" class="btn btn-large" id="ql-submit">Send · 30 seconds</button>
+          <a href="apply-practitioner.html?kind=counsellor" class="u-wine-link" style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;">Or fill the full 5-minute application →</a>
+        </div>
+        <div id="ql-msg" class="ql-msg" role="status" aria-live="polite"></div>
+      </form>
+    </section>
+
+    <style>
+      .ql { margin: 40px 0; padding: 36px 40px; border: 1px solid var(--ink); background: var(--paper); }
+      .ql-head { max-width: 820px; margin-bottom: 26px; }
+      .ql-eyebrow { font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine); margin-bottom: 10px; }
+      .ql-h { font-family: var(--font-display); font-weight: 400; font-size: clamp(24px, 3vw, 32px); line-height: 1.15; color: var(--ink); margin: 0 0 12px; }
+      .ql-h .ital { font-style: italic; color: var(--wine); }
+      .ql-sub { font-family: var(--font-body); font-size: 15px; line-height: 1.55; color: var(--ink-soft); margin: 0; }
+      .ql-form { display: flex; flex-direction: column; gap: 14px; }
+      .ql-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      @media (max-width: 600px) { .ql-row { grid-template-columns: 1fr; } .ql { padding: 22px 18px; } }
+      .ql-field { display: flex; flex-direction: column; gap: 6px; }
+      .ql-lbl { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); }
+      .ql-field input, .ql-field select, .ql-field textarea { font-family: var(--font-body); font-size: 15px; padding: 10px 12px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink); border-radius: 0; min-height: 42px; box-sizing: border-box; }
+      .ql-field textarea { resize: vertical; min-height: 110px; line-height: 1.45; }
+      .ql-field input:focus, .ql-field select:focus, .ql-field textarea:focus { outline: 2px solid var(--wine); outline-offset: 1px; }
+      .ql-honeypot { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+      .ql-actions { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+      .ql-msg { font-family: var(--font-body); font-size: 14px; line-height: 1.5; padding: 12px 16px; margin-top: 4px; display: none; border-left: 3px solid var(--rule); background: var(--paper-deep); }
+      .ql-msg.is-ok { background: var(--wine-soft); border-left-color: var(--wine); color: var(--ink); display: block; }
+      .ql-msg.is-err { background: #fdecea; border-left-color: #c0392b; color: #6b1e16; display: block; }
+    </style>
+
+    <script>
+      (function () {
+        var form = document.getElementById('ql-form');
+        var msg = document.getElementById('ql-msg');
+        var submit = document.getElementById('ql-submit');
+        if (!form || !msg || !submit) return;
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          msg.className = 'ql-msg';
+          msg.style.display = 'none';
+          var data = {
+            first_name:    (form.elements['first_name']  || {}).value || '',
+            last_name:     (form.elements['last_name']   || {}).value || '',
+            email:         (form.elements['email']       || {}).value || '',
+            practice_kind: (form.elements['practice_kind'] || {}).value || '',
+            message:       (form.elements['message']     || {}).value || '',
+            company_url:   (form.elements['company_url'] || {}).value || '',
+          };
+          submit.disabled = true;
+          var origLabel = submit.textContent;
+          submit.textContent = 'Sending…';
+          fetch('/api/practitioner/quicklead', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify(data),
+          })
+            .then(function (r) { return r.json().then(function (j) { return { status: r.status, body: j }; }); })
+            .then(function (res) {
+              submit.disabled = false;
+              submit.textContent = origLabel;
+              if (res.status === 200 && res.body && res.body.ok) {
+                msg.className = 'ql-msg is-ok';
+                msg.textContent = res.body.message || 'Thanks · we will be in touch.';
+                form.reset();
+              } else {
+                msg.className = 'ql-msg is-err';
+                msg.textContent = (res.body && res.body.message) || 'Could not send · email partner@counsel.day.';
+              }
+            })
+            .catch(function () {
+              submit.disabled = false;
+              submit.textContent = origLabel;
+              msg.className = 'ql-msg is-err';
+              msg.textContent = 'Network error · email partner@counsel.day instead.';
+            });
+        });
+      })();
+    </script>
 
     <div class="method-cta">
       <div class="method-cta-eyebrow">Apply today</div>
       <h2 class="method-cta-title">Refer your clients to a tool that respects the work <span class="ital">you do.</span></h2>
       <div class="method-cta-row">
-        <a href="apply-practitioner.html?kind=counsellor" class="btn btn-large">Apply to the program</a>
-        <a href="method.html" class="btn btn-ghost">Read the method first</a>
+        <a href="#ql-form-section" class="btn btn-large">Quick contact (30 seconds)</a>
+        <a href="apply-practitioner.html?kind=counsellor" class="btn btn-ghost">Full application</a>
+        <a href="method.html" class="btn-text" style="color: var(--ink-soft); border-bottom: 1px solid var(--ink-soft); padding-bottom: 1px; text-decoration: none;">Read the method first</a>
       </div>
     </div>
 
@@ -466,6 +594,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <script src="pwa.js" defer></script>
 <script src="ga4.js" defer></script>
 <script src="/nav-toggle.js?v=20260605" defer></script>
-<script src="/helper-widget.js" defer></script>
+<script src="/helper-widget-loader.js" defer></script>
 </body>
 </html>

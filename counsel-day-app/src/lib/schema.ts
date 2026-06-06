@@ -611,11 +611,20 @@ export const practitionerApplications = pgTable(
     reviewedAt: timestamp('reviewed_at', { withTimezone: true }),
     ip: text('ip'),
     userAgent: text('user_agent'),
+    // Migration 0032 · pipeline tracking on top of the inbound app
+    // status. outreach_stage is the kanban column; source distinguishes
+    // cold outbound from inbound applies.
+    outreachStage: text('outreach_stage').notNull().default('new'),
+    outreachNotes: text('outreach_notes'),
+    lastContactedAt: timestamp('last_contacted_at', { withTimezone: true }),
+    source: text('source').notNull().default('apply_form'),
+    tags: jsonb('tags').notNull().default([]),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => ({
     statusIdx: index('practitioner_applications_status_idx').on(t.status, t.createdAt),
+    outreachStageIdx: index('practitioner_applications_outreach_stage_idx').on(t.outreachStage, t.lastContactedAt),
   })
 );
 

@@ -150,49 +150,56 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- CD:PARTIAL:colophon -->
 <footer class="colophon">
   <div class="colophon-inner">
-    <div class="colophon-top">
-      <div>
-        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
-        <p class="colophon-tagline">Two products. Counsel.day Decision is for solo, couples, and families facing a hard joint decision · one private vote each evening on the same question, for a duration you set, sealed until the final day. Counsel Journal is the standalone reflection tool · one minute every evening, a verdict on Monday, a themed verdict every month. Worldwide, priced in USD.</p>
+    <!-- T8 · mobile footer accordion · the <details> wrapper collapses the
+         six-column site map on mobile by default. CSS in styles-i8.css
+         forces it open on desktop (≥720px) and hides the summary. The
+         brand + tagline + bottom row always render. -->
+    <details class="colophon-details">
+      <summary class="colophon-summary">View full site map ▾</summary>
+      <div class="colophon-top">
+        <div>
+          <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+          <p class="colophon-tagline">Two products. Counsel.day Decision is for solo, couples, and families facing a hard joint decision · one private vote each evening on the same question, for a duration you set, sealed until the final day. Counsel Journal is the standalone reflection tool · one minute every evening, a verdict on Monday, a themed verdict every month. Worldwide, priced in USD.</p>
+        </div>
+        <div class="colophon-col">
+          <h5>The app</h5>
+          <a href="decisions.html">Your decisions</a>
+          <a href="vote-today.html">Tonight's vote</a>
+          <a href="journal.html">Journal</a>
+          <a href="compose.html">Compose</a>
+          <a href="account.html">Your account</a>
+          <a href="billing.html">Billing</a>
+        </div>
+        <div class="colophon-col">
+          <h3 class="colophon-col-h">The decision tool</h3>
+          <a href="method.html">The method</a>
+          <a href="why-time.html">Why time</a>
+          <a href="verdict.html">A real verdict</a>
+          <a href="pricing.html">Pricing</a>
+        </div>
+        <div class="colophon-col">
+          <h3 class="colophon-col-h">Counsel Journal</h3>
+          <a href="journal.html">Open the Journal</a>
+          <a href="journal.html#about">What it is</a>
+          <a href="pricing.html#the-daily">Pricing</a>
+        </div>
+        <div class="colophon-col">
+          <h5>Support</h5>
+          <a href="help.html">Help</a>
+          <a href="helper.html">Helper bot</a>
+          <a href="correspondence.html">Correspondence</a>
+          <a href="contact.html">Contact</a>
+          <a href="faq.html">FAQ</a>
+          <a href="status.html">Status</a>
+        </div>
+        <div class="colophon-col">
+          <h3 class="colophon-col-h">The fine print</h3>
+          <a href="privacy.html">Privacy</a>
+          <a href="terms.html">Terms</a>
+          <a href="refunds.html">Refunds</a>
+        </div>
       </div>
-      <div class="colophon-col">
-        <h5>The app</h5>
-        <a href="decisions.html">Your decisions</a>
-        <a href="vote-today.html">Tonight's vote</a>
-        <a href="journal.html">Journal</a>
-        <a href="compose.html">Compose</a>
-        <a href="account.html">Your account</a>
-        <a href="billing.html">Billing</a>
-      </div>
-      <div class="colophon-col">
-        <h3 class="colophon-col-h">The decision tool</h3>
-        <a href="method.html">The method</a>
-        <a href="why-time.html">Why time</a>
-        <a href="verdict.html">A real verdict</a>
-        <a href="pricing.html">Pricing</a>
-      </div>
-      <div class="colophon-col">
-        <h3 class="colophon-col-h">Counsel Journal</h3>
-        <a href="journal.html">Open the Journal</a>
-        <a href="journal.html#about">What it is</a>
-        <a href="pricing.html#the-daily">Pricing</a>
-      </div>
-      <div class="colophon-col">
-        <h5>Support</h5>
-        <a href="help.html">Help</a>
-        <a href="helper.html">Helper bot</a>
-        <a href="correspondence.html">Correspondence</a>
-        <a href="contact.html">Contact</a>
-        <a href="faq.html">FAQ</a>
-        <a href="status.html">Status</a>
-      </div>
-      <div class="colophon-col">
-        <h3 class="colophon-col-h">The fine print</h3>
-        <a href="privacy.html">Privacy</a>
-        <a href="terms.html">Terms</a>
-        <a href="refunds.html">Refunds</a>
-      </div>
-    </div>
+    </details>
     <div class="colophon-bottom">
       <div>&copy; 2026 Counsel.day · USD pricing worldwide</div>
     </div>

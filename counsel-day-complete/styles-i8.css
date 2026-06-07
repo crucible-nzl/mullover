@@ -1532,3 +1532,30 @@ section { padding: 30px 32px; border-bottom: 1px solid var(--rule); }
     width: 100%;
   }
 }
+
+/* ---------- T8 · mobile footer accordion ----------
+   <details> wraps the 6-column site map. Desktop: forced open, summary
+   hidden. Mobile (<720px): collapsed by default, summary shows as a
+   wine pill the user can tap to expand. Always shows the © bottom row. */
+.colophon-details { border: 0; padding: 0; margin: 0; }
+.colophon-summary {
+  display: none;            /* hidden by default; only visible on mobile */
+  font-family: var(--font-mono); font-size: 12px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--wine); cursor: pointer; padding: 12px 0;
+  list-style: none;
+}
+.colophon-summary::-webkit-details-marker { display: none; }
+.colophon-details[open] .colophon-summary { color: var(--ink); }
+.colophon-details[open] .colophon-summary::after { content: ''; }
+@media (max-width: 720px) {
+  .colophon-summary { display: block; }
+  /* When closed on mobile, hide the site map; bottom row still shows. */
+  .colophon-details:not([open]) .colophon-top { display: none; }
+}
+@media (min-width: 721px) {
+  /* Force the site map open on desktop · summary disappears entirely. */
+  .colophon-details > .colophon-top { display: grid; }
+  /* Belt-and-braces: if browser ever didn't honour [open], still show columns. */
+  .colophon-details:not([open]) .colophon-top { display: grid; }
+}

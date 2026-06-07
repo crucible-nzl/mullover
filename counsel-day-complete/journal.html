@@ -830,11 +830,15 @@
   }
 
   function renderVerdicts(verdicts) {
-    // Specimens · shown only while the user has zero real verdicts.
-    // They go away the moment a real Monday verdict lands so the page
-    // doesn't double up on illustrative content forever.
+    // T5 · Specimens hidden for ALL signed-in users · they know what
+    // the product does. Previously shown to new signed-in users who
+    // had zero real verdicts yet · now always hidden on this branch
+    // (renderVerdicts is only reached after the signed-in /api/me load).
+    // Anonymous visitors are handled by renderPublicMarketingView and
+    // the inline style="display: none" on the .dc-specimens element
+    // keeps them hidden there too.
     var specimensEl = document.getElementById('dc-specimens');
-    if (specimensEl) specimensEl.style.display = (verdicts && verdicts.length > 0) ? 'none' : 'block';
+    if (specimensEl) specimensEl.style.display = 'none';
     if (!verdicts || verdicts.length === 0) {
       verdictsEl.innerHTML = '<div class="dc-empty">No verdicts yet. File three or more entries this week and your first Monday verdict arrives next week.</div>';
       return;
@@ -1002,28 +1006,29 @@
         // mechanism + why-pay sections into one-line summaries (click
         // to expand). They've already seen the pitch · they don't need
         // it every time they file an entry.
-        if (isPro) {
-          var heroMeta = document.getElementById('dc-hero-meta');
-          if (heroMeta) heroMeta.style.display = 'none';
-          document.querySelectorAll('[data-collapse-for-sub]').forEach(function (sec) {
-            if (sec.dataset.cdCollapsed === '1') return;
-            sec.dataset.cdCollapsed = '1';
-            sec.classList.add('cd-sub-collapsed');
-            // Pick a summary line · for the mechanism band use the
-            // existing aria-label, for the why-pay band use the H2.
-            var label = sec.getAttribute('aria-label') || (sec.querySelector('h2') ? sec.querySelector('h2').textContent.trim() : 'More about Counsel Journal');
-            var summary = document.createElement('button');
-            summary.type = 'button';
-            summary.className = 'cd-sub-collapsed-summary';
-            summary.setAttribute('aria-expanded', 'false');
-            summary.innerHTML = '<span class="cd-sub-collapsed-arrow" aria-hidden="true">▸</span> <span>' + label + '</span> <span class="cd-sub-collapsed-hint">expand</span>';
-            summary.addEventListener('click', function () {
-              var open = sec.classList.toggle('is-open');
-              summary.setAttribute('aria-expanded', open ? 'true' : 'false');
-            });
-            sec.insertBefore(summary, sec.firstChild);
+        // T6 · ALL signed-in users get the collapsed instructional bands.
+        // The "How Counsel Journal works" mechanism + "Why pay" sections
+        // are pitch content; someone who's signed in knows what the
+        // product does. Previously gated on isPro; lifted to all signed-in
+        // since the gate runs only on the signed-in branch anyway.
+        var heroMeta = document.getElementById('dc-hero-meta');
+        if (heroMeta) heroMeta.style.display = 'none';
+        document.querySelectorAll('[data-collapse-for-sub]').forEach(function (sec) {
+          if (sec.dataset.cdCollapsed === '1') return;
+          sec.dataset.cdCollapsed = '1';
+          sec.classList.add('cd-sub-collapsed');
+          var label = sec.getAttribute('aria-label') || (sec.querySelector('h2') ? sec.querySelector('h2').textContent.trim() : 'More about Counsel Journal');
+          var summary = document.createElement('button');
+          summary.type = 'button';
+          summary.className = 'cd-sub-collapsed-summary';
+          summary.setAttribute('aria-expanded', 'false');
+          summary.innerHTML = '<span class="cd-sub-collapsed-arrow" aria-hidden="true">▸</span> <span>' + label + '</span> <span class="cd-sub-collapsed-hint">expand</span>';
+          summary.addEventListener('click', function () {
+            var open = sec.classList.toggle('is-open');
+            summary.setAttribute('aria-expanded', open ? 'true' : 'false');
           });
-        }
+          sec.insertBefore(summary, sec.firstChild);
+        });
 
         // sealed-today banner
         if (entryRes.sealed_today) {

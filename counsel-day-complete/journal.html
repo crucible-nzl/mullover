@@ -38,6 +38,7 @@
 <link rel="stylesheet" href="styles-i8.css">
 <style>
   .dc-shell { max-width: 880px; margin: 0 auto; padding: 30px 32px 60px; }
+  @media (max-width: 520px) { .dc-shell { padding: 18px 14px 40px; } }
   .dc-bread { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 28px; }
   .dc-bread a { color: var(--wine); border-bottom: 1px solid var(--wine); padding-bottom: 1px; text-decoration: none; }
 
@@ -71,7 +72,7 @@
   .dc-monday-arrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.9; }
 
   /* Q3 · Calendar tile · 30-day grid · physical-journal feel */
-  .dc-cal { padding: 22px 24px; margin-bottom: 26px; background: var(--paper); border: 1px solid var(--rule); }
+  .dc-cal { padding: 22px 24px; margin-bottom: 26px; background: var(--paper); border: 1px solid var(--rule); overflow: hidden; box-sizing: border-box; max-width: 100%; }
   .dc-cal-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
   .dc-cal-eyebrow { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine); }
   .dc-cal-legend { display: flex; gap: 14px; flex-wrap: wrap; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; color: var(--ink-soft); text-transform: uppercase; }
@@ -90,8 +91,19 @@
   .dc-cal-stats { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--rule); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; color: var(--ink-soft); text-transform: uppercase; display: flex; gap: 22px; flex-wrap: wrap; }
   .dc-cal-stats strong { color: var(--wine); font-weight: 700; }
   @media (max-width: 760px) {
-    .dc-cal-grid { grid-template-columns: repeat(10, 1fr); }
+    .dc-cal { padding: 16px 14px; }
+    .dc-cal-grid { grid-template-columns: repeat(10, 1fr); gap: 3px; }
     .dc-cal-day .d { font-size: 9px; }
+  }
+  /* TASK 4 · narrow mobile · drop to 7 columns so the 30-day grid
+     becomes 5 clean rows (one per week) and never overflows the
+     viewport. min-width: 0 lets grid cells shrink below intrinsic
+     size, which is needed when textareas above on the page are wider. */
+  @media (max-width: 520px) {
+    .dc-cal { padding: 14px 10px; }
+    .dc-cal-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+    .dc-cal-day { min-width: 0; }
+    .dc-cal-day .d { font-size: 8px; }
   }
 
   .dc-sealed-banner { padding: 18px 22px; background: var(--wine-soft); border-left: 3px solid var(--wine); margin-bottom: 30px; font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: var(--ink); display: none; }
@@ -818,11 +830,15 @@
   }
 
   function renderVerdicts(verdicts) {
-    // Specimens · shown only while the user has zero real verdicts.
-    // They go away the moment a real Monday verdict lands so the page
-    // doesn't double up on illustrative content forever.
+    // T5 · Specimens hidden for ALL signed-in users · they know what
+    // the product does. Previously shown to new signed-in users who
+    // had zero real verdicts yet · now always hidden on this branch
+    // (renderVerdicts is only reached after the signed-in /api/me load).
+    // Anonymous visitors are handled by renderPublicMarketingView and
+    // the inline style="display: none" on the .dc-specimens element
+    // keeps them hidden there too.
     var specimensEl = document.getElementById('dc-specimens');
-    if (specimensEl) specimensEl.style.display = (verdicts && verdicts.length > 0) ? 'none' : 'block';
+    if (specimensEl) specimensEl.style.display = 'none';
     if (!verdicts || verdicts.length === 0) {
       verdictsEl.innerHTML = '<div class="dc-empty">No verdicts yet. File three or more entries this week and your first Monday verdict arrives next week.</div>';
       return;
@@ -990,28 +1006,29 @@
         // mechanism + why-pay sections into one-line summaries (click
         // to expand). They've already seen the pitch · they don't need
         // it every time they file an entry.
-        if (isPro) {
-          var heroMeta = document.getElementById('dc-hero-meta');
-          if (heroMeta) heroMeta.style.display = 'none';
-          document.querySelectorAll('[data-collapse-for-sub]').forEach(function (sec) {
-            if (sec.dataset.cdCollapsed === '1') return;
-            sec.dataset.cdCollapsed = '1';
-            sec.classList.add('cd-sub-collapsed');
-            // Pick a summary line · for the mechanism band use the
-            // existing aria-label, for the why-pay band use the H2.
-            var label = sec.getAttribute('aria-label') || (sec.querySelector('h2') ? sec.querySelector('h2').textContent.trim() : 'More about Counsel Journal');
-            var summary = document.createElement('button');
-            summary.type = 'button';
-            summary.className = 'cd-sub-collapsed-summary';
-            summary.setAttribute('aria-expanded', 'false');
-            summary.innerHTML = '<span class="cd-sub-collapsed-arrow" aria-hidden="true">▸</span> <span>' + label + '</span> <span class="cd-sub-collapsed-hint">expand</span>';
-            summary.addEventListener('click', function () {
-              var open = sec.classList.toggle('is-open');
-              summary.setAttribute('aria-expanded', open ? 'true' : 'false');
-            });
-            sec.insertBefore(summary, sec.firstChild);
+        // T6 · ALL signed-in users get the collapsed instructional bands.
+        // The "How Counsel Journal works" mechanism + "Why pay" sections
+        // are pitch content; someone who's signed in knows what the
+        // product does. Previously gated on isPro; lifted to all signed-in
+        // since the gate runs only on the signed-in branch anyway.
+        var heroMeta = document.getElementById('dc-hero-meta');
+        if (heroMeta) heroMeta.style.display = 'none';
+        document.querySelectorAll('[data-collapse-for-sub]').forEach(function (sec) {
+          if (sec.dataset.cdCollapsed === '1') return;
+          sec.dataset.cdCollapsed = '1';
+          sec.classList.add('cd-sub-collapsed');
+          var label = sec.getAttribute('aria-label') || (sec.querySelector('h2') ? sec.querySelector('h2').textContent.trim() : 'More about Counsel Journal');
+          var summary = document.createElement('button');
+          summary.type = 'button';
+          summary.className = 'cd-sub-collapsed-summary';
+          summary.setAttribute('aria-expanded', 'false');
+          summary.innerHTML = '<span class="cd-sub-collapsed-arrow" aria-hidden="true">▸</span> <span>' + label + '</span> <span class="cd-sub-collapsed-hint">expand</span>';
+          summary.addEventListener('click', function () {
+            var open = sec.classList.toggle('is-open');
+            summary.setAttribute('aria-expanded', open ? 'true' : 'false');
           });
-        }
+          sec.insertBefore(summary, sec.firstChild);
+        });
 
         // sealed-today banner
         if (entryRes.sealed_today) {

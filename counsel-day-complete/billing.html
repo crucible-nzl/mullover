@@ -137,6 +137,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 .stripe-note p:last-child { margin-bottom: 0; }
 .stripe-note p strong { color: var(--ink); font-weight: 500; }
 .stripe-note a { color: var(--wine); }
+
+/* T7 · Comped banner · shown when /api/me returns comp_unlimited=true */
+.cd-bill-comped { display: flex; align-items: center; gap: 18px; padding: 16px 22px; background: #ecfdf5; border: 1px solid #0f6b3e; margin-bottom: 26px; flex-wrap: wrap; }
+.cd-bill-comped-pill { font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; padding: 6px 10px; background: #0f6b3e; color: #fff; flex-shrink: 0; }
+.cd-bill-comped-text { font-family: var(--font-body); font-size: 14px; line-height: 1.5; color: var(--ink); flex: 1; min-width: 220px; }
+.cd-bill-comped-text strong { font-weight: 500; color: var(--ink); }
 </style>
 </head>
 <body>
@@ -167,6 +173,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <a href="compose.html">Compose</a>
       <a href="account.html">Account</a>
       <a href="help.html">Help</a>
+      <a href="#" id="cd-nav-logout" class="cd-nav-logout">Log out</a>
     </div>
     <div class="nav-cta">
       <a href="account.html" class="btn-text" id="cd-nav-name">Account</a>
@@ -191,12 +198,25 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="who">
         <div class="eyebrow">Billing</div>
         <h1>Billing <span class="ital">history.</span></h1>
-        <p class="lede">Stripe is the source of truth for every charge, refund, and invoice on your account. The summary below is live from <strong>your Counsel.day account</strong>; the full ledger lives in the <strong>Stripe Customer Portal</strong>, where you can download invoice PDFs, update your card, and cancel a subscription.</p>
+        <p class="lede">Your charges and invoices in one place. The full ledger lives in the Stripe Customer Portal.</p>
       </div>
       <div class="actions">
         <button type="button" id="cd-portal-btn-top" class="btn">Open Stripe Customer Portal</button>
       </div>
       <div id="cd-portal-err" role="alert" aria-live="polite" style="display: none; margin-top: 14px; padding: 12px 16px; background: #fdecea; border-left: 3px solid #c0392b; color: #6b1e16; font-family: var(--font-body); font-size: 14px; line-height: 1.5; max-width: 760px;"></div>
+    </div>
+
+    <!-- T7 · Comped banner · shown when /api/me reports comp_unlimited=true.
+         Replaces the full Stripe-portal walkthrough with a one-line
+         "You're comped · no charges on this account" notice. Hidden by
+         default; JS unhides on init when comped. -->
+    <div id="cd-bill-comped-banner" class="cd-bill-comped" style="display: none;" role="status" aria-live="polite">
+      <span class="cd-bill-comped-pill">COMPED · UNLIMITED · FREE</span>
+      <div class="cd-bill-comped-text">
+        <strong>No charges on this account.</strong>
+        <span id="cd-bill-comped-reason">You have been granted free unlimited access by Counsel.day.</span>
+        The Stripe portal below stays available for receipt + card history if you ever subscribe to a paid product later.
+      </div>
     </div>
 
     <!-- SUMMARY -->
@@ -225,31 +245,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
     </section>
 
-    <section class="method-stage" style="border-bottom: none; padding-bottom: 0;">
-      <div class="method-stage-head">
-        <div class="method-stage-eyebrow">Full ledger</div>
-        <h2 class="method-stage-title">Every charge and refund lives in <span class="ital">Stripe.</span></h2>
-      </div>
-      <div class="method-stage-body">
-        <p>Counsel.day does not maintain its own ledger UI. Stripe is the source of truth for every charge, every refund, every invoice. The Stripe Customer Portal gives you the full history at any time:</p>
-        <ul style="font-family: var(--font-body); font-size: 17px; line-height: 1.7; color: var(--ink-soft); padding-left: 22px; max-width: 760px;">
-          <li>Download invoice PDFs and receipts for every charge.</li>
-          <li>Update the card we charge.</li>
-          <li>Update the billing email address.</li>
-        </ul>
-      </div>
-
-      <div class="bill-actions-row" style="margin-top: 24px;">
-        <button type="button" id="cd-portal-btn-bottom" class="btn btn-large">Open Stripe Customer Portal</button>
-        <a href="refunds.html" class="btn-text" style="border-bottom: 1px solid var(--wine); padding-bottom: 2px;">Read the refund policy →</a>
-      </div>
-
-      <div class="stripe-note">
-        <div class="note-label">How billing works</div>
-        <p><strong>Counsel.day uses Stripe for payments.</strong> Every charge is made directly by Stripe and shows up under "Counsel.day" on your bank statement. Invoices and receipts are emailed to the address on your account at the moment of each charge.</p>
-        <p>The Stripe Customer Portal lets you update your card, change your billing address, and cancel or pause your subscription. Refunds follow the policy on <a href="refunds.html">refunds.html</a> · we refund only where our tool failed or where local consumer-protection law requires it. No change-of-mind, no partial-completion refunds.</p>
-      </div>
-    </section>
+    <!-- T7 · Educational "Full ledger" + "How billing works" content
+         removed for logged-in users · these belong in the FAQ where
+         visitors learn the model, not on a page someone with an
+         account opens. The bottom action row stays because operators
+         actually use it. -->
+    <div class="bill-actions-row" style="margin-top: 22px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+      <button type="button" id="cd-portal-btn-bottom" class="btn">Open Stripe Customer Portal</button>
+      <a href="refunds.html" class="u-wine-link" style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;">Refund policy</a>
+      <a href="faq.html#billing" class="u-wine-link" style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;">How billing works · FAQ</a>
+    </div>
 
   </div>
 </main>
@@ -260,49 +265,56 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- CD:PARTIAL:colophon -->
 <footer class="colophon">
   <div class="colophon-inner">
-    <div class="colophon-top">
-      <div>
-        <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
-        <p class="colophon-tagline">Two products. Counsel.day Decision is for solo, couples, and families facing a hard joint decision · one private vote each evening on the same question, for a duration you set, sealed until the final day. Counsel Journal is the standalone reflection tool · one minute every evening, a verdict on Monday, a themed verdict every month. Worldwide, priced in USD.</p>
+    <!-- T8 · mobile footer accordion · the <details> wrapper collapses the
+         six-column site map on mobile by default. CSS in styles-i8.css
+         forces it open on desktop (≥720px) and hides the summary. The
+         brand + tagline + bottom row always render. -->
+    <details class="colophon-details">
+      <summary class="colophon-summary">View full site map ▾</summary>
+      <div class="colophon-top">
+        <div>
+          <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
+          <p class="colophon-tagline">Two products. Counsel.day Decision is for solo, couples, and families facing a hard joint decision · one private vote each evening on the same question, for a duration you set, sealed until the final day. Counsel Journal is the standalone reflection tool · one minute every evening, a verdict on Monday, a themed verdict every month. Worldwide, priced in USD.</p>
+        </div>
+        <div class="colophon-col">
+          <h5>The app</h5>
+          <a href="decisions.html">Your decisions</a>
+          <a href="vote-today.html">Tonight's vote</a>
+          <a href="journal.html">Journal</a>
+          <a href="compose.html">Compose</a>
+          <a href="account.html">Your account</a>
+          <a href="billing.html">Billing</a>
+        </div>
+        <div class="colophon-col">
+          <h3 class="colophon-col-h">The decision tool</h3>
+          <a href="method.html">The method</a>
+          <a href="why-time.html">Why time</a>
+          <a href="verdict.html">A real verdict</a>
+          <a href="pricing.html">Pricing</a>
+        </div>
+        <div class="colophon-col">
+          <h3 class="colophon-col-h">Counsel Journal</h3>
+          <a href="journal.html">Open the Journal</a>
+          <a href="journal.html#about">What it is</a>
+          <a href="pricing.html#the-daily">Pricing</a>
+        </div>
+        <div class="colophon-col">
+          <h5>Support</h5>
+          <a href="help.html">Help</a>
+          <a href="helper.html">Helper bot</a>
+          <a href="correspondence.html">Correspondence</a>
+          <a href="contact.html">Contact</a>
+          <a href="faq.html">FAQ</a>
+          <a href="status.html">Status</a>
+        </div>
+        <div class="colophon-col">
+          <h3 class="colophon-col-h">The fine print</h3>
+          <a href="privacy.html">Privacy</a>
+          <a href="terms.html">Terms</a>
+          <a href="refunds.html">Refunds</a>
+        </div>
       </div>
-      <div class="colophon-col">
-        <h5>The app</h5>
-        <a href="decisions.html">Your decisions</a>
-        <a href="vote-today.html">Tonight's vote</a>
-        <a href="journal.html">Journal</a>
-        <a href="compose.html">Compose</a>
-        <a href="account.html">Your account</a>
-        <a href="billing.html">Billing</a>
-      </div>
-      <div class="colophon-col">
-        <h3 class="colophon-col-h">The decision tool</h3>
-        <a href="method.html">The method</a>
-        <a href="why-time.html">Why time</a>
-        <a href="verdict.html">A real verdict</a>
-        <a href="pricing.html">Pricing</a>
-      </div>
-      <div class="colophon-col">
-        <h3 class="colophon-col-h">Counsel Journal</h3>
-        <a href="journal.html">Open the Journal</a>
-        <a href="journal.html#about">What it is</a>
-        <a href="pricing.html#the-daily">Pricing</a>
-      </div>
-      <div class="colophon-col">
-        <h5>Support</h5>
-        <a href="help.html">Help</a>
-        <a href="helper.html">Helper bot</a>
-        <a href="correspondence.html">Correspondence</a>
-        <a href="contact.html">Contact</a>
-        <a href="faq.html">FAQ</a>
-        <a href="status.html">Status</a>
-      </div>
-      <div class="colophon-col">
-        <h3 class="colophon-col-h">The fine print</h3>
-        <a href="privacy.html">Privacy</a>
-        <a href="terms.html">Terms</a>
-        <a href="refunds.html">Refunds</a>
-      </div>
-    </div>
+    </details>
     <div class="colophon-bottom">
       <div>&copy; 2026 Counsel.day · USD pricing worldwide</div>
     </div>
@@ -401,6 +413,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     .then(function (d) {
       if (!d || !d.ok) return;
       var u = d.user || {};
+
+      // T7 · Comped state takes precedence over plan / model derivation.
+      // Show the green banner; suppress the "Current plan" $-talk; the
+      // Stripe portal still works (some comped users may have legacy
+      // receipts to retrieve).
+      if (u.comp_unlimited) {
+        var bb = document.getElementById('cd-bill-comped-banner');
+        if (bb) bb.style.display = 'flex';
+        var rsn = document.getElementById('cd-bill-comped-reason');
+        if (rsn && u.comp_reason) rsn.textContent = String(u.comp_reason);
+        // Replace summary cells with comped values
+        var pe = document.getElementById('cd-bill-plan'); if (pe) pe.textContent = 'Comped';
+        var ps = document.getElementById('cd-bill-plan-sub'); if (ps) ps.textContent = 'No charges · granted by Counsel.day';
+        var me = document.getElementById('cd-bill-model'); if (me) me.textContent = 'No billing';
+        var ms = document.getElementById('cd-bill-model-sub'); if (ms) ms.textContent = 'Unlimited access while comped';
+        var em = document.getElementById('cd-bill-email'); if (em) em.textContent = u.email || '';
+        var sc = document.getElementById('cd-bill-stripe-customer');
+        if (sc) sc.textContent = u.has_stripe_customer ? 'On file (legacy)' : 'Not applicable';
+        var scs = document.getElementById('cd-bill-stripe-customer-sub');
+        if (scs) scs.textContent = u.has_stripe_customer ? 'For prior charges if any' : 'No Stripe customer created';
+        return;
+      }
       var plan = u.current_plan || 'free';
       var planLabel = {
         'free':   'Per-decision · no subscription',

@@ -213,6 +213,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <a href="compose.html">Compose</a>
       <a href="account.html">Account</a>
       <a href="help.html">Help</a>
+      <a href="#" id="cd-nav-logout" class="cd-nav-logout">Log out</a>
     </div>
     <div class="nav-cta">
       <a href="account.html" class="btn-text" id="cd-nav-name">Account</a>
@@ -233,11 +234,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <h1>Your <span class="ital">account.</span></h1>
         <div class="meta">Signed in as <strong id="cd-meta-email">…</strong> · Member since <strong id="cd-meta-since">…</strong> · Account ID <span class="mono" id="cd-meta-id" style="font-size: 12px; color: var(--muted);">…</span></div>
       </div>
+      <!-- T3 · "Log out" moved to the burger menu (nav-app partial · #cd-nav-logout).
+           The other page-top quick links stay because they're shortcuts to scoped
+           account-related pages, not duplicates of the global nav. -->
       <div class="acct-head-actions" style="display: flex; gap: 10px; align-items: center;">
         <a href="decisions.html" class="btn-text">Your decisions</a>
         <a href="billing.html" class="btn-text">Billing</a>
         <a href="help.html" class="btn-text">Help</a>
-        <button type="button" id="cd-acct-logout" class="btn-text" style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; color: var(--wine); border: 1px solid var(--wine); padding: 8px 14px; background: transparent;">Log out</button>
       </div>
     </div>
 

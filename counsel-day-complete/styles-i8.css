@@ -1509,3 +1509,26 @@ section { padding: 30px 32px; border-bottom: 1px solid var(--rule); }
   .method-page-title { margin-bottom: 12px; }
   .method-page-lede { margin-bottom: 16px; font-size: 16px; line-height: 1.45; }
 }
+
+/* ---------- T3 · Log out link in the burger menu ----------
+   Distinguished from the main nav items with a thin border-top to
+   read as a "session action" rather than another page. Only renders
+   on app-side pages (nav-app partial includes it); marketing nav
+   doesn't have it. */
+.cd-nav-logout {
+  color: var(--wine) !important;
+  border-bottom: 1px solid transparent !important;
+}
+.cd-nav-logout:hover,
+.cd-nav-logout:focus-visible {
+  color: var(--wine-deep) !important;
+  border-bottom-color: var(--wine-deep) !important;
+}
+@media (max-width: 1023px) {
+  .nav-bar.menu-open .nav-links .cd-nav-logout {
+    margin-top: 10px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--rule);
+    width: 100%;
+  }
+}

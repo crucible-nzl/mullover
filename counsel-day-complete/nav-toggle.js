@@ -86,9 +86,30 @@
     });
   }
 
+  /* T3 · Log out link inside the burger menu. Wires the click via
+     POST /api/signout, then redirects home. Falls through silently if
+     the link doesn't exist on the page (public-facing pages don't have
+     it). One handler attached at document level using delegation so a
+     burger that re-renders later (e.g. after partial sync) still works. */
+  function wireLogout() {
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('#cd-nav-logout');
+      if (!a) return;
+      e.preventDefault();
+      try {
+        fetch('/api/signout', { method: 'POST', credentials: 'include' })
+          .catch(function () { /* swallow · we redirect either way */ })
+          .finally(function () { window.location.href = '/'; });
+      } catch (_) {
+        window.location.href = '/';
+      }
+    }, { capture: false });
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init, { once: true });
+    document.addEventListener('DOMContentLoaded', function () { init(); wireLogout(); }, { once: true });
   } else {
     init();
+    wireLogout();
   }
 })();

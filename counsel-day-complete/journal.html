@@ -38,6 +38,7 @@
 <link rel="stylesheet" href="styles-i8.css">
 <style>
   .dc-shell { max-width: 880px; margin: 0 auto; padding: 30px 32px 60px; }
+  @media (max-width: 520px) { .dc-shell { padding: 18px 14px 40px; } }
   .dc-bread { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 28px; }
   .dc-bread a { color: var(--wine); border-bottom: 1px solid var(--wine); padding-bottom: 1px; text-decoration: none; }
 
@@ -71,7 +72,7 @@
   .dc-monday-arrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.9; }
 
   /* Q3 · Calendar tile · 30-day grid · physical-journal feel */
-  .dc-cal { padding: 22px 24px; margin-bottom: 26px; background: var(--paper); border: 1px solid var(--rule); }
+  .dc-cal { padding: 22px 24px; margin-bottom: 26px; background: var(--paper); border: 1px solid var(--rule); overflow: hidden; box-sizing: border-box; max-width: 100%; }
   .dc-cal-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
   .dc-cal-eyebrow { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine); }
   .dc-cal-legend { display: flex; gap: 14px; flex-wrap: wrap; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; color: var(--ink-soft); text-transform: uppercase; }
@@ -90,8 +91,19 @@
   .dc-cal-stats { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--rule); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; color: var(--ink-soft); text-transform: uppercase; display: flex; gap: 22px; flex-wrap: wrap; }
   .dc-cal-stats strong { color: var(--wine); font-weight: 700; }
   @media (max-width: 760px) {
-    .dc-cal-grid { grid-template-columns: repeat(10, 1fr); }
+    .dc-cal { padding: 16px 14px; }
+    .dc-cal-grid { grid-template-columns: repeat(10, 1fr); gap: 3px; }
     .dc-cal-day .d { font-size: 9px; }
+  }
+  /* TASK 4 · narrow mobile · drop to 7 columns so the 30-day grid
+     becomes 5 clean rows (one per week) and never overflows the
+     viewport. min-width: 0 lets grid cells shrink below intrinsic
+     size, which is needed when textareas above on the page are wider. */
+  @media (max-width: 520px) {
+    .dc-cal { padding: 14px 10px; }
+    .dc-cal-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+    .dc-cal-day { min-width: 0; }
+    .dc-cal-day .d { font-size: 8px; }
   }
 
   .dc-sealed-banner { padding: 18px 22px; background: var(--wine-soft); border-left: 3px solid var(--wine); margin-bottom: 30px; font-family: var(--font-body); font-size: 14px; line-height: 1.55; color: var(--ink); display: none; }

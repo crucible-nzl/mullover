@@ -1489,3 +1489,23 @@ section { padding: 30px 32px; border-bottom: 1px solid var(--rule); }
 .u-flex-row { display: flex; gap: 12px; align-items: center; }
 .u-flex-row.is-wrap { flex-wrap: wrap; }
 .u-flex-col { display: flex; flex-direction: column; gap: 12px; }
+
+/* ---------- TASK 1 · mobile vertical-padding compaction (2026-06-06) ----------
+   Account, decisions, vault, journal, inbox stacked sections were
+   inheriting 30px-stage padding from the marketing surface, which made
+   each section feel disconnected on a phone. Cut to 14px on mobile so
+   sections still read as distinct but don't waste two thumb-scrolls
+   of whitespace between them. .method-stage:first-of-type goes tighter
+   still so the page starts immediately under the page head. */
+@media (max-width: 720px) {
+  .method-stage { padding: 14px 0; }
+  .method-stage:first-of-type { padding-top: 6px; }
+  .method-stage-head { margin-bottom: 12px; }
+  .acct-form-row { padding: 10px 0; }
+  /* Method-page heads · same tightening for /how-it-works, /the-experience, etc.
+     The marketing pages keep their generous spacing on desktop; only mobile
+     gets the compaction. */
+  .method-page-head { padding-bottom: 18px; margin-bottom: 18px; }
+  .method-page-title { margin-bottom: 12px; }
+  .method-page-lede { margin-bottom: 16px; font-size: 16px; line-height: 1.45; }
+}

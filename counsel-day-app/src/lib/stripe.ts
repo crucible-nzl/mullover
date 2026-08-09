@@ -43,8 +43,8 @@ export function modeForSku(_sku: Sku): 'payment' {
 /** Display amount in cents (mirrors the static pricing page; used as fallback if Stripe API is down). */
 export function amountCentsForSku(sku: Sku): number {
   switch (sku) {
-    case 'solo_paid': return 999;   // $9.99 USD
-    case 'couple':    return 1599;  // $15.99 USD
-    case 'family':    return 2999;  // $29.99 USD
+    case 'solo_paid': return 499;   // $4.99 USD
+    case 'couple':    return 999;   // $9.99 USD
+    case 'family':    return 1999;  // $19.99 USD
   }
 }

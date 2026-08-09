@@ -58,19 +58,19 @@
       tags: ['Decision', 'Pricing'],
       keywords: ['solo', 'price', 'cost', 'first', 'free', 'trial', 'single'],
       q: 'How much does a Solo decision cost?',
-      a: 'Your first Solo decision on Counsel.day is FREE.\n\nAfter the first one, a Solo decision is $9.99 USD. You pay per decision at compose time · no subscription, no recurring charge. Each decision runs for the duration you set (7 to 30 days) and seals until the final day.'
+      a: 'Your first Solo decision on Counsel.day is FREE and runs for 7 days.\n\nAfter the first one, a Solo decision is $4.99 USD and can run for any duration you set from 7 to 90 days. You pay per decision at compose time · no subscription, no recurring charge. Each decision seals until the final day.'
     },
     {
       tags: ['Decision', 'Pricing'],
       keywords: ['couple', 'pair', 'partner', 'price', 'cost', 'two'],
       q: 'How much does the Couple tier cost?',
-      a: 'Couple is $15.99 USD per decision.\n\nIt covers two participants voting nightly on the same question, sealed for the duration you set. Both invites are included. Charged once at compose · no subscription.'
+      a: 'Couple is $9.99 USD per decision.\n\nIt covers two participants voting nightly on the same question, sealed for the duration you set. Both invites are included. Charged once at compose · no subscription.'
     },
     {
       tags: ['Decision', 'Pricing'],
       keywords: ['family', 'three', 'four', 'kids', 'household', 'price', 'cost'],
       q: 'How much does the Family tier cost?',
-      a: 'Family is $29.99 USD per decision.\n\nIt covers three to six participants voting nightly on the same question. Useful when the decision affects everyone in the household · a move, a school choice, a major spend. Charged once at compose.'
+      a: 'Family is $19.99 USD per decision.\n\nIt covers three to six participants voting nightly on the same question. Useful when the decision affects everyone in the household · a move, a school choice, a major spend. Charged once at compose.'
     },
     {
       tags: ['Decision', 'Pricing'],
@@ -84,7 +84,7 @@
       tags: ['Decision'],
       keywords: ['how', 'work', 'method', 'sealed', 'vote', 'process'],
       q: 'How does a Counsel.day decision actually work?',
-      a: 'You write the question (and pick a duration · 7 to 30 days). Each participant votes once each evening on whether to go ahead, with an optional one-line note.\n\nEvery vote is sealed · no one (not even you) sees anyone else\'s votes until the final day. On reveal day, the system shows the trajectory, the themes, and a synthesis paragraph from Claude Opus 4.7 on what the pattern actually means.\n\nThe seal is the point. Without it, the first vote anchors everything that follows · with it, every evening is its own clean reading.'
+      a: 'You write the question (and pick a duration · 7 to 90 days, or 7 days on the free first decision). Each participant votes once each evening on whether to go ahead, with an optional one-line note.\n\nEvery vote is sealed · no one (not even you) sees anyone else\'s votes until the final day. On reveal day, the system shows the trajectory, the themes, and a synthesis paragraph from Claude Opus 4.7 on what the pattern actually means.\n\nThe seal is the point. Without it, the first vote anchors everything that follows · with it, every evening is its own clean reading.'
     },
     {
       tags: ['Decision'],
@@ -240,13 +240,13 @@
       tags: ['Decision'],
       keywords: ['couple', 'partner', 'partners', 'two', 'questions', 'example', 'examples', 'sample', 'samples', 'relationship', 'spouse', 'husband', 'wife', 'us'],
       q: 'Show me example Couple questions.',
-      a: 'Five from the Couple set (full 50 at https://counsel.day/faq.html#eq-pane-couple):\n\n· Should we have a baby this year?\n· Should we sell the house and rent?\n· Should we move overseas for the year?\n· Should we go to couples therapy?\n· Should we file for divorce?\n\nCouple decisions cost $15.99 USD each · two participants vote nightly, every vote stays sealed until reveal day.'
+      a: 'Five from the Couple set (full 50 at https://counsel.day/faq.html#eq-pane-couple):\n\n· Should we have a baby this year?\n· Should we sell the house and rent?\n· Should we move overseas for the year?\n· Should we go to couples therapy?\n· Should we file for divorce?\n\nCouple decisions cost $9.99 USD each · two participants vote nightly, every vote stays sealed until reveal day.'
     },
     {
       tags: ['Decision'],
       keywords: ['family', 'household', 'kids', 'children', 'parents', 'questions', 'example', 'examples', 'sample', 'samples', 'home', 'multigeneration'],
       q: 'Show me example Family questions.',
-      a: 'Five from the Family set (full 25 at https://counsel.day/faq.html#eq-pane-family):\n\n· Should we move to a different country as a family?\n· Should we sell the family home?\n· Should we get a family dog?\n· Should we send our eldest to boarding school?\n· Should we move our parent into residential care?\n\nFamily decisions cost $29.99 USD each · three to six participants vote nightly.'
+      a: 'Five from the Family set (full 25 at https://counsel.day/faq.html#eq-pane-family):\n\n· Should we move to a different country as a family?\n· Should we sell the family home?\n· Should we get a family dog?\n· Should we send our eldest to boarding school?\n· Should we move our parent into residential care?\n\nFamily decisions cost $19.99 USD each · three to six participants vote nightly.'
     },
 
     // ---------------- ACCOUNT · BILLING · SUBSCRIPTION MANAGEMENT ----------------

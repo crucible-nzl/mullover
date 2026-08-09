@@ -402,7 +402,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="sub-tile-eyebrow">Counsel.day · the flagship</div>
           <div class="sub-tile-status" id="cd-decision-status">Active plan</div>
           <h3 class="sub-tile-name" id="cd-plan-name">Loading…</h3>
-          <p class="sub-tile-detail" id="cd-plan-detail">You pay per decision at compose time. Your first Solo decision is free; Solo paid is $9.99 USD; Couple is $15.99 USD; Family is $29.99 USD.</p>
+          <p class="sub-tile-detail" id="cd-plan-detail">You pay per decision at compose time. Your first Solo decision is free; Solo paid is $4.99 USD; Couple is $9.99 USD; Family is $19.99 USD.</p>
           <div class="sub-tile-renewal" id="cd-plan-renewal">No renewal · pay per decision at compose time</div>
           <div class="sub-tile-actions">
             <a href="pricing.html" class="btn" id="cd-plan-cta" class="u-btn-wine">See pricing</a>
@@ -826,7 +826,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           sumSummaryEl.querySelectorAll('.sub-summary-cell').forEach(function (c) { c.classList.add('is-comped'); });
         } else {
           if (sumDecisionEl) sumDecisionEl.textContent = 'pay-per-decision';
-          if (sumDecisionNoteEl) sumDecisionNoteEl.textContent = 'First Solo free · paid Solo $9.99 USD · Couple $15.99 USD · Family $29.99 USD';
+          if (sumDecisionNoteEl) sumDecisionNoteEl.textContent = 'First Solo free · paid Solo $4.99 USD · Couple $9.99 USD · Family $19.99 USD';
           if (sumTotalEl) sumTotalEl.textContent = 'pay-per-decision only';
           if (sumTotalNoteEl) sumTotalNoteEl.textContent = 'No recurring charges · billed only when you compose';
         }
@@ -842,7 +842,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       // here defensively, but new accounts never reach that state.
       var plan = u.current_plan || 'free';
       var planDef = {
-        'free':            { name: 'Per-decision · no subscription', detail: 'You pay per decision at compose time. Your first Solo decision is free; Solo paid is $9.99 USD; Couple is $15.99 USD; Family is $29.99 USD.', cta: 'See pricing',         renewal: 'No renewal · pay per decision at compose time', portalVisible: false },
+        'free':            { name: 'Per-decision · no subscription', detail: 'You pay per decision at compose time. Your first Solo decision is free; Solo paid is $4.99 USD; Couple is $9.99 USD; Family is $19.99 USD.', cta: 'See pricing',         renewal: 'No renewal · pay per decision at compose time', portalVisible: false },
         'consumer_annual': { name: 'Consumer · Annual (legacy)',     detail: 'Legacy annual subscription · honoured to the end of the paid term. New decisions are charged per-decision after that.',                          cta: 'Manage subscription', renewal: 'Recurring · open Stripe portal to manage or cancel', portalVisible: true  },
         // The values below should never appear in current_plan today.
         // Keep defensive labels in case the schema is later extended.

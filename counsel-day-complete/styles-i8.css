@@ -1489,3 +1489,73 @@ section { padding: 30px 32px; border-bottom: 1px solid var(--rule); }
 .u-flex-row { display: flex; gap: 12px; align-items: center; }
 .u-flex-row.is-wrap { flex-wrap: wrap; }
 .u-flex-col { display: flex; flex-direction: column; gap: 12px; }
+
+/* ---------- TASK 1 · mobile vertical-padding compaction (2026-06-06) ----------
+   Account, decisions, vault, journal, inbox stacked sections were
+   inheriting 30px-stage padding from the marketing surface, which made
+   each section feel disconnected on a phone. Cut to 14px on mobile so
+   sections still read as distinct but don't waste two thumb-scrolls
+   of whitespace between them. .method-stage:first-of-type goes tighter
+   still so the page starts immediately under the page head. */
+@media (max-width: 720px) {
+  .method-stage { padding: 14px 0; }
+  .method-stage:first-of-type { padding-top: 6px; }
+  .method-stage-head { margin-bottom: 12px; }
+  .acct-form-row { padding: 10px 0; }
+  /* Method-page heads · same tightening for /how-it-works, /the-experience, etc.
+     The marketing pages keep their generous spacing on desktop; only mobile
+     gets the compaction. */
+  .method-page-head { padding-bottom: 18px; margin-bottom: 18px; }
+  .method-page-title { margin-bottom: 12px; }
+  .method-page-lede { margin-bottom: 16px; font-size: 16px; line-height: 1.45; }
+}
+
+/* ---------- T3 · Log out link in the burger menu ----------
+   Distinguished from the main nav items with a thin border-top to
+   read as a "session action" rather than another page. Only renders
+   on app-side pages (nav-app partial includes it); marketing nav
+   doesn't have it. */
+.cd-nav-logout {
+  color: var(--wine) !important;
+  border-bottom: 1px solid transparent !important;
+}
+.cd-nav-logout:hover,
+.cd-nav-logout:focus-visible {
+  color: var(--wine-deep) !important;
+  border-bottom-color: var(--wine-deep) !important;
+}
+@media (max-width: 1023px) {
+  .nav-bar.menu-open .nav-links .cd-nav-logout {
+    margin-top: 10px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--rule);
+    width: 100%;
+  }
+}
+
+/* ---------- T8 · mobile footer accordion ----------
+   <details> wraps the 6-column site map. Desktop: forced open, summary
+   hidden. Mobile (<720px): collapsed by default, summary shows as a
+   wine pill the user can tap to expand. Always shows the © bottom row. */
+.colophon-details { border: 0; padding: 0; margin: 0; }
+.colophon-summary {
+  display: none;            /* hidden by default; only visible on mobile */
+  font-family: var(--font-mono); font-size: 12px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--wine); cursor: pointer; padding: 12px 0;
+  list-style: none;
+}
+.colophon-summary::-webkit-details-marker { display: none; }
+.colophon-details[open] .colophon-summary { color: var(--ink); }
+.colophon-details[open] .colophon-summary::after { content: ''; }
+@media (max-width: 720px) {
+  .colophon-summary { display: block; }
+  /* When closed on mobile, hide the site map; bottom row still shows. */
+  .colophon-details:not([open]) .colophon-top { display: none; }
+}
+@media (min-width: 721px) {
+  /* Force the site map open on desktop · summary disappears entirely. */
+  .colophon-details > .colophon-top { display: grid; }
+  /* Belt-and-braces: if browser ever didn't honour [open], still show columns. */
+  .colophon-details:not([open]) .colophon-top { display: grid; }
+}

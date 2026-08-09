@@ -91,6 +91,16 @@ export async function POST(req: Request) {
   }
   const input = parsed.data;
 
+  // 3b. Free-tier duration cap · the free first Solo decision runs for up
+  //     to 7 days only. Longer durations require paid Solo. Server-side
+  //     backstop for the client lock on /compose.
+  if (input.tier === 'solo_free' && input.duration_days > 7) {
+    return NextResponse.json(
+      { ok: false, field_errors: { duration_days: 'The free first decision runs for up to 7 days. For a longer decision, choose paid Solo ($9.99 USD).' } },
+      { status: 422 },
+    );
+  }
+
   // 4. Find or create user. If the email already exists, abort with a
   //    sensible message rather than silently merging · the guest path
   //    is for first-time visitors. The existing /api/signup handles

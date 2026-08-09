@@ -45,21 +45,21 @@ Five SKUs. Source of truth: counsel.day/pricing.
     decision per account. Returns numerical summary + the user's own
     notes only · no AI-written synthesis.
 
-  · Solo · additional decisions · $14 USD each · charged upfront at
+  · Solo · additional decisions · $4.99 USD each · charged upfront at
     composition. Includes the Claude-written verdict paragraph and
     the premium report panels (trajectory, themes, word cloud,
     sentiment, asymmetries, vocabulary overlap, key quotes).
 
-  · Couple · $15.99 USD per decision · two participants · charged upfront
+  · Couple · $9.99 USD per decision · two participants · charged upfront
     on the composer's card. The invitee does not pay separately.
     Includes the axis-of-disagreement synthesis and per-participant
     breakdown that a Solo verdict doesn't have.
 
-  · Family · $29.99 USD per decision · three to six participants · flat
+  · Family · $19.99 USD per decision · three to six participants · flat
     fee regardless of how many invitees actually accept. Charged
     upfront. Same depth of analysis as Couple, sized for multi-party.
 
-  Solo paid is $9.99 USD per decision.
+  Solo paid is $4.99 USD per decision.
 
   · Practitioner Annual · $399 USD per year · sold only on
     counsel.day/therapists and counsel.day/counsellors · unlimited

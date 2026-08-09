@@ -678,9 +678,9 @@ function saveDraft() {
 })();
 </script>
 <script>
-// Tier-aware compose · hydrate from /api/me to mark "FREE for you" tiles
-// for Consumer Annual subscribers, hide Solo Free if already used, and
-// surface the upgrade-to-annual nudge when paying per-decision.
+// Tier-aware compose · hydrate from /api/me to mark comped tiles "FREE
+// for you" and hide Solo Free if the free first decision is already used.
+// Per-decision only · no subscription.
 (function () {
   fetch('/api/me', { credentials: 'include', headers: { accept: 'application/json' } })
     .then(function (r) {

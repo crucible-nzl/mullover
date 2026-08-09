@@ -86,15 +86,15 @@
 
 <div class="shell">
   <h1>CRM</h1>
-  <p class="lede">The customer-relationship view: contacts, the activation funnel, retention cohorts, MRR + LTV + churn, and a hot-lead inbox. Numbers re-compute on page load · click <em>Refresh</em> on any tile if you want it sooner.</p>
+  <p class="lede">The customer-relationship view: contacts, the activation funnel, retention cohorts, ARPU and free-to-paid conversion, and a hot-lead inbox. Numbers re-compute on page load · click <em>Refresh</em> on any tile if you want it sooner.</p>
 
   <!-- TOP-LINE KPIs -->
   <h2 style="margin-top: 20px;">Top-line</h2>
   <div class="crm-grid-4">
-    <div class="crm-card is-loading"><div class="lbl">Total contacts</div><div class="v" id="kpi-contacts">·</div><div class="sub" id="kpi-contacts-sub">all signed-in users + waitlist</div></div>
-    <div class="crm-card is-loading"><div class="lbl">Paying customers</div><div class="v" id="kpi-paying">·</div><div class="sub" id="kpi-paying-sub">at least one paid decision or active Pro sub</div></div>
-    <div class="crm-card is-loading"><div class="lbl">MRR</div><div class="v" id="kpi-mrr">·</div><div class="sub" id="kpi-mrr-sub">No recurring product · per-decision billing</div></div>
-    <div class="crm-card is-loading"><div class="lbl">LTV (rolling 90d)</div><div class="v" id="kpi-ltv">·</div><div class="sub" id="kpi-ltv-sub">avg revenue per paying contact</div></div>
+    <div class="crm-card is-loading"><div class="lbl">Total contacts</div><div class="v" id="kpi-contacts">·</div><div class="sub" id="kpi-contacts-sub">all signed-in users</div></div>
+    <div class="crm-card is-loading"><div class="lbl">Paying customers</div><div class="v" id="kpi-paying">·</div><div class="sub" id="kpi-paying-sub">at least one paid decision</div></div>
+    <div class="crm-card is-loading"><div class="lbl">ARPU</div><div class="v" id="kpi-arpu">·</div><div class="sub" id="kpi-arpu-sub">all-time revenue / paying contact</div></div>
+    <div class="crm-card is-loading"><div class="lbl">Free → Paid rate</div><div class="v" id="kpi-conv-rate">·</div><div class="sub" id="kpi-conv-rate-sub">paying / total contacts</div></div>
   </div>
 
   <!-- ACTIVE USERS -->
@@ -129,7 +129,7 @@
   <!-- HOT LEADS -->
   <h2>Hot leads · signed up but not yet paid</h2>
   <section class="crm-section">
-    <p class="lede">Recent free-tier users showing engagement signals (entries filed, decisions composed without payment, helper-bot queries). Score = sum of weighted activity in the last 14 days. Hot ≥ 8, Warm 4-7, Cold &lt; 4.</p>
+    <p class="lede">Recent free-tier users showing engagement signals (decisions composed without payment, helper-bot queries, recent activity). Score = sum of weighted activity in the last 14 days. Hot ≥ 8, Warm 4-7, Cold &lt; 4.</p>
     <table class="contact-tbl" id="leads-tbl">
       <thead><tr><th>Email</th><th>Signed up</th><th>Activity</th><th>Last seen</th><th>Score</th></tr></thead>
       <tbody><tr><td colspan="5" style="text-align: center; color: var(--muted); font-style: italic; padding: 18px;">Loading leads…</td></tr></tbody>
@@ -148,14 +148,6 @@
     </div>
   </section>
 
-  <!-- CHURN + ARPU -->
-  <h2>Churn + revenue per user</h2>
-  <div class="crm-grid-4">
-    <div class="crm-card is-loading"><div class="lbl">Logo churn (30d)</div><div class="v" id="kpi-churn">·</div><div class="sub" id="kpi-churn-sub">Pro subs cancelled / Pro subs active</div></div>
-    <div class="crm-card is-loading"><div class="lbl">Revenue churn (30d)</div><div class="v" id="kpi-rev-churn">·</div><div class="sub" id="kpi-rev-churn-sub">MRR cancelled / MRR active</div></div>
-    <div class="crm-card is-loading"><div class="lbl">ARPU</div><div class="v" id="kpi-arpu">·</div><div class="sub" id="kpi-arpu-sub">all-time revenue / paying contacts</div></div>
-    <div class="crm-card is-loading"><div class="lbl">Free → Paid rate</div><div class="v" id="kpi-conv-rate">·</div><div class="sub" id="kpi-conv-rate-sub">paying / total contacts</div></div>
-  </div>
 
   <!-- SEGMENTS -->
   <h2>Segments</h2>
@@ -271,8 +263,6 @@
         if (!d || !d.ok) throw new Error(d && d.message || 'CRM endpoint returned an error.');
         setLoaded('kpi-contacts', d.contacts.total);
         setLoaded('kpi-paying', d.contacts.paying, d.contacts.paying + ' of ' + d.contacts.total + ' total contacts');
-        setLoaded('kpi-mrr', fmtMoney(d.revenue.mrr_usd));
-        setLoaded('kpi-ltv', fmtMoney(d.revenue.ltv_90d_usd));
 
         setLoaded('kpi-dau', d.active.dau);
         setLoaded('kpi-wau', d.active.wau);
@@ -286,8 +276,6 @@
         renderLeads(d.hot_leads || []);
         renderCohorts(d.cohorts || []);
 
-        setLoaded('kpi-churn', fmtPct(d.churn.logo_pct));
-        setLoaded('kpi-rev-churn', fmtPct(d.churn.revenue_pct));
         setLoaded('kpi-arpu', fmtMoney(d.revenue.arpu_usd));
         setLoaded('kpi-conv-rate', fmtPct(d.revenue.free_to_paid_pct));
 
@@ -302,7 +290,7 @@
       .catch(function (err) {
         // When the endpoint isn't ready, show a clear hint on every
         // tile so the operator knows what's missing.
-        ['kpi-contacts','kpi-paying','kpi-mrr','kpi-ltv','kpi-dau','kpi-wau','kpi-mau','kpi-signups-day','kpi-signups-week','kpi-signups-month','kpi-churn','kpi-rev-churn','kpi-arpu','kpi-conv-rate']
+        ['kpi-contacts','kpi-paying','kpi-arpu','kpi-conv-rate','kpi-dau','kpi-wau','kpi-mau','kpi-signups-day','kpi-signups-week','kpi-signups-month']
           .forEach(function (id) {
             var el = $(id); if (!el) return;
             el.textContent = 'pending';

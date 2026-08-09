@@ -40,14 +40,14 @@
 
 <div class="shell">
   <h1>Growth</h1>
-  <p class="lede">Signups, activations, MRR/ARR, churn, the conversion funnel. <span class="ts" id="adm-last-loaded"></span></p>
+  <p class="lede">Signups, activations, churn, and the conversion funnel. <span class="ts" id="adm-last-loaded"></span></p>
   <div id="adm-error" class="status-banner is-error" style="display:none;"></div>
 
   <h2>KPIs</h2>
   <div class="grid-4">
     <div class="card"><div class="label">Legacy annual subscribers</div><div class="value skel skel-value" id="m-subs">…</div><div class="sub">Consumer Annual retired 2026-05-25</div></div>
-    <div class="card"><div class="label">MRR (cents)</div><div class="value skel skel-value" id="m-mrr">…</div><div class="sub">Per-decision only · zero recurring</div></div>
-    <div class="card"><div class="label">ARR (cents)</div><div class="value skel skel-value" id="m-arr">…</div><div class="sub">Per-decision only · zero recurring</div></div>
+    <div class="card"><div class="label">Signups (90d)</div><div class="value skel skel-value" id="m-signups-90">…</div><div class="sub">free + paid, last 90 days</div></div>
+    <div class="card"><div class="label">Paid signups (90d)</div><div class="value skel skel-value" id="m-paid-90">…</div><div class="sub">paid, last 90 days</div></div>
     <div class="card"><div class="label">30-day churn</div><div class="value skel skel-value" id="m-churn">…</div><div class="sub" id="m-churn-sub">As a percent of 30d-ago active</div></div>
   </div>
 
@@ -79,8 +79,9 @@
       // Remove skeleton shimmer once data lands
       document.querySelectorAll('.skel').forEach(function (el) { el.classList.remove('skel', 'skel-value'); });
       $('m-subs').textContent = d.mrr.active_subscribers;
-      $('m-mrr').textContent = '$' + fmtCents(d.mrr.mrr_cents) + ' USD';
-      $('m-arr').textContent = '$' + fmtCents(d.mrr.arr_cents) + ' USD';
+      var s90 = (d.signups_daily || []).reduce(function (a, r) { return { free: a.free + (r.free || 0), paid: a.paid + (r.paid || 0) }; }, { free: 0, paid: 0 });
+      $('m-signups-90').textContent = (s90.free + s90.paid);
+      $('m-paid-90').textContent = s90.paid;
       $('m-churn').textContent = d.churn_30d.percent + ' %';
       $('m-churn-sub').textContent = d.churn_30d.deleted_30d + ' deleted of ' + d.churn_30d.baseline + ' baseline';
 

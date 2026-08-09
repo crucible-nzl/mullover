@@ -1408,8 +1408,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </section>
 
-<section class="product-cards-band">
-  <div class="product-cards-inner">
+<!-- ABOVE-THE-FOLD HERO SPLIT · Decision card (left) + the method chart
+     (right) sit side by side so the product and the proof land together
+     before any scroll. Stacks on narrow viewports. -->
+<section class="hero-split">
+  <div class="hero-split-inner">
+    <div class="hero-left">
 
     <!-- DECISION CARD · Counsel.day -->
     <article class="product-card">
@@ -1424,20 +1428,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="pc-price">From <strong>$9.99 USD</strong> per decision · first Solo decision <span style="color: var(--wine);">free</span></div>
       <div class="pc-cta">
         <a href="signup.html" class="btn btn-large">Start a decision</a>
-        <a href="#how" class="btn-text">See how it works</a>
+        <a href="how-it-works.html" class="btn-text">See how it works</a>
       </div>
     </article>
 
-  </div>
-</section>
-
-<!-- HOW IT WORKS · the diagram, moved out of the hero ·
-     opt-in scroll for visitors who want the visual proof. -->
-<section class="how-band" id="how">
-  <div class="how-inner">
-    <div class="how-eyebrow">HOW IT WORKS</div>
-    <h2 class="how-title">A picture of <span class="ital">the method.</span></h2>
-    <p class="how-lede">Sealed votes that you cannot re-read, opening on a fixed schedule with a verdict that reads the whole arc. You set the length of the schedule · anywhere from a week to ninety days.</p>
+    </div>
+    <div class="hero-right" id="how">
+      <div class="how-eyebrow">HOW IT WORKS</div>
+      <h2 class="how-title">A picture of <span class="ital">the method.</span></h2>
 
     <div class="how-grid">
       <figure class="how-figure">
@@ -1557,6 +1555,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </figure>
 
     </div>
+    </div>
   </div>
 </section>
 <style>
@@ -1582,9 +1581,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   .intro-lede { font-family: var(--font-body); font-size: 17px; line-height: 1.45; color: var(--ink-soft); margin: 0 auto; max-width: 1080px; }
   .intro-lede strong { color: var(--ink); font-weight: 500; }
 
-  /* PRODUCT CARD · one clean card, centred · above the fold */
-  .product-cards-band { padding: 14px 28px 36px; background: var(--paper); border-bottom: 1px solid var(--rule); }
-  .product-cards-inner { max-width: 720px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 22px; }
+  /* HERO SPLIT · above the fold · Decision card (left) + method chart (right) */
+  .hero-split { padding: 8px 28px 40px; background: var(--paper); border-bottom: 1px solid var(--rule); }
+  .hero-split-inner { max-width: 1620px; margin: 0 auto; display: grid; grid-template-columns: minmax(340px, 460px) 1fr; gap: 44px; align-items: center; }
+  .hero-left { display: flex; }
+  .hero-left .product-card { width: 100%; }
+  .hero-right { min-width: 0; }
+  .hero-right .how-eyebrow { text-align: left; margin-bottom: 12px; }
+  .hero-right .how-title { text-align: left; font-size: clamp(26px, 2.6vw, 40px); margin: 0 0 22px; }
+
+  /* PRODUCT CARD · sits in the left hero column */
   .product-card { border: 1px solid var(--ink); background: var(--paper); padding: 24px 28px 28px; display: flex; flex-direction: column; }
   .product-card .pc-kicker { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink); margin-bottom: 10px; }
   .product-card .pc-name { font-family: var(--font-display); font-weight: 400; font-size: clamp(26px, 2.6vw, 34px); line-height: 1.05; letter-spacing: -0.012em; color: var(--ink); margin: 0 0 6px; }
@@ -1612,11 +1618,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   .how-figure .dh-figure svg { width: 100%; height: auto; display: block; }
 
   @media (max-width: 900px) {
-    .product-cards-inner { grid-template-columns: 1fr; gap: 18px; }
+    .hero-split-inner { grid-template-columns: 1fr; gap: 26px; }
+    .hero-right .how-eyebrow, .hero-right .how-title { text-align: center; }
     .product-card { padding: 22px 22px 26px; }
     .intro-band { padding: 22px 18px 10px; }
-    .product-cards-band { padding: 10px 18px 36px; }
-    .how-band { padding: 48px 18px 56px; }
+    .hero-split { padding: 6px 18px 32px; }
     .how-figure { padding: 22px 18px 26px; }
   }
 </style>

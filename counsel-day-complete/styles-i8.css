@@ -1491,7 +1491,7 @@ section { padding: 30px 32px; border-bottom: 1px solid var(--rule); }
 .u-flex-col { display: flex; flex-direction: column; gap: 12px; }
 
 /* ---------- TASK 1 · mobile vertical-padding compaction (2026-06-06) ----------
-   Account, decisions, vault, journal, inbox stacked sections were
+   Account, decisions, inbox stacked sections were
    inheriting 30px-stage padding from the marketing surface, which made
    each section feel disconnected on a phone. Cut to 14px on mobile so
    sections still read as distinct but don't waste two thumb-scrolls

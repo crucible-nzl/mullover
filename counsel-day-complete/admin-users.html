@@ -172,7 +172,6 @@
   <a href="/admin-practitioners.html">Practitioners</a>
   <a href="/admin-practitioner-pipeline.html">Pipeline</a>
   <a href="/admin-products.html">Products</a>
-  <a href="/admin-journal.html">Journal</a>
   <a href="/admin-growth.html">Growth</a>
   <a href="/admin-engagement.html">Engagement</a>
   <a href="/admin-traffic.html">Traffic</a>
@@ -182,7 +181,6 @@
   <a href="/admin-database.html">Database</a>
     <a href="/admin-diagnostics.html">Diagnostics</a>
   <a href="/admin-testing-area.html">Testing area</a>
-  <a href="/admin-journal-testing.html">Journal testing</a>
 </nav>
 
 <div class="shell">
@@ -460,18 +458,12 @@
               rowHtml('Last active', fmtTs(s.last_active_at)) +
               rowHtml('Deleted', p.deleted_at ? fmtTs(p.deleted_at) : '·') +
             '</div>' +
-            '<div><h3 style="font-family: var(--font-ui); font-size: 13px; margin: 0 0 10px; color: var(--ink);">Security · Billing · Counsel Journal</h3>' +
+            '<div><h3 style="font-family: var(--font-ui); font-size: 13px; margin: 0 0 10px; color: var(--ink);">Security · Billing</h3>' +
               rowHtml('MFA enabled', p.mfa_enabled ? ('yes · ' + fmtTs(p.mfa_enabled_at)) : 'no') +
               rowHtml('MFA last used', fmtTs(p.mfa_last_used_at)) +
               rowHtml('Stripe customer', stripeLink) +
               rowHtml('Lifetime decisions', s.decision_count) +
               rowHtml('Lifetime spend', spend) +
-              rowHtml('Counsel Journal sub', (function () {
-                if (!p.daily_pro_status || p.daily_pro_status === 'none') return 'not subscribed';
-                var until = p.daily_pro_current_period_end ? (' · until ' + fmtTs(p.daily_pro_current_period_end)) : '';
-                return '<span style="color: var(--accent);">' + escapeHtml(p.daily_pro_status) + '</span>' + until;
-              })()) +
-              rowHtml('Journal entries · last 30d', s.daily_entries_30d != null ? s.daily_entries_30d : '·') +
             '</div></div>' +
             compBlock +
             '<h3 style="font-family: var(--font-ui); font-size: 13px; margin: 18px 0 8px; color: var(--ink);">Recent decisions · ' + d.decisions.length + '</h3>' +

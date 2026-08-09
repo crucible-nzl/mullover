@@ -30,7 +30,6 @@ The product is global, priced in USD. Per-decision only: Solo $9.99 USD, Couple 
 
 ## Editorial
 
-- [Journal · The Tuesday/Thursday problem](https://counsel.day/journal/the-tuesday-thursday-problem.html): why the answer you give on different days is the data, not the noise.
 - [Changelog](https://counsel.day/changelog.html): public product history.
 - [About James Graham](https://counsel.day/about/james-graham.html): founder, professional background, disclaimers (not a clinician).
 

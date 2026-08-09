@@ -14,12 +14,9 @@
  *                       to avoid blowing the rate limit)
  *  · anthropic        · ANTHROPIC_API_KEY presence + recent successful
  *                       call from the anthropic_calls ledger (last 24h)
- *  · r2_audio         · R2 credentials + bucket env presence
- *  · whisper          · WHISPER_API_KEY presence
+ *  · recording        · OPENAI_API_KEY presence (Whisper voice input)
  *  · email            · BREVO_API_KEY presence
  *  · ga4              · NEXT_PUBLIC_GA4_ID configured (placeholder counts)
- *  · journal          · journal_entries table reachable + recent activity
- *  · vault_playback   · the playback endpoint is defined (presence check)
  *
  * Each service returns { id, name, what_it_does, status, last_checked,
  * note? }. Status is one of: 'operational' | 'degraded' | 'down' |
@@ -60,12 +57,6 @@ export async function GET() {
     return 'operational' as ServiceStatus;
   }, 'down');
 
-  // ---- journal: are entries reachable? ----
-  const journalStatus: ServiceStatus = await safeCheck(async () => {
-    await db.execute(sql`SELECT 1 FROM journal_entries LIMIT 1`);
-    return 'operational' as ServiceStatus;
-  }, dbStatus === 'down' ? 'down' : 'degraded');
-
   // ---- anthropic ledger: any successful call in the last 24h? ----
   let anthropicStatus: ServiceStatus = 'operational';
   let anthropicNote: string | undefined;
@@ -100,7 +91,7 @@ export async function GET() {
     {
       id: 'api',
       name: 'Application API',
-      what_it_does: 'The signed-in product · evening vote, dashboard, verdict view, Journal entry filing.',
+      what_it_does: 'The signed-in product · evening vote, dashboard, verdict view.',
       status: 'operational',
       last_checked: now,
     },
@@ -122,7 +113,7 @@ export async function GET() {
     {
       id: 'stripe',
       name: 'Payments (Stripe)',
-      what_it_does: 'Subscription billing for Counsel Journal · per-decision payments at compose · receipts and Stripe portal.',
+      what_it_does: 'Per-decision payments at compose · receipts and Stripe portal.',
       status: env.STRIPE_SECRET_KEY ? 'operational' : 'unconfigured',
       last_checked: now,
       note: !env.STRIPE_SECRET_KEY ? 'STRIPE_SECRET_KEY not set' : undefined,
@@ -138,40 +129,18 @@ export async function GET() {
     {
       id: 'verdict',
       name: 'Verdict pipeline (Claude Opus 4.7)',
-      what_it_does: 'The analysis run that opens the verdict at the end of a decision · plus weekly + monthly Counsel Journal verdicts.',
+      what_it_does: 'The analysis run that opens the verdict at the end of a decision.',
       status: anthropicStatus,
       last_checked: now,
       note: anthropicNote,
     },
     {
-      id: 'journal',
-      name: 'Counsel Journal',
-      what_it_does: 'Nightly entry filing, seven-day seal, Monday weekly verdicts, monthly themed verdicts.',
-      status: journalStatus,
-      last_checked: now,
-    },
-    {
-      id: 'vault',
-      name: 'Journal vault · audio playback',
-      what_it_does: 'Replay of unsealed journal entries · short-lived signed R2 URLs minted per playback request.',
-      status: (env.R2_ENDPOINT && env.R2_ACCESS_KEY_ID && env.R2_SECRET_ACCESS_KEY && env.R2_BUCKET) ? 'operational' : 'unconfigured',
-      last_checked: now,
-      note: (!env.R2_ENDPOINT || !env.R2_BUCKET) ? 'R2 endpoint/bucket not configured · audio entries can be filed but playback returns 503 until set' : undefined,
-    },
-    {
       id: 'recording',
       name: 'Voice transcription (Whisper)',
-      what_it_does: 'Speech-to-text for Counsel Journal voice entries · audio uploaded, transcribed, then transcript persisted with the entry.',
+      what_it_does: 'Speech-to-text for voice input on compose and the evening vote · audio transcribed, then discarded.',
       status: env.OPENAI_API_KEY ? 'operational' : 'unconfigured',
       last_checked: now,
-      note: !env.OPENAI_API_KEY ? 'OPENAI_API_KEY not set · voice entries fall back to typed entry' : undefined,
-    },
-    {
-      id: 'r2',
-      name: 'Cloudflare R2 audio storage',
-      what_it_does: 'S3-compatible object storage for Counsel Journal audio files · no egress fees · encrypted at rest.',
-      status: (env.R2_ENDPOINT && env.R2_BUCKET) ? 'operational' : 'unconfigured',
-      last_checked: now,
+      note: !env.OPENAI_API_KEY ? 'OPENAI_API_KEY not set · voice input falls back to typing' : undefined,
     },
     {
       id: 'ga4',
@@ -184,7 +153,7 @@ export async function GET() {
     {
       id: 'cron',
       name: 'Cron jobs · verdict generation',
-      what_it_does: 'Background runs · daily evening prompt dispatch, Sunday-evening weekly verdict generation, first-Monday monthly verdict generation, session purge, invite expiry.',
+      what_it_does: 'Background runs · daily evening prompt dispatch, verdict generation at decision close, session purge, invite expiry, weekly ops digest.',
       status: 'operational',
       last_checked: now,
       note: 'Run health is observable on the box · systemd timers + journalctl',

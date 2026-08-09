@@ -61,7 +61,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
 
 <title>Inbox · Counsel.day</title>
-<meta name="description" content="Every verdict ready to read · weekly Journal verdicts, monthly themed verdicts, and Decision verdicts as they close.">
+<meta name="description" content="Every verdict ready to read · your Decision verdicts as they close, newest first.">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#ffffff">
 <link rel="icon" href="/favicon.ico" sizes="any">
@@ -71,8 +71,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <link rel="stylesheet" href="/fonts/fonts.css">
 <link rel="stylesheet" href="styles-i8.css">
 <style>
-  /* B5 · Inbox layout · single column of cards · newest first ·
-     decision and journal items distinguished by left-rail colour. */
+  /* B5 · Inbox layout · single column of Decision verdict cards ·
+     newest first · distinguished by left-rail colour. */
   .ibx-shell { max-width: 1080px; margin: 0 auto; padding: 30px 32px 60px; }
   .ibx-head { padding-bottom: 22px; border-bottom: 1px solid var(--ink); margin-bottom: 28px; }
   .ibx-head .ttl { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine); margin-bottom: 12px; }
@@ -133,8 +133,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="nav-links" id="cd-nav-links">
       <a href="decisions.html">Your decisions</a>
       <a href="vote-today.html">Tonight's vote</a>
-      <a href="journal.html">Journal</a>
-      <a href="vault.html">Vault</a>
       <a href="inbox.html">Inbox</a>
       <a href="compose.html">Compose</a>
       <a href="account.html">Account</a>
@@ -153,16 +151,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <main id="main-content" class="ibx-shell">
 
   <div class="ibx-head">
-    <div class="ttl">YOUR INBOX · VERDICTS ACROSS BOTH PRODUCTS</div>
+    <div class="ttl">YOUR INBOX · EVERY DECISION VERDICT</div>
     <h1>Everything that's <span class="ital">opened</span> for you.</h1>
-    <p class="sub">Every Decision verdict and every Counsel Journal weekly + monthly verdict, newest first. Click any card to read it in full. Older verdicts stay forever · this is the spine of your Counsel.day history.</p>
+    <p class="sub">Every Decision verdict, newest first. Click any card to read it in full. Older verdicts stay forever · this is the spine of your Counsel.day history.</p>
   </div>
 
   <div class="ibx-filter" role="tablist" aria-label="Filter inbox">
     <button type="button" data-filter="all" class="is-on" role="tab" aria-selected="true">All</button>
     <button type="button" data-filter="decision" role="tab" aria-selected="false">Decision verdicts</button>
-    <button type="button" data-filter="journal_weekly" role="tab" aria-selected="false">Journal · weekly</button>
-    <button type="button" data-filter="journal_monthly" role="tab" aria-selected="false">Journal · monthly</button>
   </div>
 
   <div id="ibx-list" class="ibx-list">
@@ -179,13 +175,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="colophon-top">
       <div>
         <div class="colophon-brand">Counsel<span class="tld">.day</span></div>
-        <p class="colophon-tagline">Two products. Counsel.day Decision is for solo, couples, and families facing a hard joint decision · one private vote each evening on the same question, for a duration you set, sealed until the final day. Counsel Journal is the standalone reflection tool · one minute every evening, a verdict on Monday, a themed verdict every month. Worldwide, priced in USD.</p>
+        <p class="colophon-tagline">Counsel.day is for solo, couples, and families facing a hard joint decision · one private vote each evening on the same question, for a duration you set, sealed until the final day. Worldwide, priced in USD.</p>
       </div>
       <div class="colophon-col">
         <h5>The app</h5>
         <a href="decisions.html">Your decisions</a>
         <a href="vote-today.html">Tonight's vote</a>
-        <a href="journal.html">Journal</a>
         <a href="compose.html">Compose</a>
         <a href="account.html">Your account</a>
         <a href="billing.html">Billing</a>
@@ -196,12 +191,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <a href="why-time.html">Why time</a>
         <a href="verdict.html">A real verdict</a>
         <a href="pricing.html">Pricing</a>
-      </div>
-      <div class="colophon-col">
-        <h3 class="colophon-col-h">Counsel Journal</h3>
-        <a href="journal.html">Open the Journal</a>
-        <a href="journal.html#about">What it is</a>
-        <a href="pricing.html#the-daily">Pricing</a>
       </div>
       <div class="colophon-col">
         <h5>Support</h5>
@@ -252,24 +241,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   function applyFilter() {
     var filtered = state.filter === 'all'
       ? state.items
-      : state.items.filter(function (it) {
-          if (state.filter === 'decision') return it.kind === 'decision_verdict';
-          return it.kind === state.filter;
-        });
+      : state.items.filter(function (it) { return it.kind === 'decision_verdict'; });
     if (filtered.length === 0) {
-      listEl.innerHTML = '<div class="ibx-empty"><h2>No verdicts yet.</h2><p>Your Decision verdicts and Counsel Journal verdicts will appear here as they ship. <a href="decisions.html" class="u-wine-link">Open a decision</a> or <a href="journal.html" class="u-wine-link">file a journal entry</a> to get started.</p></div>';
+      listEl.innerHTML = '<div class="ibx-empty"><h2>No verdicts yet.</h2><p>Your Decision verdicts will appear here as they ship. <a href="decisions.html" class="u-wine-link">Open a decision</a> to get started.</p></div>';
       return;
     }
     listEl.innerHTML = filtered.map(function (it) {
-      var label = it.kind === 'decision_verdict' ? 'DECISION · VERDICT'
-                : it.kind === 'journal_monthly'  ? 'COUNSEL JOURNAL · MONTHLY THEMED'
-                : 'COUNSEL JOURNAL · WEEKLY';
-      var modClass = it.kind === 'decision_verdict' ? ' is-decision'
-                   : it.kind === 'journal_monthly'  ? ' is-monthly'
-                   : '';
-      return '<a class="ibx-card' + modClass + '" href="' + esc(it.link) + '">' +
+      return '<a class="ibx-card is-decision" href="' + esc(it.link) + '">' +
         '<div class="ibx-card-head">' +
-          '<span class="ibx-card-kind">' + label + '</span>' +
+          '<span class="ibx-card-kind">DECISION · VERDICT</span>' +
           '<span class="ibx-card-when">' + esc(fmtWhen(it.generated_at)) + '</span>' +
         '</div>' +
         '<h2 class="ibx-card-title">' + esc(it.title) + '</h2>' +

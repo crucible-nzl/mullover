@@ -71,7 +71,6 @@
   <a href="/admin-practitioners.html">Practitioners</a>
   <a href="/admin-practitioner-pipeline.html">Pipeline</a>
   <a href="/admin-products.html">Products</a>
-  <a href="/admin-journal.html">Journal</a>
   <a href="/admin-growth.html">Growth</a>
   <a href="/admin-engagement.html">Engagement</a>
   <a href="/admin-traffic.html">Traffic</a>
@@ -83,7 +82,6 @@
   <a href="/admin-database.html">Database</a>
   <a href="/admin-diagnostics.html">Diagnostics</a>
   <a href="/admin-testing-area.html">Testing</a>
-  <a href="/admin-journal-testing.html">Journal testing</a>
 </nav>
 
 <div class="shell">
@@ -95,7 +93,7 @@
   <div class="crm-grid-4">
     <div class="crm-card is-loading"><div class="lbl">Total contacts</div><div class="v" id="kpi-contacts">·</div><div class="sub" id="kpi-contacts-sub">all signed-in users + waitlist</div></div>
     <div class="crm-card is-loading"><div class="lbl">Paying customers</div><div class="v" id="kpi-paying">·</div><div class="sub" id="kpi-paying-sub">at least one paid decision or active Pro sub</div></div>
-    <div class="crm-card is-loading"><div class="lbl">MRR</div><div class="v" id="kpi-mrr">·</div><div class="sub" id="kpi-mrr-sub">Counsel Journal recurring revenue</div></div>
+    <div class="crm-card is-loading"><div class="lbl">MRR</div><div class="v" id="kpi-mrr">·</div><div class="sub" id="kpi-mrr-sub">No recurring product · per-decision billing</div></div>
     <div class="crm-card is-loading"><div class="lbl">LTV (rolling 90d)</div><div class="v" id="kpi-ltv">·</div><div class="sub" id="kpi-ltv-sub">avg revenue per paying contact</div></div>
   </div>
 
@@ -141,7 +139,7 @@
   <!-- RETENTION COHORTS -->
   <h2>Retention cohorts · monthly</h2>
   <section class="crm-section">
-    <p class="lede">Each row is the cohort of users who signed up in that month. Each column shows the % of that cohort that came back N months later (active = at least one session, decision compose, or Journal entry).</p>
+    <p class="lede">Each row is the cohort of users who signed up in that month. Each column shows the % of that cohort that came back N months later (active = at least one session or decision compose).</p>
     <div style="overflow-x: auto;">
       <table class="cohort-tbl" id="cohort-tbl">
         <thead><tr id="cohort-head"><th>Cohort</th><th>Size</th><th>M0</th><th>M1</th><th>M2</th><th>M3</th><th>M4</th><th>M5</th></tr></thead>
@@ -163,12 +161,10 @@
   <h2>Segments</h2>
   <div class="crm-grid-2">
     <section class="crm-section">
-      <h2 style="font-size: 14px; margin-bottom: 4px;">By product engagement</h2>
-      <p class="lede">Which slice of the user base is using which product.</p>
+      <h2 style="font-size: 14px; margin-bottom: 4px;">By engagement</h2>
+      <p class="lede">Which slice of the user base has composed a decision.</p>
       <ul style="list-style: none; padding: 0; margin: 0; font-family: var(--font-ui); font-size: 14px;">
-        <li style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dotted var(--rule);"><span>Decision-only users</span><strong id="seg-decision-only">·</strong></li>
-        <li style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dotted var(--rule);"><span>Journal-only users</span><strong id="seg-journal-only">·</strong></li>
-        <li style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dotted var(--rule);"><span>Both products</span><strong id="seg-both">·</strong></li>
+        <li style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dotted var(--rule);"><span>Decision users</span><strong id="seg-decision-only">·</strong></li>
         <li style="display: flex; justify-content: space-between; padding: 6px 0;"><span>Inactive (no activity in 60d)</span><strong id="seg-inactive">·</strong></li>
       </ul>
     </section>
@@ -296,8 +292,6 @@
         setLoaded('kpi-conv-rate', fmtPct(d.revenue.free_to_paid_pct));
 
         $('seg-decision-only').textContent = d.segments.decision_only;
-        $('seg-journal-only').textContent  = d.segments.journal_only;
-        $('seg-both').textContent          = d.segments.both;
         $('seg-inactive').textContent      = d.segments.inactive_60d;
 
         $('acq-direct').textContent       = d.acquisition.direct;

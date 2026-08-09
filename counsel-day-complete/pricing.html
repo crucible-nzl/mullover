@@ -102,8 +102,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         { "@type": "Offer", "name": "Solo · first decision", "price": "0", "priceCurrency": "USD", "category": "Free · first lifetime Solo decision", "availability": "https://schema.org/InStock", "image": "https://counsel.day/og-image.png", "url": "https://counsel.day/signup", "hasMerchantReturnPolicy": { "@id": "https://counsel.day/refunds#policy" } },
         { "@type": "Offer", "name": "Solo · additional decision", "price": "9.99", "priceCurrency": "USD", "category": "Per paid decision · one participant", "availability": "https://schema.org/InStock", "image": "https://counsel.day/og-image.png", "url": "https://counsel.day/pricing", "hasMerchantReturnPolicy": { "@id": "https://counsel.day/refunds#policy" } },
         { "@type": "Offer", "name": "Couple", "price": "15.99", "priceCurrency": "USD", "category": "Per paid decision · two participants", "availability": "https://schema.org/InStock", "image": "https://counsel.day/og-image.png", "url": "https://counsel.day/pricing", "hasMerchantReturnPolicy": { "@id": "https://counsel.day/refunds#policy" } },
-        { "@type": "Offer", "name": "Family", "price": "29.99", "priceCurrency": "USD", "category": "Per paid decision · three to six participants", "availability": "https://schema.org/InStock", "image": "https://counsel.day/og-image.png", "url": "https://counsel.day/pricing", "hasMerchantReturnPolicy": { "@id": "https://counsel.day/refunds#policy" } },
-        { "@type": "Offer", "name": "Counsel Journal", "price": "4.99", "priceCurrency": "USD", "category": "Monthly subscription · evening reflection journal", "availability": "https://schema.org/InStock", "image": "https://counsel.day/og-image.png", "url": "https://counsel.day/journal.html", "priceSpecification": { "@type": "UnitPriceSpecification", "price": "4.99", "priceCurrency": "USD", "billingIncrement": 1, "billingDuration": "P1M", "unitCode": "MON" }, "hasMerchantReturnPolicy": { "@id": "https://counsel.day/refunds#policy" } }
+        { "@type": "Offer", "name": "Family", "price": "29.99", "priceCurrency": "USD", "category": "Per paid decision · three to six participants", "availability": "https://schema.org/InStock", "image": "https://counsel.day/og-image.png", "url": "https://counsel.day/pricing", "hasMerchantReturnPolicy": { "@id": "https://counsel.day/refunds#policy" } }
       ]
     },
     {
@@ -211,7 +210,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <a class="nav-brand" href="index.html" aria-label="Counsel.day home">Counsel<span class="tld">.day</span></a>
         <div class="nav-links" id="cd-nav-links">
       <a href="how-it-works.html">How it works</a>
-      <a href="journal.html">Journal</a>
       <a href="counsellors.html">For Practitioners</a>
       <a href="pricing.html">Pricing</a>
       <a href="faq.html">FAQ</a>
@@ -235,7 +233,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- TASK 8 · Signed-in banner. Hidden by default. JS fills it with
          "You are on [plan]" + a quick link to /account.html. We do NOT
          hide the rest of the page · paying users still need to compare
-         tiers / see Journal pricing while they read about Decision. -->
+         tiers while they read about Decision. -->
     <div id="pr-signed-in-banner" class="pr-signed-in-banner" style="display: none;" role="status" aria-live="polite">
       <div class="pr-banner-pill" id="pr-banner-pill">YOUR PLAN</div>
       <div class="pr-banner-body">
@@ -248,39 +246,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
 
     <header class="method-page-head">
-      <div class="method-page-eyebrow">WORLDWIDE IN USD · TWO PRODUCTS, TWO PRICING MODELS</div>
-      <h1 class="method-page-title">Two products. <span class="ital">Two prices.</span></h1>
-      <p class="method-page-lede"><strong>Counsel.day Decision</strong> is paid <strong>once per decision</strong>, no subscription · first Solo decision free; Solo paid $9.99 USD, Couple $15.99 USD, Family $29.99 USD. <strong>Counsel Journal</strong> is a separate <strong>standalone product</strong> · a single $4.99 USD/month subscription that includes the nightly entry, weekly Monday verdict, monthly themed verdict, and unlimited history. Pay for whichever fits the question; both billed in US dollars.</p>
+      <div class="method-page-eyebrow">WORLDWIDE IN USD · NO SUBSCRIPTION</div>
+      <h1 class="method-page-title">Priced per <span class="ital">decision.</span></h1>
+      <p class="method-page-lede"><strong>Counsel.day</strong> is paid <strong>once per decision</strong>, with no subscription · the first Solo decision is free; Solo paid $9.99 USD, Couple $15.99 USD, Family $29.99 USD. You pay only for the decision in front of you, billed in US dollars.</p>
       <div class="method-page-meta">
         <div class="item"><span>Currency</span><span class="val wine">USD worldwide</span></div>
-        <div class="item"><span>Decision</span><span class="val">Once per decision</span></div>
-        <div class="item"><span>Journal</span><span class="val">$4.99 USD/month</span></div>
+        <div class="item"><span>Billing</span><span class="val">Once per decision</span></div>
         <div class="item"><span>Trial</span><span class="val">First Solo decision · free</span></div>
-      </div>
-
-      <!-- TWO-PRODUCT JUMP NAV · visible above the fold so visitors land
-           on the band that matches what they're shopping for. -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 32px;">
-        <a href="#per-decision" style="text-decoration: none; padding: 22px 24px; border: 1px solid var(--ink); background: var(--paper); display: flex; flex-direction: column; color: var(--ink); transition: background 120ms ease;">
-          <div style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin-bottom: 10px;">Product 01 · Decision tool</div>
-          <h3 style="font-family: var(--font-display); font-weight: 400; font-size: 22px; line-height: 1.15; margin: 0 0 8px;">Counsel.day <span style="font-style: italic; color: var(--wine);">Decision</span></h3>
-          <p style="font-family: var(--font-body); font-size: 14px; line-height: 1.5; color: var(--ink-soft); margin: 0 0 12px;">For the hard joint decision. One verdict at the close. Pay-as-you-go.</p>
-          <div style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; color: var(--ink); border-top: 1px solid var(--rule); padding-top: 10px; margin-top: auto;"><strong>From $9.99 USD</strong> per decision · first Solo decision <span style="color: var(--wine);">free</span></div>
-        </a>
-        <a href="#the-daily" style="text-decoration: none; padding: 22px 24px; border: 1px solid var(--ink); background: var(--paper); display: flex; flex-direction: column; color: var(--ink); transition: background 120ms ease;">
-          <div style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin-bottom: 10px;">Product 02 · Reflection journal</div>
-          <h3 style="font-family: var(--font-display); font-weight: 400; font-size: 22px; line-height: 1.15; margin: 0 0 8px;">Counsel <span style="font-style: italic; color: var(--wine);">Journal</span></h3>
-          <p style="font-family: var(--font-body); font-size: 14px; line-height: 1.5; color: var(--ink-soft); margin: 0 0 12px;">For the everyday signal. Weekly + monthly verdicts. Standalone product.</p>
-          <div style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; color: var(--ink); border-top: 1px solid var(--rule); padding-top: 10px; margin-top: auto;"><strong>$4.99 USD / month</strong> · cancel any time</div>
-        </a>
       </div>
     </header>
 
     <!-- H6 · 60-second product video · seal-then-reveal mechanism.
          Best converter for any product like this · the explanation is
-         hard in text. Sits between the two-product jump nav and the
-         pricing detail bands so a cold visitor sees the mechanism in
-         motion before they decide which tier to read about.
+         hard in text. Sits between the page header and the pricing
+         detail bands so a cold visitor sees the mechanism in motion
+         before they decide which tier to read about.
          The <video> element is wired with native controls, a poster
          frame, and a transcript drawer below for accessibility. Drop
          your recording into /counsel-day-complete/seal-then-reveal.mp4
@@ -319,11 +299,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </section>
 
     <!-- ============================================================ -->
-    <!-- PRODUCT 01 · PER-DECISION PRICING                             -->
+    <!-- PER-DECISION PRICING                                          -->
     <!-- ============================================================ -->
     <section class="method-stage" id="per-decision">
       <div class="method-stage-head">
-        <div class="method-stage-eyebrow">PRODUCT 01 · COUNSEL.DAY DECISION · PAY PER DECISION</div>
+        <div class="method-stage-eyebrow">COUNSEL.DAY DECISION · PAY PER DECISION</div>
         <h2 class="method-stage-title">Charged once, on the day you <span class="ital">compose.</span></h2>
       </div>
       <p class="method-stage-body" style="margin-bottom: 28px;">Use this if you have a small number of decisions to run. The full verdict (five-layer analysis plus AI-written synthesis paragraph) is included on every paid tier. Solo Free ships with a Python-only numerical summary so the free tier is genuinely free.</p>
@@ -503,22 +483,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </section>
 
     <!-- ============================================================ -->
-    <!-- PRODUCT 02 · COUNSEL JOURNAL · the second product, with its own subscription -->
-    <!-- ============================================================ -->
-    <section class="method-stage" id="the-daily" style="border-top: 2px solid var(--ink); padding-top: 36px; margin-top: 50px;">
-      <div class="method-stage-head">
-        <div class="method-stage-eyebrow" style="color: var(--wine);">PRODUCT 02 · COUNSEL JOURNAL · MONTHLY SUBSCRIPTION</div>
-        <h2 class="method-stage-title">Counsel Journal <span class="ital">stands alone.</span></h2>
-      </div>
-      <div class="method-stage-body">
-        <p>The flagship Decision tool is paid per decision (above). <strong>Counsel Journal</strong> is a fully separate standalone product · the evening reflection journal that runs on its own. Type or speak for thirty to a hundred-and-eighty seconds each evening about today, the entry seals for seven days, and each Sunday a Monday-morning verdict ships on the past week.</p>
-        <p><strong>$4.99 USD / month.</strong> One price. One subscription. Everything Counsel Journal does sits inside it: the nightly entry (text or voice), the seven-day seal, the weekly Monday verdict, the monthly themed verdict on the first Monday of every month that reads the last four weekly verdicts together, and unlimited history. <strong>Cancel any time</strong> from the billing portal; the subscription stops at the end of the current period and you keep access until then.</p>
-        <p style="font-style: italic; color: var(--muted); font-size: 14px;">Note: if you're using both products, your active Counsel.day Decisions get their own daily reflection thread inside the Decision tool · that's free with any active decision and is separate from the Counsel Journal subscription.</p>
-        <p style="margin-top: 22px;"><a href="signup.html?product=journal" class="btn" class="u-btn-wine">Subscribe to Counsel Journal</a></p>
-      </div>
-    </section>
-
-    <!-- ============================================================ -->
     <!-- FAQ                                                           -->
     <!-- ============================================================ -->
     <section class="method-stage" id="pricing-faq">
@@ -605,7 +569,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <a href="press.html">Press</a>
         <a href="status.html">Status</a>
         <a href="changelog.html">Changelog</a>
-        <a href="journal.html">Counsel Journal</a>
         <a href="faq.html">FAQ</a>
         <a href="account.html">Your account</a>
         <a href="mailto:press@counsel.day">Press</a>
@@ -641,24 +604,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       var line = document.getElementById('pr-banner-line');
       var line2 = document.getElementById('pr-banner-line-2');
       var first = u.first_name ? (u.first_name + ', here is') : 'Here is';
-      // Three tiered states. Comped > Paid > Free.
+      // Two tiered states. Comped > Pay-per-decision.
       if (u.comp_unlimited) {
-        pill.textContent = 'COMPED · BOTH';
+        pill.textContent = 'COMPED';
         pill.classList.add('is-comped');
-        line.innerHTML = '<strong>' + first + ' your current Counsel.day status:</strong> you have been comped on <strong>both products</strong> (Decision and Counsel Journal) · ' + escHtml(u.comp_reason || 'granted by Counsel.day') + '. You can compose any decision and use Counsel Journal at no charge.';
+        line.innerHTML = '<strong>' + first + ' your current Counsel.day status:</strong> you have been <strong>comped</strong> · ' + escHtml(u.comp_reason || 'granted by Counsel.day') + '. You can compose any decision at no charge.';
         line2.textContent = 'No subscription · no per-decision fee · comped while granted';
-      } else if (u.daily_pro_active) {
-        pill.textContent = 'JOURNAL SUBSCRIBED';
-        line.innerHTML = '<strong>' + first + ' your current Counsel.day status:</strong> you are subscribed to <strong>Counsel Journal at $4.99 USD/month</strong>. Decisions are billed separately, per decision, at compose time.';
-        var renews = u.daily_pro_renews_at ? new Date(u.daily_pro_renews_at) : null;
-        line2.textContent = renews && !isNaN(renews.getTime())
-          ? ('Renews ' + renews.toLocaleDateString('en-NZ', { day: '2-digit', month: 'short', year: 'numeric' }) + ' · cancel any time in your account')
-          : 'Recurring monthly · cancel any time in your account';
       } else {
-        pill.textContent = 'FREE TIER';
+        pill.textContent = 'PAY PER DECISION';
         pill.classList.add('is-free');
-        line.innerHTML = '<strong>' + first + ' your current Counsel.day status:</strong> no active subscription. Counsel.day Decision is pay-per-decision (first Solo is free); Counsel Journal is $4.99 USD/month if you want the evening reflection layer.';
-        line2.textContent = 'Sign up for Counsel Journal below · or compose a decision at any time';
+        line.innerHTML = '<strong>' + first + ' your current Counsel.day status:</strong> Counsel.day is pay-per-decision · your first Solo decision is free, then Solo $9.99 USD, Couple $15.99 USD, Family $29.99 USD.';
+        line2.textContent = 'Compose a decision at any time · nothing recurring to cancel';
       }
       banner.style.display = 'flex';
     })
@@ -685,7 +641,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   });
 })();
 </script>
-<script>
 <script>
 // Dynamic pricing · pulls current values from /api/products (admin-editable).
 // Falls back silently to the static markup if the fetch fails.

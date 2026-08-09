@@ -88,7 +88,6 @@ function main() {
     { match: /\/(faq|help|about|status|security)$/,    freq: 'monthly', priority: '0.8' },
     { match: /\/(privacy|terms|cookies|sub-processors|refunds)$/, freq: 'monthly', priority: '0.4' },
     { match: /\/changelog$/,                            freq: 'weekly',  priority: '0.5' },
-    { match: /\/journal\//,                             freq: 'yearly',  priority: '0.7' },
   ];
   function tierFor(url: string): { freq: string; priority: string } {
     for (const t of PAGE_TIERS) if (t.match.test(url)) return { freq: t.freq, priority: t.priority };

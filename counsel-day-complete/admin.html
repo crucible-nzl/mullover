@@ -212,7 +212,6 @@
   <a href="/admin-crm.html">CRM</a>
   <a href="/admin-practitioners.html">Practitioners</a>
   <a href="/admin-products.html">Products</a>
-  <a href="/admin-journal.html">Journal</a>
   <a href="/admin-growth.html">Growth</a>
   <a href="/admin-engagement.html">Engagement</a>
   <a href="/admin-traffic.html">Traffic</a>
@@ -350,12 +349,6 @@
       <div class="desc">Daily npm audit + classify findings. Critical + high trigger an email to OPS_DIGEST_EMAIL with paste-ready fix instructions. <a href="/admin-security.html" style="color: var(--accent);">View dashboard</a>.</div>
       <button class="btn btn-secondary" data-cron="security-audit">Run now</button>
       <div class="out" data-cron-out="security-audit"></div>
-    </div>
-    <div class="cron-cell">
-      <div class="name">journal-digest</div>
-      <div class="desc">Sunday-evening · for every Counsel Journal user with 3+ unsealed entries in the past week, generates and emails a Monday-morning verdict (positives, strains, throughline, question).</div>
-      <button class="btn btn-secondary" data-cron="journal-digest">Run now</button>
-      <div class="out" data-cron-out="journal-digest"></div>
     </div>
     <div class="cron-cell">
       <div class="name">reopen-reminder</div>

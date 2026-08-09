@@ -57,12 +57,13 @@ counsel.day {
         }
     }
 
-    # /daily and /daily.html · old URL for Counsel Journal, kept as a
-    # permanent redirect to the new /journal.html so old bookmarks,
-    # share-links, and any inbound SEO equity survive the rename.
-    # 301 (permanent) so search engines transfer rank cleanly.
-    @daily_legacy path /daily /daily.html
-    redir @daily_legacy /journal.html 301
+    # Counsel Journal was decommissioned 2026-08-09. Every retired Journal /
+    # Vault / Daily / essays-blog URL 301s to the homepage so old bookmarks,
+    # share-links, and any inbound links land somewhere live instead of a
+    # 404. 301 (permanent) tells search engines the pages are gone for good
+    # and consolidates any residual link equity onto the homepage.
+    @journal_retired path /journal /journal.html /journal/* /vault /vault.html /daily /daily.html
+    redir @journal_retired / 301
 
     # Legacy crawlers (and a few SEO checkers) request /favicon.ico
     # literally · serve the SVG with a 200 instead of letting them get
@@ -95,7 +96,7 @@ counsel.day {
         X-Frame-Options "DENY"
         Referrer-Policy "strict-origin-when-cross-origin"
         # microphone=(self) allows OUR origin to call getUserMedia() for the
-        # voice-input widget on /compose, /vote-today, /verdict-reveal, /daily.
+        # voice-input widget on /compose, /vote-today, /verdict-reveal.
         # Previously this was microphone=() which denied EVERY origin including
         # ourselves, so the browser rejected the mic request before showing the
         # permission prompt · silent failure, recurring bug. Camera stays

@@ -146,6 +146,28 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, message: `Tier ${tier} accepts at most ${maxParticipants(tier)} participants.` }, { status: 422 });
   }
 
+  // ---- free-tier duration cap ----
+  // The free first Solo decision runs for up to 7 days only · longer
+  // durations require a paid tier, and a free decision cannot be an
+  // open-ended pulse decision (pulse has no close date). Enforced here
+  // server-side so a hand-crafted request cannot bypass the client lock.
+  // Applies to the resolved solo_free tier (a comped user picks a paid
+  // tier, so this does not restrict comped access).
+  if (tier === 'solo_free') {
+    if (input.mode === 'pulse') {
+      return NextResponse.json(
+        { ok: false, field_errors: { duration_days: 'A free decision runs for 7 days and cannot be open-ended. Choose a paid tier for a pulse decision.' } },
+        { status: 422 },
+      );
+    }
+    if (input.duration_days > 7) {
+      return NextResponse.json(
+        { ok: false, field_errors: { duration_days: 'The free first decision runs for up to 7 days. For a longer decision, choose the paid Solo tier ($9.99 USD).' } },
+        { status: 422 },
+      );
+    }
+  }
+
   // ---- look up owner display name + comp flag ----
   const userRows = await db
     .select({

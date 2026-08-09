@@ -172,7 +172,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <input type="radio" name="tier" value="solo_free" checked>
           <div class="name">Solo · free</div>
           <div class="price">$0 USD · first decision · no card</div>
-          <div class="desc">Decide alone. One sealed vote each evening. One verdict at the close.</div>
+          <div class="desc">Decide alone · runs for 7 days. One sealed vote each evening. One verdict at the close.</div>
         </label>
         <label data-tier="solo_paid">
           <input type="radio" name="tier" value="solo_paid">
@@ -233,15 +233,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <script>
 (function () {
-  // Highlight the selected tier card.
+  // Free-tier duration lock · the free first Solo decision runs for 7 days
+  // only. Disable the longer options and force 7 while Solo Free is picked;
+  // paid Solo restores the full range. The guest API enforces the same rule.
+  function syncSqDuration() {
+    var tier = (document.querySelector('input[name="tier"]:checked') || {}).value;
+    var isFree = tier === 'solo_free';
+    var sel = document.getElementById('sq-duration');
+    if (!sel) return;
+    Array.prototype.forEach.call(sel.options, function (opt) {
+      opt.disabled = isFree && parseInt(opt.value, 10) > 7;
+    });
+    if (isFree) sel.value = '7';
+  }
+
+  // Highlight the selected tier card + re-apply the free duration lock.
   document.querySelectorAll('.sq-tier label').forEach(function (lbl) {
     lbl.addEventListener('click', function () {
       document.querySelectorAll('.sq-tier label').forEach(function (x) { x.classList.remove('is-selected'); });
       lbl.classList.add('is-selected');
       var input = lbl.querySelector('input[type="radio"]');
       if (input) input.checked = true;
+      syncSqDuration();
     });
   });
+  syncSqDuration();
 
   function esc(s) { return String(s == null ? '' : s); }
 

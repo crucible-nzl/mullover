@@ -339,6 +339,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <label class="dur-radio" onclick="selectDur(this)"><input type="radio" name="duration" value="365"><div class="span">365</div><div class="unit">Days</div><div class="class">Annual · largest decisions only</div></label>
       </div>
 
+      <!-- Free-tier duration note · shown only while the free Solo tier is
+           selected. The free first decision runs for 7 days; longer
+           durations (and pulse mode) require a paid tier. The lock itself
+           is applied by applyFreeTierDurationLock() in the script below. -->
+      <p id="free-dur-note" class="field-help" style="display: none; margin-top: 14px; color: var(--wine);">Your free first decision runs for <strong>7 days</strong>. Choose the paid Solo tier below for 30, 60, 90, or 365 days, or for an open-ended pulse decision.</p>
+
       <!-- Pulse-mode toggle · always-on decision with no close date.
            When checked, the duration grid above is disabled and the
            server creates the decision with mode='pulse' (unseals_at NULL).
@@ -370,7 +376,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <h2 class="field-title">Which tier covers this <span class="ital">decision?</span></h2>
       <p class="field-help" id="cd-tier-intro">Loading your available tiers…</p>
       <div class="tier-grid" id="cd-tier-grid" role="radiogroup" aria-label="Tier">
-        <label class="tier-radio selected" onclick="selectTier(this)" data-tier="solo_free"><input type="radio" name="tier" value="solo_free" checked><div class="tier-name">Solo Free</div><div class="tier-price">$0.00 USD</div><div class="tier-help" data-base-help="First Solo decision · free · chart + your own notes only">First Solo decision · free · chart + your own notes only</div></label>
+        <label class="tier-radio selected" onclick="selectTier(this)" data-tier="solo_free"><input type="radio" name="tier" value="solo_free" checked><div class="tier-name">Solo Free</div><div class="tier-price">$0.00 USD</div><div class="tier-help" data-base-help="First Solo decision · free · 7 days · chart + your own notes only">First Solo decision · free · 7 days · chart + your own notes only</div></label>
         <label class="tier-radio" onclick="selectTier(this)" data-tier="solo_paid"><input type="radio" name="tier" value="solo_paid"><div class="tier-name">Solo</div><div class="tier-price">$9.99 USD</div><div class="tier-help" data-base-help="One decision · written verdict + conversation prompt">One decision · written verdict + conversation prompt</div></label>
         <label class="tier-radio" onclick="selectTier(this)" data-tier="couple"><input type="radio" name="tier" value="couple"><div class="tier-name">Couple</div><div class="tier-price">$15.99 USD</div><div class="tier-help" data-base-help="Two participants · full analysis · per decision">Two participants · full analysis · per decision</div></label>
         <label class="tier-radio" onclick="selectTier(this)" data-tier="family"><input type="radio" name="tier" value="family"><div class="tier-name">Family</div><div class="tier-price">$29.99 USD</div><div class="tier-help" data-base-help="Three to six participants · per decision">Three to six participants · per decision</div></label>
@@ -480,6 +486,45 @@ function selectTier(el) {
      here was removed when /api/transcribe's gate semantics were
      clarified · the gate only fires on /vote-today where the
      decision tier is already locked. */
+  applyFreeTierDurationLock();
+}
+
+/* Free-tier duration lock · the free first Solo decision runs for up to
+   7 days only. When the free tier is selected we force the 7-day option,
+   disable the longer durations and pulse mode, and show the note. Any
+   paid tier restores the full range. The server (/api/compose) enforces
+   the same rule regardless of the client. */
+function applyFreeTierDurationLock() {
+  var tier = (document.querySelector('input[name="tier"]:checked') || {}).value;
+  var isFree = tier === 'solo_free';
+  var note = document.getElementById('free-dur-note');
+  var pulse = document.getElementById('pulse-mode');
+
+  document.querySelectorAll('.dur-radio').forEach(function (r) {
+    var input = r.querySelector('input[type="radio"]');
+    var v = input ? parseInt(input.value, 10) : 0;
+    var lock = isFree && v > 7;
+    r.style.opacity = lock ? '0.35' : '';
+    r.style.pointerEvents = lock ? 'none' : '';
+    if (input) input.disabled = lock;
+  });
+
+  if (isFree) {
+    // Force the 7-day option selected.
+    var seven = document.querySelector('.dur-radio input[value="7"]');
+    if (seven && !seven.checked) {
+      document.querySelectorAll('.dur-radio').forEach(function (r) { r.classList.remove('selected'); });
+      var lbl = seven.closest('.dur-radio'); if (lbl) lbl.classList.add('selected');
+      seven.checked = true;
+      updateEndDate();
+    }
+    // A free decision cannot be open-ended.
+    if (pulse) { if (pulse.checked) { pulse.checked = false; togglePulseMode(pulse); } pulse.disabled = true; }
+    if (note) note.style.display = '';
+  } else {
+    if (pulse) pulse.disabled = false;
+    if (note) note.style.display = 'none';
+  }
 }
 
 function updatePreview() {
@@ -713,15 +758,21 @@ function saveDraft() {
           var inp = prefEl.querySelector('input[type="radio"]'); if (inp) inp.checked = true;
         }
       } else {
-        if (intro) intro.textContent = 'Your first Solo decision is free. Paid tiers are charged at the moment of filing.';
+        if (intro) intro.textContent = 'Your first Solo decision is free and runs for 7 days. Paid tiers unlock longer durations and are charged at the moment of filing.';
       }
+      applyFreeTierDurationLock();
     })
     .catch(function (e) {
       if (e && e.message === 'redirect') return;
       var intro = document.getElementById('cd-tier-intro');
       if (intro) intro.textContent = 'Sign in to see which tiers are available to you.';
+      applyFreeTierDurationLock();
     });
 })();
+
+// Apply the free-tier 7-day lock immediately on load · Solo Free is the
+// default tier, so the duration grid must show 7 days before /api/me returns.
+applyFreeTierDurationLock();
 
 // Saved contacts · render quick-pick chips above the partner email input.
 // Clicking a chip fills the input; user can edit further or just file.

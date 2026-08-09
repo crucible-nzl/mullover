@@ -24,22 +24,21 @@ import { sql } from 'drizzle-orm';
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-const JOURNAL_PRICE_USD = 4.99;
-
 export async function GET(req: Request) {
   const gate = await requireAdmin(req);
   if (gate instanceof NextResponse) return gate;
 
   // ---------------------------------------------------------------
   // CONTACTS · all signed-up users that aren't soft-deleted.
-  // PAYING · has either a paid decision OR an active journal sub.
+  // PAYING · has at least one paid decision. (Counsel Journal, the only
+  // recurring product, was decommissioned 2026-08-09 · billing is now
+  // entirely per-decision.)
   // ---------------------------------------------------------------
   const contactsRow = await db.execute(sql<{ total: number; paying: number }>`
     SELECT
       COUNT(*)::int AS total,
       COUNT(*) FILTER (
         WHERE EXISTS (SELECT 1 FROM decisions d WHERE d.owner_user_id = u.id AND d.amount_paid_cents > 0)
-           OR EXISTS (SELECT 1 FROM daily_subscriptions s WHERE s.user_id = u.id AND s.status = 'active' AND s.current_period_end > NOW())
       )::int AS paying
     FROM users u
     WHERE u.deleted_at IS NULL
@@ -94,7 +93,6 @@ export async function GET(req: Request) {
       COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM verdicts vd JOIN decisions d ON d.id = vd.decision_id WHERE d.owner_user_id = u.id))::int AS verdict_opened,
       COUNT(*) FILTER (
         WHERE EXISTS (SELECT 1 FROM decisions d WHERE d.owner_user_id = u.id AND d.amount_paid_cents > 0)
-           OR EXISTS (SELECT 1 FROM daily_subscriptions s WHERE s.user_id = u.id AND s.status = 'active')
       )::int AS paid
     FROM u
   `);
@@ -122,7 +120,6 @@ export async function GET(req: Request) {
   // ---------------------------------------------------------------
   // HOT LEADS · users who signed up in the last 30 days but have NOT
   // paid yet, scored by engagement signals in the last 14 days:
-  //   journal entries × 1
   //   composed decisions × 3
   //   audit events × 0.25 (rough proxy for activity)
   // Hot ≥ 8, Warm 4-7, Cold < 4. Show top 20 by score.
@@ -131,7 +128,6 @@ export async function GET(req: Request) {
     email: string;
     signed_up_at: string;
     last_seen_at: string | null;
-    entries: number;
     decisions: number;
     audit: number;
   }>(sql`
@@ -140,25 +136,22 @@ export async function GET(req: Request) {
       WHERE deleted_at IS NULL
         AND created_at > NOW() - INTERVAL '30 days'
         AND NOT EXISTS (SELECT 1 FROM decisions d WHERE d.owner_user_id = users.id AND d.amount_paid_cents > 0)
-        AND NOT EXISTS (SELECT 1 FROM daily_subscriptions s WHERE s.user_id = users.id AND s.status = 'active')
     )
     SELECT
       u.email,
       u.created_at AS signed_up_at,
       (SELECT MAX(last_active_at) FROM sessions s WHERE s.user_id = u.id) AS last_seen_at,
-      (SELECT COUNT(*) FROM journal_entries je WHERE je.user_id = u.id AND je.created_at > NOW() - INTERVAL '14 days')::int AS entries,
       (SELECT COUNT(*) FROM decisions d WHERE d.owner_user_id = u.id AND d.created_at > NOW() - INTERVAL '14 days')::int AS decisions,
       (SELECT COUNT(*) FROM audit_log a WHERE a.actor_user_id = u.id AND a.created_at > NOW() - INTERVAL '14 days')::int AS audit
     FROM u
     ORDER BY u.created_at DESC
     LIMIT 100
   `);
-  type LeadRow = { email: string; signed_up_at: string; last_seen_at: string | null; entries: number; decisions: number; audit: number };
+  type LeadRow = { email: string; signed_up_at: string; last_seen_at: string | null; decisions: number; audit: number };
   const hot_leads = (leadsRows as unknown as LeadRow[])
     .map((r) => {
-      const score = (r.entries * 1) + (r.decisions * 3) + (r.audit * 0.25);
+      const score = (r.decisions * 3) + (r.audit * 0.25);
       const bits = [
-        r.entries > 0  ? `${r.entries}e` : '',
         r.decisions > 0 ? `${r.decisions}d` : '',
         r.audit > 0    ? `${r.audit}a` : '',
       ].filter(Boolean).join(' ');
@@ -235,25 +228,18 @@ export async function GET(req: Request) {
   }));
 
   // ---------------------------------------------------------------
-  // CHURN · 30-day window.
-  //   logo churn = subs cancelled in 30d / active subs 30 days ago
-  //   revenue churn = cancelled MRR / active MRR
+  // CHURN · not applicable · there is no recurring product. Counsel
+  // Journal (the only subscription) was decommissioned 2026-08-09;
+  // billing is now entirely per-decision, so subscription churn is 0.
   // ---------------------------------------------------------------
-  const churnRow = await db.execute<{ active_now: number; cancelled_30d: number; active_30d_ago: number }>(sql`
-    SELECT
-      COUNT(*) FILTER (WHERE status = 'active' AND (current_period_end IS NULL OR current_period_end > NOW()))::int AS active_now,
-      COUNT(*) FILTER (WHERE canceled_at IS NOT NULL AND canceled_at > NOW() - INTERVAL '30 days')::int AS cancelled_30d,
-      COUNT(*) FILTER (WHERE started_at IS NOT NULL AND started_at < NOW() - INTERVAL '30 days' AND (canceled_at IS NULL OR canceled_at > NOW() - INTERVAL '30 days'))::int AS active_30d_ago
-    FROM daily_subscriptions
-  `);
-  const ch = (churnRow[0] as { active_now: number; cancelled_30d: number; active_30d_ago: number }) ?? { active_now: 0, cancelled_30d: 0, active_30d_ago: 0 };
-  const logo_pct    = ch.active_30d_ago > 0 ? (ch.cancelled_30d / ch.active_30d_ago) * 100 : 0;
-  const revenue_pct = logo_pct;  // identical at single-price-point until tiers diverge
+  const logo_pct = 0;
+  const revenue_pct = 0;
 
   // ---------------------------------------------------------------
-  // REVENUE · MRR, ARPU, LTV 90d, free-to-paid conversion.
+  // REVENUE · per-decision only (no MRR without a recurring product).
+  // ARPU / LTV are computed from decision payments alone.
   // ---------------------------------------------------------------
-  const mrr_usd = ch.active_now * JOURNAL_PRICE_USD;
+  const mrr_usd = 0;
 
   const revenueRow = await db.execute<{ total_decision_cents: number; total_paying: number; revenue_90d_cents: number }>(sql`
     SELECT
@@ -264,31 +250,31 @@ export async function GET(req: Request) {
   `);
   const rev = (revenueRow[0] as { total_decision_cents: number; total_paying: number; revenue_90d_cents: number }) ?? { total_decision_cents: 0, total_paying: 0, revenue_90d_cents: 0 };
   const total_paying_contacts = Math.max(contacts.paying, 1);
-  const arpu_usd = (Number(rev.total_decision_cents) / 100 + ch.active_now * JOURNAL_PRICE_USD) / total_paying_contacts;
-  const ltv_90d_usd = (Number(rev.revenue_90d_cents) / 100 + ch.active_now * JOURNAL_PRICE_USD * 3) / total_paying_contacts;
+  const arpu_usd = (Number(rev.total_decision_cents) / 100) / total_paying_contacts;
+  const ltv_90d_usd = (Number(rev.revenue_90d_cents) / 100) / total_paying_contacts;
   const free_to_paid_pct = contacts.total > 0 ? (contacts.paying / contacts.total) * 100 : 0;
 
   // ---------------------------------------------------------------
-  // SEGMENTS · by product engagement.
+  // SEGMENTS · decision engagement. (The journal_only / both segments
+  // are retained as always-zero for response-shape stability after the
+  // Counsel Journal decommission on 2026-08-09.)
   // ---------------------------------------------------------------
-  const segRow = await db.execute<{ decision_only: number; journal_only: number; both: number; inactive_60d: number }>(sql`
+  const segRow = await db.execute<{ decision_only: number; inactive_60d: number }>(sql`
     WITH u AS (
       SELECT
         id,
         EXISTS (SELECT 1 FROM decisions d WHERE d.owner_user_id = users.id) AS has_dec,
-        EXISTS (SELECT 1 FROM journal_entries je WHERE je.user_id = users.id) AS has_jou,
         (SELECT MAX(last_active_at) FROM sessions s WHERE s.user_id = users.id) AS last_seen
       FROM users
       WHERE deleted_at IS NULL
     )
     SELECT
-      COUNT(*) FILTER (WHERE has_dec AND NOT has_jou)::int AS decision_only,
-      COUNT(*) FILTER (WHERE has_jou AND NOT has_dec)::int AS journal_only,
-      COUNT(*) FILTER (WHERE has_dec AND has_jou)::int AS both,
+      COUNT(*) FILTER (WHERE has_dec)::int AS decision_only,
       COUNT(*) FILTER (WHERE last_seen IS NULL OR last_seen < NOW() - INTERVAL '60 days')::int AS inactive_60d
     FROM u
   `);
-  const segments = (segRow[0] as { decision_only: number; journal_only: number; both: number; inactive_60d: number }) ?? { decision_only: 0, journal_only: 0, both: 0, inactive_60d: 0 };
+  const seg = (segRow[0] as { decision_only: number; inactive_60d: number }) ?? { decision_only: 0, inactive_60d: 0 };
+  const segments = { decision_only: seg.decision_only, journal_only: 0, both: 0, inactive_60d: seg.inactive_60d };
 
   // ---------------------------------------------------------------
   // ACQUISITION · stubbed at 0 until users.acquisition_source ships.

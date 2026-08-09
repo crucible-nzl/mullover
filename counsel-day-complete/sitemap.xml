@@ -184,24 +184,6 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/changelog"/>
   </url>
 
-  <!-- THE JOURNAL · long-form essays -->
-  <url>
-    <loc>https://counsel.day/journal/</loc>
-    <lastmod>2026-05-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/journal/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/journal/"/>
-  </url>
-  <url>
-    <loc>https://counsel.day/journal/the-tuesday-thursday-problem</loc>
-    <lastmod>2026-05-14</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/journal/the-tuesday-thursday-problem"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/journal/the-tuesday-thursday-problem"/>
-  </url>
-
   <!-- FOR PRACTITIONERS -->
   <url>
     <loc>https://counsel.day/therapists</loc>

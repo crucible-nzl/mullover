@@ -39,7 +39,6 @@ const jobSchema = z.object({
     'sitemap',
     'weekly-digest',
     'security-audit',
-    'journal-digest',
     'reopen-reminder',
   ]),
 });
@@ -62,7 +61,6 @@ const jobCommand: Record<string, { cmd: string; args: string[]; cwd?: string }> 
   'pg-dump':           { cmd: 'npx', args: ['tsx', 'src/jobs/pg-dump.ts'],                   cwd: '/opt/counsel-day-app' },
   'weekly-digest':     { cmd: 'npx', args: ['tsx', 'src/jobs/cron.ts', 'weekly-digest'],     cwd: '/opt/counsel-day-app' },
   'security-audit':    { cmd: 'npx', args: ['tsx', 'src/jobs/cron.ts', 'security-audit'],    cwd: '/opt/counsel-day-app' },
-  'journal-digest':    { cmd: 'npx', args: ['tsx', 'src/jobs/cron.ts', 'journal-digest'],    cwd: '/opt/counsel-day-app' },
   'reopen-reminder':   { cmd: 'npx', args: ['tsx', 'src/jobs/cron.ts', 'reopen-reminder'],   cwd: '/opt/counsel-day-app' },
 };
 

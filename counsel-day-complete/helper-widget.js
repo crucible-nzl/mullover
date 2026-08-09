@@ -47,7 +47,7 @@
   //   keywords  · tokens to match against the user's question
   //   q         · canonical question (also used as the chip label)
   //   a         · answer in plain text · two newlines split into <p>
-  //   tags      · optional product tag (Decision, Journal, Billing, Brand, Tech, Privacy)
+  //   tags      · optional product tag (Decision, Billing, Brand, Tech, Privacy)
   //
   // Add new entries here · no backend redeploy needed since this file
   // is part of the static site.
@@ -75,22 +75,8 @@
     {
       tags: ['Decision', 'Pricing'],
       keywords: ['subscription', 'monthly', 'recurring', 'sub', 'membership', 'plan'],
-      q: 'Is there a subscription for Counsel.day Decision?',
-      a: 'No. Counsel.day Decision is paid PER DECISION at compose time · no monthly fee, no annual fee. You buy a decision when you have one to decide, and that\'s it.\n\nCounsel Journal is a separate product with a $4.99 USD/month subscription · but that is the evening reflection journal, not the decision tool.'
-    },
-
-    // ---------------- PRICING · JOURNAL ----------------
-    {
-      tags: ['Journal', 'Pricing'],
-      keywords: ['journal', 'daily', 'evening', 'reflection', 'price', 'cost', 'subscription', 'month'],
-      q: 'How much does Counsel Journal cost?',
-      a: 'Counsel Journal is $4.99 USD per month. One price. One subscription.\n\nIt includes the nightly entry (text or voice), the seven-day seal, the weekly Monday verdict reading the past seven days, the monthly themed verdict on the first Monday of every month, and unlimited history. Cancel any time · access continues until the end of the current billing period.'
-    },
-    {
-      tags: ['Journal', 'Pricing'],
-      keywords: ['journal', 'free', 'trial', 'try', 'tier'],
-      q: 'Is there a free tier for Counsel Journal?',
-      a: 'No. Counsel Journal is paid-only at $4.99 USD/month. Counsel.day does not run a free tier for the Journal · the editorial verdict written by Claude Opus 4.7 each Monday is not viable to subsidise.\n\nCancel any time in your account · you keep access until the period ends.'
+      q: 'Is there a subscription for Counsel.day?',
+      a: 'No. Counsel.day is paid PER DECISION at compose time · no monthly fee, no annual fee. You buy a decision when you have one to decide, and that\'s it.'
     },
 
     // ---------------- HOW DECISION WORKS ----------------
@@ -119,62 +105,12 @@
       a: 'After payment, you enter each invitee\'s email (and optionally a personal note). The system sends each one a sealed-invite email with a one-tap accept link. They sign up (or sign in if they already have a Counsel.day account) and the decision starts the evening everyone has accepted.\n\nIf an invitee doesn\'t accept within 7 days, the decision auto-refunds and is cancelled.'
     },
 
-    // ---------------- JOURNAL FLOW ----------------
-    {
-      tags: ['Journal'],
-      keywords: ['journal', 'evening', 'how', 'work', 'nightly', 'use'],
-      q: 'How does Counsel Journal work day-to-day?',
-      a: 'Each evening you record between 30 and 180 seconds about the day · type or speak. Whisper transcribes voice. The entry seals immediately for seven days · you can\'t re-read it.\n\nEvery Monday morning a verdict ships in a real human voice (Claude Opus 4.7) that names three to five things that kept working, one or two that strained, the throughline, and one specific question for the week ahead.\n\nOn the first Monday of every month a themed verdict reads the past four weekly verdicts together and names what the month was actually about.'
-    },
-    {
-      tags: ['Journal'],
-      keywords: ['voice', 'audio', 'speak', 'record', 'microphone', 'whisper'],
-      q: 'Can I record by voice?',
-      a: 'Yes. Tap the mic, speak for 30 to 180 seconds, and the entry uploads to be transcribed by Whisper. You can also type. Both are sealed the same way.\n\nAudio and the transcript are both kept · the audio plays back from the vault page once the seal opens (seven days later).'
-    },
-    {
-      tags: ['Journal'],
-      keywords: ['vault', 'recordings', 'history', 'past', 'old', 'playback', 'listen'],
-      q: 'Where are my recordings stored?',
-      a: 'On /vault.html · your private vault page. Every entry you file appears there, sorted newest first.\n\nSealed entries show as locked rows with a "opens on [date]" indicator · the body is hidden until the seven-day seal lifts. Unsealed entries show the full transcript and play back the audio in-browser. Audio files live on Cloudflare R2 with signed short-lived URLs · the raw URL is never exposed to the client.'
-    },
-    {
-      tags: ['Journal'],
-      keywords: ['edit', 'change', 'rewrite', 'delete', 're-read'],
-      q: 'Can I re-read or edit a sealed entry?',
-      a: 'No. The seven-day seal is the entire point. The journal exists so future-you reads what tonight-you actually wrote, not what you wish you had. Re-reading IS editing.\n\nThe seal removes the option. After seven days the entry opens and you can re-read it · but by then your evening-self has moved on, and you read it as the new person you are.'
-    },
-    {
-      tags: ['Journal'],
-      keywords: ['skip', 'miss', 'forgot', 'gap', 'break', 'every night'],
-      q: 'What if I skip a night?',
-      a: 'Nothing happens. The weekly verdict treats skipped days as data · "what was the trajectory across the days you actually filed?" · not as a flaw.\n\nThere\'s no streak counter, no shaming, no "your habit is broken." The seven-day strip shows skipped days as faint marks and the verdict reads the pattern around them.'
-    },
-    {
-      tags: ['Journal'],
-      keywords: ['weekly', 'monday', 'verdict', 'report', 'summary', 'review'],
-      q: 'What is in the weekly Monday verdict?',
-      a: 'Three to five things that kept working (with specific evidence from your entries), one or two that strained, the throughline of the week, and ONE specific question for the week ahead.\n\nIt arrives Monday morning, reads the past seven days, and lands in your /journal feed (and in your inbox if you opted in). Written in a real human voice by Claude Opus 4.7 · not a mood graph, not a sentiment score.'
-    },
-    {
-      tags: ['Journal'],
-      keywords: ['monthly', 'themed', 'first monday', 'review', 'big picture'],
-      q: 'What is the monthly themed verdict?',
-      a: 'On the first Monday of every month, a deep-read ships that reads the past four weekly verdicts TOGETHER. It names what the month was actually about · the shape of it, not the moments.\n\nThis is the part you don\'t get from any other journal app. Streaks, mood charts, daily prompts all work at the day level. Counsel Journal works at the week and the month level too.'
-    },
-
     // ---------------- BILLING & PAYMENT ----------------
     {
       tags: ['Billing'],
       keywords: ['stripe', 'card', 'payment', 'billing', 'process'],
       q: 'How does payment work?',
-      a: 'All payments are processed by Stripe · cards stored on Stripe\'s vault, not on Counsel.day. We never see your full card number.\n\nDecisions are charged once at compose. Counsel Journal is charged monthly on the first day you subscribed (recurring on the same date each month). Both billed in US dollars worldwide.'
-    },
-    {
-      tags: ['Billing'],
-      keywords: ['cancel', 'subscription', 'stop', 'end', 'unsubscribe'],
-      q: 'How do I cancel my Counsel Journal subscription?',
-      a: 'Open /account.html and click "Cancel subscription" on the Journal tile. Or open the Stripe portal from the same tile and cancel there.\n\nYou keep access until the end of the current billing period. The subscription stops automatically at that date · no further charges.'
+      a: 'All payments are processed by Stripe · cards stored securely by Stripe, not on Counsel.day. We never see your full card number.\n\nDecisions are charged once at compose, billed in US dollars worldwide.'
     },
     {
       tags: ['Billing'],
@@ -200,7 +136,7 @@
       tags: ['Privacy'],
       keywords: ['privacy', 'data', 'gdpr', 'delete', 'share', 'sell'],
       q: 'What does Counsel.day do with my data?',
-      a: 'Nothing other than running the product. Your entries are stored encrypted at rest, the audio sits on Cloudflare R2 with signed short-lived playback URLs, and the AI verdict is generated from your own entries only.\n\nWe do not sell, share, or train external models on your content. Right to erasure is built in · delete your account at /account.html and all entries are soft-deleted immediately and hard-deleted after 14 days. GDPR + UK PECR compliant.'
+      a: 'Nothing other than running the product. Your decisions and votes are stored encrypted at rest, and the AI verdict is generated from your own votes and notes only.\n\nWe do not sell, share, or train external models on your content. Right to erasure is built in · delete your account at /account.html and all your data is soft-deleted immediately and hard-deleted after 14 days. GDPR + UK PECR compliant.'
     },
     {
       tags: ['Privacy'],
@@ -212,7 +148,7 @@
       tags: ['Privacy'],
       keywords: ['mfa', 'two factor', '2fa', 'security', 'login', 'password'],
       q: 'Is two-factor authentication available?',
-      a: 'Yes. Enable MFA in /account.html under Security. We support TOTP authenticator apps (Google Authenticator, 1Password, etc.).\n\nDestructive admin actions (deleting an account, cancelling subscriptions) require a FRESH MFA challenge · within five minutes of the action · even if you\'re already signed in. The sign-in itself uses magic-link by default; MFA layers on top for admins and any user who enables it.'
+      a: 'Yes. Enable MFA in /account.html under Security. We support TOTP authenticator apps (Google Authenticator, 1Password, etc.).\n\nDestructive admin actions (deleting an account, promoting or demoting a user) require a FRESH MFA challenge · within five minutes of the action · even if you\'re already signed in. The sign-in itself uses magic-link by default; MFA layers on top for admins and any user who enables it.'
     },
 
     // ---------------- BRAND / DESIGN ----------------
@@ -240,7 +176,7 @@
       tags: ['Tech'],
       keywords: ['signup', 'register', 'create', 'account', 'sign up', 'join'],
       q: 'How do I sign up?',
-      a: 'Open /signup.html and enter your email · we send a magic-link to verify the address. Click the link, set your first name and a password (optional · magic-link works on its own) and you\'re in.\n\nYou can sign up for either product · the Decision tool or Counsel Journal · or both. They share one account.'
+      a: 'Open /signup.html and enter your email · we send a magic-link to verify the address. Click the link, set your first name and a password (optional · magic-link works on its own) and you\'re in.\n\nYour first Solo decision is free · no card required to sign up.'
     },
     {
       tags: ['Tech'],
@@ -318,19 +254,13 @@
       tags: ['Billing', 'Tech'],
       keywords: ['comped', 'comp', 'free', 'unlimited', 'granted', 'gift', 'practitioner', 'partner'],
       q: 'I see "Comped" on my account · what does that mean?',
-      a: 'A comped account has been granted free unlimited access by Counsel.day. The reason appears on your account page · usually you are an early supporter, partner, practitioner, or were granted free access for support reasons.\n\nWhile comped, you pay $0.00 USD for both products · compose any decision (Solo, Couple, Family) at no charge and use Counsel Journal without a subscription. There is nothing to cancel · the comp can be revoked or reinstated by an admin. See your status on https://counsel.day/account.html.'
-    },
-    {
-      tags: ['Billing', 'Tech'],
-      keywords: ['cancel', 'subscription', 'stop', 'unsubscribe', 'end', 'journal'],
-      q: 'How do I cancel my Counsel Journal subscription?',
-      a: 'Open https://counsel.day/account.html and find the Counsel Journal tile in the Subscription section. Two options:\n\n· "Cancel subscription" · cancels at the end of the current billing period. You keep access until then; no further charges.\n· "Manage in Stripe" · opens the Stripe portal where you can also update your card, download invoices, or cancel from there.\n\nCancellations are reversible from the Stripe portal until the period closes.'
+      a: 'A comped account has been granted free unlimited access by Counsel.day. The reason appears on your account page · usually you are an early supporter, partner, practitioner, or were granted free access for support reasons.\n\nWhile comped, you pay $0.00 USD · compose any decision (Solo, Couple, Family) at no charge. There is nothing to cancel · the comp can be revoked or reinstated by an admin. See your status on https://counsel.day/account.html.'
     },
     {
       tags: ['Billing', 'Tech'],
       keywords: ['plan', 'summary', 'paying', 'this month', 'total', 'spending', 'cost', 'overview'],
       q: 'How do I see what I am paying right now?',
-      a: 'On https://counsel.day/account.html the "Your current plan and renewal" section opens with a three-cell summary strip: Decision (pay-per-decision), Counsel Journal (subscription state and renewal date), and "This month" (current total).\n\nFor receipts and full billing history, open https://counsel.day/billing.html · per-decision charges and Journal renewals appear in one place.'
+      a: 'On https://counsel.day/account.html the "Your current plan and renewal" section opens with a summary strip: Decision (pay-per-decision) and "This month" (current total).\n\nFor receipts and full billing history, open https://counsel.day/billing.html · every per-decision charge appears in one place.'
     },
     {
       tags: ['Billing'],
@@ -353,20 +283,6 @@
       a: 'On https://counsel.day/account.html under "Devices and sessions" you see every active session · device label, last-active timestamp, and a "Revoke" button. Click Revoke and that session is killed; the device has to sign back in.\n\nIf you suspect unauthorised access, click "Sign out everywhere" to kill every session at once (you stay signed in on your current device).'
     },
 
-    // ---------------- VAULT · SEALED ENTRIES · READING-MODE ----------------
-    {
-      tags: ['Journal'],
-      keywords: ['vault', 'sealed', 'opens', 'cant see', 'where is my entry', 'missing', 'lost'],
-      q: 'My latest Journal entry is showing as "sealed" · is it lost?',
-      a: 'No · it is saved and safe. Every entry seals for seven days the moment you submit. During those seven days the vault shows the row with a "SEALED · opens [date]" badge instead of the body. You cannot re-read it · that is the point. The seal removes the option so future-you reads what tonight-you actually wrote, not what you wish you had.\n\nOnce the seven days elapse the body unlocks · the text appears, the audio plays back, and that entry feeds into the next Monday verdict. Vault page: https://counsel.day/vault.html.'
-    },
-    {
-      tags: ['Journal'],
-      keywords: ['vault', 'audio', 'playback', 'replay', 'listen', 'recording'],
-      q: 'How do I play back a Journal audio recording?',
-      a: 'On https://counsel.day/vault.html · each entry is a row. Click an unsealed row to expand it · the audio player and full transcript appear together. We sign a short-lived URL to your R2-hosted audio file at click time so the raw audio URL never sits in the client.\n\nSealed entries (within the seven-day window) show a locked badge instead of the player · the seal is enforced server-side too, so a hand-crafted request cannot bypass it.'
-    },
-
     // ---------------- HELPER BOT MECHANICS · so it can explain itself ----------------
     {
       tags: ['Brand', 'Tech'],
@@ -380,7 +296,7 @@
       tags: ['Tech'],
       keywords: ['status', 'uptime', 'down', 'outage', 'incident', 'health', 'broken', 'working'],
       q: 'Is Counsel.day up? How do I check status?',
-      a: 'Open https://counsel.day/status.html · the page lists every service (web, API, database, Stripe webhooks, Anthropic verdict generation, R2 audio storage, Whisper transcription, email) with its current state and last-checked timestamp. Incidents in the last 30 days are listed below.\n\nFor release-related downtime, the https://counsel.day/changelog.html lists every ship.'
+      a: 'Open https://counsel.day/status.html · the page lists every service (web, API, database, Stripe webhooks, Anthropic verdict generation, email) with its current state and last-checked timestamp. Incidents in the last 30 days are listed below.\n\nFor release-related downtime, the https://counsel.day/changelog.html lists every ship.'
     }
   ];
 
@@ -524,20 +440,17 @@
     'aria-label': 'Counsel.day helper bot',
   });
 
-  // Build the initial-state chip grid · 8 starter questions across
-  // both products. The user can click a chip OR type their own.
-  // TASK 5 · "Can I refund a decision?" is moved into the umbrella
-  // refund entry; "What are some example questions?" takes the lead
-  // chip since the carousel is the most-clicked surface right now.
+  // Build the initial-state chip grid · starter questions for the
+  // Decision tool. The user can click a chip OR type their own.
+  // "What are some example questions?" takes the lead chip since the
+  // carousel is the most-clicked surface right now.
   var STARTER_QS = [
     'What are some example questions?',
     'How does a Counsel.day decision actually work?',
+    'How much does a Solo decision cost?',
     'How much does the Couple tier cost?',
-    'How much does Counsel Journal cost?',
-    'How does Counsel Journal work day-to-day?',
     'Does this replace therapy?',
-    'What does Counsel.day do with my data?',
-    'How do I cancel my Counsel Journal subscription?'
+    'What does Counsel.day do with my data?'
   ];
 
   drawer.innerHTML =
@@ -553,13 +466,13 @@
       // keyword. Sits above the empty state so it's the first surface
       // a returning user reaches for.
       '<div class="cd-help-searchbar">' +
-        '<input type="search" class="cd-help-search" id="cd-help-search" placeholder="Search the help index · pricing, refunds, MFA, vault…" aria-label="Search helper index">' +
+        '<input type="search" class="cd-help-search" id="cd-help-search" placeholder="Search the help index · pricing, refunds, MFA, the seal…" aria-label="Search helper index">' +
         '<button type="button" class="cd-help-search-clear" id="cd-help-search-clear" aria-label="Clear search">Clear</button>' +
       '</div>' +
       '<div class="cd-help-search-results" id="cd-help-search-results" style="display: none;"></div>' +
       '<div class="cd-help-empty" id="cd-help-empty">' +
         '<p class="lead">Ask about Counsel.day.</p>' +
-        '<p>Factual questions · pricing, the sealed-vote method, billing, refunds, the Journal, privacy. Answers come from a built-in index, not a paid LLM, so this widget stays free to run and ships in milliseconds.</p>' +
+        '<p>Factual questions · pricing, the sealed-vote method, billing, refunds, privacy. Answers come from a built-in index, not a paid LLM, so this widget stays free to run and ships in milliseconds.</p>' +
         '<p>For your actual decision, the product is the answer.</p>' +
         '<div class="cd-help-chips">' +
           STARTER_QS.map(function (q) { return '<button type="button" class="cd-help-chip" data-q="' + esc(q) + '">' + esc(q) + '</button>'; }).join('') +
@@ -567,7 +480,7 @@
       '</div>' +
     '</div>' +
     '<form class="cd-help-form" id="cd-help-form">' +
-      '<textarea class="cd-help-input" id="cd-help-input" placeholder="Ask about pricing, billing, the seal, the Journal, refunds…" maxlength="1000" required></textarea>' +
+      '<textarea class="cd-help-input" id="cd-help-input" placeholder="Ask about pricing, billing, the seal, refunds…" maxlength="1000" required></textarea>' +
       '<button type="submit" class="cd-help-send" id="cd-help-send">Ask</button>' +
     '</form>' +
     '<div class="cd-help-foot">Need a human? <a href="mailto:support@counsel.day?subject=Helper%20question">Email support@counsel.day</a></div>';
@@ -598,7 +511,7 @@
     var tokens = tokenize(q);
     if (tokens.length === 0) {
       searchResultsEl.style.display = 'block';
-      searchResultsEl.innerHTML = '<div class="cd-help-search-empty">Type something more specific · "pricing", "refund", "vault audio"…</div>';
+      searchResultsEl.innerHTML = '<div class="cd-help-search-empty">Type something more specific · "pricing", "refund", "the seal"…</div>';
       if (emptyEl) emptyEl.style.display = 'none';
       return;
     }
@@ -611,7 +524,7 @@
     var top = ranked.slice(0, 8);
     if (top.length === 0) {
       searchResultsEl.style.display = 'block';
-      searchResultsEl.innerHTML = '<div class="cd-help-search-empty">No matches. Try "pricing", "refund", "mfa", "vault" · or email support@counsel.day.</div>';
+      searchResultsEl.innerHTML = '<div class="cd-help-search-empty">No matches. Try "pricing", "refund", "mfa", "seal" · or email support@counsel.day.</div>';
       if (emptyEl) emptyEl.style.display = 'none';
       return;
     }
@@ -699,9 +612,9 @@
     var match = bestMatch(query);
     if (!match) {
       var sysWrap = appendMsg('assistant',
-        paragraphs('I don\'t have a direct answer for that question in the built-in index. Try rephrasing with a keyword like pricing, refund, seal, vault, MFA, or therapy · or email support@counsel.day for a human reply.') +
+        paragraphs('I don\'t have a direct answer for that question in the built-in index. Try rephrasing with a keyword like pricing, refund, seal, MFA, or therapy · or email support@counsel.day for a human reply.') +
         '<div class="alts"><div class="alts-lbl">Topics in the index</div><div class="cd-help-chips">' +
-          ['Pricing', 'Decision', 'Journal', 'Billing', 'Privacy', 'Tech', 'Brand'].map(function (t) { return '<button type="button" class="cd-help-tag" data-tag="' + esc(t) + '">' + esc(t) + '</button>'; }).join('') +
+          ['Pricing', 'Decision', 'Billing', 'Privacy', 'Tech', 'Brand'].map(function (t) { return '<button type="button" class="cd-help-tag" data-tag="' + esc(t) + '">' + esc(t) + '</button>'; }).join('') +
         '</div></div>'
       );
       return;

@@ -330,20 +330,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="compose-field">
       <div class="field-label">FIELD 03 · DURATION <span class="req">·</span> REQUIRED</div>
       <h2 class="field-title">How long should the period <span class="ital">run?</span></h2>
-      <p class="field-help">Match the duration to the weight of the question. A week suits a house with an offer deadline. A month suits most career and home decisions. Sixty days suits partnership questions. Ninety days suits reproductive and life-shape questions. Annual is reserved for the largest decisions only.</p>
+      <p class="field-help">Match the duration to the weight of the question. A week suits a house with an offer deadline. A month suits most career and home decisions. Sixty days suits partnership questions. Ninety days suits reproductive and life-shape questions, and is the longest a decision can run.</p>
       <div class="dur-grid" role="radiogroup" aria-label="Duration of the decision">
         <label class="dur-radio" onclick="selectDur(this)"><input type="radio" name="duration" value="7"><div class="span">7</div><div class="unit">Days</div><div class="class">Short · offer deadline class</div></label>
         <label class="dur-radio selected" onclick="selectDur(this)"><input type="radio" name="duration" value="30" checked><div class="span">30</div><div class="unit">Days</div><div class="class">Most career & home decisions</div></label>
         <label class="dur-radio" onclick="selectDur(this)"><input type="radio" name="duration" value="60"><div class="span">60</div><div class="unit">Days</div><div class="class">Partnership · marriage class</div></label>
         <label class="dur-radio" onclick="selectDur(this)"><input type="radio" name="duration" value="90"><div class="span">90</div><div class="unit">Days</div><div class="class">Reproduction · life-shape class</div></label>
-        <label class="dur-radio" onclick="selectDur(this)"><input type="radio" name="duration" value="365"><div class="span">365</div><div class="unit">Days</div><div class="class">Annual · largest decisions only</div></label>
       </div>
 
       <!-- Free-tier duration note · shown only while the free Solo tier is
            selected. The free first decision runs for 7 days; longer
            durations (and pulse mode) require a paid tier. The lock itself
            is applied by applyFreeTierDurationLock() in the script below. -->
-      <p id="free-dur-note" class="field-help" style="display: none; margin-top: 14px; color: var(--wine);">Your free first decision runs for <strong>7 days</strong>. Choose the paid Solo tier below for 30, 60, 90, or 365 days, or for an open-ended pulse decision.</p>
+      <p id="free-dur-note" class="field-help" style="display: none; margin-top: 14px; color: var(--wine);">Your free first decision runs for <strong>7 days</strong>. Choose the paid Solo tier below for 30, 60, or 90 days, or for an open-ended pulse decision.</p>
 
       <!-- Pulse-mode toggle · always-on decision with no close date.
            When checked, the duration grid above is disabled and the

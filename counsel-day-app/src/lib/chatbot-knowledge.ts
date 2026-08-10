@@ -101,7 +101,7 @@ the defect.
 3 · HOW THE PRODUCT WORKS
 ──────────────────────────────────────────────────────────────────
 Counsel.day is a sealed-vote decision tool. You compose a question,
-choose a duration (7 to 365 days, default 30), and a tier (Solo /
+choose a duration (7 to 90 days, default 30), and a tier (Solo /
 Couple / Family). Each evening at your chosen prompt time (default
 19:00 local, editable in your profile), every participant casts one
 sealed vote on the same question with an optional note.

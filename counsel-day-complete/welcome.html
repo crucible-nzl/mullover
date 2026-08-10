@@ -75,8 +75,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 .wc-custom { margin-top: 16px; }
 .wc-custom label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 6px; }
-.wc-custom input { width: 100%; box-sizing: border-box; padding: 12px 14px; font-family: var(--font-body); font-size: 16px; border: 1px solid var(--ink); background: var(--paper); border-radius: 0; }
-.wc-custom input:focus { outline: none; border-color: var(--wine); }
+.wc-custom input, .wc-custom textarea { width: 100%; box-sizing: border-box; padding: 12px 14px; font-family: var(--font-body); font-size: 16px; line-height: 1.5; border: 1px solid var(--ink); background: var(--paper); border-radius: 0; resize: vertical; min-height: 84px; }
+.wc-custom input:focus, .wc-custom textarea:focus { outline: none; border-color: var(--wine); }
 
 .wc-time-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; }
 .wc-timebtn { padding: 12px 8px; border: 1px solid var(--rule); background: var(--paper); cursor: pointer; font-family: var(--font-mono); font-size: 13px; color: var(--ink); }
@@ -100,7 +100,7 @@ body.is-variant-simple .wc-body-simple { display: block !important; }
 body.is-variant-simple .wc-custom-label-control { display: none !important; }
 body.is-variant-simple .wc-custom-label-simple { display: inline !important; }
 body.is-variant-simple .wc-custom { margin-top: 22px; }
-body.is-variant-simple .wc-custom input { font-size: 18px; padding: 14px 16px; min-height: 56px; }
+body.is-variant-simple .wc-custom input, body.is-variant-simple .wc-custom textarea { font-size: 18px; padding: 14px 16px; min-height: 96px; }
 </style>
 </head>
 <body>
@@ -207,7 +207,7 @@ body.is-variant-simple .wc-custom input { font-size: 18px; padding: 14px 16px; m
 
       <div class="wc-custom">
         <label for="wc-custom-input"><span class="wc-custom-label-control">Or write your own</span><span class="wc-custom-label-simple" style="display: none;">Your question</span></label>
-        <input id="wc-custom-input" type="text" placeholder="Should we &hellip;" maxlength="240">
+        <textarea id="wc-custom-input" rows="3" placeholder="Should we &hellip;" maxlength="240"></textarea>
       </div>
 
       <div class="wc-actions">

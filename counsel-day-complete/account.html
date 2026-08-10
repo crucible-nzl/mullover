@@ -293,7 +293,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div id="cd-acct-decisions-msg" role="alert" aria-live="polite" style="display: none; padding: 10px 14px; margin-bottom: 14px; font-family: var(--font-body); font-size: 14px;"></div>
       <div id="cd-acct-decisions"><p style="font-family: var(--font-body); font-style: italic; color: var(--muted);">Loading…</p></div>
       <div style="margin-top: 18px;">
-        <a href="/compose.html" class="btn" class="u-btn-wine">Compose a new decision</a>
+        <a href="/compose.html" class="btn u-btn-wine">Compose a new decision</a>
         <a href="/decisions.html" class="btn-text" style="margin-left: 18px; color: var(--ink-soft); border-bottom: 1px solid var(--ink-soft);">See full registry</a>
       </div>
     </section>
@@ -405,7 +405,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <p class="sub-tile-detail" id="cd-plan-detail">You pay per decision at compose time. Your first Solo decision is free; Solo paid is $4.99 USD; Couple is $9.99 USD; Family is $19.99 USD.</p>
           <div class="sub-tile-renewal" id="cd-plan-renewal">No renewal · pay per decision at compose time</div>
           <div class="sub-tile-actions">
-            <a href="pricing.html" class="btn" id="cd-plan-cta" class="u-btn-wine">See pricing</a>
+            <a href="pricing.html" class="btn u-btn-wine" id="cd-plan-cta">See pricing</a>
             <a href="compose.html" class="btn-text">Compose a new decision</a>
           </div>
           <div id="cd-portal-err" role="alert" style="display: none; color: #b00020; font-size: 13px; margin-top: 10px;"></div>
@@ -476,7 +476,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
 
       <div style="display: flex; gap: 14px; flex-wrap: wrap;">
-        <a href="/compose.html" class="btn" class="u-btn-wine">Compose with a saved partner</a>
+        <a href="/compose.html" class="btn u-btn-wine">Compose with a saved partner</a>
         <button type="button" id="cd-new-group" class="btn btn-ghost" style="padding: 11px 22px; font-size: 14px;">Create a new group</button>
       </div>
 
@@ -584,7 +584,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="acct-form-row">
         <div class="label">Verdict-day notification</div>
         <div class="value">
-          <label class="toggle"><input type="checkbox" checked><span class="switch"></span><span class="toggle-label">Email and push on the morning of day N</span></label>
+          <label class="toggle"><input type="checkbox" checked><span class="switch"></span><span class="toggle-label">Email and push when your verdict opens</span></label>
         </div>
       </div>
       <div class="acct-form-row">
@@ -1180,7 +1180,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 })();
 </script>
 <script>
-// Delete-account handler � DELETE /api/me with a JS confirm, then redirect home.
+// Delete-account handler · DELETE /api/me with a JS confirm, then redirect home.
 (function () {
   var btn = document.getElementById('cd-delete-btn');
   if (!btn) return;

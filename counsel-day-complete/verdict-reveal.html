@@ -202,72 +202,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="method-page-inner">
 
       <div class="method-page-head">
-        <div class="method-page-eyebrow">File · CD-2026-04-9417 · Opened 15 May 2026</div>
-        <h1 class="method-page-title">The two verdicts, side by <span class="ital">side.</span></h1>
-        <p class="method-page-lede">Below, the two private trajectories that ran in parallel for thirty days. Neither of you saw the other's drift until this moment.</p>
+        <div class="method-page-eyebrow">File · your verdict</div>
+        <h1 class="method-page-title">Your <span class="ital">verdict.</span></h1>
+        <p class="method-page-lede">The synthesis of every sealed vote, delivered whole. The full trajectory, themes, and word-level detail live in the report.</p>
       </div>
 
-      <div class="verdict-slips-r">
-        <div class="verdict-slip a">
-          <div class="partner">James · Partner A</div>
-          <div class="word">YES</div>
-          <div class="traj">Conviction · <strong>rose 28%</strong> across 30 days</div>
-          <p class="note">"The school's curriculum changed the shape of the question. Once we toured, the city move stopped being about us and started being about him."</p>
-        </div>
-        <div class="verdict-slip b">
-          <div class="partner">Alexandra · Partner B</div>
-          <div class="word">LEAN YES</div>
-          <div class="traj">Conviction · <strong>rose 14%</strong> across 30 days</div>
-          <p class="note">"I am closer to yes than I was, but the village is still the loss I keep weighing. Yes, with a quiet grief."</p>
-        </div>
-      </div>
-
-      <!-- TRAJECTORY -->
-      <section class="method-stage">
-        <div class="method-stage-head">
-          <div class="method-stage-eyebrow">File · Trajectory</div>
-          <h2 class="method-stage-title">Both lines rose; they did not <span class="ital">match.</span></h2>
-        </div>
-        <div class="method-stage-body">
-          <p>James opened at Lean No and closed at Strong Yes; Alexandra opened at No and closed at Lean Yes. The slopes are different, the destinations are close. A verdict made of two converging slopes is structurally different from a verdict made of two flat lines · it tells you the decision is durable, that both of you moved with reason.</p>
-        </div>
-      </section>
-
-      <!-- THEMES -->
-      <section class="method-stage">
-        <div class="method-stage-head">
-          <div class="method-stage-eyebrow">File · Themes</div>
-          <h2 class="method-stage-title">What you each kept writing about, when no one was <span class="ital">reading.</span></h2>
-        </div>
-        <div class="method-stage-body">
-          <p><strong>Child's social world</strong> · 21 mentions, both partners, rose from week two.<br>
-          <strong>Loss of place</strong> · 18 mentions, mostly Alexandra, weighed against gains rather than against the move itself.<br>
-          <strong>School curriculum fit</strong> · 14 mentions, James, tipped after the open evening on day six.<br>
-          <strong>Financial reality</strong> · 11 mentions, both, settled by week three.<br>
-          <strong>Commute and rhythm</strong> · 9 mentions, Alexandra, surfaced late, never resolved within the period.</p>
-        </div>
-      </section>
-
-      <!-- SYNTHESIS -->
-      <section class="method-stage">
-        <div class="method-stage-head">
-          <div class="method-stage-eyebrow">File · Synthesis</div>
-          <h2 class="method-stage-title">What you were actually <span class="ital">arguing about.</span></h2>
-        </div>
-        <div class="founder-case">
-          <div class="label">Synthesis paragraph · day 30</div>
-          <p><strong>The surface question was whether to move into the city for school.</strong> The axis underneath, as your notes consistently revealed, was a different question: <em>what does each of you owe the village you have built, and what does each of you owe the child you are raising inside it?</em> James moved first because the curriculum question was decisive for him; Alexandra moved second, more slowly, because the loss of the village was a real cost that the curriculum did not erase. The verdict is a yes, with a quiet grief.</p>
-        </div>
-      </section>
-
-      <!-- CONVERSATION PROMPT -->
-      <section class="method-stage">
-        <div class="method-stage-head">
-          <div class="method-stage-eyebrow">File · The one specific question</div>
-          <h2 class="method-stage-title">What to talk about <span class="ital">tonight.</span></h2>
-        </div>
-        <p class="method-pullquote">"Alexandra, what do you want to keep from the village, deliberately, even after the move? James, what specifically do you want to make sure he carries with him from the place he was born?"</p>
-      </section>
+      <!-- Real verdict content is injected here by the hydration script below. -->
+      <div class="verdict-slips-r" id="cd-vr-body"></div>
 
     </div>
 
@@ -436,26 +377,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         var verdict = res.body.verdict || {};
         var synth = document.querySelector('#revealed .verdict-slips-r') || document.querySelector('#revealed');
         if (synth) {
-          /* TTS narration block · only rendered when the verdict-generate
-             cron has produced an audio file. The player is HTML5 native
-             so it works on every browser without extra script. We use
-             preload="none" so the MP3 doesn't download until the user
-             actually presses play. */
-          var ttsHtml = '';
-          if (verdict.tts_audio_url) {
-            ttsHtml =
-              '<div style="margin: 0 0 24px; padding: 16px 18px; border: 1px solid var(--rule); background: var(--paper-deep, #fafaf8);">' +
-                '<p style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine); margin: 0 0 10px;">Listen to the verdict</p>' +
-                '<audio controls preload="none" style="width: 100%; max-width: 100%;" aria-label="Verdict narration">' +
-                  '<source src="' + verdict.tts_audio_url + '" type="audio/mpeg">' +
-                  'Your browser does not support audio playback. The verdict text is below.' +
-                '</audio>' +
-                '<p style="margin: 8px 0 0; font-family: var(--font-body); font-style: italic; font-size: 13px; color: var(--muted);">A calm narration of the synthesis below · for a walk, not a screen.</p>' +
-              '</div>';
-          }
           synth.insertAdjacentHTML('afterbegin',
             '<div style="padding: 30px; font-family: var(--font-body); font-size: 17px; line-height: 1.65; color: var(--ink); max-width: 760px; margin: 0 auto;">' +
-              ttsHtml +
               '<p style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin: 0 0 18px;">Verdict synthesis</p>' +
               '<div id="cd-synth"></div>' +
               (verdict.next_conversation_prompt ?

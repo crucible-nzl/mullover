@@ -113,7 +113,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   .compose-field select.fmt-select { width: 100%; max-width: 480px; padding: 14px 16px; border: 1px solid var(--rule); background: var(--paper); font-family: var(--font-body); font-size: 16px; color: var(--ink); appearance: none; -webkit-appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--ink) 50%), linear-gradient(135deg, var(--ink) 50%, transparent 50%); background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; }
   .compose-field select.fmt-select:focus { outline: none; border-color: var(--wine); }
 
-  .dur-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; border: 1px solid var(--ink); background: var(--paper); }
+  .dur-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid var(--ink); background: var(--paper); }
   .dur-radio { padding: 18px 12px; border-right: 1px solid var(--rule); cursor: pointer; text-align: center; position: relative; transition: background 120ms ease; }
   .dur-radio:last-child { border-right: none; }
   .dur-radio:hover { background: var(--paper-deep); }
@@ -129,7 +129,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   .partner-input:focus { outline: none; border-color: var(--wine); }
   .partner-input::placeholder { font-style: italic; color: var(--subtle); }
 
-  .tier-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; border: 1px solid var(--ink); background: var(--paper); }
+  .tier-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid var(--ink); background: var(--paper); }
   .tier-radio { padding: 18px 14px; border-right: 1px solid var(--rule); cursor: pointer; position: relative; transition: background 120ms ease; }
   .tier-radio:last-child { border-right: none; }
   .tier-radio:hover { background: var(--paper-deep); }
@@ -384,7 +384,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <div class="compose-confirm">
       <div class="label">ON FILING, THIS DECISION WILL BE ASSIGNED</div>
-      <p>concluding <strong id="end-date">14 June 2026</strong> at 22:00 NZST · sealed-read from day one until the reveal day. The reference and the dates are permanent once you file.</p>
+      <p>concluding <strong id="end-date">the day you set</strong> in your local evening · sealed-read from day one until the reveal day. The reference and the dates are permanent once you file.</p>
     </div>
 
     <div class="compose-submit-row">
@@ -544,7 +544,7 @@ function updateEndDate() {
   var checked = document.querySelector('input[name="duration"]:checked');
   if (!checked) return;
   var days = parseInt(checked.value, 10);
-  var d = new Date(2026, 4, 15);
+  var d = new Date();
   d.setDate(d.getDate() + days);
   var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   var label = d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();

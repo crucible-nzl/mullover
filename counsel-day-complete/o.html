@@ -13,6 +13,13 @@
 <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
 <link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
 
+
+<!-- Preload above-the-fold font subsets (latin) · hero heading
+     (Newsreader), body (Source Serif 4), nav/UI (Geist). crossorigin is
+     required so the preload matches the CORS-anonymous @font-face fetch. -->
+<link rel="preload" as="font" type="font/woff2" href="/fonts/newsreader-cY9AfjOCX1hbuyalUrK4397yjA.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/sourceserif4-vEFI2_tTDB4M7-auWDN0ahZJW1gb8tc.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/geist-gyByhwUxId8gMEwcGFU.woff2" crossorigin>
 <!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -67,7 +74,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
      stylesheet, and ga4.js script. The rotator typically redirects in
      under 100ms so none of this is visually rendered, but the brand
      verifier treats /o.html as a public page so these must be present. -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,500;1,400;1,500&family=Source+Serif+4:wght@400;500&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/fonts/fonts.css">
 <link rel="stylesheet" href="styles-i8.css">
 <script src="ga4.js" defer></script>
 <!--

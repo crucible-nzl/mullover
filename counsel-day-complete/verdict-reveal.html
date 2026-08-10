@@ -383,12 +383,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               '<div id="cd-synth"></div>' +
               (verdict.next_conversation_prompt ?
                 '<p style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin: 30px 0 12px;">The conversation that follows</p>' +
-                '<blockquote style="border-left: 3px solid var(--wine); padding: 6px 0 6px 20px; margin: 0; font-style: italic; color: var(--ink);">' + (verdict.next_conversation_prompt || '') + '</blockquote>'
+                '<blockquote id="cd-vr-prompt" style="border-left: 3px solid var(--wine); padding: 6px 0 6px 20px; margin: 0; font-style: italic; color: var(--ink);"></blockquote>'
                 : '') +
               '<p style="margin: 28px 0 0; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;"><a href="verdict-report.html?id=' + encodeURIComponent(id) + '" class="u-wine-link">Open the full report &rarr;</a> · trajectory, themes, word cloud, sentiment, re-delivery</p>' +
             '</div>');
           var s = document.getElementById('cd-synth');
           if (s) s.textContent = verdict.synthesis_text || '';
+          // Set the AI-generated prompt via textContent (never innerHTML) so
+          // any markup in the model output renders as text, not executable HTML.
+          var pq = document.getElementById('cd-vr-prompt');
+          if (pq) pq.textContent = verdict.next_conversation_prompt || '';
         }
         return;
       }

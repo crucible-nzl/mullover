@@ -1,10 +1,10 @@
 # Counsel.day
 
-> Counsel.day is a sealed-vote decision tool for couples, families, and solo deciders. Users compose a single question, vote privately each evening for a duration they choose (7-365 days), and on the final day the verdict opens for everyone at the same instant with a five-layer analysis of the pattern.
+> Counsel.day is a sealed-vote decision tool for couples, families, and solo deciders. Users compose a single question, vote privately each evening for a duration they choose (7-90 days), and on the final day the verdict opens for everyone at the same instant with a five-layer analysis of the pattern.
 
 Counsel.day is not therapy, not legal or financial advice, and not a recommendation engine. The product synthesises the user's own daily votes and notes; it never tells the user what to do. James Graham (founder) is a data professional, not a clinician.
 
-The product is global, priced in USD. Per-decision only: Solo $9.99 USD, Couple $15.99 USD, Family $29.99 USD. The first Solo decision is free. There is no consumer subscription.
+The product is global, priced in USD. Per-decision only: Solo $4.99 USD, Couple $9.99 USD, Family $19.99 USD. The first Solo decision is free (7-day duration; Python summary, no AI-written synthesis). There is no consumer subscription.
 
 ## Core product pages
 
@@ -12,7 +12,7 @@ The product is global, priced in USD. Per-decision only: Solo $9.99 USD, Couple 
 - [The method](https://counsel.day/method.html): the seven-stage end-to-end walkthrough of how a decision unfolds from compose to verdict.
 - [Why time](https://counsel.day/why-time.html): the case for a duration of days/weeks vs a single conversation.
 - [The distinction](https://counsel.day/distinction.html): how Counsel.day differs from polling apps, therapy apps, and decision-matrix tools.
-- [A real verdict](https://counsel.day/verdict.html): a full reproduced verdict from a couple ("Should we move into the city?") · the only public end-to-end example.
+- [An example verdict](https://counsel.day/verdict.html): a full illustrative verdict (a worked example, "Should we move into the city?"; names and content fictional) · the only public end-to-end example.
 - [For families](https://counsel.day/family.html): how the same mechanism scales to 3-6 participants for household decisions.
 - [Pricing](https://counsel.day/pricing.html): full SKU catalogue, USD only, worldwide.
 - [Compare tiers](https://counsel.day/compare.html): Solo vs Couple vs Family side-by-side.
@@ -20,11 +20,11 @@ The product is global, priced in USD. Per-decision only: Solo $9.99 USD, Couple 
 ## Trust and policy
 
 - [Privacy](https://counsel.day/privacy.html): data minimisation, sub-processors, retention, GDPR + UK PECR posture.
-- [Sub-processors](https://counsel.day/sub-processors.html): canonical list (Anthropic, Stripe, Brevo, Zoho, Hetzner, Cloudflare).
+- [Sub-processors](https://counsel.day/sub-processors.html): canonical list (Anthropic, OpenAI, Stripe, Brevo, Zoho, Hetzner, Cloudflare).
 - [Terms](https://counsel.day/terms.html): the legal agreement.
 - [Refunds](https://counsel.day/refunds.html): defects-only refund policy, statutory rights preserved.
 - [Cookies](https://counsel.day/cookies.html): essential vs analytics, Consent Mode v2 default-denied.
-- [Accessibility](https://counsel.day/accessibility.html): WCAG 2.2 AA posture and known gaps.
+- [Accessibility](https://counsel.day/accessibility.html): WCAG 2.1 AA posture and known gaps.
 - [Editorial standards](https://counsel.day/editorial-standards.html): how copy is written and reviewed.
 - [Security disclosure](https://counsel.day/.well-known/security.txt): RFC 9116 contact policy.
 

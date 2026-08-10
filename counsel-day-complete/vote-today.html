@@ -296,16 +296,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="commit-row">
           <button type="button" class="btn btn-large" onclick="sealVote()">SEAL TONIGHT'S VOTE</button>
           <a href="decisions.html" class="skip">Skip tonight</a>
-          <span class="meta">Partner B · ALEX · voted at 18:42</span>
+          <span class="meta">Your partner sees only that you voted, never which way.</span>
         </div>
 
       </div>
 
-      <div class="envelope-caption">THIS VOTE WILL REMAIN SEALED UNTIL 28 MAY 2026 · 22:00 NZST</div>
+      <div class="envelope-caption" id="cd-vote-caption">THIS VOTE STAYS SEALED UNTIL THE VERDICT DAY</div>
     </div>
 
     <div class="sealed-footer">
-      <strong>THIS VOTE WILL REMAIN SEALED UNTIL 28 MAY 2026.</strong> No admin override. No support escape hatch.
+      <strong id="cd-vote-sealedfoot">THIS VOTE STAYS SEALED UNTIL THE VERDICT DAY.</strong> No admin override. No support escape hatch.
     </div>
 
   </div>
@@ -573,6 +573,11 @@ function sealVote() {
       set('cd-vote-dayref', 'DAY ' + (d.decision.day_number || 1) + ' OF ' + d.decision.duration_days);
       set('cd-vote-datestamp', fmtDate(new Date()));
       set('cd-vote-reveal', revealLabel);
+      var sealUntil = fmtRevealDate(d.decision.unseals_at);
+      if (sealUntil) {
+        set('cd-vote-caption', 'THIS VOTE WILL REMAIN SEALED UNTIL ' + sealUntil);
+        set('cd-vote-sealedfoot', 'THIS VOTE WILL REMAIN SEALED UNTIL ' + sealUntil + '.');
+      }
       var q = document.getElementById('cd-vote-question');
       if (q) q.textContent = d.decision.question;
       if (d.voted_today) {

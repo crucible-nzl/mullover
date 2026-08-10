@@ -208,8 +208,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
         <div class="duration-row tables">
           <div class="duration-cell"><div class="tname">accounts</div><div class="ttype">User accounts</div></div>
-          <div class="duration-cell"><div class="ttype">Email, display name, plan tier</div></div>
-          <div class="duration-cell"><div class="tnote">No password column · sign-in is magic-link only, via Brevo.</div></div>
+          <div class="duration-cell"><div class="ttype">Email, password hash, display name, plan tier</div></div>
+          <div class="duration-cell"><div class="tnote">Passwords are Argon2id-hashed (OWASP parameters); sign-in is by password or magic-link, via Brevo.</div></div>
           <div class="duration-cell"><div class="tseal no">No</div></div>
         </div>
         <div class="duration-row tables">

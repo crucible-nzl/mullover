@@ -265,6 +265,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         document.getElementById('di-themes-panel').innerHTML = '<div class="di-locked"><p><strong>One more decision until the cross-decision view unlocks.</strong> Recurring themes and your decision vocabulary appear once two or more decisions are sealed and opened.</p></div>';
         document.getElementById('di-vocab-panel').style.display = 'none';
       }
+    })
+    .catch(function () {
+      document.getElementById('di-state').innerHTML = '<div class="di-empty"><h2>Could not load insights</h2><p>Please refresh.</p></div>';
     });
 })();
 </script>

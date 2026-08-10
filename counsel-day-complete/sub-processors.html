@@ -173,14 +173,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="method-page-meta">
         <div class="item"><span>Effective</span><span class="val wine">14 MAY 2026</span></div>
         <div class="item"><span>Last revised</span><span class="val">14 MAY 2026</span></div>
-        <div class="item"><span>Total vendors</span><span class="val">7</span></div>
+        <div class="item"><span>Total vendors</span><span class="val">8</span></div>
       </div>
     </header>
 
     <section class="method-stage" id="vendors">
       <div class="method-stage-head">
         <div class="method-stage-eyebrow">THE LIST</div>
-        <h2 class="method-stage-title">The seven vendors, in <span class="ital">full.</span></h2>
+        <h2 class="method-stage-title">The eight vendors, in <span class="ital">full.</span></h2>
       </div>
       <div class="method-stage-body">
         <p>Each vendor below has a signed DPA in place. Where we transfer personal data out of the EU or UK, we rely on the European Commission's Standard Contractual Clauses (SCCs) and the UK Addendum where applicable. Where the destination has an EU adequacy decision, we record that as the transfer mechanism instead.</p>
@@ -242,7 +242,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
           <div class="sp-row" role="row">
             <div class="sp-cell" role="cell" data-label="Vendor"><span class="sp-vendor">Infisical, Inc.</span><span class="sp-vendor-sub">infisical.com · self-hosted</span></div>
-            <div class="sp-cell sp-purpose" role="cell" data-label="Purpose">Secrets management · API keys, encryption keys, service tokens. Self-hosted on our own AWS EU infrastructure.</div>
+            <div class="sp-cell sp-purpose" role="cell" data-label="Purpose">Secrets management · API keys, encryption keys, service tokens. Self-hosted on our own Hetzner EU infrastructure.</div>
             <div class="sp-cell sp-data" role="cell" data-label="Data">No user data. Application secrets only.</div>
             <div class="sp-cell" role="cell" data-label="Location"><span class="sp-loc">EU · self-hosted</span></div>
             <div class="sp-cell sp-mech" role="cell" data-label="Mechanism">EU adequacy (in-region); no transfer outside EU.</div>
@@ -250,11 +250,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </div>
 
           <div class="sp-row" role="row">
-            <div class="sp-cell" role="cell" data-label="Vendor"><span class="sp-vendor">Amazon Web Services</span><span class="sp-vendor-sub">aws.amazon.com · eu-central-1</span></div>
-            <div class="sp-cell sp-purpose" role="cell" data-label="Purpose">Compute, storage, managed Postgres, encrypted backups. Production runs in Frankfurt.</div>
+            <div class="sp-cell" role="cell" data-label="Vendor"><span class="sp-vendor">Hetzner Online GmbH</span><span class="sp-vendor-sub">hetzner.com · Germany</span></div>
+            <div class="sp-cell sp-purpose" role="cell" data-label="Purpose">Compute, storage, managed Postgres, encrypted backups. Production runs in Germany (EU).</div>
             <div class="sp-cell sp-data" role="cell" data-label="Data">All decision data, account data, encrypted backups. Row-level-security enforced.</div>
-            <div class="sp-cell" role="cell" data-label="Location"><span class="sp-loc">EU · Frankfurt</span></div>
-            <div class="sp-cell sp-mech" role="cell" data-label="Mechanism">EU adequacy (in-region); AWS DPA + EU-pinned regions; SCCs in place for the AWS account itself.</div>
+            <div class="sp-cell" role="cell" data-label="Location"><span class="sp-loc">EU · Germany</span></div>
+            <div class="sp-cell sp-mech" role="cell" data-label="Mechanism">EU adequacy (in-region); Hetzner DPA; data stays in the EU.</div>
+            <div class="sp-cell" role="cell" data-label="DPA"><span class="sp-dpa">Signed</span></div>
+          </div>
+
+          <div class="sp-row" role="row">
+            <div class="sp-cell" role="cell" data-label="Vendor"><span class="sp-vendor">OpenAI, L.L.C.</span><span class="sp-vendor-sub">openai.com</span></div>
+            <div class="sp-cell sp-purpose" role="cell" data-label="Purpose">Speech-to-text · transcribes the optional voice note via the Whisper API on the no-training tier. Used only on browsers without on-device transcription.</div>
+            <div class="sp-cell sp-data" role="cell" data-label="Data">Audio bytes of a voice note, held in memory only and discarded after transcription. No account identifier.</div>
+            <div class="sp-cell" role="cell" data-label="Location"><span class="sp-loc">USA</span></div>
+            <div class="sp-cell sp-mech" role="cell" data-label="Mechanism">SCCs + UK Addendum; API no-training tier (data not used to train models).</div>
             <div class="sp-cell" role="cell" data-label="DPA"><span class="sp-dpa">Signed</span></div>
           </div>
         </div>

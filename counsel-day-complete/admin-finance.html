@@ -120,7 +120,7 @@
       $('m-rp').textContent = d.refunds.processed_30d;
       $('m-rr-ratio').textContent = d.refunds.ratio_pct + ' %';
 
-      // Cost-tracked services · OpenAI Whisper, Anthropic, Cloudflare R2.
+      // Cost-tracked services · OpenAI Whisper, Anthropic.
       // Falls back to '·' when /api/admin/finance doesn't yet return
       // these fields (backend addition pending; UI ships first).
       var c = d.cost_tracked || {};

@@ -27,15 +27,10 @@ EXCLUDE_DIRS = {'scripts', 'ops'}
 def is_admin_page(filename):
     return filename.lower().startswith('admin')
 
-GTM_ID = 'GTM-PFFSDN3M'
+# GTM was retired 2026-08-10 · gtag.js is the sole tag path (the GA4 funnel in
+# ga4.js runs on it), and ad pixels live inline on the offer pages, not in a
+# container. The GA4 id is the idempotency sentinel now that GTM is gone.
 GA4_ID = 'G-SX20BZZP59'
-
-NOSCRIPT_BLOCK = (
-    '<!-- Google Tag Manager (noscript) -->\n'
-    '<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=' + GTM_ID + '"\n'
-    'height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>\n'
-    '<!-- End Google Tag Manager (noscript) -->\n'
-)
 
 
 def load_snippet():
@@ -47,7 +42,7 @@ def inject_one(path, snippet):
     with open(path, 'r', encoding='utf-8') as f:
         content = f.read()
 
-    if GTM_ID in content and GA4_ID in content:
+    if GA4_ID in content:
         return 'skip-already-injected'
 
     # --- inject the head snippet ---
@@ -69,13 +64,6 @@ def inject_one(path, snippet):
             return 'no-head-tag'
         insert_at = m.end()
         new_content = content[:insert_at] + '\n' + snippet + content[insert_at:]
-
-    # --- inject the noscript right after <body> ---
-    body_re = re.compile(r'(<body[^>]*>)', re.IGNORECASE)
-    m = body_re.search(new_content)
-    if m and NOSCRIPT_BLOCK.strip() not in new_content:
-        insert_at = m.end()
-        new_content = new_content[:insert_at] + '\n\n' + NOSCRIPT_BLOCK + new_content[insert_at:]
 
     if new_content == content:
         return 'no-change'

@@ -2,7 +2,7 @@
  * POST /api/compose
  *   question       (10-280 chars)
  *   format         ('yes_no' | 'strong_lean' | 'a_b')
- *   duration_days  (7-365)
+ *   duration_days  (7-90 · free tier is fixed at 7)
  *   tier           ('solo_free' | 'solo_paid' | 'couple' | 'family')
  *   participants   ([{display_name, invite_email}] for couple/family)
  *
@@ -51,7 +51,7 @@ const participantSchema = z.object({
 const composeSchema = z.object({
   question: z.string().trim().min(10).max(280),
   format: z.enum(['yes_no', 'strong_lean', 'a_b', 'ranked']),
-  duration_days: z.coerce.number().int().min(7).max(365),
+  duration_days: z.coerce.number().int().min(7).max(90),
   tier: z.enum(['solo_free', 'solo_paid', 'couple', 'family']),
   owner_display_name: z.string().trim().min(1).max(80).optional(),
   participants: z.array(participantSchema).optional(),

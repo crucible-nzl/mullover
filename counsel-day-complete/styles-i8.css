@@ -415,6 +415,7 @@ textarea:focus:not(:focus-visible) {
   font-size: clamp(40px, 4.8vw, 60px);
   font-weight: 400; line-height: 1.06; letter-spacing: -0.018em;
   color: var(--ink); margin: 0 0 24px; max-width: 1280px;
+  text-wrap: balance;
 }
 .method-page-title .ital { font-style: italic; color: var(--wine); font-weight: 400; }
 .method-page-lede {
@@ -694,7 +695,8 @@ textarea:focus:not(:focus-visible) {
   font-family: var(--font-display);
   font-size: clamp(32px, 4vw, 46px);
   font-weight: 400; line-height: 1.1; letter-spacing: -0.015em;
-  color: var(--ink); margin: 0 auto 30px; max-width: 1100px;
+  color: var(--ink); margin: 0 auto 30px; max-width: 1620px;
+  text-wrap: balance;
 }
 .method-cta-title .ital { font-style: italic; color: var(--wine); }
 .method-cta-row {
@@ -718,6 +720,7 @@ section { padding: 30px 32px; border-bottom: 1px solid var(--rule); }
   font-size: clamp(32px, 3.8vw, 46px);
   font-weight: 400; line-height: 1.12; letter-spacing: -0.012em;
   color: var(--ink); margin: 0 0 22px; max-width: 1280px;
+  text-wrap: balance;
 }
 .section-title .ital { font-style: italic; color: var(--wine); font-weight: 400; }
 .section-dek {
@@ -1182,7 +1185,8 @@ section { padding: 30px 32px; border-bottom: 1px solid var(--rule); }
 .closing-title {
   font-family: var(--font-display); font-size: clamp(32px, 4.2vw, 48px);
   font-weight: 400; line-height: 1.1; letter-spacing: -0.015em;
-  color: var(--ink); margin: 0 auto 20px; max-width: 1100px;
+  color: var(--ink); margin: 0 auto 20px; max-width: 1400px;
+  text-wrap: balance;
 }
 .closing-title .ital { font-style: italic; color: var(--wine); }
 .closing-sub {

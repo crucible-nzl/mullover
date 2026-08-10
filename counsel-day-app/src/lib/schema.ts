@@ -173,7 +173,7 @@ export const decisions = pgTable(
     ),
     durationCheck: check(
       'decisions_duration_check',
-      sql`${t.durationDays} BETWEEN 7 AND 365`
+      sql`${t.durationDays} BETWEEN 7 AND 90`
     ),
   })
 );

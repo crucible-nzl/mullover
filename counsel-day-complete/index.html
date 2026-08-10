@@ -172,7 +172,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           "name": "How long does a decision take?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "You choose the duration when you compose the question. Common choices are a fortnight (14 days), a month (30 days), or a season (90 days). The minimum is 7 days; the maximum is 365. The verdict opens on the final evening of your chosen duration."
+            "text": "You choose the duration when you compose the question. Common choices are a fortnight (14 days), a month (30 days), or a season (90 days). The minimum is 7 days; the maximum is 90. The verdict opens on the final evening of your chosen duration."
           }
         },
         {
@@ -507,9 +507,9 @@ a:hover { color: var(--wine-deep); }
   padding: 30px 32px;
 }
 .hook-inner {
-  max-width: 980px; margin: 0 auto;
-  display: grid; grid-template-columns: 160px 1fr;
-  gap: 56px; align-items: start;
+  max-width: 1620px; margin: 0 auto;
+  display: grid; grid-template-columns: 220px 1fr;
+  gap: 64px; align-items: start;
 }
 .hook-label {
   font-family: var(--font-mono);
@@ -1417,7 +1417,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <!-- DECISION CARD · Counsel.day -->
     <article class="product-card">
-      <div class="pc-kicker">DECISION TOOL</div>
       <h2 class="pc-name">Counsel.day <span class="ital">Decision</span></h2>
       <p class="pc-tagline">For the question one conversation cannot resolve.</p>
       <ul class="pc-points">
@@ -1434,7 +1433,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     </div>
     <div class="hero-right" id="how">
-      <div class="how-eyebrow">HOW IT WORKS</div>
       <h2 class="how-title">A picture of <span class="ital">the method.</span></h2>
 
     <div class="how-grid">
@@ -1576,7 +1574,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   @keyframes cd-pulse { 0%, 100% { opacity: 0.9; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
   @media (prefers-reduced-motion: reduce) { .intro-free-pill .dot { animation: none; } }
   .intro-kicker { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--wine); margin-bottom: 10px; }
-  .intro-headline { font-family: var(--font-display); font-weight: 400; font-size: clamp(34px, 5.2vw, 76px); line-height: 1.02; letter-spacing: -0.02em; color: var(--ink); margin: 0 0 10px; }
+  .intro-headline { font-family: var(--font-display); font-weight: 400; font-size: clamp(34px, 5.2vw, 76px); line-height: 1.02; letter-spacing: -0.02em; color: var(--ink); margin: 0 0 10px; text-wrap: balance; }
   .intro-headline .ital { font-style: italic; color: var(--wine); }
   .intro-lede { font-family: var(--font-body); font-size: 17px; line-height: 1.45; color: var(--ink-soft); margin: 0 auto; max-width: 1080px; }
   .intro-lede strong { color: var(--ink); font-weight: 500; }
@@ -1591,7 +1589,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   .hero-right .how-title { text-align: left; font-size: clamp(26px, 2.6vw, 40px); margin: 0 0 22px; }
 
   /* PRODUCT CARD · sits in the left hero column */
-  .product-card { border: 1px solid var(--ink); background: var(--paper); padding: 24px 28px 28px; display: flex; flex-direction: column; }
+  .product-card { background: var(--paper); padding: 0; display: flex; flex-direction: column; }
   .product-card .pc-kicker { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink); margin-bottom: 10px; }
   .product-card .pc-name { font-family: var(--font-display); font-weight: 400; font-size: clamp(26px, 2.6vw, 34px); line-height: 1.05; letter-spacing: -0.012em; color: var(--ink); margin: 0 0 6px; }
   .product-card .pc-name .ital { font-style: italic; color: var(--wine); }
@@ -1607,7 +1605,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   .how-band { padding: 64px 28px 80px; background: var(--paper-deep, #faf8f4); border-bottom: 1px solid var(--rule); }
   .how-inner { max-width: 1620px; margin: 0 auto; }
   .how-eyebrow { font-family: var(--font-mono); font-size: 13px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--wine); margin-bottom: 14px; text-align: center; }
-  .how-title { font-family: var(--font-display); font-weight: 400; font-size: clamp(32px, 4vw, 56px); line-height: 1.05; letter-spacing: -0.018em; color: var(--ink); margin: 0 0 14px; text-align: center; }
+  .how-title { font-family: var(--font-display); font-weight: 400; font-size: clamp(32px, 4vw, 56px); line-height: 1.05; letter-spacing: -0.018em; color: var(--ink); margin: 0 0 14px; text-align: center; text-wrap: balance; }
   .how-title .ital { font-style: italic; color: var(--wine); }
   .how-lede { font-family: var(--font-body); font-size: 17px; line-height: 1.55; color: var(--ink-soft); margin: 0 auto 56px; max-width: 880px; text-align: center; }
   .how-grid { display: grid; grid-template-columns: 1fr; gap: 72px; }
@@ -1620,7 +1618,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   @media (max-width: 900px) {
     .hero-split-inner { grid-template-columns: 1fr; gap: 26px; }
     .hero-right .how-eyebrow, .hero-right .how-title { text-align: center; }
-    .product-card { padding: 22px 22px 26px; }
+    .product-card { padding: 0; }
     .intro-band { padding: 22px 18px 10px; }
     .hero-split { padding: 6px 18px 32px; }
     .how-figure { padding: 22px 18px 26px; }

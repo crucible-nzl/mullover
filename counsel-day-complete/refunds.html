@@ -184,8 +184,8 @@
         <p>We issue a full refund, without argument and without requiring you to ask twice, in any of the following situations:</p>
         <ul class="legal-list">
           <li><strong>The verdict pipeline failed.</strong> Your decision ran to the unseal date but the verdict did not generate, or generated in a form unreadable to you (no synthesis on a paid tier, no themes, the analysis was empty, or the email did not deliver and we cannot recover it).</li>
-          <li><strong>You were double-charged.</strong> Stripe took the same payment twice, or you were billed for an annual renewal you had previously cancelled.</li>
-          <li><strong>The decision did not run for the duration purchased.</strong> Your fourteen-day decision was cut short to seven; your annual subscription was terminated by us before its renewal date for a reason other than your breach.</li>
+          <li><strong>You were double-charged.</strong> Stripe took the same payment twice, or you were charged for a decision you had already paid for.</li>
+          <li><strong>The decision did not run for the duration purchased.</strong> Your fourteen-day decision was cut short to seven; or your decision was terminated by us before its unseal date for a reason other than your breach.</li>
           <li><strong>The product itself was offline for a meaningful portion of your decision.</strong> If a published incident on <a href="https://status.counsel.day">status.counsel.day</a> spanned more than 24 hours of your decision and prevented you voting, the decision is refundable in full.</li>
         </ul>
       </div>
@@ -387,7 +387,7 @@
     })
       .then(function (r) {
         if (r.status === 401) {
-          window.location.href = '/signin.html?next=' + encodeURIComponent('/refunds.html');
+          window.location.href = '/signin?next=' + encodeURIComponent('/refunds.html');
           throw new Error('redirect');
         }
         return r.json().then(function (j) { return { status: r.status, body: j }; });

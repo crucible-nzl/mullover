@@ -237,20 +237,20 @@
 
     <div class="compose-field">
       <div class="field-label">FIELD 01 · THE QUESTION <span class="req">·</span> REQUIRED</div>
-      <h2 class="field-title">What are you <span class="ital">deciding?</span></h2>
+      <h2 class="field-title" id="cd-q-label">What are you <span class="ital">deciding?</span></h2>
       <p class="field-help">Phrase it as a single question that can be answered Yes or No. "Should we have a baby?" is better than "Family planning." The question is what you will see every evening of the period.</p>
       <!-- TASK 2 · gentle nudge for visitors who landed here without
            a question of their own. Links to the FAQ carousel which
            opens to the relevant tab via the #eq-pane-* hash. -->
       <p class="field-help" style="background: var(--paper-deep); border-left: 3px solid var(--wine); padding: 10px 14px; margin: 4px 0 12px; font-size: 13px;">No question yet? Browse <a href="faq.html#example-questions" class="u-wine-link">a hundred real questions (25 solo · 50 couple · 25 family)</a> for permission to bring your own. You can always edit before you file · these are starting points, not a fixed menu.</p>
-      <textarea class="q-input" id="q-input" name="question" placeholder="Should we …" maxlength="240" required oninput="updatePreview()"></textarea>
+      <textarea class="q-input" id="q-input" name="question" placeholder="Should we …" maxlength="240" required aria-labelledby="cd-q-label" oninput="updatePreview()"></textarea>
     </div>
 
     <div class="compose-field">
       <div class="field-label">FIELD 02 · FORMAT <span class="req">·</span> REQUIRED</div>
-      <h2 class="field-title">How do you want to <span class="ital">answer</span> each evening?</h2>
+      <h2 class="field-title" id="cd-fmt-label">How do you want to <span class="ital">answer</span> each evening?</h2>
       <p class="field-help">The four-band Strong/Lean format is the default and what the synthesis on the final day is tuned for. The simpler binary Yes/No is available for questions where the strength of the answer is not the interesting axis.</p>
-      <select class="fmt-select" name="format" required>
+      <select class="fmt-select" name="format" required aria-labelledby="cd-fmt-label">
         <option value="strong_lean" selected>Strong Yes · Lean Yes · Lean No · Strong No (recommended)</option>
         <option value="yes_no">Yes · No (binary)</option>
         <option value="a_b">Option A · Option B (two named choices)</option>
@@ -288,6 +288,7 @@
           input.value = value || '';
           input.style.cssText = 'flex: 1; padding: 11px 13px; font-family: var(--font-body); font-size: 16px; color: var(--ink); background: var(--paper); border: 1px solid var(--rule); box-sizing: border-box;';
           input.className = 'opt-input';
+          input.setAttribute('aria-label', 'Ranked decision option');
           var rm = document.createElement('button');
           rm.type = 'button';
           rm.textContent = '×';
@@ -362,13 +363,13 @@
 
     <div class="compose-field">
       <div class="field-label">FIELD 04 · INVITED PARTNER <span class="req">·</span> OPTIONAL</div>
-      <h2 class="field-title">Running this <span class="ital">with someone?</span></h2>
+      <h2 class="field-title" id="cd-partner-label">Running this <span class="ital">with someone?</span></h2>
       <p class="field-help">Add a partner by email to run the decision jointly. Either of you may invite, and the invitation is single-use. Leave blank to run a Solo decision; you may add a partner later, but only before any votes have been cast.</p>
       <div id="cd-saved-contacts" style="display: none; margin-bottom: 12px;">
         <div style="font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px;">Quick-pick from saved contacts</div>
         <div id="cd-contact-chips" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
       </div>
-      <input type="email" class="partner-input" id="cd-partner-email-input" name="partner_email" placeholder="partner@example.com">
+      <input type="email" class="partner-input" id="cd-partner-email-input" name="partner_email" placeholder="partner@example.com" aria-labelledby="cd-partner-label" autocomplete="email">
       <p style="font-family: var(--font-body); font-style: italic; font-size: 13px; color: var(--muted); margin: 6px 0 0;">People you invite are saved automatically · you will not need to retype their email next time.</p>
     </div>
 
@@ -388,6 +389,8 @@
       <div class="label">ON FILING, THIS DECISION WILL BE ASSIGNED</div>
       <p>concluding <strong id="end-date">the day you set</strong> in your local evening · sealed-read from day one until the reveal day. The reference and the dates are permanent once you file.</p>
     </div>
+
+    <div id="cd-compose-msg" role="alert" aria-live="assertive" style="display: none; font-family: var(--font-body); font-size: 15px; line-height: 1.5; color: var(--wine); padding: 12px 16px; margin: 20px 0 0; background: var(--paper-deep); border-left: 3px solid var(--wine);"></div>
 
     <div class="compose-submit-row">
       <button type="button" class="save-draft" onclick="saveDraft()">Save as draft</button>
@@ -413,7 +416,7 @@
           <p class="colophon-tagline">Counsel.day is for solo, couples, and families facing a hard joint decision · one private vote each evening on the same question, for a duration you set, sealed until the final day. Worldwide, priced in USD.</p>
         </div>
         <div class="colophon-col">
-          <h5>The app</h5>
+          <h3 class="colophon-col-h">The app</h3>
           <a href="decisions.html">Your decisions</a>
           <a href="vote-today.html">Tonight's vote</a>
           <a href="compose.html">Compose</a>
@@ -428,7 +431,7 @@
           <a href="pricing.html">Pricing</a>
         </div>
         <div class="colophon-col">
-          <h5>Support</h5>
+          <h3 class="colophon-col-h">Support</h3>
           <a href="help.html">Help</a>
           <a href="helper.html">Helper bot</a>
           <a href="correspondence.html">Correspondence</a>
@@ -557,6 +560,16 @@ function updateEndDate() {
    and redirect to Stripe. Auth is enforced upstream by Caddy forward_auth, so
    reaching this page already implies a session. A 401 here only happens if the
    session expired mid-flow. */
+/* Inline compose messaging · replaces alert() so validation and submit
+   errors are on-brand and screen-reader-announced (role="alert"). */
+function showComposeMsg(text) {
+  var el = document.getElementById('cd-compose-msg');
+  if (!el) { window.alert(text); return; }
+  el.textContent = text;
+  el.style.display = 'block';
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
 function fileDecision(e) {
   e.preventDefault();
   var form = document.getElementById('compose-form');
@@ -564,7 +577,8 @@ function fileDecision(e) {
   var originalLabel = submitBtn.textContent;
   var q = (document.getElementById('q-input').value || '').trim();
   if (q.length < 10) {
-    alert('Please write at least a complete-sentence question (10 characters or more) before filing.');
+    showComposeMsg('Please write at least a complete-sentence question (10 characters or more) before filing.');
+    var qi = document.getElementById('q-input'); if (qi) qi.focus();
     return false;
   }
   var tier   = (form.querySelector('input[name="tier"]:checked')   || {}).value;
@@ -584,7 +598,7 @@ function fileDecision(e) {
   if (format === 'ranked' && typeof window.__cdRankedOptions === 'function') {
     var opts = window.__cdRankedOptions();
     if (!opts || opts.length < 3) {
-      alert('Ranked decisions need at least 3 options. Fill them in below the format dropdown.');
+      showComposeMsg('Ranked decisions need at least 3 options. Fill them in below the format dropdown.');
       submitBtn.disabled = false; submitBtn.textContent = originalLabel;
       return false;
     }
@@ -608,7 +622,7 @@ function fileDecision(e) {
     body: JSON.stringify(body)
   })
   .then(function (r) {
-    if (r.status === 401) { window.location.href = '/signin?next=' + encodeURIComponent('/compose.html'); return null; }
+    if (r.status === 401) { window.location.href = '/signin?next=' + encodeURIComponent(window.location.pathname + window.location.search); return null; }
     return r.json().then(function (j) { return { status: r.status, body: j }; });
   })
   .then(function (res) {
@@ -617,7 +631,7 @@ function fileDecision(e) {
       submitBtn.disabled = false;
       submitBtn.textContent = originalLabel;
       var msg = (res.body && (res.body.message || JSON.stringify(res.body.field_errors || {}))) || 'Could not file the decision. Please try again.';
-      alert(msg);
+      showComposeMsg(msg);
       return;
     }
     // Engagement signal for the PWA install prompt · filing a decision
@@ -664,7 +678,7 @@ function fileDecision(e) {
         } else {
           submitBtn.disabled = false;
           submitBtn.textContent = originalLabel;
-          alert((chk.body && chk.body.message) || 'Decision filed but checkout failed. Find it on Your decisions and complete payment from there.');
+          showComposeMsg((chk.body && chk.body.message) || 'Decision filed but checkout failed. Find it on Your decisions and complete payment from there.');
           window.location.href = '/decisions.html?just_filed=' + encodeURIComponent(res.body.decision_id) + '&pending_payment=1';
         }
       });
@@ -675,7 +689,7 @@ function fileDecision(e) {
   .catch(function () {
     submitBtn.disabled = false;
     submitBtn.textContent = originalLabel;
-    alert('Network error. Please try again.');
+    showComposeMsg('Network error. Please try again.');
   });
   return false;
 }
@@ -713,6 +727,13 @@ function saveDraft() {
         if (typeof updatePreview === 'function') updatePreview();
       }
     }
+    // Carry the evening-reminder time chosen in the welcome flow so it is not
+    // discarded. Stored client-side (shared with account settings) · the
+    // per-user prompt schedule is not yet enforced server-side.
+    var pt = params.get('prompt_time');
+    if (pt && /^\d{2}:\d{2}$/.test(pt)) {
+      try { localStorage.setItem('cd_evening_prompt_time', pt); } catch (_) {}
+    }
   } catch (_) {}
   var top = document.getElementById('go-to-top');
   if (top) {
@@ -730,7 +751,7 @@ function saveDraft() {
 (function () {
   fetch('/api/me', { credentials: 'include', headers: { accept: 'application/json' } })
     .then(function (r) {
-      if (r.status === 401) { window.location.href = '/signin.html?next=/compose.html'; throw new Error('redirect'); }
+      if (r.status === 401) { window.location.href = '/signin?next=' + encodeURIComponent(window.location.pathname + window.location.search); throw new Error('redirect'); }
       return r.json();
     })
     .then(function (d) {

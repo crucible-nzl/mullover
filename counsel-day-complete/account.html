@@ -325,7 +325,7 @@
           <span class="hint">A preference, not a purchase. We use this to pre-select a tier on the compose form and tune wording. You can change it any time and you can still file any tier of decision (each tier is paid at compose).</span>
         </div>
         <div class="value">
-          <select id="cd-input-intent" style="font-family: var(--font-body); font-size: 15px; padding: 10px 12px; border: 1px solid var(--ink); background: var(--paper); color: var(--ink); border-radius: 0; max-width: 360px;">
+          <select id="cd-input-intent" aria-label="Decision style" style="font-family: var(--font-body); font-size: 15px; padding: 10px 12px; border: 1px solid var(--ink); background: var(--paper); color: var(--ink); border-radius: 0; max-width: 360px;">
             <option value="solo">Solo · I decide alone</option>
             <option value="couple">Couple · one partner</option>
             <option value="family">Family · three or more</option>
@@ -485,8 +485,8 @@
       <div id="cd-new-group-form" style="display: none; margin-top: 18px; padding: 18px 20px; background: var(--paper-deep); border-left: 3px solid var(--wine);">
         <div style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--wine); margin-bottom: 10px;">New group</div>
         <p style="font-family: var(--font-body); font-size: 14px; color: var(--ink-soft); margin: 0 0 12px;">Save a Couple or Family group · we'll send each member a one-time link to confirm. After confirmation, you can attach any new decision to this group without re-typing emails.</p>
-        <input type="text" id="cd-group-name" placeholder="Group name · e.g. 'Couple with Alex' or 'Family of 4'" style="display: block; width: 100%; max-width: 460px; font-family: var(--font-body); font-size: 14px; padding: 10px 12px; border: 1px solid var(--ink); background: var(--paper); margin-bottom: 10px; border-radius: 0;">
-        <input type="email" id="cd-group-emails" placeholder="Member emails, comma-separated" style="display: block; width: 100%; max-width: 460px; font-family: var(--font-body); font-size: 14px; padding: 10px 12px; border: 1px solid var(--ink); background: var(--paper); margin-bottom: 10px; border-radius: 0;">
+        <input type="text" id="cd-group-name" aria-label="Group name" placeholder="Group name · e.g. 'Couple with Alex' or 'Family of 4'" style="display: block; width: 100%; max-width: 460px; font-family: var(--font-body); font-size: 14px; padding: 10px 12px; border: 1px solid var(--ink); background: var(--paper); margin-bottom: 10px; border-radius: 0;">
+        <input type="email" id="cd-group-emails" aria-label="Member emails, comma-separated" placeholder="Member emails, comma-separated" style="display: block; width: 100%; max-width: 460px; font-family: var(--font-body); font-size: 14px; padding: 10px 12px; border: 1px solid var(--ink); background: var(--paper); margin-bottom: 10px; border-radius: 0;">
         <button type="button" id="cd-group-submit" class="btn" style="padding: 10px 20px; font-size: 14px;">Save group</button>
         <button type="button" id="cd-group-cancel" class="btn-text" style="margin-left: 14px; font-size: 13px;">Cancel</button>
         <p id="cd-group-note" style="font-family: var(--font-body); font-size: 12px; color: var(--muted); font-style: italic; margin: 10px 0 0;">The groups feature ships in the next release · for now, this saves to your associates list so the compose form can pre-fill the partner email.</p>
@@ -705,7 +705,7 @@
           <p class="colophon-tagline">Counsel.day is for solo, couples, and families facing a hard joint decision · one private vote each evening on the same question, for a duration you set, sealed until the final day. Worldwide, priced in USD.</p>
         </div>
         <div class="colophon-col">
-          <h5>The app</h5>
+          <h3 class="colophon-col-h">The app</h3>
           <a href="decisions.html">Your decisions</a>
           <a href="vote-today.html">Tonight's vote</a>
           <a href="compose.html">Compose</a>
@@ -720,7 +720,7 @@
           <a href="pricing.html">Pricing</a>
         </div>
         <div class="colophon-col">
-          <h5>Support</h5>
+          <h3 class="colophon-col-h">Support</h3>
           <a href="help.html">Help</a>
           <a href="helper.html">Helper bot</a>
           <a href="correspondence.html">Correspondence</a>
@@ -1531,6 +1531,24 @@
 })();
 </script>
 <script src="ga4.js" defer></script>
+<script>
+/* Evening-reminder time · persisted client-side under a shared key so the time
+   chosen in the welcome flow (carried via compose) is remembered here rather
+   than discarded. Note: per-user prompt scheduling is not yet enforced by the
+   server cron · this preference is client-side today. */
+(function () {
+  var el = document.getElementById('cd-prompt-time');
+  if (!el) return;
+  var KEY = 'cd_evening_prompt_time';
+  try {
+    var saved = localStorage.getItem(KEY);
+    if (saved && /^\d{2}:\d{2}$/.test(saved)) el.value = saved;
+  } catch (_) {}
+  el.addEventListener('change', function () {
+    try { if (/^\d{2}:\d{2}$/.test(el.value)) localStorage.setItem(KEY, el.value); } catch (_) {}
+  });
+})();
+</script>
 <script src="/nav-toggle.js?v=20260605" defer></script>
 </body>
 </html>

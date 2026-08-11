@@ -178,8 +178,10 @@
   <!-- STAGE 1 · SEALED ENVELOPE -->
   <section class="unseal-stage sealed-stage" id="sealed">
     <div class="stage-eyebrow" id="cd-vr-fileref">Loading record …</div>
-    <h1 id="cd-vr-title">Loading…</h1>
-    <p class="stage-dek" id="cd-vr-dek">Looking up your decision.</p>
+    <div role="status" aria-live="polite">
+      <h1 id="cd-vr-title">Loading…</h1>
+      <p class="stage-dek" id="cd-vr-dek">Looking up your decision.</p>
+    </div>
 
     <div class="sealed-envelope record-envelope">
       <div class="env-header">
@@ -266,7 +268,7 @@
           <p class="colophon-tagline">Counsel.day is for solo, couples, and families facing a hard joint decision · one private vote each evening on the same question, for a duration you set, sealed until the final day. Worldwide, priced in USD.</p>
         </div>
         <div class="colophon-col">
-          <h5>The app</h5>
+          <h3 class="colophon-col-h">The app</h3>
           <a href="decisions.html">Your decisions</a>
           <a href="vote-today.html">Tonight's vote</a>
           <a href="compose.html">Compose</a>
@@ -281,7 +283,7 @@
           <a href="pricing.html">Pricing</a>
         </div>
         <div class="colophon-col">
-          <h5>Support</h5>
+          <h3 class="colophon-col-h">Support</h3>
           <a href="help.html">Help</a>
           <a href="helper.html">Helper bot</a>
           <a href="correspondence.html">Correspondence</a>
@@ -369,8 +371,8 @@
         return;
       }
       if (res.status === 200 && !res.body.sealed && res.body.verdict) {
-        set('cd-vr-title', 'Day thirty has arrived. The record is ready to open.');
-        set('cd-vr-dek', 'Both vote streams have closed. The verdict, the trajectory, the themes, and the synthesis paragraph are sealed in the envelope below.');
+        set('cd-vr-title', 'The voting period has closed. The record is ready to open.');
+        set('cd-vr-dek', 'Every sealed vote is in. The verdict, the trajectory, the themes, and the synthesis paragraph are in the envelope below.');
         set('cd-vr-env-status', 'Ready to open');
         btn.textContent = 'Open this record';
         btn.disabled = false;
@@ -400,6 +402,18 @@
       }
       set('cd-vr-title', 'Could not load this verdict');
       set('cd-vr-dek', (res.body && res.body.message) || 'Please try again.');
+    })
+    .catch(function () {
+      // Network drop · never leave the page frozen on "Loading record …".
+      set('cd-vr-title', 'Could not load this verdict');
+      set('cd-vr-dek', 'Check your connection and try again.');
+      var b = document.getElementById('unseal-btn');
+      if (b) {
+        b.textContent = 'Retry';
+        b.disabled = false;
+        b.style.opacity = '1';
+        b.onclick = function () { window.location.reload(); };
+      }
     });
 
   /* Open-the-envelope animation reused from the original page · only enabled
@@ -408,6 +422,13 @@
   var sealed = document.querySelector('.sealed-stage');
   var revealed = document.getElementById('revealed');
   if (!btn || !sealed || !revealed) return;
+  // After reveal, move focus to the revealed heading so keyboard + screen-reader
+  // users land on the content they just opened (the click disables the button
+  // they were on, which would otherwise drop focus to <body>).
+  function focusRevealed() {
+    var h = revealed.querySelector('.method-page-title, h1, h2');
+    if (h) { h.setAttribute('tabindex', '-1'); h.focus(); }
+  }
   var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   btn.addEventListener('click', function () {
     if (btn.disabled) return;
@@ -420,15 +441,36 @@
       sealed.classList.add('is-hidden');
       revealed.classList.add('is-open');
       revealed.scrollIntoView({ behavior: 'auto', block: 'start' });
+      focusRevealed();
       return;
     }
     sealed.style.opacity = '0';
     setTimeout(function () {
       sealed.classList.add('is-hidden');
       revealed.classList.add('is-open');
-      setTimeout(function () { revealed.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80);
+      setTimeout(function () { revealed.scrollIntoView({ behavior: 'smooth', block: 'start' }); focusRevealed(); }, 80);
     }, 480);
   });
+
+  // Share this verdict · native share sheet where available, clipboard fallback.
+  var shareBtn = document.getElementById('share-verdict');
+  if (shareBtn) {
+    shareBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      var url = window.location.href;
+      if (navigator.share) {
+        navigator.share({ title: 'My Counsel.day verdict', url: url }).catch(function () {});
+      } else if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(function () {
+          var orig = shareBtn.textContent;
+          shareBtn.textContent = 'Link copied';
+          setTimeout(function () { shareBtn.textContent = orig; }, 2000);
+        }).catch(function () { window.prompt('Copy this link to share your verdict:', url); });
+      } else {
+        window.prompt('Copy this link to share your verdict:', url);
+      }
+    });
+  }
 })();
 </script>
 <script>

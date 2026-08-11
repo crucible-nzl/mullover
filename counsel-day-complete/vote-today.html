@@ -199,7 +199,7 @@
           <span class="stamp-b" id="cd-vote-reveal">…</span>
         </div>
 
-        <div class="slip-question" id="cd-vote-question" style="font-size: clamp(28px, 4vw, 40px); font-weight: 400; line-height: 1.12; letter-spacing: -0.015em; margin-bottom: 6px;">Loading tonight's question…</div>
+        <h1 class="slip-question" id="cd-vote-question" style="font-size: clamp(28px, 4vw, 40px); font-weight: 400; line-height: 1.12; letter-spacing: -0.015em; margin: 0 0 6px;">Loading tonight's question…</h1>
         <p style="font-family: var(--font-body); font-size: 16px; line-height: 1.6; color: var(--ink-soft); margin: 0 0 10px;">Cast your vote for tonight. Whatever you commit will be sealed the moment you tap, and stays sealed until the verdict day. Your partner can see only that you voted; never which way.</p>
 
         <div style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wine); margin: 24px 0 12px;">VOTE TONIGHT · CHOOSE ONE</div>
@@ -295,6 +295,8 @@
           <div class="right">Sealed by: ed25519 + AES-256-GCM</div>
         </div>
 
+        <div id="cd-vote-msg" role="status" aria-live="polite" style="display: none; font-family: var(--font-body); font-size: 15px; line-height: 1.5; color: var(--ink); padding: 12px 16px; margin: 0 0 18px; background: var(--paper-deep); border-left: 3px solid var(--wine);"></div>
+
         <div class="commit-row">
           <button type="button" class="btn btn-large" onclick="sealVote()">SEAL TONIGHT'S VOTE</button>
           <a href="decisions.html" class="skip">Skip tonight</a>
@@ -328,7 +330,7 @@
           <p class="colophon-tagline">Counsel.day is for solo, couples, and families facing a hard joint decision · one private vote each evening on the same question, for a duration you set, sealed until the final day. Worldwide, priced in USD.</p>
         </div>
         <div class="colophon-col">
-          <h5>The app</h5>
+          <h3 class="colophon-col-h">The app</h3>
           <a href="decisions.html">Your decisions</a>
           <a href="vote-today.html">Tonight's vote</a>
           <a href="compose.html">Compose</a>
@@ -343,7 +345,7 @@
           <a href="pricing.html">Pricing</a>
         </div>
         <div class="colophon-col">
-          <h5>Support</h5>
+          <h3 class="colophon-col-h">Support</h3>
           <a href="help.html">Help</a>
           <a href="helper.html">Helper bot</a>
           <a href="correspondence.html">Correspondence</a>
@@ -377,33 +379,56 @@ function selectVote(btn) {
   document.querySelectorAll('.vote-stamp').forEach(function (b) {
     b.classList.remove('selected');
     b.setAttribute('aria-checked', 'false');
+    b.setAttribute('tabindex', '-1');
   });
   btn.classList.add('selected');
   btn.setAttribute('aria-checked', 'true');
+  btn.setAttribute('tabindex', '0');
 }
 
 /* Tracks the current decision once /api/vote-today loads it. */
 var CD_VOTE_STATE = { decisionId: null, alreadyVoted: false };
+var CD_SEAL_ARMED = false;
+var CD_SEAL_LABEL = "SEAL TONIGHT'S VOTE";
+
+/* Inline status/error messaging · replaces alert()/confirm(). Wine-toned,
+   never the off-brand red. role toggles alert (assertive) for errors vs
+   status (polite) for confirmations, so screen readers announce both. */
+function showVoteMsg(text, kind) {
+  var el = document.getElementById('cd-vote-msg');
+  if (!el) return;
+  el.setAttribute('role', kind === 'error' ? 'alert' : 'status');
+  el.textContent = text;
+  el.style.display = 'block';
+}
+function clearVoteMsg() {
+  var el = document.getElementById('cd-vote-msg');
+  if (el) { el.style.display = 'none'; el.textContent = ''; }
+}
+function resetSealArm(btn) {
+  CD_SEAL_ARMED = false;
+  clearTimeout(window.__cdSealArmTimer);
+  if (btn) btn.textContent = CD_SEAL_LABEL;
+}
 
 function sealVote() {
+  var btn = document.querySelector('.commit-row .btn');
   if (CD_VOTE_STATE.alreadyVoted) {
-    alert('You have already voted today on this decision. Come back tomorrow.');
+    showVoteMsg('You have already voted today on this decision. Come back tomorrow.', 'error');
     return;
   }
   if (!CD_VOTE_STATE.decisionId) {
-    alert('No active decision found. Compose one first.');
+    showVoteMsg('No active decision found. Compose one first.', 'error');
     return;
   }
 
+  // Build (and validate) the vote body BEFORE arming, so a missing choice
+  // surfaces immediately rather than after the confirm tap.
   var note = (document.getElementById('note-text').value || '').trim();
-  var btn = document.querySelector('.commit-row .btn');
-  var orig = btn.textContent;
-
-  // Ranked path · read the current DOM order as the ranking.
   var voteBody;
   if (CD_VOTE_STATE.format === 'ranked') {
     var rows = document.querySelectorAll('#ranked-list li');
-    if (rows.length < 2) { alert('Could not read the ranking. Refresh the page.'); return; }
+    if (rows.length < 2) { showVoteMsg('Could not read the ranking. Refresh the page.', 'error'); return; }
     var rankedOrder = [];
     for (var i = 0; i < rows.length; i++) {
       rankedOrder.push(parseInt(rows[i].getAttribute('data-opt-idx'), 10));
@@ -416,10 +441,9 @@ function sealVote() {
       tags: (typeof window.cdSelectedChips === 'function' ? window.cdSelectedChips() : [])
     };
   } else {
-    // Standard 4-band / yes-no / a-b path
     var selected = document.querySelector('.vote-stamp.selected');
     if (!selected) {
-      alert('Choose Strong Yes, Lean Yes, Lean No, or Strong No before sealing tonight\'s vote.');
+      showVoteMsg('Choose Strong Yes, Lean Yes, Lean No, or Strong No before sealing tonight\'s vote.', 'error');
       return;
     }
     /* The kebab-case data-vote values map 1:1 to the API direction enum after snake-casing. */
@@ -431,6 +455,18 @@ function sealVote() {
       tags: (typeof window.cdSelectedChips === 'function' ? window.cdSelectedChips() : [])
     };
   }
+
+  // Two-step confirm · sealing is irreversible, so the first tap arms and the
+  // second commits. No browser confirm() dialog (off-brand + unstyleable).
+  if (!CD_SEAL_ARMED) {
+    CD_SEAL_ARMED = true;
+    btn.textContent = 'TAP AGAIN TO SEAL · PERMANENT';
+    showVoteMsg("Sealing is permanent · you cannot change tonight's vote once committed. Tap again to confirm.", 'status');
+    window.__cdSealArmTimer = setTimeout(function () { resetSealArm(btn); clearVoteMsg(); }, 6000);
+    return;
+  }
+  clearTimeout(window.__cdSealArmTimer);
+  clearVoteMsg();
 
   btn.disabled = true;
   btn.textContent = 'SEALING' + String.fromCharCode(0x2026);
@@ -449,18 +485,22 @@ function sealVote() {
       if (window.CounselDayPWA && typeof window.CounselDayPWA.markEngaged === 'function') {
         window.CounselDayPWA.markEngaged();
       }
-      alert('Vote sealed. See you tomorrow evening.');
-      window.location.href = '/decisions.html';
+      // On-page sealed confirmation, then move on · no jarring alert().
+      showVoteMsg('Vote sealed. See you tomorrow evening.', 'status');
+      document.querySelectorAll('.vote-stamp').forEach(function (b) { b.disabled = true; });
+      var ta = document.getElementById('note-text'); if (ta) ta.disabled = true;
+      btn.textContent = 'SEALED';
+      setTimeout(function () { window.location.href = '/decisions.html'; }, 1400);
     } else {
       btn.disabled = false;
-      btn.textContent = orig;
-      alert((res.body && res.body.message) || 'Could not seal vote. Please try again.');
+      resetSealArm(btn);
+      showVoteMsg((res.body && res.body.message) || 'Could not seal vote. Please try again.', 'error');
     }
   })
   .catch(function () {
     btn.disabled = false;
-    btn.textContent = orig;
-    alert('Network error. Please try again.');
+    resetSealArm(btn);
+    showVoteMsg('Network error. Please try again.', 'error');
   });
 }
 
@@ -487,7 +527,7 @@ function sealVote() {
       if (r.status === 401) { window.location.href = '/signin?next=/vote-today.html'; return null; }
       if (r.status === 404) {
         document.querySelector('.envelope-body').innerHTML =
-          '<div style="padding: 40px 0; text-align: center;">' +
+          '<div role="status" style="padding: 40px 0; text-align: center;">' +
           '<p style="font-family: var(--font-body); font-size: 17px; color: var(--ink); margin: 0 0 22px;">You have no active decisions tonight.</p>' +
           '<a href="/compose.html" class="btn">Compose a decision</a>' +
           '</div>';
@@ -496,7 +536,11 @@ function sealVote() {
       return r.json();
     })
     .then(function (d) {
-      if (!d || !d.ok) return;
+      if (!d || !d.ok) {
+        document.querySelector('.envelope-body').insertAdjacentHTML('afterbegin',
+          '<p role="alert" style="color: var(--wine); font-family: var(--font-body); padding: 12px 16px; margin: 0 0 18px; background: var(--paper-deep); border-left: 3px solid var(--wine);">Could not load tonight\'s decision. Refresh the page.</p>');
+        return;
+      }
       CD_VOTE_STATE.decisionId = d.decision.id;
       CD_VOTE_STATE.alreadyVoted = !!d.voted_today;
       CD_VOTE_STATE.format = d.decision.format;
@@ -593,7 +637,7 @@ function sealVote() {
     })
     .catch(function () {
       document.querySelector('.envelope-body').insertAdjacentHTML('afterbegin',
-        '<p style="color: #c0392b; font-family: var(--font-body); padding: 12px; margin: 0 0 18px; background: #fdecea; border-left: 3px solid #c0392b;">Could not load tonight\'s decision. Refresh the page.</p>');
+        '<p role="alert" style="color: var(--wine); font-family: var(--font-body); padding: 12px 16px; margin: 0 0 18px; background: var(--paper-deep); border-left: 3px solid var(--wine);">Could not load tonight\'s decision. Refresh the page.</p>');
     });
 
   var ta = document.getElementById('note-text');
@@ -606,12 +650,31 @@ function sealVote() {
     });
   }
 
+  // Roving tabindex · make the 4-band radiogroup behave like a real radio
+  // group: a single tab stop, arrow keys move + select, number keys 1-4 jump.
+  var voteStamps = Array.prototype.slice.call(document.querySelectorAll('#vote-stamp-grid .vote-stamp'));
+  voteStamps.forEach(function (b, i) { b.setAttribute('tabindex', i === 0 ? '0' : '-1'); });
+  var stampGridEl = document.getElementById('vote-stamp-grid');
+  if (stampGridEl) {
+    stampGridEl.addEventListener('keydown', function (e) {
+      var idx = voteStamps.indexOf(document.activeElement);
+      if (idx === -1) return;
+      var next = null;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (idx + 1) % voteStamps.length;
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (idx - 1 + voteStamps.length) % voteStamps.length;
+      if (next === null) return;
+      e.preventDefault();
+      selectVote(voteStamps[next]);
+      voteStamps[next].focus();
+    });
+  }
+
   document.addEventListener('keydown', function (e) {
     if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
     var map = { '1': 'strong-yes', '2': 'lean-yes', '3': 'lean-no', '4': 'strong-no' };
     if (map[e.key]) {
       var b = document.querySelector('[data-vote="' + map[e.key] + '"]');
-      if (b) selectVote(b);
+      if (b) { selectVote(b); b.focus(); }
     }
   });
 

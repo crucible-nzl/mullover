@@ -12,13 +12,14 @@
   --ink: #0a0a0a;
   --ink-soft: #3a3530;
   --muted: #6b635a;
-  --subtle: #9b9286;
+  --subtle: #736b61;  /* AA: 5.2:1 on white (was #9b9286 3.07:1) */
   --rule: #e8e6e1;
   --rule-strong: #0a0a0a;
   --wine: #722F37;
   --wine-deep: #561F26;
   --wine-soft: #f4e6e8;
   --rose: #c4806b;
+  --rose-deep: #a85a44;  /* AA-safe rose for SMALL text on light (4.99:1 on white); --rose stays for large text + dark panels */
 
   --font-display: "Newsreader", "Newsreader Fallback", Georgia, "Times New Roman", serif;
   --font-body: "Source Serif 4", "Source Serif 4 Fallback", Georgia, "Times New Roman", serif;
@@ -40,7 +41,6 @@
   --cream: var(--paper);
   --paper-line: var(--rule);
   --stone: var(--muted);
-  --rose-deep: var(--rose);
   --olive: var(--muted);
   --font-chrome: var(--font-mono);
 }
@@ -753,7 +753,7 @@ section { padding: 30px 32px; border-bottom: 1px solid var(--rule); }
   text-transform: uppercase; color: var(--ink);
 }
 .date-stamp.muted { color: var(--muted); }
-.date-stamp.b { color: var(--rose); }
+.date-stamp.b { color: var(--rose-deep); }
 .envelope-body { padding: 0; }
 .envelope-caption {
   margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--rule);
@@ -763,7 +763,7 @@ section { padding: 30px 32px; border-bottom: 1px solid var(--rule); }
 .wax-seal { display: none; }
 .slip-meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 14px; }
 .slip-meta .stamp-a { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine); }
-.slip-meta .stamp-b { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--rose); }
+.slip-meta .stamp-b { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--rose-deep); }
 .slip-question { font-family: var(--font-display); font-size: 22px; font-weight: 500; line-height: 1.3; color: var(--ink); margin-bottom: 14px; }
 .slip-verdict { font-family: var(--font-display); font-size: 44px; font-weight: 500; line-height: 1; margin-bottom: 12px; color: var(--ink); }
 /* Partner-tagged variants (.a / .b) retained as partner identity colours so
@@ -1052,7 +1052,7 @@ section { padding: 30px 32px; border-bottom: 1px solid var(--rule); }
   color: var(--muted); margin-bottom: 14px;
 }
 .specimen-v.a .specimen-v-name { color: var(--wine); }
-.specimen-v.b .specimen-v-name { color: var(--rose); }
+.specimen-v.b .specimen-v-name { color: var(--rose-deep); }
 .specimen-v-verdict {
   font-family: var(--font-display); font-size: 56px;
   line-height: 1; font-weight: 400; margin-bottom: 12px;

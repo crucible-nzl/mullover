@@ -277,7 +277,7 @@
           <p class="colophon-tagline">Counsel.day is for solo, couples, and families facing a hard joint decision · one private vote each evening on the same question, for a duration you set, sealed until the final day. Worldwide, priced in USD.</p>
         </div>
         <div class="colophon-col">
-          <h5>The app</h5>
+          <h3 class="colophon-col-h">The app</h3>
           <a href="decisions.html">Your decisions</a>
           <a href="vote-today.html">Tonight's vote</a>
           <a href="compose.html">Compose</a>
@@ -292,7 +292,7 @@
           <a href="pricing.html">Pricing</a>
         </div>
         <div class="colophon-col">
-          <h5>Support</h5>
+          <h3 class="colophon-col-h">Support</h3>
           <a href="help.html">Help</a>
           <a href="helper.html">Helper bot</a>
           <a href="correspondence.html">Correspondence</a>
@@ -363,7 +363,7 @@
     })
       .then(function (r) {
         if (r.status === 401) {
-          window.location.href = '/signin.html?next=' + encodeURIComponent(location.pathname);
+          window.location.href = '/signin?next=' + encodeURIComponent(location.pathname);
           throw new Error('redirect');
         }
         return r.json().then(function (j) { return { status: r.status, body: j }; });

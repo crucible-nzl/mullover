@@ -10,7 +10,7 @@ counsel.day {
     # Block internal-only paths at the edge. Defence-in-depth: even if a
     # build script accidentally puts these files back on disk, the edge
     # will 404 them. Update this list when adding new internal pages.
-    @blocked path /scripts /scripts/* /og-image-generator.html /homepage.html /components /components.html
+    @blocked path /scripts /scripts/* /og-image-generator.html /homepage.html /components /components.html /business-case.pdf /business-case-expanded.pdf
     respond @blocked 404
 
     # Admin panel · session-based auth via Next.js. Every request to

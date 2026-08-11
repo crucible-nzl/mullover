@@ -36,7 +36,13 @@ tar -czf - \
   --exclude='scripts' \
   --exclude='ops' \
   . | ssh "${SSH_OPTS[@]}" "${SSH_TARGET}" \
-    "tar -xzf - -C ${REMOTE_PATH} && find ${REMOTE_PATH} -type f -exec chmod 644 {} \;"
+    "tar -xzf - -C ${REMOTE_PATH} \
+     && rm -f ${REMOTE_PATH}/styles.css ${REMOTE_PATH}/posthog.js ${REMOTE_PATH}/business-case.pdf ${REMOTE_PATH}/business-case-expanded.pdf \
+     && find ${REMOTE_PATH} -type f -exec chmod 644 {} \;"
+
+# NOTE: tar-over-ssh does not prune files removed from the repo · the rm above
+# clears the known dead files. For a full prune, switch to rsync --delete once
+# the web root is confirmed to hold no runtime-only dirs (e.g. generated audio).
 
 echo "[static-deploy] 3/3 · smoke test /admin.html headers"
 curl -sSI https://counsel.day/admin.html | head -3

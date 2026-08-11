@@ -87,7 +87,7 @@
 <meta name="theme-color" content="#ffffff">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/manifest.webmanifest">
 <script type="application/ld+json">
 {
@@ -163,7 +163,7 @@
     </div>
     <div class="nav-cta">
       <a href="account.html" class="btn-text">Sign in</a>
-      <a href="signup.html" class="btn">Begin a decision</a>
+      <a href="signup.html" class="btn">Sign up · free</a>
     </div>
   </div>
 </nav>
@@ -220,16 +220,12 @@
       </div>
       <ul class="gap-list">
         <li>
-          <span class="label">Gap 01 · Dynamic toast notifications</span>
-          <strong>Dynamic toast notifications on the in-product surface are not yet announced to screen readers.</strong> The visual toast appears, but the underlying region lacks an <em>aria-live</em> attribute. Affected actions include the "vote cast" confirmation and the "invite sent" confirmation. Planned fix in the next iteration; tracked as accessibility ticket A11Y-001.
+          <span class="label">Gap 01 · Some transient confirmations</span>
+          <strong>A few transient confirmation toasts are still being migrated to live regions.</strong> The core in-product states now announce to screen readers: the vote-cast confirmation, and the loading, empty, and error states on the decisions, vote, and verdict screens, all use <em>aria-live</em>. The remaining case is a small number of transient confirmations such as the "invite sent" notice. Tracked as accessibility ticket A11Y-001.
         </li>
         <li>
           <span class="label">Gap 02 · Verdict chart</span>
           <strong>The conviction-trajectory chart on the verdict page is not yet keyboard-navigable.</strong> A keyboard-only user can read the verdict text and the synthesis, but cannot interact with the chart to inspect a specific day. The chart's data is also available below the chart as a labelled list, but the chart itself is currently mouse-only. Planned fix as part of the verdict-view rebuild; tracked as A11Y-002.
-        </li>
-        <li>
-          <span class="label">Gap 03 · Reduced-motion compliance</span>
-          <strong>One transition on the verdict-reveal moment ignores the <em>prefers-reduced-motion</em> media query.</strong> Users who have set their operating system to reduce motion will still see a single 400-millisecond fade on the verdict reveal. The rest of the application honours the preference. Planned fix in the next release; tracked as A11Y-003.
         </li>
       </ul>
     </section>

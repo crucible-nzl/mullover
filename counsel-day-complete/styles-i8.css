@@ -67,6 +67,12 @@ body {
 img, svg, video, canvas, picture { max-width: 100%; height: auto; display: block; }
 img[width], img[height], svg[width], svg[height] { height: auto; }
 table { width: 100%; }
+
+/* Form controls inherit the body font and default to a 16px floor so no field
+   triggers iOS zoom-on-focus · this base rule also covers the 721-767px band
+   and any unstyled control the phone-only media rule missed. Specific controls
+   (e.g. .q-input at 22px) override the size as needed. */
+input, select, textarea { font-family: inherit; font-size: 16px; }
 .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
 a { color: var(--wine); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
@@ -245,7 +251,6 @@ textarea:focus:not(:focus-visible) {
   z-index: 80;
   background: var(--paper);
   border-top: 1px solid var(--ink);
-  box-shadow: 0 -8px 24px rgba(28, 26, 23, 0.06);
   transform: translateY(100%);
   opacity: 0;
   transition: transform 280ms ease, opacity 240ms ease;

@@ -70,7 +70,7 @@
 <meta name="theme-color" content="#ffffff">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="stylesheet" href="/fonts/fonts.css">
 <link rel="stylesheet" href="styles-i8.css">
@@ -702,6 +702,13 @@ function saveDraft() {
 
 (function () {
   updateEndDate();
+  // Drive the wine .selected highlight from the radio 'change' event, not only
+  // the label onclick · keyboard users arrowing through the native radios must
+  // see the selection follow. Delegated so dynamically-built tier radios work.
+  var _durGrid = document.querySelector('.dur-grid');
+  if (_durGrid) _durGrid.addEventListener('change', function (e) { var l = e.target.closest('.dur-radio'); if (l) selectDur(l); });
+  var _tierGrid = document.getElementById('cd-tier-grid');
+  if (_tierGrid) _tierGrid.addEventListener('change', function (e) { var l = e.target.closest('.tier-radio'); if (l) selectTier(l); });
   /* Pre-select tier from ?tier=<sku> when arriving from /pricing.
      Pre-fill question from ?question=<text> when arriving from
      /templates or /welcome. Both params are independent. */

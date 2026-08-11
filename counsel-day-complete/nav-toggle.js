@@ -75,6 +75,9 @@
         bar.classList.remove('menu-open');
         toggle.setAttribute('aria-expanded', 'false');
         toggle.setAttribute('aria-label', 'Open menu');
+        // Return focus to the toggle · Escape should not strand focus on a
+        // now-hidden menu link.
+        toggle.focus();
       }
     });
     document.addEventListener('click', function (e) {

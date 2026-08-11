@@ -424,44 +424,45 @@ if ($wineToken) {
 }
 
 # ================================================================
-# 12 · Google Analytics + Google Tag Manager on every page · SHIP BLOCKER
-#      Every public HTML page MUST include the canonical analytics
-#      head snippet (Consent Mode v2 default + GTM container + GA4 id).
-#      Both the GTM container id and the GA4 measurement id must appear,
-#      AND the noscript GTM iframe must appear after <body>.
+# 12 · Google Analytics (GA4 via gtag.js) on every page · SHIP BLOCKER
+#      Every public HTML page MUST include the canonical analytics head
+#      snippet (Consent Mode v2 default + GA4 gtag.js). GTM was removed
+#      2026-08-10 (gtag.js is the sole tag path; the GA4 funnel in ga4.js
+#      runs on it). Ad pixels live inline on the offer pages, not in GTM,
+#      so no container is needed. If GTM is ever reintroduced, add its
+#      container-id and noscript-iframe checks back here.
 # ================================================================
-Write-Head "12 · Google Analytics (G-SX20BZZP59) + GTM (GTM-PFFSDN3M) on every page"
+Write-Head "12 · Google Analytics (GA4 gtag.js · G-SX20BZZP59) + Consent Mode on every page"
 
-$gtmId = 'GTM-PFFSDN3M'
 $ga4Id = 'G-SX20BZZP59'
+$gtagScript = 'googletagmanager.com/gtag/js?id=G-SX20BZZP59'
 $consentDefault = "gtag('consent', 'default'"
-$noscriptIframe = 'googletagmanager.com/ns.html?id=GTM-PFFSDN3M'
 
-$missingGtm = @()
 $missingGa4 = @()
+$missingGtag = @()
 $missingConsent = @()
-$missingNoscript = @()
+$strayGtm = @()
 
 foreach ($f in $htmlFiles) {
   $rel = $f.FullName.Substring((Get-Location).Path.Length).TrimStart('\','/')
   $text = [System.IO.File]::ReadAllText($f.FullName)
-  if ($text -notmatch [regex]::Escape($gtmId))            { $missingGtm += $rel }
   if ($text -notmatch [regex]::Escape($ga4Id))            { $missingGa4 += $rel }
+  if ($text -notmatch [regex]::Escape($gtagScript))       { $missingGtag += $rel }
   if ($text -notmatch [regex]::Escape($consentDefault))   { $missingConsent += $rel }
-  if ($text -notmatch [regex]::Escape($noscriptIframe))   { $missingNoscript += $rel }
+  if ($text -match 'GTM-PFFSDN3M')                        { $strayGtm += $rel }
 }
 
-if ($missingGtm.Count -eq 0)      { Write-Pass "GTM container $gtmId present on every public HTML page ($($htmlFiles.Count) files)" }
-else                              { Write-Fail "GTM container $gtmId missing on $($missingGtm.Count) page(s)" (($missingGtm | Select-Object -First 6) -join "`n       ") }
-
-if ($missingGa4.Count -eq 0)      { Write-Pass "GA4 measurement id $ga4Id present on every public HTML page" }
+if ($missingGa4.Count -eq 0)      { Write-Pass "GA4 measurement id $ga4Id present on every public HTML page ($($htmlFiles.Count) files)" }
 else                              { Write-Fail "GA4 measurement id $ga4Id missing on $($missingGa4.Count) page(s)" (($missingGa4 | Select-Object -First 6) -join "`n       ") }
+
+if ($missingGtag.Count -eq 0)     { Write-Pass "GA4 gtag.js loader present on every page" }
+else                              { Write-Fail "GA4 gtag.js loader missing on $($missingGtag.Count) page(s)" (($missingGtag | Select-Object -First 6) -join "`n       ") }
 
 if ($missingConsent.Count -eq 0)  { Write-Pass "Consent Mode v2 default block present on every page" }
 else                              { Write-Fail "Consent Mode v2 default missing on $($missingConsent.Count) page(s) (run scripts/inject-analytics.py)" (($missingConsent | Select-Object -First 6) -join "`n       ") }
 
-if ($missingNoscript.Count -eq 0) { Write-Pass "GTM noscript iframe present on every page" }
-else                              { Write-Fail "GTM noscript iframe missing on $($missingNoscript.Count) page(s)" (($missingNoscript | Select-Object -First 6) -join "`n       ") }
+if ($strayGtm.Count -eq 0)        { Write-Pass "No stray GTM container references (GTM retired 2026-08-10)" }
+else                              { Write-Fail "Stray GTM reference on $($strayGtm.Count) page(s) · GTM was retired" (($strayGtm | Select-Object -First 6) -join "`n       ") }
 
 # ================================================================
 # 13 · Sentry config files contain no em-dashes or en-dashes

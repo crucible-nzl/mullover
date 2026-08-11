@@ -20,8 +20,8 @@
   --wine-soft: #f4e6e8;
   --rose: #c4806b;
 
-  --font-display: "Newsreader", Georgia, "Times New Roman", serif;
-  --font-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-display: "Newsreader", "Newsreader Fallback", Georgia, "Times New Roman", serif;
+  --font-body: "Source Serif 4", "Source Serif 4 Fallback", Georgia, "Times New Roman", serif;
   --font-ui: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
 

@@ -13,6 +13,13 @@
 <!-- Preconnect to GA endpoints -->
 <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
 <link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
+
+<!-- Preload above-the-fold font subsets (latin) · hero heading
+     (Newsreader), body (Source Serif 4), nav/UI (Geist). crossorigin is
+     required so the preload matches the CORS-anonymous @font-face fetch. -->
+<link rel="preload" as="font" type="font/woff2" href="/fonts/newsreader-cY9AfjOCX1hbuyalUrK4397yjA.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/sourceserif4-vEFI2_tTDB4M7-auWDN0ahZJW1gb8tc.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/geist-gyByhwUxId8gMEwcGFU.woff2" crossorigin>
 <!-- Google Consent Mode v2 · defaults to denied · GDPR + UK PECR compliant -->
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -40,13 +47,9 @@
   }
 </script>
 
-<!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-PFFSDN3M');</script>
-<!-- End Google Tag Manager -->
+
+
+
 
 <!-- Google Analytics 4 (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-SX20BZZP59"></script>
@@ -103,10 +106,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </head>
 <body class="distinction-essay">
 
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFFSDN3M"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
+
+
+
 
 
 <a class="skip-link" href="#main-content">Skip to main content</a>

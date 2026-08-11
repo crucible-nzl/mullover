@@ -87,7 +87,7 @@
 <meta name="theme-color" content="#ffffff">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/manifest.webmanifest">
 <script type="application/ld+json">
 {
@@ -355,7 +355,7 @@
       <div class="faq-block">
         <div class="faq-block-item">
           <h3 class="faq-block-q">How does a typical evening vote <span class="ital">work?</span></h3>
-          <p class="faq-block-a">At a time you set during composition (typically after dinner), each participant receives a single private prompt. The prompt opens to the question, the format you chose, and the buttons or fields appropriate to that format. You tap once. You may, if a thought has landed, add a sentence or two or a paragraph. The vote takes between five seconds and a couple of minutes, depending on whether you write a note. No other participant can see your vote or your note before the verdict day.</p>
+          <p class="faq-block-a">At a time you set during composition (typically after dinner), each participant receives a single private prompt. The prompt opens to the question, the format you chose, and the buttons or fields appropriate to that format. You tap once. You may, if a thought has landed, add a sentence or two or a paragraph. The vote usually takes under 30 seconds (a few seconds for a tap, up to a couple of minutes if you write a paragraph). No other participant can see your vote or your note before the verdict day.</p>
         </div>
         <div class="faq-block-item">
           <h3 class="faq-block-q">Can I speak the note instead of typing <span class="ital">it?</span></h3>
@@ -367,7 +367,7 @@
         </div>
         <div class="faq-block-item">
           <h3 class="faq-block-q">How do I choose the right <span class="ital">duration?</span></h3>
-          <p class="faq-block-a">Match the duration to the weight of the question. A fortnight suits a house with an offer deadline. A month suits most career and home decisions. Sixty days suits questions about the shape of the partnership itself: marriage, ending it, moving countries. Ninety days suits the decisions that need to survive a season of moods, especially family and reproduction. You set the duration once, at the start. You may extend a running decision; you may not shorten one.</p>
+          <p class="faq-block-a">Match the duration to the weight of the question. A fortnight suits a house with an offer deadline. A month suits most career and home decisions. Sixty days suits questions about the shape of the partnership itself: marriage, ending it, moving countries. Ninety days suits the decisions that need to survive a season of moods, especially family and reproduction. You set the duration once, at the start. You may extend a running decision, up to the ninety-day maximum; you may not shorten one.</p>
         </div>
         <div class="faq-block-item">
           <h3 class="faq-block-q">What happens if one of us misses an <span class="ital">evening?</span></h3>
@@ -423,6 +423,10 @@
           <h3 class="faq-block-q">How is the analysis <span class="ital">generated?</span></h3>
           <p class="faq-block-a">In two distinct tiers. <strong>On a paid decision</strong> (Solo at $4.99 USD, Couple at $9.99 USD, Family at $19.99 USD), every vote and every note is read by a pipeline that computes the trajectory and the agreement curve in pure Python, clusters the themes locally, then submits the clustered data and the question framing to our AI synthesis tool with a prompt template iterated through hundreds of test verdicts. Our AI synthesis tool writes the 400-to-600-word synthesis paragraph that names the underlying axis of the disagreement in plain English. The model receives the data with no identifying metadata; it is not used to train any further system on your content. <strong>On the free first Solo decision</strong>, the AI synthesis is not run; the verdict ships with your own conviction chart and your own notes back. The 400-to-600-word written verdict is the part reserved for paid decisions, because that single API call to our AI vendor is the part of the output that costs us real money to produce.</p>
         </div>
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">What if we disagree with the <span class="ital">verdict?</span></h3>
+          <p class="faq-block-a">That is a valid, and often useful, outcome. The verdict is a synthesis of your own sealed votes and notes, not an instruction · it never tells you what to do. Disagreeing with it tells you something real about where you actually stand, and the single conversation prompt that ships with it is there to help you talk that through. Because the verdict is your own data read back to you, disagreement is not grounds for a refund (see the <a href="refunds.html">refund policy</a>).</p>
+        </div>
       </div>
     </section>
 
@@ -443,6 +447,10 @@
         <div class="faq-block-item">
           <h3 class="faq-block-q">Is there a free <span class="ital">version?</span></h3>
           <p class="faq-block-a">Yes. Your first Solo decision is free, no card required. You can run a full 7-day Solo decision end to end and decide for yourself whether to continue. The free decision ships with <strong>your own conviction chart and your own notes back</strong> · no third-party AI call, no five-layer written analysis. The 400-to-600-word written verdict paragraph (the synthesis that names the axis of your question in plain English) is generated by our AI synthesis tool and is reserved for paid decisions, because that single API call is the part of the verdict that costs us real money to produce. After your first decision, additional Solo decisions are $4.99 USD each, charged per decision.</p>
+        </div>
+        <div class="faq-block-item">
+          <h3 class="faq-block-q">Can I get a <span class="ital">refund?</span></h3>
+          <p class="faq-block-a">All sales are final, with one exception: a technical defect on our part. If the verdict pipeline failed, you were double-charged, or the decision did not run its full duration, we refund it. There is no change-of-mind, no partial-completion, and no didn't-use-it refund. Your statutory consumer rights are unaffected by any of this. The full closed list of what we will and will not refund is on <a href="refunds.html">the refunds page</a>.</p>
         </div>
       </div>
     </section>

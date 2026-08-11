@@ -20,8 +20,10 @@ import os
 import re
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+# styles-i8.css is the live stylesheet (the old styles.css was removed
+# 2026-08-11). Point the audit at the sheet the site actually ships.
 CSS_FILES = [
-    os.path.join(ROOT, 'styles.css'),
+    os.path.join(ROOT, 'styles-i8.css'),
 ]
 EXCLUDE_DIRS = {'scripts', 'ops', 'partials', 'fonts', 'icons', 'photos'}
 

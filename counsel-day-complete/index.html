@@ -82,7 +82,7 @@
 <meta name="theme-color" content="#ffffff">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/og-image.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/manifest.webmanifest">
 <script type="application/ld+json">
 {
@@ -438,6 +438,9 @@ a:hover { color: var(--wine-deep); }
   font-weight: 400;
   font-size: clamp(20px, 2.2vw, 26px);
   line-height: 1.35;
+  /* Reserve two lines so the end-of-body catchphrase picker swapping to a
+     different-length slide does not shift the CTA below it (CLS). */
+  min-height: 2.7em;
   color: var(--ink-soft);
   max-width: 780px;
   margin: 0 auto 28px;

@@ -237,7 +237,7 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
         run: |
           tar -czf - -C counsel-day-complete \
-            --exclude='scripts' --exclude='engineering' --exclude='ops' . \
+            --exclude='scripts' --exclude='ops' . \
             | ssh -i ~/.ssh/id_ed25519 "$SSH_USER@$SSH_HOST" \
               'sudo tar -xzf - -C /var/www/counsel.day && sudo chown deploy:deploy /var/www/counsel.day/sitemap.xml || true'
 

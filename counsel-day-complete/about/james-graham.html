@@ -64,7 +64,7 @@
 <!-- /COUNSEL.DAY · ANALYTICS HEAD SNIPPET -->
 
 <title>James Graham · Founder of Counsel.day · Author bio</title>
-<meta name="description" content="James Graham is the founder of Counsel.day. A data and analytics professional who has built calculate.co.nz, propertyprice.co.nz, salary.co.nz, and realtor.co.nz over the past decade. Lives in Christchurch, New Zealand. Built Counsel.day after a real schooling decision he and his wife could not settle at the dinner table.">
+<meta name="description" content="James Graham is the founder of Counsel.day. A data and analytics professional who has built calculate.co.nz, calculatorhub.com, and realtor.co.nz over the past two decades. Lives in Christchurch, New Zealand. Built Counsel.day after a real schooling decision he and his wife could not settle at the dinner table.">
 <meta name="author" content="James Graham, founder of Counsel.day">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="canonical" href="https://counsel.day/about/james-graham">
@@ -123,9 +123,9 @@
       "givenName": "James",
       "familyName": "Graham",
       "url": "https://counsel.day/about/james-graham",
-      "image": "https://counsel.day/og-image.png",
+      "image": "https://counsel.day/about/james-graham-portrait.jpg",
       "jobTitle": "Founder and data professional",
-      "description": "Founder of Counsel.day. A data and analytics professional, builder of free tools at calculate.co.nz, propertyprice.co.nz, salary.co.nz, and realtor.co.nz. Lives in Christchurch, New Zealand.",
+      "description": "Founder of Counsel.day. A data and analytics professional, builder of free tools at calculate.co.nz, calculatorhub.com, and realtor.co.nz. Lives in Christchurch, New Zealand.",
       "worksFor": { "@id": "https://counsel.day/#organization" },
       "homeLocation": {
         "@type": "Place",
@@ -137,7 +137,7 @@
       },
       "alumniOf": {
         "@type": "EducationalOrganization",
-        "name": "University-level study in Human Geography and Social Anthropology"
+        "name": "University of Auckland"
       },
       "knowsAbout": [
         "Time-series analysis",
@@ -152,9 +152,8 @@
       "sameAs": [
         "https://www.linkedin.com/in/james-graham-nz",
         "https://calculate.co.nz/about-us.php",
+        "https://calculatorhub.com/about",
         "https://realtor.co.nz",
-        "https://propertyprice.co.nz",
-        "https://salary.co.nz",
         "https://counsel.day/about"
       ]
     },
@@ -180,7 +179,7 @@
 <link rel="stylesheet" href="/fonts/fonts.css">
 <link rel="stylesheet" href="../styles-i8.css">
 <style>
-.bio-page { max-width: 1080px; margin: 0 auto; padding: 18px 40px 30px; }
+.bio-page { max-width: 1320px; margin: 0 auto; padding: 24px 48px 30px; }
 
 .bio-bread { font-family: var(--font-ui); font-size: 11px; letter-spacing: 0.10em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
 .bio-bread a { color: var(--wine); border-bottom: 1px solid var(--wine); padding-bottom: 2px; }
@@ -188,6 +187,7 @@
 .bio-head { display: grid; grid-template-columns: 240px 1fr; gap: 40px; padding-bottom: 24px; border-bottom: 2px solid var(--ink); margin-bottom: 28px; align-items: start; }
 .bio-portrait { background: var(--paper-deep); border: 1px solid var(--rule-strong); aspect-ratio: 4 / 5; overflow: hidden; position: relative; }
 .bio-portrait svg { width: 100%; height: 100%; display: block; }
+.bio-portrait img { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; display: block; }
 .bio-portrait-caption { font-family: var(--font-ui); font-size: 10.5px; letter-spacing: 0.10em; text-transform: uppercase; color: var(--muted); margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; }
 
 .bio-head .who .eyebrow { font-family: var(--font-body); font-style: italic; font-size: 16px; color: var(--muted); margin-bottom: 16px; }
@@ -199,7 +199,7 @@
 .bio-head .meta a { color: var(--wine); border-bottom: 1px solid var(--wine); padding-bottom: 1px; }
 .bio-head .meta a:hover { color: var(--wine-deep); }
 
-.bio-section { margin: 28px 0; max-width: 760px; padding-top: 22px; border-top: 1px solid var(--rule); }
+.bio-section { margin: 28px 0; max-width: 1180px; padding-top: 22px; border-top: 1px solid var(--rule); }
 .bio-section:first-of-type { border-top: none; padding-top: 0; }
 .bio-section .step-eyebrow { font-family: var(--font-mono); font-size: 13px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine); margin-bottom: 10px; }
 .bio-section h2 { font-family: var(--font-display); font-weight: 400; font-size: clamp(26px, 3vw, 34px); line-height: 1.12; letter-spacing: -0.018em; color: var(--ink); margin-bottom: 14px; }
@@ -213,35 +213,28 @@
 .bio-section p em { font-style: italic; color: var(--wine-deep); }
 .bio-section a { color: var(--wine); border-bottom: 1px solid var(--wine); padding-bottom: 1px; }
 
-.workshop { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border: 1px solid var(--rule-strong); background: var(--paper); margin: 28px 0; }
-.workshop-cell { padding: 24px 28px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
-.workshop-cell:nth-child(3n) { border-right: none; }
-.workshop-cell:nth-last-child(-n+3):nth-child(3n+1),
-.workshop-cell:nth-last-child(-n+3):nth-child(3n+1) ~ .workshop-cell { border-bottom: none; }
+.workshop { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule-strong); background: var(--paper); margin: 28px 0; }
+.workshop-cell { padding: 26px 30px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.workshop-cell:nth-child(2n) { border-right: none; }
+.workshop-cell:nth-last-child(-n+2) { border-bottom: none; }
 .workshop-cell .when { font-family: var(--font-ui); font-size: 10.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine); margin-bottom: 8px; }
 .workshop-cell .name { font-family: var(--font-display); font-weight: 500; font-size: 22px; line-height: 1.2; letter-spacing: -0.015em; color: var(--ink); margin-bottom: 8px; }
 .workshop-cell .name .ital { font-style: italic; font-weight: 400; color: var(--wine); }
 .workshop-cell p { font-family: var(--font-body); font-size: 14.5px; line-height: 1.55; color: var(--ink-soft); margin: 0; }
 
-.boundaries { background: var(--paper-deep); border-left: 4px solid var(--ink); padding: 22px 28px; margin: 24px 0; max-width: 760px; }
+.boundaries { background: var(--paper-deep); border-left: 4px solid var(--ink); padding: 22px 28px; margin: 24px 0; max-width: 1180px; }
 .boundaries h3 { font-family: var(--font-ui); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); margin-bottom: 12px; }
 .boundaries p { font-family: var(--font-body); font-size: 16px; line-height: 1.65; color: var(--ink); margin: 0; }
 .boundaries p strong { font-weight: 500; }
 
-.contact-strip { padding: 22px 0 0; border-top: 1px solid var(--rule); margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 760px; }
+.contact-strip { padding: 22px 0 0; border-top: 1px solid var(--rule); margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 1180px; }
 .contact-strip .label { font-family: var(--font-ui); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine); margin-bottom: 8px; }
 .contact-strip .value { font-family: var(--font-display); font-size: 18px; color: var(--ink); }
 .contact-strip a { color: var(--wine); border-bottom: 1px solid var(--wine); padding-bottom: 1px; }
 .contact-strip a:hover { color: var(--wine-deep); }
 
-@media (max-width: 980px) {
-  .workshop { grid-template-columns: 1fr 1fr; }
-  .workshop-cell { border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
-  .workshop-cell:nth-child(3n) { border-right: 1px solid var(--rule); }
-  .workshop-cell:nth-child(2n) { border-right: none; }
-}
 @media (max-width: 820px) {
-  .bio-page { padding: 18px 20px 30px; }
+  .bio-page { padding: 20px 20px 30px; }
   .bio-head { grid-template-columns: 1fr; gap: 32px; }
   .bio-portrait { max-width: 320px; }
   .workshop { grid-template-columns: 1fr; }
@@ -289,10 +282,14 @@
 
     <!-- HEAD · portrait + name + role + meta -->
     <div class="bio-head">
-      <figure class="bio-portrait" aria-label="Editorial portrait of James Graham">
-        <!-- Placeholder portrait · matches the index.html bench-figures illustration style.
-             Replace with a real photograph at /about/james-graham-portrait.png when available. -->
-        <svg viewBox="0 0 280 350" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Editorial portrait silhouette">
+      <figure class="bio-portrait" aria-label="Portrait of James Graham">
+        <!-- Real photograph. To update, replace /about/james-graham-portrait.jpg
+             (any orientation · object-fit crops it to a 4:5 plate). If the file is
+             ever missing, the editorial SVG below shows in its place, so the page
+             never renders a broken-image icon. -->
+        <img src="james-graham-portrait.jpg" alt="James Graham, founder of Counsel.day" width="600" height="750" loading="eager"
+             onerror="this.style.display='none'; var s=this.parentNode.querySelector('svg'); if (s) { s.style.display='block'; }">
+        <svg viewBox="0 0 280 350" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Editorial portrait silhouette" style="display: none;">
           <defs>
             <linearGradient id="bg-portrait" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stop-color="#ede5d4"/>
@@ -332,7 +329,7 @@
         <p class="role">Data and analytics professional by day. Builder of small, durable instruments by night. Counsel.day is the latest, built after a decision he and his wife could not settle at the dinner table.</p>
         <div class="meta">
           <span>Role</span><span>Founder and data professional</span>
-          <span>Workshop</span><span>The same one that ships <a href="https://realtor.co.nz" rel="noopener">realtor.co.nz</a>, <a href="https://calculate.co.nz" rel="noopener">calculate.co.nz</a>, <a href="https://propertyprice.co.nz" rel="noopener">propertyprice.co.nz</a>, and <a href="https://salary.co.nz" rel="noopener">salary.co.nz</a></span>
+          <span>Workshop</span><span>The same one that ships <a href="https://calculate.co.nz" rel="noopener">calculate.co.nz</a>, <a href="https://calculatorhub.com" rel="noopener">calculatorhub.com</a>, and <a href="https://realtor.co.nz" rel="noopener">realtor.co.nz</a></span>
           <span>Lives in</span><span>Christchurch, New Zealand. Originally from the North East of England.</span>
           <span>Not a</span><span>Therapist · counsellor · medical professional · clinical anything</span>
           <span>Contact</span><span><a href="mailto:james@counsel.day">james@counsel.day</a> · <a href="https://www.linkedin.com/in/james-graham-nz" rel="noopener">LinkedIn</a></span>
@@ -353,30 +350,25 @@
     <section class="bio-section">
       <div class="step-eyebrow"> 02 · WORKSHOP</div>
       <h2>The same workshop that has already shipped a small handful of useful, durable <span class="ital">products.</span></h2>
-      <p>Counsel.day joins three siblings from the same small workshop. Each is operational on its own terms · none raised outside capital, none pivoted into a different category, none is for sale. The pattern is small instruments that solve a specific class of problem well, built and maintained over a long horizon by a small team. <strong>None of the data passing through any of these products has ever been sold, despite repeated commercial offers.</strong></p>
+      <p>Counsel.day joins three siblings from the same small workshop. Each is operational on its own terms · none raised outside capital, none pivoted into a different category, none is for sale. The pattern is small instruments that solve a specific class of problem well, built and maintained over a long horizon. Two earlier projects, propertyprice.co.nz and salary.co.nz, reached hundreds of thousands of New Zealanders before they were retired; the tool-building has also run alongside a seven-year collaboration with interest.co.nz. <strong>None of the data passing through any of these products has ever been sold, despite repeated commercial offers.</strong></p>
       <div class="workshop">
         <div class="workshop-cell">
-          <div class="when">Calculators</div>
+          <div class="when">New Zealand · financial literacy</div>
           <div class="name">calculate<span class="ital">.co.nz</span></div>
-          <p>A free library of more than 150 financial, tax, KiwiSaver, mortgage, and budgeting calculators for New Zealand. Consolidates a decade of single-purpose calculator sites under one masthead. Used across the local accounting, lending, and mortgage-advice industries.</p>
+          <p>More than 2,300 free financial, tax, KiwiSaver, mortgage, and budgeting calculators for New Zealand, alongside over 350 plain-language guides. It began in 2019 with a single GST calculator that reached number one on Google within weeks. Every tool is checked twice a month against IRD, the Reserve Bank, and Stats NZ.</p>
         </div>
         <div class="workshop-cell">
-          <div class="when">Property prices</div>
-          <div class="name">propertyprice<span class="ital">.co.nz</span></div>
-          <p>A property-price transparency platform serving more than 400,000 New Zealanders annually. Gives buyers, sellers, and renters access to the same price data the industry has charged for. Free at the point of use.</p>
+          <div class="when">Worldwide · the wider library</div>
+          <div class="name">calculatorhub<span class="ital">.com</span></div>
+          <p>More than 45,000 free calculators and guides spanning tax, pay, mortgages, retirement, health, engineering, and mathematics. It consolidates nearly 200 standalone tools that reached around 20 million people at their peak. Every figure traces to an official or peer-reviewed source, shown openly with its verification date.</p>
         </div>
         <div class="workshop-cell">
-          <div class="when">Pay data</div>
-          <div class="name">salary<span class="ital">.co.nz</span></div>
-          <p>An open dataset of remuneration ranges covering more than 200,000 New Zealand roles. Helps employees and contractors negotiate from facts rather than from the employer's framing.</p>
-        </div>
-        <div class="workshop-cell">
-          <div class="when">Property transactions · 2023</div>
+          <div class="when">New Zealand · 2023</div>
           <div class="name">realtor<span class="ital">.co.nz</span></div>
-          <p>A property-transaction-literacy platform for New Zealand buyers and sellers. Explains the contracts, the timeline, the conditions, and the rights · in plain language, free.</p>
+          <p>A property-transaction-literacy platform for New Zealand buyers and sellers, built by a team of fifteen. It explains the contracts, the timeline, the conditions, and the rights · in plain language, free at the point of use.</p>
         </div>
         <div class="workshop-cell">
-          <div class="when">Shipping 2026</div>
+          <div class="when">Worldwide · shipping 2026</div>
           <div class="name">counsel<span class="ital">.day</span></div>
           <p>A decision tool for solo, couples, and families · for the questions a single conversation cannot resolve. The first product in the workshop that is not free; it is priced per decision in USD, worldwide.</p>
         </div>
@@ -387,7 +379,7 @@
     <section class="bio-section">
       <div class="step-eyebrow"> 03 · BEFORE THE WORKSHOP</div>
       <h2>The path from the North East of England to <span class="ital">Christchurch.</span></h2>
-      <p>I read <strong>Human Geography</strong> and <strong>Social Anthropology</strong> at university · two disciplines that spend a lot of time taking the question apart before they try to answer it. That habit has stayed with me, and it is the habit underneath every product on the workshop's bench. The early web-design and tool-building started in the early 2000s, between lectures and after work. In 2009 the New Zealand government's <em>Be Your Own Boss</em> programme, run through Trade and Enterprise, awarded me a grant to keep going. The workshop has been operating in some form ever since, and at one point ranked among the <strong>top ten Google Publishers in New Zealand</strong>.</p>
+      <p>I read <strong>Human Geography, Social Anthropology, Mathematics and Statistics</strong> at the University of Auckland · disciplines that spend a lot of time taking a question apart before they try to answer it, and that gave me the quantitative footing I have worked from as an analyst ever since. That habit is the one underneath every product on the workshop's bench. The web-design and tool-building started in the early 2000s, between lectures and after work. In 2009 the New Zealand government's <em>Be Your Own Boss</em> programme, run through Trade and Enterprise, awarded me one of two available grants to keep going. The workshop has been operating in some form ever since · close to two decades now · and at one point ranked among the <strong>top ten Google Publishers in New Zealand</strong>.</p>
       <p>I do not appear on television or radio. I have declined every invitation. The work is the point, the work is what should be visible · not the person making it. <em>If you have read this far, this is roughly as personal as it gets.</em></p>
     </section>
 
@@ -395,7 +387,7 @@
     <section class="bio-section">
       <div class="step-eyebrow"> 04 · THE PRINCIPLE</div>
       <h2>Useful tools are a right, not a <span class="ital">privilege.</span></h2>
-      <p>The free products in the workshop exist because of a single conviction: <strong>financial literacy is not a privilege reserved for the wealthy · it is a basic right that every person deserves.</strong> That sentence has been the steering rule for the workshop for a decade. The audience the workshop builds for is the person sitting at their kitchen table at 10 pm, trying to figure out whether they can afford their first home · not the institution that has already figured it out.</p>
+      <p>The free products in the workshop exist because of a single conviction: <strong>financial literacy is not a privilege reserved for the wealthy · it is a basic right that every person deserves.</strong> The workshop runs on a line borrowed from Robert Ingersoll · <em>we rise by lifting others</em> · and that idea has been the steering rule for well over a decade. The audience the workshop builds for is the person sitting at their kitchen table at 10 pm, trying to figure out whether they can afford their first home · not the institution that has already figured it out.</p>
       <p>Counsel.day is the workshop's first paid product, and the reason it is paid is the same as the reason the others are free: the cost has to match the intent. <em>The decisions Counsel.day handles are not commercial questions, and they cannot survive the presence of advertising.</em> Charging a small amount per decision keeps the product free of any incentive other than the user's own. No ads, no data sold, no funnel.</p>
     </section>
 
@@ -412,7 +404,7 @@
       <div class="step-eyebrow"> 06 · HOW THE WORKSHOP WORKS</div>
       <h2>Small, durable, premium · on its own <span class="ital">terms.</span></h2>
       <p>The workshop is solo most of the time, with occasional collaboration on specific pieces. Counsel.day is built and maintained by me, with my wife Alexandra contributing the original observation that started the product and ongoing feedback on the editorial and product decisions. The verdict pipeline uses our AI synthesis tool API on the verdict day to generate the synthesis · no other AI service touches your data, and no other party sees your votes or notes. The marketing copy was AI-assisted under my direct editorial supervision; the methodology, the research positioning, the boundaries, and the decision-science citations are mine. <em>Where AI was used in this site is documented in plain language at the top of every long-form page.</em></p>
-      <p><strong>I plan to be running Counsel.day in twenty years.</strong> The product is funded by the per-decision price, plus revenue from the other two products in the same workshop. No venture funding. No data sold. No advertising in-app, ever. The decision a couple runs inside the product is never tracked, measured, sold, or advertised against. If any of that ever changes, you will hear it from me in plain language before it happens.</p>
+      <p><strong>I plan to be running Counsel.day in twenty years.</strong> The product is funded by the per-decision price, plus revenue from the other products in the same workshop. No venture funding. No data sold. No advertising in-app, ever. The decision a couple runs inside the product is never tracked, measured, sold, or advertised against. If any of that ever changes, you will hear it from me in plain language before it happens.</p>
     </section>
 
     <!-- BOUNDARIES PANEL -->

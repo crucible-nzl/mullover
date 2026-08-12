@@ -79,6 +79,15 @@
 .theme-quote { font-family: var(--font-body); font-size: 14px; line-height: 1.5; color: var(--ink-soft); font-style: italic; margin: 0; }
 
 .trajectory-wrap { height: 280px; margin-top: 6px; }
+/* A11Y-002 · keyboard + screen-reader equivalent for the canvas chart */
+.traj-table-wrap { margin-top: 16px; font-family: var(--font-mono); font-size: 12px; }
+.traj-table-wrap summary { cursor: pointer; color: var(--wine); letter-spacing: 0.04em; padding: 4px 0; }
+.traj-table-wrap summary:focus-visible { outline: 2px solid var(--wine); outline-offset: 2px; }
+.traj-table { border-collapse: collapse; margin-top: 12px; width: 100%; }
+.traj-table th, .traj-table td { border: 1px solid var(--rule); padding: 6px 10px; text-align: left; }
+.traj-table thead th { color: var(--wine); }
+.traj-table th[scope="row"] { color: var(--ink-soft); font-weight: 500; white-space: nowrap; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 .wordcloud-wrap { height: 320px; margin-top: 6px; }
 .wordcloud-wrap text { font-family: var(--font-display); font-weight: 500; }
 
@@ -583,6 +592,47 @@
         },
       },
     });
+
+    // A11Y-002 · the trajectory is drawn on a <canvas>, which is inert to the
+    // keyboard and to screen readers. Give the canvas an image role with a
+    // spoken summary of where each line started and ended, and expose the full
+    // per-day series as a keyboard-reachable data table directly below it.
+    var cdEsc = function (s) {
+      return String(s).replace(/[&<>"']/g, function (c) {
+        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+      });
+    };
+    var wordFor = function (v) {
+      return ({ '-2': 'No', '-1': 'Lean no', '0': 'Neutral', '1': 'Lean yes', '2': 'Yes' })[String(v)] || 'No vote';
+    };
+    canvas.setAttribute('role', 'img');
+    canvas.setAttribute('aria-label', 'Conviction trajectory across ' + labels.length + ' days. ' +
+      datasets.map(function (ds) {
+        var vals = ds.data.filter(function (x) { return x != null; });
+        return vals.length
+          ? ds.label + ' moved from ' + wordFor(vals[0]) + ' to ' + wordFor(vals[vals.length - 1])
+          : ds.label + ' cast no votes';
+      }).join('. ') + '.');
+
+    var trajHost = canvas.parentNode;
+    var oldTable = document.getElementById('rpt-traj-table-wrap');
+    if (oldTable && oldTable.parentNode) oldTable.parentNode.removeChild(oldTable);
+    var det = document.createElement('details');
+    det.id = 'rpt-traj-table-wrap';
+    det.className = 'traj-table-wrap';
+    det.innerHTML =
+      '<summary>View the trajectory as a data table</summary>' +
+      '<table class="traj-table"><caption class="sr-only">Each participant’s vote direction on every day of the decision.</caption>' +
+      '<thead><tr><th scope="col">Day</th>' +
+      datasets.map(function (ds) { return '<th scope="col">' + cdEsc(ds.label) + '</th>'; }).join('') +
+      '</tr></thead><tbody>' +
+      labels.map(function (d, i) {
+        return '<tr><th scope="row">' + cdEsc(d) + '</th>' +
+          datasets.map(function (ds) { return '<td>' + wordFor(ds.data[i]) + '</td>'; }).join('') +
+          '</tr>';
+      }).join('') +
+      '</tbody></table>';
+    if (trajHost && trajHost.parentNode) trajHost.parentNode.insertBefore(det, trajHost.nextSibling);
   }
 
   function renderThemes(analysis, aiThemes) {

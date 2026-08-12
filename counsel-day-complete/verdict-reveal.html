@@ -241,6 +241,7 @@
             <h3 class="now-title">Share the verdict</h3>
             <p class="now-body">If a third party should see the synthesis · a therapist, a family member, a co-parent · share it directly. Never tracked, never sold.</p>
             <a class="now-link" href="#" id="share-verdict">Share this verdict</a>
+            <a class="now-link" href="#" id="share-card-btn" style="margin-left: 18px;">Save a share card</a>
           </div>
         </div>
 
@@ -473,6 +474,67 @@
       } else {
         window.prompt('Copy this link to share your verdict:', url);
       }
+    });
+  }
+
+  // Save/share a brand card · a public, private-content-free image the user can
+  // post to social. The private synthesis stays private · it is shared only via
+  // the link (above) or the PDF export in the full report, never on this card.
+  function wrapText(ctx, text, xp, yp, maxW, lh) {
+    var words = String(text).split(' '), line = '', yy = yp;
+    for (var i = 0; i < words.length; i++) {
+      var test = line + words[i] + ' ';
+      if (ctx.measureText(test).width > maxW && line) { ctx.fillText(line.trim(), xp, yy); line = words[i] + ' '; yy += lh; }
+      else { line = test; }
+    }
+    ctx.fillText(line.trim(), xp, yy);
+    return yy;
+  }
+  function drawShareCard() {
+    var W = 1080, H = 1080;
+    var c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    var x = c.getContext('2d');
+    x.fillStyle = '#faf9f6'; x.fillRect(0, 0, W, H);            // paper
+    x.strokeStyle = '#722F37'; x.lineWidth = 6; x.strokeRect(40, 40, W - 80, H - 80); // wine frame
+    x.fillStyle = '#722F37'; x.fillRect(40, 40, W - 80, 12);    // wine cap
+    x.textAlign = 'left';
+    x.fillStyle = '#722F37'; x.font = '600 34px "Geist", system-ui, sans-serif';
+    x.fillText('Counsel.day', 92, 150);
+    x.fillStyle = '#6b635a'; x.font = '500 22px "Geist Mono", ui-monospace, monospace';
+    x.fillText('A DECISION, REACHED', 92, 372);
+    x.fillStyle = '#1c1a17'; x.font = '400 88px "Newsreader", Georgia, serif';
+    var y = wrapText(x, 'Made over time, not in a single conversation.', 92, 480, W - 184, 100);
+    x.fillStyle = '#3a352f'; x.font = '400 33px "Source Serif 4", Georgia, serif';
+    wrapText(x, 'One private vote each evening, sealed until the last day. Then a verdict, and one conversation worth having.', 92, y + 120, W - 184, 48);
+    x.fillStyle = '#722F37'; x.font = '500 26px "Geist Mono", ui-monospace, monospace';
+    x.fillText('counsel.day', 92, H - 92);
+    return c;
+  }
+  var cardBtn = document.getElementById('share-card-btn');
+  if (cardBtn) {
+    cardBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      var go = function () {
+        var canvas = drawShareCard();
+        canvas.toBlob(function (blob) {
+          if (!blob) return;
+          var file = null;
+          try { file = new File([blob], 'counsel-day.png', { type: 'image/png' }); } catch (_) {}
+          if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+            navigator.share({ files: [file], title: 'Counsel.day' }).catch(function () {});
+          } else {
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'counsel-day-share.png';
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            var orig = cardBtn.textContent; cardBtn.textContent = 'Card saved';
+            setTimeout(function () { cardBtn.textContent = orig; URL.revokeObjectURL(a.href); }, 2500);
+          }
+        }, 'image/png');
+      };
+      // Draw only once the brand fonts are ready, else the canvas uses fallbacks.
+      if (document.fonts && document.fonts.ready) { document.fonts.ready.then(go); } else { go(); }
     });
   }
 })();

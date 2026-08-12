@@ -485,6 +485,16 @@ function sealVote() {
       if (window.CounselDayPWA && typeof window.CounselDayPWA.markEngaged === 'function') {
         window.CounselDayPWA.markEngaged();
       }
+      // Funnel + retention instrumentation · fired on ACTUAL seal success
+      // (the generic ga4.js form-submit listener never fires here because the
+      // seal is a button->fetch, not a form submit). vote_cast carries the
+      // day_number so GA4 shows exactly which evening people stop voting · the
+      // key drop-off signal. No vote value or note content is ever sent.
+      if (typeof gtag === 'function') {
+        var _dn = CD_VOTE_STATE.dayNumber || 0;
+        gtag('event', 'vote_cast', { day_number: _dn, surface: 'vote-today' });
+        if (_dn === 1) gtag('event', 'first_vote', { surface: 'vote-today' });
+      }
       // On-page sealed confirmation, then move on · no jarring alert().
       showVoteMsg('Vote sealed. See you tomorrow evening.', 'status');
       document.querySelectorAll('.vote-stamp').forEach(function (b) { b.disabled = true; });
@@ -545,6 +555,7 @@ function sealVote() {
       CD_VOTE_STATE.alreadyVoted = !!d.voted_today;
       CD_VOTE_STATE.format = d.decision.format;
       CD_VOTE_STATE.options = d.decision.options || null;
+      CD_VOTE_STATE.dayNumber = d.decision.day_number || null;
 
       // If this decision is format='ranked', hide the 4-band stamp grid
       // and render the drag-to-rank surface with the decision's options.

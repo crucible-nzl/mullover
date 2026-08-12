@@ -157,6 +157,17 @@
   .compose-submit-row .save-draft { font-family: var(--font-ui); font-size: 14px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; background: none; border: none; }
   .compose-submit-row .save-draft:hover { color: var(--wine); }
   .compose-submit-row .right { margin-left: auto; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+
+  /* Day-one preview · the shape of the verdict, personalised to this
+     question + reveal date. Structure only, never sample data. */
+  .verdict-preview { margin-top: 26px; padding: 26px 30px; border: 1px solid var(--rule); background: var(--paper-deep); }
+  .verdict-preview .vp-eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine); margin-bottom: 14px; }
+  .verdict-preview .vp-lede { font-family: var(--font-body); font-size: 16px; line-height: 1.6; color: var(--ink-soft); margin: 0 0 18px; }
+  .verdict-preview .vp-lede em { font-style: italic; color: var(--ink); }
+  .verdict-preview .vp-layers { margin: 0; padding-left: 22px; display: grid; gap: 12px; font-family: var(--font-body); font-size: 15px; line-height: 1.55; color: var(--ink); }
+  .verdict-preview .vp-layers strong { font-weight: 600; }
+  .verdict-preview .vp-tier { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+  .verdict-preview .vp-foot { font-family: var(--font-body); font-style: italic; font-size: 13px; line-height: 1.5; color: var(--muted); margin: 18px 0 0; }
 </style>
 </head>
 <body>
@@ -390,6 +401,23 @@
       <p>concluding <strong id="end-date">the day you set</strong> in your local evening · sealed-read from day one until the reveal day. The reference and the dates are permanent once you file.</p>
     </div>
 
+    <!-- Day-one preview · shows the shape of the verdict personalised to
+         THIS question and reveal date, so the value is visible at the
+         moment of filing rather than only on the reveal day. It is honest:
+         structure only, every line fills in from the user's real votes. -->
+    <section class="verdict-preview" id="cd-verdict-preview" aria-labelledby="cd-pv-title">
+      <div class="vp-eyebrow" id="cd-pv-title">Preview · what lands on the reveal day</div>
+      <p class="vp-lede">On <strong id="cd-pv-date">the day you set</strong>, the verdict for <em id="cd-pv-q">your question</em> opens · built only from the evenings you actually vote. It arrives in five parts:</p>
+      <ol class="vp-layers">
+        <li><strong>The verdict.</strong> Where you landed <span id="cd-pv-who">· one considered word, and where it settled</span>.</li>
+        <li><strong>The conviction trajectory.</strong> How your view moved across the <span id="cd-pv-days">30</span> evenings, drawn as a line.</li>
+        <li><strong>The themes.</strong> What your evening notes kept returning to.</li>
+        <li><strong>The synthesis.</strong> A written reading that names the real axis underneath the question <span class="vp-tier">· paid tiers</span>.</li>
+        <li><strong>One conversation to have next.</strong> A single, specific prompt to carry it forward <span class="vp-tier">· paid tiers</span>.</li>
+      </ol>
+      <p class="vp-foot">This is the shape, not a sample · every line is computed from the votes you cast, and nothing is written until the reveal day.</p>
+    </section>
+
     <div id="cd-compose-msg" role="alert" aria-live="assertive" style="display: none; font-family: var(--font-body); font-size: 15px; line-height: 1.5; color: var(--wine); padding: 12px 16px; margin: 20px 0 0; background: var(--paper-deep); border-left: 3px solid var(--wine);"></div>
 
     <div class="compose-submit-row">
@@ -491,6 +519,7 @@ function selectTier(el) {
      clarified · the gate only fires on /vote-today where the
      decision tier is already locked. */
   applyFreeTierDurationLock();
+  updatePreviewTier();
 }
 
 /* Free-tier duration lock · the free first Solo decision runs for up to
@@ -543,6 +572,29 @@ function updatePreview() {
     p.style.color = 'var(--ink)';
     p.style.fontStyle = 'normal';
   }
+  // Mirror the question into the day-one verdict preview.
+  var pvq = document.getElementById('cd-pv-q');
+  if (pvq) {
+    if (!q) { pvq.textContent = 'your question'; pvq.style.color = 'var(--muted)'; }
+    else { pvq.textContent = '“' + q + '”'; pvq.style.color = 'var(--ink)'; }
+  }
+}
+
+/* Keep the verdict preview's verdict line honest to the selected tier ·
+   Solo reveals one word, Couple/Family reveal each participant's word, and
+   the written synthesis + conversation prompt are paid-tier layers. */
+function updatePreviewTier() {
+  var tier = (document.querySelector('input[name="tier"]:checked') || {}).value || 'solo_free';
+  var who = document.getElementById('cd-pv-who');
+  if (who) {
+    if (tier === 'couple') who.textContent = '· both words, side by side, and exactly where the two of you diverged';
+    else if (tier === 'family') who.textContent = '· every participant’s word, laid side by side';
+    else who.textContent = '· one considered word, and where it settled';
+  }
+  var free = tier === 'solo_free';
+  document.querySelectorAll('#cd-verdict-preview .vp-tier').forEach(function (m) {
+    m.textContent = free ? '· paid tiers' : '· included';
+  });
 }
 
 function updateEndDate() {
@@ -554,6 +606,11 @@ function updateEndDate() {
   var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   var label = d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
   document.getElementById('end-date').textContent = label;
+  // Mirror the reveal date + evening count into the day-one preview.
+  var pvDate = document.getElementById('cd-pv-date');
+  if (pvDate) pvDate.textContent = label;
+  var pvDays = document.getElementById('cd-pv-days');
+  if (pvDays) pvDays.textContent = String(days);
 }
 
 /* Real submit: POST /api/compose, then (for paid tiers) POST /api/checkout/create
@@ -705,6 +762,8 @@ function saveDraft() {
 
 (function () {
   updateEndDate();
+  updatePreview();
+  updatePreviewTier();
   // Drive the wine .selected highlight from the radio 'change' event, not only
   // the label onclick · keyboard users arrowing through the native radios must
   // see the selection follow. Delegated so dynamically-built tier radios work.

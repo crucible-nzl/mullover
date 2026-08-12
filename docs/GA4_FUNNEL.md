@@ -29,11 +29,18 @@ Two layers · the SaaS funnel (commerce-shaped) and the content-engagement layer
 | 3 | `click_start_decision`  | User clicks any CTA whose href points to vote.html / compose.html / start.html, OR whose label includes "start a decision", "begin a decision", "start your first decision", or "start free" | All pages | `label`, `surface`, `destination`                            |
 | 4 | `view_account_signup`   | start.html or invite.html loads                                            | start, invite  | `surface`                                                   |
 | 5 | `begin_compose`         | compose.html loads                                                         | compose        | `surface: 'compose'`                                        |
-| 6 | `submit_compose`        | A `<form>` on compose.html is submitted                                    | compose        | `surface: 'compose'`                                        |
+| 6 | `submit_compose`        | A `<form>` on compose.html is submitted (attempt)                          | compose        | `surface: 'compose'`                                        |
+| 6b| `compose_filed`         | The decision is SUCCESSFULLY filed · fired from compose.html JS on the 200 response, before checkout/redirect | compose | `surface: 'compose'`, `tier` (enum) |
 | 7 | `complete_signup`       | verify-email.html loads (user has clicked the magic link)                  | verify-email   | `surface: 'verify-email'`                                   |
 | 8 | `view_vote`             | vote.html or vote-today.html loads                                         | vote(s)        | `surface`                                                   |
-| 9 | `first_vote`            | A `<form>` on vote.html or vote-today.html is submitted                    | vote(s)        | `surface`                                                   |
+| 9 | `first_vote`            | The first evening vote (`day_number === 1`) seals successfully · fired from vote-today.html JS on the `/api/vote` 200. NOTE: the seal is a button->fetch, not a form submit, so the old generic submit listener never fired this. | vote-today | `surface` |
+| 9b| `vote_cast`             | EVERY evening vote seals successfully · carries `day_number` so the funnel shows which evening people stop voting (the retention drop-off). No vote value or note content is ever sent. | vote-today | `day_number` (int), `surface` |
 | 10| `verdict_view`          | verdict-reveal.html loads                                                  | verdict-reveal | `surface: 'verdict-reveal'`                                 |
+
+**Retention curve (the key pre-launch question):** in Explore, plot `vote_cast`
+count by `day_number` (as a dimension). The slope from day 1 -> 3 -> 7 is exactly
+"where the first 100 fall off" before they reach a verdict. Register `day_number`
+as a custom event-scoped dimension (Admin > Custom definitions).
 
 ### Content engagement events
 

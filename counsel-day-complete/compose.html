@@ -641,6 +641,9 @@ function fileDecision(e) {
     }
     // Q4 · Successful file · clear the localStorage draft.
     try { localStorage.removeItem('cd:compose-draft'); } catch (_) {}
+    // Funnel · fire a definite success event (submit_compose fires on attempt).
+    // The tier is a non-identifying enum; question/note content is never sent.
+    if (typeof gtag === 'function') { gtag('event', 'compose_filed', { surface: 'compose', tier: (res.body.tier || tier || 'unknown') }); }
     if (res.body.checkout_required) {
       /* Tier may have been auto-upgraded server-side (e.g. user picked
          Solo Free but added a partner email → backend returns

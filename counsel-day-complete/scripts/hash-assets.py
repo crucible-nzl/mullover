@@ -51,6 +51,7 @@ TRACKED = [
     "helper-widget-loader.js",
     "ga4.js",
     "pwa.js",
+    "feedback.js",
 ]
 
 # Matches both /file.ext and ../file.ext, with or without a stale ?v=…

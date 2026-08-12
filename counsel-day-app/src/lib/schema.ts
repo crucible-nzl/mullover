@@ -658,3 +658,19 @@ export const auditLog = pgTable(
 // journal_verdict_test_runs) was fully decommissioned 2026-08-09 · the
 // product line was cut to focus solely on Counsel.day Decision. Those
 // tables are dropped by migration 0034; their exports are removed here.
+
+// ---------------------------------------------------------------------------
+// FEEDBACK · one-tap "was this useful?" capture at key moments (migration 0038)
+// user_id is nullable (logged-out visitors can leave feedback; ON DELETE SET
+// NULL in the DB). No decision/vote/note content is stored · only what the
+// user types into the feedback box.
+// ---------------------------------------------------------------------------
+export const feedback = pgTable('feedback', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id'),
+  context: text('context').notNull(),
+  rating: integer('rating'),
+  comment: text('comment'),
+  page: text('page'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});

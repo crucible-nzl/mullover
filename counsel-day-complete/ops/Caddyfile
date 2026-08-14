@@ -10,7 +10,10 @@ counsel.day {
     # Block internal-only paths at the edge. Defence-in-depth: even if a
     # build script accidentally puts these files back on disk, the edge
     # will 404 them. Update this list when adding new internal pages.
-    @blocked path /scripts /scripts/* /og-image-generator.html /homepage.html /components /components.html /business-case.pdf /business-case-expanded.pdf
+    # Both URL forms are listed deliberately: the .html -> extensionless 301
+    # below would otherwise turn /homepage.html into /homepage, which would
+    # miss a .html-only blocklist and serve the file.
+    @blocked path /scripts /scripts/* /og-image-generator /og-image-generator.html /homepage /homepage.html /components /components.html /business-case.pdf /business-case-expanded.pdf
     respond @blocked 404
 
     # Admin panel · session-based auth via Next.js. Every request to
@@ -57,13 +60,45 @@ counsel.day {
         }
     }
 
-    # Counsel Journal was decommissioned 2026-08-09. Every retired Journal /
-    # Vault / Daily / essays-blog URL 301s to the homepage so old bookmarks,
-    # share-links, and any inbound links land somewhere live instead of a
-    # 404. 301 (permanent) tells search engines the pages are gone for good
-    # and consolidates any residual link equity onto the homepage.
+    # Counsel Journal was decommissioned 2026-08-09. These URLs used to 301
+    # to the homepage, but a mass redirect of retired content to "/" is the
+    # textbook soft-404: the destination does not replace the requested page,
+    # so Google discards the redirect and reports the URLs as errors anyway.
+    # The product is gone for good and nothing replaced it, so the honest
+    # status is 410 Gone · it tells crawlers to drop the URLs permanently
+    # and stops them being re-crawled indefinitely.
     @journal_retired path /journal /journal.html /journal/* /vault /vault.html /daily /daily.html
-    redir @journal_retired / 301
+    respond @journal_retired 410
+
+    # ---- Consolidation 301s (Aug 2026) ----------------------------------
+    # Eight overlapping concept pages were merged into three survivors, and
+    # therapists + counsellors became one practitioners page. These are real
+    # content moves (the material lives on at the target), so 301 is correct
+    # here where the retired Journal above gets a 410.
+    @gone_to_how_it_works path /the-experience /the-experience.html /what-youll-see /what-youll-see.html /durations /durations.html
+    redir @gone_to_how_it_works /how-it-works permanent
+
+    @gone_to_why_time path /method /method.html /distinction /distinction.html
+    redir @gone_to_why_time /why-time permanent
+
+    @gone_to_verdict path /specimen /specimen.html
+    redir @gone_to_verdict /verdict permanent
+
+    @gone_to_practitioners path /therapists /therapists.html /counsellors /counsellors.html
+    redir @gone_to_practitioners /practitioners permanent
+
+    # ---- One canonical URL form ------------------------------------------
+    # try_files below serves BOTH /pricing and /pricing.html with a 200, so
+    # every page had two live URLs. Every <link rel="canonical"> on the site
+    # points at the extensionless form, so make that the only one that
+    # serves: /pricing.html 301s to /pricing, /index.html 301s to /.
+    # Caddy sorts `redir` ahead of `try_files` and `file_server` regardless
+    # of position in this file, so these fire first.
+    @index_html path /index.html
+    redir @index_html / permanent
+
+    @html_ext path_regexp htmlext ^/(.+)\.html$
+    redir @html_ext /{re.htmlext.1} permanent
 
     # Legacy crawlers (and a few SEO checkers) request /favicon.ico
     # literally · serve the SVG with a 200 instead of letting them get

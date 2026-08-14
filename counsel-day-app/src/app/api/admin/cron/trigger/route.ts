@@ -1,6 +1,6 @@
 /**
  * POST /api/admin/cron/trigger
- * Body: { job: 'evening-prompt' | 'verdict-generate' | 'session-purge' | 'invite-expiry' | 'invite-reminder' | 'pg-dump' | 'sitemap' }
+ * Body: { job: 'evening-prompt' | 'verdict-generate' | 'session-purge' | 'invite-expiry' | 'invite-reminder' | 'pg-dump' }
  *
  * Triggers the named cron immediately by spawning the corresponding
  * tsx subprocess (for app crons) or systemctl unit (for ops crons).
@@ -36,7 +36,6 @@ const jobSchema = z.object({
     'hard-delete-purge',
     'audit-prune',
     'pg-dump',
-    'sitemap',
     'weekly-digest',
     'security-audit',
     'reopen-reminder',
@@ -44,7 +43,7 @@ const jobSchema = z.object({
 });
 
 // Map every job to the EXACT command to run. App crons go through
-// `npx tsx src/jobs/cron.ts <name>`. Ops crons (sitemap, pg-dump) used
+// `npx tsx src/jobs/cron.ts <name>`. Ops crons (pg-dump) used
 // to shell to `sudo systemctl start` but the counsel-day-app systemd
 // unit has NoNewPrivileges=true (security hardening) which forbids sudo
 // from inside the running app process. Both ops crons are now in-process
@@ -57,7 +56,6 @@ const jobCommand: Record<string, { cmd: string; args: string[]; cwd?: string }> 
   'invite-reminder':   { cmd: 'npx', args: ['tsx', 'src/jobs/cron.ts', 'invite-reminder'],   cwd: '/opt/counsel-day-app' },
   'hard-delete-purge': { cmd: 'npx', args: ['tsx', 'src/jobs/cron.ts', 'hard-delete-purge'], cwd: '/opt/counsel-day-app' },
   'audit-prune':       { cmd: 'npx', args: ['tsx', 'src/jobs/cron.ts', 'audit-prune'],       cwd: '/opt/counsel-day-app' },
-  'sitemap':           { cmd: 'npx', args: ['tsx', 'src/jobs/sitemap.ts'],                   cwd: '/opt/counsel-day-app' },
   'pg-dump':           { cmd: 'npx', args: ['tsx', 'src/jobs/pg-dump.ts'],                   cwd: '/opt/counsel-day-app' },
   'weekly-digest':     { cmd: 'npx', args: ['tsx', 'src/jobs/cron.ts', 'weekly-digest'],     cwd: '/opt/counsel-day-app' },
   'security-audit':    { cmd: 'npx', args: ['tsx', 'src/jobs/cron.ts', 'security-audit'],    cwd: '/opt/counsel-day-app' },

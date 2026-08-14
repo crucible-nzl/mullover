@@ -550,6 +550,56 @@ if (Test-Path $faviconPath) {
 }
 
 # ================================================================
+# CHECK 33 · sitemap.xml matches the pages on disk
+# ================================================================
+# sitemap.xml is GENERATED (scripts/gen-sitemap.py) and committed. This
+# fails the build when someone adds, retires or noindexes a page without
+# regenerating, which is how admin pages, partials and retired URLs used
+# to leak into the sitemap. Also asserts no listed URL is one robots.txt
+# disallows · advertising a blocked URL is a direct contradiction.
+Write-Head "Sitemap"
+$genScript = Join-Path $PSScriptRoot 'gen-sitemap.py'
+if (Test-Path $genScript) {
+  $py = if (Get-Command python -ErrorAction SilentlyContinue) { 'python' }
+        elseif (Get-Command python3 -ErrorAction SilentlyContinue) { 'python3' }
+        else { $null }
+  if ($null -eq $py) {
+    Write-Warn "sitemap check skipped" "python not found on PATH"
+  } else {
+    $genOut = & $py $genScript --check 2>&1
+    if ($LASTEXITCODE -eq 0) {
+      Write-Pass "sitemap.xml matches the indexable pages on disk"
+    } else {
+      Write-Fail "sitemap.xml is stale or invalid" "$genOut"
+    }
+  }
+
+  # Cross-check: nothing in the sitemap may be disallowed in robots.txt.
+  $sitemapPath = Join-Path $projectRoot 'sitemap.xml'
+  $robotsPath  = Join-Path $projectRoot 'robots.txt'
+  if ((Test-Path $sitemapPath) -and (Test-Path $robotsPath)) {
+    $disallowed = Get-Content $robotsPath |
+      Where-Object { $_ -match '^\s*Disallow:\s*(\S+)' } |
+      ForEach-Object { ($_ -replace '^\s*Disallow:\s*', '').Trim() } |
+      Where-Object { $_ -and $_ -ne '/' -and $_ -notmatch '[\*\?]' }
+    $locs = Select-String -Path $sitemapPath -Pattern '<loc>https://counsel\.day(/[^<]*)</loc>' -AllMatches |
+      ForEach-Object { $_.Matches } | ForEach-Object { $_.Groups[1].Value }
+    $clash = foreach ($l in $locs) {
+      foreach ($d in $disallowed) {
+        if ($l -eq $d -or $l -eq "$d/" -or $l.StartsWith("$d/")) { "$l (robots.txt disallows $d)" }
+      }
+    }
+    if ($clash) {
+      Write-Fail "sitemap lists robots.txt-disallowed URLs" ($clash -join '; ')
+    } else {
+      Write-Pass "no sitemap URL is disallowed in robots.txt"
+    }
+  }
+} else {
+  Write-Fail "scripts/gen-sitemap.py missing" "sitemap.xml can no longer be verified"
+}
+
+# ================================================================
 # Summary
 # ================================================================
 Write-Host ""

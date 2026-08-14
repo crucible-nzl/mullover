@@ -236,18 +236,24 @@ jobs:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
         run: |
-          tar -czf - -C counsel-day-complete \
-            --exclude='scripts' --exclude='ops' . \
-            | ssh -i ~/.ssh/id_ed25519 "$SSH_USER@$SSH_HOST" \
-              'sudo tar -xzf - -C /var/www/counsel.day && sudo chown deploy:deploy /var/www/counsel.day/sitemap.xml || true'
+          # rsync --delete (not tar) so pages deleted in the repo stop being
+          # served. The old tar extraction never pruned, which left retired
+          # pages live for months AND let the old server-side sitemap
+          # generator re-discover them and publish them to /sitemap.xml.
+          # --rsync-path='sudo rsync' because /var/www is root-owned.
+          rsync -az --delete \
+            --exclude='scripts' --exclude='ops' \
+            -e "ssh -i ~/.ssh/id_ed25519" \
+            --rsync-path='sudo rsync' \
+            counsel-day-complete/ "$SSH_USER@$SSH_HOST:/var/www/counsel.day/"
 
-      - name: Regenerate sitemap
-        if: steps.detect.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
-        env:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USER: ${{ secrets.SSH_USER }}
-        run: |
-          ssh -i ~/.ssh/id_ed25519 "$SSH_USER@$SSH_HOST" 'sudo systemctl start counsel-day-sitemap.service'
+      # NOTE: there is deliberately no "Regenerate sitemap" step. sitemap.xml
+      # is generated from the repo by counsel-day-complete/scripts/gen-sitemap.py
+      # and shipped as a plain file above. The old server-side generator
+      # (regenerate-sitemap.sh + counsel-day-sitemap.timer) crawled /var/www and
+      # published admin pages, partials, noindex ad landers and retired URLs
+      # with a blanket lastmod. It was removed 2026-08-15; do not reintroduce
+      # server-side sitemap generation.
 
       # Sync Caddyfile + reload Caddy if it changed. The repo's
       # counsel-day-complete/ops/Caddyfile is the source of truth;

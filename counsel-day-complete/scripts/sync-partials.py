@@ -71,6 +71,31 @@ def iter_html_files(root: str):
                 yield os.path.join(dirpath, fn)
 
 
+def rebase(body: str, depth: int) -> str:
+    """Rewrite the partial's document-relative links for a subdirectory page.
+
+    The partials live at the site root and are written root-relative
+    (href="pricing.html"). Injected verbatim into /guides/index.html those
+    resolve to /guides/pricing.html and 404. For a page `depth` levels down,
+    prefix each document-relative href/src with the right number of `../`.
+
+    Left alone: absolute paths (/fonts/...), full URLs, mailto:, tel:,
+    in-page anchors (#top) and empty hrefs.
+    """
+    if depth <= 0:
+        return body
+    prefix = '../' * depth
+    skip = ('/', '#', 'http://', 'https://', 'mailto:', 'tel:', 'data:', '//')
+
+    def fix(m: re.Match) -> str:
+        attr, url = m.group(1), m.group(2)
+        if not url or url.startswith(skip):
+            return m.group(0)
+        return f'{attr}="{prefix}{url}"'
+
+    return re.sub(r'\b(href|src)="([^"]*)"', fix, body)
+
+
 def apply_partial(text: str, name: str, body: str) -> tuple[str, int]:
     pattern = re.compile(
         r'(<!--\s*CD:PARTIAL:' + re.escape(name) + r'\s*-->)(.*?)(<!--\s*/CD:PARTIAL:'
@@ -109,8 +134,11 @@ def main() -> int:
             original = fh.read()
         text = original
         page_wraps: list[str] = []
+        # How many directories down from the site root this page sits, so the
+        # partial's root-relative links can be rebased (see rebase()).
+        depth = os.path.relpath(path, ROOT).replace(os.sep, '/').count('/')
         for name, body in partials.items():
-            text, count = apply_partial(text, name, body)
+            text, count = apply_partial(text, name, rebase(body, depth))
             if count:
                 page_wraps.append(name)
         if page_wraps:

@@ -1588,7 +1588,10 @@ section { padding: 30px 32px; border-bottom: 1px solid var(--rule); }
   .intro-kicker { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--wine); margin-bottom: 10px; }
   .intro-headline { font-family: var(--font-display); font-weight: 400; font-size: clamp(34px, 5.2vw, 76px); line-height: 1.02; letter-spacing: -0.02em; color: var(--ink); margin: 0 0 10px; text-wrap: balance; }
   .intro-headline .ital { font-style: italic; color: var(--wine); }
-  .intro-lede { font-family: var(--font-body); font-size: 17px; line-height: 1.45; color: var(--ink-soft); margin: 0 auto; max-width: 1080px; }
+  /* No max-width cap: the sentence needs ~1400px at this size and the
+     1620px intro band has it · capping at 1080px forced a two-line wrap
+     with a four-word orphan. Narrow screens still wrap naturally. */
+  .intro-lede { font-family: var(--font-body); font-size: 17px; line-height: 1.45; color: var(--ink-soft); margin: 0 auto; }
   .intro-lede strong { color: var(--ink); font-weight: 500; }
 
   /* HERO SPLIT · above the fold · Decision card (left) + method chart (right) */

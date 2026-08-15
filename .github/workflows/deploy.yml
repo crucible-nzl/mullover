@@ -240,7 +240,16 @@ jobs:
           # served. The old tar extraction never pruned, which left retired
           # pages live for months AND let the old server-side sitemap
           # generator re-discover them and publish them to /sitemap.xml.
-          # --rsync-path='sudo rsync' because /var/www is root-owned.
+          #
+          # ONE-TIME SERVER PREREQUISITE · this replaces `sudo tar`, so the
+          # deploy user needs rsync installed and a NOPASSWD sudoers entry for
+          # it, or this step fails with "sudo: a password is required":
+          #     apt-get install -y rsync
+          #     # in /etc/sudoers.d/deploy:
+          #     deploy ALL=(root) NOPASSWD: /usr/bin/rsync
+          # --exclude'd paths are NOT deleted on the receiver (that would need
+          # --delete-excluded), so /var/www/counsel.day/scripts and /ops are
+          # left alone if they exist.
           rsync -az --delete \
             --exclude='scripts' --exclude='ops' \
             -e "ssh -i ~/.ssh/id_ed25519" \

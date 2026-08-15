@@ -94,8 +94,11 @@ counsel.day {
     # serves: /pricing.html 301s to /pricing, /index.html 301s to /.
     # Caddy sorts `redir` ahead of `try_files` and `file_server` regardless
     # of position in this file, so these fire first.
-    @index_html path /index.html
-    redir @index_html / permanent
+    # Matches /index.html AND any subdirectory index (/guides/index.html), so
+    # a section hub has one URL form (/guides/) rather than three. Must stay
+    # ABOVE @html_ext: both are `redir`, so the first match in this file wins.
+    @index_html path_regexp indexhtml ^(.*)/index\.html$
+    redir @index_html {re.indexhtml.1}/ permanent
 
     @html_ext path_regexp htmlext ^/(.+)\.html$
     redir @html_ext /{re.htmlext.1} permanent
@@ -175,7 +178,19 @@ counsel.day {
     # `no-cache` (NOT `no-store`) means: revalidate every time, but the browser
     # may use a conditional GET. Combined with Caddy's ETag/Last-Modified the
     # response is usually a 304 with no body · cheap.
-    @html path *.html /
+    #
+    # This USED to be `path *.html /`. That broke the moment the 301 above made
+    # the extensionless form canonical: /pricing matches neither *.html nor /,
+    # so pages would have shipped with no Cache-Control at all and picked up
+    # heuristic caching in the browser and at Cloudflare · the recurring
+    # "my edit didn't reach anyone" bug. Match by exclusion instead, so every
+    # page URL is covered whatever its form: /, /pricing, /pricing.html,
+    # /guides/, /engineering/the-data-architecture.
+    @html {
+        not path /api /api/*
+        not path *.woff2 *.woff *.js *.css *.png *.jpg *.jpeg *.svg *.ico *.webp *.avif *.gif *.map *.pdf
+        not path *.xml *.txt *.json *.webmanifest
+    }
     header @html Cache-Control "no-cache, must-revalidate"
 
     # Catch the well-known + xml + txt files (sitemap, robots, security.txt,

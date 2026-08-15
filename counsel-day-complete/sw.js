@@ -28,9 +28,15 @@
  * encrypted in transit but bugs happen).
  */
 
-const CACHE_VERSION = 'cd-shell-v3';
+// v4 (2026-08-15): the shell paths must use the EXTENSIONLESS form. Caddy now
+// 301s /offline.html to /offline, and fetch() follows that redirect, which
+// makes res.redirected true · cache.put() throws a TypeError on a redirected
+// Response, so the offline page silently failed to precache and the offline
+// fallback below matched nothing. Bumping the version forces a reinstall on
+// clients that cached under the old key.
+const CACHE_VERSION = 'cd-shell-v4';
 const SHELL_PATHS = [
-  '/offline.html',
+  '/offline',
   '/styles-i8.css',
   '/fonts/fonts.css',
   '/favicon.svg',
@@ -73,7 +79,7 @@ self.addEventListener('activate', (event) => {
 
 /**
  * Fetch strategy:
- *   · Navigation request → network, fall back to /offline.html
+ *   · Navigation request → network, fall back to /offline
  *   · Same-origin static asset (fonts, css, png) → cache-first
  *   · Everything else (incl. /api/*) → network-only · we never want
  *     stale user data
@@ -86,7 +92,7 @@ self.addEventListener('fetch', (event) => {
 
   if (req.mode === 'navigate') {
     event.respondWith(
-      fetch(req).catch(() => caches.match('/offline.html'))
+      fetch(req).catch(() => caches.match('/offline'))
     );
     return;
   }

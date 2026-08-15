@@ -1422,25 +1422,6 @@ section { padding: 30px 32px; border-bottom: 1px solid var(--rule); }
      before any scroll. Stacks on narrow viewports. -->
 <section class="hero-split">
   <div class="hero-split-inner">
-    <div class="hero-left">
-
-    <!-- DECISION CARD · Counsel.day -->
-    <article class="product-card">
-      <h2 class="pc-name">Counsel.day <span class="ital">Decision</span></h2>
-      <p class="pc-tagline">For the question one conversation cannot resolve.</p>
-      <ul class="pc-points">
-        <li>One private vote each evening · 7 to 90 days, you choose</li>
-        <li>Sealed votes · neither side sways the other</li>
-        <li>One verdict at the close · five-layer analysis · one conversation to follow</li>
-      </ul>
-      <div class="pc-price">From <strong>$4.99 USD</strong> per decision · first Solo decision <span style="color: var(--wine);">free</span> · 7 days</div>
-      <div class="pc-cta">
-        <a href="signup.html" class="btn btn-large">Start a decision</a>
-        <a href="how-it-works.html" class="btn-text">See how it works</a>
-      </div>
-    </article>
-
-    </div>
     <div class="hero-right" id="how">
       <h2 class="how-title">A picture of <span class="ital">the method.</span></h2>
 
@@ -1563,6 +1544,28 @@ section { padding: 30px 32px; border-bottom: 1px solid var(--rule); }
 
     </div>
     </div>
+
+    <!-- DECISION CARD · moved BELOW the diagram 2026-08-16. It used to sit
+         beside it in a two-column grid, which halved the diagram and split
+         first-glance attention between two competing objects (see
+         docs/LANDING_PAGE_PRINCIPLES.md · one idea per band). The diagram
+         explains; this card converts · in that order, top to bottom. -->
+    <div class="hero-left">
+    <article class="product-card">
+      <h2 class="pc-name">Counsel.day <span class="ital">Decision</span></h2>
+      <p class="pc-tagline">For the question one conversation cannot resolve.</p>
+      <ul class="pc-points">
+        <li>One private vote each evening · 7 to 90 days, you choose</li>
+        <li>Sealed votes · neither side sways the other</li>
+        <li>One verdict at the close · five-layer analysis · one conversation to follow</li>
+      </ul>
+      <div class="pc-price">From <strong>$4.99 USD</strong> per decision · first Solo decision <span style="color: var(--wine);">free</span> · 7 days</div>
+      <div class="pc-cta">
+        <a href="signup.html" class="btn btn-large">Start a decision</a>
+        <a href="how-it-works.html" class="btn-text">See how it works</a>
+      </div>
+    </article>
+    </div>
   </div>
 </section>
 <style>
@@ -1590,12 +1593,16 @@ section { padding: 30px 32px; border-bottom: 1px solid var(--rule); }
 
   /* HERO SPLIT · above the fold · Decision card (left) + method chart (right) */
   .hero-split { padding: 8px 28px 40px; background: var(--paper); border-bottom: 1px solid var(--rule); }
-  .hero-split-inner { max-width: 1620px; margin: 0 auto; display: grid; grid-template-columns: minmax(340px, 460px) 1fr; gap: 44px; align-items: center; }
-  .hero-left { display: flex; }
-  .hero-left .product-card { width: 100%; }
+  /* Stacked since 2026-08-16: the diagram gets the full 1620px band to
+     itself (it was capped at ~1100px in a right-hand grid column), and the
+     Decision card sits below it, centred and framed, as the single next
+     step. One idea per band · docs/LANDING_PAGE_PRINCIPLES.md. */
+  .hero-split-inner { max-width: 1620px; margin: 0 auto; }
+  .hero-left { max-width: 680px; margin: 44px auto 0; }
+  .hero-left .product-card { width: 100%; border: 1px solid var(--rule-strong); padding: 30px 34px 34px; }
   .hero-right { min-width: 0; }
-  .hero-right .how-eyebrow { text-align: left; margin-bottom: 12px; }
-  .hero-right .how-title { text-align: left; font-size: clamp(26px, 2.6vw, 40px); margin: 0 0 22px; }
+  .hero-right .how-eyebrow { text-align: center; margin-bottom: 12px; }
+  .hero-right .how-title { text-align: center; font-size: clamp(30px, 3.4vw, 50px); margin: 0 0 26px; }
 
   /* PRODUCT CARD · sits in the left hero column */
   .product-card { background: var(--paper); padding: 0; display: flex; flex-direction: column; }
@@ -1625,9 +1632,8 @@ section { padding: 30px 32px; border-bottom: 1px solid var(--rule); }
   .how-figure .dh-figure svg { width: 100%; height: auto; display: block; }
 
   @media (max-width: 900px) {
-    .hero-split-inner { grid-template-columns: 1fr; gap: 26px; }
-    .hero-right .how-eyebrow, .hero-right .how-title { text-align: center; }
-    .product-card { padding: 0; }
+    .hero-left { margin: 28px auto 0; }
+    .hero-left .product-card { padding: 22px 20px 24px; }
     .intro-band { padding: 22px 18px 10px; }
     .hero-split { padding: 6px 18px 32px; }
     .how-figure { padding: 22px 18px 26px; }

@@ -463,6 +463,37 @@
     .catch(function (e) { if (e && e.message !== 'redirect') console.warn('[billing] hydrate failed', e); });
 })();
 </script>
+<script>
+/* GA4 `purchase` on the Stripe success return · the money conversion for
+   Google Ads (docs/adwords). checkout/create appends sku + display cents to
+   the success_url; transaction_id is the Stripe session id, which also
+   drives the localStorage guard so a refresh or bookmark can never
+   double-count. gtag() is defined by the inline head snippet, so this runs
+   without waiting for ga4.js. Analytics only · failure is silent. */
+(function () {
+  try {
+    var qs = new URLSearchParams(window.location.search);
+    if (qs.get('checkout') !== 'success') return;
+    var sid = qs.get('session_id') || '';
+    if (!sid) return;
+    var guard = 'cd_purchase_' + sid;
+    if (localStorage.getItem(guard)) return;
+    localStorage.setItem(guard, '1');
+    var cents = parseInt(qs.get('cents') || '0', 10);
+    var sku = qs.get('sku') || 'decision';
+    var payload = {
+      transaction_id: sid,
+      currency: 'USD',
+      items: [{ item_id: sku, item_name: 'Counsel.day decision · ' + sku, quantity: 1 }],
+    };
+    if (cents > 0) {
+      payload.value = Math.round(cents) / 100;
+      payload.items[0].price = Math.round(cents) / 100;
+    }
+    if (typeof gtag === 'function') gtag('event', 'purchase', payload);
+  } catch (e) { /* analytics only · never disturb the billing page */ }
+})();
+</script>
 <script src="pwa.js" defer></script>
 <script src="ga4.js" defer></script>
 <script src="/nav-toggle.js?v=20260605" defer></script>

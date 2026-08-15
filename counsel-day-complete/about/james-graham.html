@@ -220,6 +220,10 @@
 .workshop-cell .when { font-family: var(--font-ui); font-size: 10.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--wine); margin-bottom: 8px; }
 .workshop-cell .name { font-family: var(--font-display); font-weight: 500; font-size: 22px; line-height: 1.2; letter-spacing: -0.015em; color: var(--ink); margin-bottom: 8px; }
 .workshop-cell .name .ital { font-style: italic; font-weight: 400; color: var(--wine); }
+/* The product names link out · keep the display-face look, not the generic
+   wine underline the .bio-section a rule would apply at this size. */
+.workshop-cell .name a { color: inherit; border-bottom: none; padding-bottom: 0; }
+.workshop-cell .name a:hover { color: var(--wine); }
 .workshop-cell p { font-family: var(--font-body); font-size: 14.5px; line-height: 1.55; color: var(--ink-soft); margin: 0; }
 
 .boundaries { background: var(--paper-deep); border-left: 4px solid var(--ink); padding: 22px 28px; margin: 24px 0; max-width: 1180px; }
@@ -352,22 +356,22 @@
       <div class="workshop">
         <div class="workshop-cell">
           <div class="when">New Zealand · financial literacy</div>
-          <div class="name">calculate<span class="ital">.co.nz</span></div>
+          <div class="name"><a href="https://calculate.co.nz" rel="noopener">calculate<span class="ital">.co.nz</span></a></div>
           <p>More than 2,300 free financial, tax, KiwiSaver, mortgage, and budgeting calculators for New Zealand, alongside over 350 plain-language guides. It began in 2019 with a single GST calculator that reached number one on Google within weeks. Every tool is checked twice a month against IRD, the Reserve Bank, and Stats NZ.</p>
         </div>
         <div class="workshop-cell">
           <div class="when">Worldwide · the wider library</div>
-          <div class="name">calculatorhub<span class="ital">.com</span></div>
+          <div class="name"><a href="https://calculatorhub.com" rel="noopener">calculatorhub<span class="ital">.com</span></a></div>
           <p>More than 45,000 free calculators and guides spanning tax, pay, mortgages, retirement, health, engineering, and mathematics. It consolidates nearly 200 standalone tools that reached around 20 million people at their peak. Every figure traces to an official or peer-reviewed source, shown openly with its verification date.</p>
         </div>
         <div class="workshop-cell">
           <div class="when">New Zealand · 2023</div>
-          <div class="name">realtor<span class="ital">.co.nz</span></div>
+          <div class="name"><a href="https://realtor.co.nz" rel="noopener">realtor<span class="ital">.co.nz</span></a></div>
           <p>A property-transaction-literacy platform for New Zealand buyers and sellers, built by a team of fifteen. It explains the contracts, the timeline, the conditions, and the rights · in plain language, free at the point of use.</p>
         </div>
         <div class="workshop-cell">
           <div class="when">Worldwide · shipping 2026</div>
-          <div class="name">counsel<span class="ital">.day</span></div>
+          <div class="name"><a href="../index.html">counsel<span class="ital">.day</span></a></div>
           <p>A decision tool for solo, couples, and families · for the questions a single conversation cannot resolve. The first product in the workshop that is not free; it is priced per decision in USD, worldwide.</p>
         </div>
       </div>

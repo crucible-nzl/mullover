@@ -20,6 +20,7 @@
     <a href="#" id="adm-logout">Log out</a>
   </div>
 </div>
+<!-- CD:PARTIAL:nav-admin -->
 <nav class="adm-subnav" aria-label="Admin sections">
   <a href="/admin.html">Overview</a>
   <a href="/admin-users.html">Users</a>
@@ -29,14 +30,24 @@
   <a href="/admin-products.html">Products</a>
   <a href="/admin-growth.html">Growth</a>
   <a href="/admin-engagement.html">Engagement</a>
+  <a href="/admin-insights.html">Insights</a>
   <a href="/admin-traffic.html">Traffic</a>
-  <a href="/admin-finance.html" class="active">Finance</a>
+  <a href="/admin-finance.html">Finance</a>
   <a href="/admin-verdict-logs.html">Verdict logs</a>
   <a href="/admin-audit-log.html">Audit log</a>
+  <a href="/admin-chatbot-queries.html">Chatbot</a>
+  <a href="/admin-prompt-editor.html">Prompts</a>
+  <a href="/admin-security.html">Security</a>
   <a href="/admin-database.html">Database</a>
-    <a href="/admin-diagnostics.html">Diagnostics</a>
-  <a href="/admin-testing-area.html">Testing area</a>
+  <a href="/admin-diagnostics.html">Diagnostics</a>
+  <a href="/admin-testing-area.html">Testing</a>
 </nav>
+<!-- One nav item per admin page · 19/19. No 'active' class baked in: the
+     current page is highlighted at runtime by admin-shell.js from
+     location.pathname, so this partial stays identical on every page.
+     Hand-copied navs drifted to between 14 and 18 items per page (Prompts
+     was missing from 15 of 19) before this partial existed · 2026-08-16. -->
+<!-- /CD:PARTIAL:nav-admin -->
 
 <div class="shell">
   <h1>Finance</h1>

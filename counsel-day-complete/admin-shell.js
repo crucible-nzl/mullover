@@ -43,6 +43,23 @@
     var links = nav.querySelectorAll('a');
     if (links.length === 0) return;
 
+    /* Highlight the current page. The nav is a shared partial since
+       2026-08-16 (partials/nav-admin.html), so no page carries a baked-in
+       'active' class any more · it is derived here from the URL. Caddy
+       serves admin pages extensionless (/admin-products), while the nav
+       hrefs keep .html, so compare with the extension stripped; '/admin'
+       maps from '/admin.html'. Any baked-in active is cleared first so a
+       stale one can never leave two items highlighted. */
+    var herePath = window.location.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/admin';
+    for (var h = 0; h < links.length; h++) {
+      links[h].classList.remove('active');
+      var target = (links[h].getAttribute('href') || '').replace(/\.html$/, '');
+      if (target && target === herePath) {
+        links[h].classList.add('active');
+        links[h].setAttribute('aria-current', 'page');
+      }
+    }
+
     var sel = document.createElement('select');
     sel.className = 'adm-subnav-dd';
     sel.setAttribute('aria-label', 'Admin section');

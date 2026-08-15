@@ -143,11 +143,25 @@ export async function POST(req: Request) {
   // never touches our server · Stripe holds it in their PCI-DSS vault.
   // The Customer Portal (linked from /account.html) lets the user view,
   // add, or remove saved cards.
+  // Display price for the GA4 `purchase` event fired on the success return
+  // (Google Ads attribution · docs/adwords/README.md). Analytics garnish
+  // only: the authoritative charge is whatever the Stripe Price says, and a
+  // missing products row simply omits the value from the event.
+  let displayCents = 0;
+  try {
+    const prow = await db
+      .select({ cents: schema.products.priceCents })
+      .from(schema.products)
+      .where(eq(schema.products.key, sku))
+      .limit(1);
+    displayCents = prow[0]?.cents ?? 0;
+  } catch { /* analytics only · never block checkout */ }
+
   const checkout = await stripe.checkout.sessions.create({
     mode: modeForSku(sku as Sku),
     customer: customerId,
     line_items: [{ price: priceId, quantity: 1 }],
-    success_url: `${BASE}/billing?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
+    success_url: `${BASE}/billing?checkout=success&session_id={CHECKOUT_SESSION_ID}&sku=${encodeURIComponent(sku)}${displayCents > 0 ? `&cents=${displayCents}` : ''}`,
     cancel_url: `${BASE}/pricing?checkout=cancelled`,
     /* Tax collection is OFF until counsel.day is GST-registered. Re-enable
        once a tax registration is added in the Stripe dashboard. */

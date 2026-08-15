@@ -170,12 +170,12 @@ decommissioned 2026-08-09.
   verified signup ≤ $1 NZD**; their payments arrive at decision #2 or an
   upgrade, tracked product-side, not in the Ads window.
 
-**Geo (per James): US, CA, UK, AU, NZ, SG · one campaign per country.**
+**Geo (per James): all anglophone markets · US, CA, UK, IE, AU, NZ, SG · one campaign per country.**
 Penny bids only survive in NZ and AU; in US/CA/UK/SG the same words cost
 real money, so those campaigns run on the signup KPI with hard daily caps
 and floating CPCs, and earn paid-KPI treatment only if the data shows it.
-UK note: opt-in consent applies there, so UK attribution undercounts ·
-judge UK on the server-side numbers.
+UK/IE note: opt-in consent applies in both (UK PECR, IE = EU), so their
+attribution undercounts · judge them on the server-side numbers.
 
 **Attribution prerequisite (in build):** GA4 `purchase` event fires on the
 Stripe success return with the session id as transaction_id; James links

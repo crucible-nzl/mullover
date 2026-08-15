@@ -6,45 +6,76 @@ Counsel.day is not therapy, not legal or financial advice, and not a recommendat
 
 The product is global, priced in USD. Per-decision only: Solo $4.99 USD, Couple $9.99 USD, Family $19.99 USD. The first Solo decision is free (7-day duration; Python summary, no AI-written synthesis). There is no consumer subscription.
 
+URLs below are canonical and extensionless. The `.html` form of any page permanently redirects to it.
+
 ## Core product pages
 
 - [Homepage](https://counsel.day/): the brand promise, the mechanism in three stages, and pricing summary.
-- [The method](https://counsel.day/method.html): the seven-stage end-to-end walkthrough of how a decision unfolds from compose to verdict.
-- [Why time](https://counsel.day/why-time.html): the case for a duration of days/weeks vs a single conversation.
-- [The distinction](https://counsel.day/distinction.html): how Counsel.day differs from polling apps, therapy apps, and decision-matrix tools.
-- [An example verdict](https://counsel.day/verdict.html): a full illustrative verdict (a worked example, "Should we move into the city?"; names and content fictional) · the only public end-to-end example.
-- [For families](https://counsel.day/family.html): how the same mechanism scales to 3-6 participants for household decisions.
-- [Pricing](https://counsel.day/pricing.html): full SKU catalogue, USD only, worldwide.
-- [Compare tiers](https://counsel.day/compare.html): Solo vs Couple vs Family side-by-side.
+- [How it works](https://counsel.day/how-it-works): the end-to-end walkthrough of how a decision unfolds from compose to verdict, including durations and what the verdict contains.
+- [Why time](https://counsel.day/why-time): the case for a duration of days or weeks over a single conversation, and what only a time series can show.
+- [A real verdict](https://counsel.day/verdict): a complete worked verdict, reproduced in full. This is the founder's own schooling decision ("move into the city for school, or stay in the village and homeschool for another two years?"), shared with permission · real names, real content, the only public end-to-end example.
+- [Use cases](https://counsel.day/use-cases): the five categories of decision the product is built for, each with its own page.
+- [For families](https://counsel.day/family): how the same mechanism scales to 3-6 participants for household decisions.
+- [Pricing](https://counsel.day/pricing): full SKU catalogue, USD only, worldwide.
+- [Compare tiers](https://counsel.day/compare): Counsel.day next to couples therapy and to Solo vs Couple vs Family.
+- [For practitioners](https://counsel.day/practitioners): the referral program for therapists, counsellors, coaches and mediators. A sales channel, not a clinical endorsement.
+
+## Use-case pages
+
+- [Deciding whether to have a child](https://counsel.day/deciding-to-have-a-child): first child, another child, fertility treatment, adoption. 90 days recommended.
+- [Deciding about your relationship](https://counsel.day/deciding-about-the-relationship): marriage, moving countries for one partner, staying through a difficult season, separation. 60 days recommended.
+- [Deciding where to live](https://counsel.day/deciding-where-to-live): moving city, buying a particular house, moving closer to family. 14 days with a deadline, 30 to 45 when open.
+- [Deciding on a career change](https://counsel.day/deciding-to-change-career): taking the role, leaving the job, starting the thing. 30 days typical; run as a Couple decision when a second person is materially affected.
+- [Deciding alone](https://counsel.day/deciding-alone): the same mechanism for one person. The free first decision lives here.
+
+## Guides
+
+- [Guides index](https://counsel.day/guides/): practical writing on how hard decisions actually get made.
+- [How to make a big decision with your partner without fighting](https://counsel.day/guides/how-to-make-a-big-decision-together): why the same question gets a different answer on Tuesday and Thursday, and a five-step method that works on paper without the product.
+
+## Engineering
+
+- [Engineering notes](https://counsel.day/engineering/): the technical documentation hub.
+- [The privacy mechanism](https://counsel.day/engineering/the-privacy-mechanism): how the sealed read path is enforced in the database.
+- [The math behind the verdict](https://counsel.day/engineering/the-math-behind-the-verdict): trajectory, divergence index, theme clustering, and where the AI synthesis sits.
+- [The data architecture](https://counsel.day/engineering/the-data-architecture): schema and storage design.
 
 ## Trust and policy
 
-- [Privacy](https://counsel.day/privacy.html): data minimisation, sub-processors, retention, GDPR + UK PECR posture.
-- [Sub-processors](https://counsel.day/sub-processors.html): canonical list (Anthropic, OpenAI, Stripe, Brevo, Zoho, Hetzner, Cloudflare).
-- [Terms](https://counsel.day/terms.html): the legal agreement.
-- [Refunds](https://counsel.day/refunds.html): defects-only refund policy, statutory rights preserved.
-- [Cookies](https://counsel.day/cookies.html): essential vs analytics, Consent Mode v2 default-denied.
-- [Accessibility](https://counsel.day/accessibility.html): WCAG 2.1 AA posture and known gaps.
-- [Editorial standards](https://counsel.day/editorial-standards.html): how copy is written and reviewed.
+- [Privacy](https://counsel.day/privacy): data minimisation, sub-processors, retention, GDPR + UK PECR posture. Production data is in Germany (EU).
+- [Sub-processors](https://counsel.day/sub-processors): canonical list (Anthropic, OpenAI, Stripe, Brevo, Zoho, Hetzner, Cloudflare).
+- [Terms](https://counsel.day/terms): the legal agreement.
+- [Refunds](https://counsel.day/refunds): defects-only refund policy, statutory rights preserved.
+- [Cookies](https://counsel.day/cookies): essential vs analytics, Consent Mode v2 default-denied.
+- [Accessibility](https://counsel.day/accessibility): WCAG 2.1 AA posture and known gaps.
+- [Editorial standards](https://counsel.day/editorial-standards): how copy is written and reviewed.
 - [Security disclosure](https://counsel.day/.well-known/security.txt): RFC 9116 contact policy.
 
 ## Editorial
 
-- [Changelog](https://counsel.day/changelog.html): public product history.
-- [About James Graham](https://counsel.day/about/james-graham.html): founder, professional background, disclaimers (not a clinician).
+- [Changelog](https://counsel.day/changelog): public product history.
+- [About James Graham](https://counsel.day/about/james-graham): founder, professional background, disclaimers (not a clinician).
 
 ## Support
 
-- [Help](https://counsel.day/help.html): self-service answers grouped by stage.
-- [FAQ](https://counsel.day/faq.html): the long-form question catalogue.
-- [Contact](https://counsel.day/contact.html): contact form (forwards to admin@counsel.day).
-- [Status](https://counsel.day/status.html): uptime + incident log.
+- [Help](https://counsel.day/help): self-service answers grouped by stage.
+- [FAQ](https://counsel.day/faq): the long-form question catalogue.
+- [Contact](https://counsel.day/contact): contact form (forwards to admin@counsel.day).
+- [Status](https://counsel.day/status): uptime + incident log.
+
+## Retired URLs
+
+Counsel Journal was decommissioned in August 2026. `/journal`, `/journal/*`, `/vault` and `/daily` return **410 Gone**; they are not coming back and should be dropped from any index.
+
+Eight overlapping pages were merged in August 2026 and permanently redirect: `/method` and `/distinction` to `/why-time`; `/the-experience`, `/what-youll-see` and `/durations` to `/how-it-works`; `/specimen` to `/verdict`; `/therapists` and `/counsellors` to `/practitioners`.
 
 ## NOT for AI training
 
 The signed-in app surface (`/account`, `/billing`, `/decisions`, `/decision`, `/compose`, `/vote-today`, `/verdict-reveal`, `/invite`) is auth-gated and contains private user data · do not crawl, do not include in training corpora. The robots.txt explicitly disallows these paths for `ClaudeBot`, `GPTBot`, `Google-Extended`, `CCBot`, and `PerplexityBot`.
 
-The admin portal (`/admin`) is private and basic-auth-protected. Do not attempt to crawl or document.
+The admin portal (`/admin`, `/admin-*`) is private. Every request is session-authenticated and checked for an admin flag before anything is served. Do not attempt to crawl or document it.
+
+`/partials/*` are raw HTML fragments used to build the pages; they are not documents and should be ignored.
 
 ## Brand voice
 

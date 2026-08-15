@@ -1,6 +1,6 @@
 # ============================================================
 # Counsel.day · robots.txt
-# Last updated: 14 May 2026
+# Last updated: 15 August 2026
 #
 # Allows crawling of every public marketing, article, and legal
 # page.  Excludes the signed-in app surface, account/billing
@@ -67,13 +67,15 @@ Disallow: /homepage.html
 Disallow: /components
 Disallow: /components.html
 
-# === Tracking and query parameters · prevent duplicate indexing ===
-Disallow: /*?utm_*
-Disallow: /*?fbclid=*
-Disallow: /*?gclid=*
-Disallow: /*?ref=*
-Disallow: /*?session=*
-Disallow: /*?token=*
+# === Template fragments · raw nav/footer HTML, never a page ===
+Disallow: /partials/
+
+# Tracking parameters (utm_*, fbclid, gclid, ...) are deliberately NOT
+# blocked here. Every page carries a self-referential <link rel="canonical">,
+# which is what consolidates a tagged URL onto the clean one. Blocking the
+# parameter URLs in robots.txt prevents the crawl that would read that
+# canonical, so the tagged URL can still be indexed but never consolidated ·
+# the opposite of the intent. Removed 2026-08-15.
 
 # === Sitemap ===
 Sitemap: https://counsel.day/sitemap.xml

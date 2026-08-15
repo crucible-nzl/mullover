@@ -66,7 +66,12 @@
 <title>Counsel.day · Stop having the same argument. Get the decision done.</title>
 <meta name="description" content="The private-vote couple decision tool. Vote one button a day for the duration your decision deserves. On the final day, both verdicts unlock together with a five-layer analysis. Your first decision is free. No card required.">
 <meta name="author" content="James Graham, founder of Counsel.day">
-<meta name="robots" content="index, follow, max-image-preview:large">
+<!-- noindex: start.html is the campaign landing page for paid traffic and
+     repeats the homepage pitch. Indexing it puts two of our own pages in
+     front of the same query, so index.html stays the canonical entry and
+     this one serves ads only. It drops out of sitemap.xml automatically ·
+     scripts/gen-sitemap.py keys off this tag. -->
+<meta name="robots" content="noindex, nofollow">
 <link rel="canonical" href="https://counsel.day/start">
 <link rel="alternate" hreflang="en" href="https://counsel.day/start">
 <link rel="alternate" hreflang="x-default" href="https://counsel.day/start">

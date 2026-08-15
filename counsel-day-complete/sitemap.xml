@@ -1,289 +1,170 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
   <!-- ============================================================ -->
   <!--  Counsel.day sitemap                                          -->
-  <!--  Lists every public-indexable page with hreflang en alternate. -->
-  <!--  App, account, billing, admin, system, and auth-edge pages    -->
-  <!--  are noindex'd in their <meta robots> and excluded from here. -->
-  <!--  Last regenerated: 11 August 2026                             -->
+  <!--  GENERATED · do not hand-edit.                                -->
+  <!--  Run: python scripts/gen-sitemap.py                           -->
+  <!--  A page appears here only if its <meta name=robots> exists    -->
+  <!--  and does not say noindex. lastmod comes from each page's     -->
+  <!--  article:modified_time, copied verbatim.                      -->
   <!-- ============================================================ -->
 
-  <!-- HOMEPAGE -->
   <url>
     <loc>https://counsel.day/</loc>
-    <lastmod>2026-08-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/"/>
+    <lastmod>2026-08-15T19:00:00+12:00</lastmod>
   </url>
-
-  <!-- THE PRODUCT · marketing -->
-  <url>
-    <loc>https://counsel.day/how-it-works</loc>
-    <lastmod>2026-08-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/how-it-works"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/how-it-works"/>
-  </url>
-  <url>
-    <loc>https://counsel.day/use-cases</loc>
-    <lastmod>2026-08-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/use-cases"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/use-cases"/>
-  </url>
-  <url>
-    <loc>https://counsel.day/why-time</loc>
-    <lastmod>2026-05-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/why-time"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/why-time"/>
-  </url>
-  <url>
-    <loc>https://counsel.day/verdict</loc>
-    <lastmod>2026-05-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/verdict"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/verdict"/>
-  </url>
-  <url>
-    <loc>https://counsel.day/vote</loc>
-    <lastmod>2026-05-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/vote"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/vote"/>
-  </url>
-  <url>
-    <loc>https://counsel.day/family</loc>
-    <lastmod>2026-05-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/family"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/family"/>
-  </url>
-  <url>
-    <loc>https://counsel.day/compare</loc>
-    <lastmod>2026-05-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/compare"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/compare"/>
-  </url>
-  <url>
-    <loc>https://counsel.day/pricing</loc>
-    <lastmod>2026-08-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.95</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/pricing"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/pricing"/>
-  </url>
-  <url>
-    <loc>https://counsel.day/start</loc>
-    <lastmod>2026-05-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/start"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/start"/>
-  </url>
-
-  <!-- THE COMPANY -->
   <url>
     <loc>https://counsel.day/about</loc>
-    <lastmod>2026-05-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/about"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/about"/>
+    <lastmod>2026-05-15T19:00:00+12:00</lastmod>
   </url>
   <url>
     <loc>https://counsel.day/about/james-graham</loc>
-    <lastmod>2026-05-14</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/about/james-graham"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/about/james-graham"/>
-  </url>
-  <url>
-    <loc>https://counsel.day/faq</loc>
-    <lastmod>2026-08-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/faq"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/faq"/>
-  </url>
-  <url>
-    <loc>https://counsel.day/editorial-standards</loc>
-    <lastmod>2026-05-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/editorial-standards"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/editorial-standards"/>
+    <lastmod>2026-08-13T19:00:00+12:00</lastmod>
   </url>
   <url>
     <loc>https://counsel.day/accessibility</loc>
-    <lastmod>2026-05-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/accessibility"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/accessibility"/>
-  </url>
-  <url>
-    <loc>https://counsel.day/press</loc>
-    <lastmod>2026-05-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/press"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/press"/>
-  </url>
-  <url>
-    <loc>https://counsel.day/status</loc>
-    <lastmod>2026-05-14</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/status"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/status"/>
-  </url>
-  <url>
-    <loc>https://counsel.day/help</loc>
-    <lastmod>2026-05-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/help"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/help"/>
-  </url>
-  <url>
-    <loc>https://counsel.day/security</loc>
-    <lastmod>2026-05-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/security"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/security"/>
-  </url>
-  <url>
-    <loc>https://counsel.day/contact</loc>
-    <lastmod>2026-05-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/contact"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/contact"/>
-  </url>
-  <url>
-    <loc>https://counsel.day/changelog</loc>
-    <lastmod>2026-08-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/changelog"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/changelog"/>
-  </url>
-  <url>
-    <loc>https://counsel.day/correspondence</loc>
-    <lastmod>2026-08-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/correspondence"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/correspondence"/>
-  </url>
-
-  <!-- FOR PRACTITIONERS -->
-  <url>
-    <loc>https://counsel.day/practitioners</loc>
-    <lastmod>2026-08-13</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/practitioners"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/practitioners"/>
+    <lastmod>2026-08-13T19:00:00+12:00</lastmod>
   </url>
   <url>
     <loc>https://counsel.day/apply-practitioner</loc>
-    <lastmod>2026-08-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/apply-practitioner"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/apply-practitioner"/>
-  </url>
-
-  <!-- ENGINEERING · technical hub and subpages -->
-  <url>
-    <loc>https://counsel.day/engineering/</loc>
-    <lastmod>2026-05-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/engineering/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/engineering/"/>
+    <lastmod>2026-08-13T19:00:00+12:00</lastmod>
   </url>
   <url>
-    <loc>https://counsel.day/engineering/the-privacy-mechanism</loc>
-    <lastmod>2026-05-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/engineering/the-privacy-mechanism"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/engineering/the-privacy-mechanism"/>
+    <loc>https://counsel.day/changelog</loc>
+    <lastmod>2026-08-10T19:00:00+12:00</lastmod>
   </url>
   <url>
-    <loc>https://counsel.day/engineering/the-data-architecture</loc>
-    <lastmod>2026-05-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/engineering/the-data-architecture"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/engineering/the-data-architecture"/>
+    <loc>https://counsel.day/compare</loc>
+    <lastmod>2026-08-15T19:00:00+12:00</lastmod>
   </url>
   <url>
-    <loc>https://counsel.day/engineering/the-math-behind-the-verdict</loc>
-    <lastmod>2026-05-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/engineering/the-math-behind-the-verdict"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/engineering/the-math-behind-the-verdict"/>
-  </url>
-
-  <!-- THE FINE PRINT · legal -->
-  <url>
-    <loc>https://counsel.day/privacy</loc>
-    <lastmod>2026-05-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/privacy"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/privacy"/>
-  </url>
-  <url>
-    <loc>https://counsel.day/terms</loc>
-    <lastmod>2026-08-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/terms"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/terms"/>
+    <loc>https://counsel.day/contact</loc>
+    <lastmod>2026-05-15T19:00:00+12:00</lastmod>
   </url>
   <url>
     <loc>https://counsel.day/cookies</loc>
-    <lastmod>2026-05-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.4</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/cookies"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/cookies"/>
+    <lastmod>2026-05-14T19:00:00+12:00</lastmod>
   </url>
   <url>
-    <loc>https://counsel.day/sub-processors</loc>
-    <lastmod>2026-08-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.4</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/sub-processors"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/sub-processors"/>
+    <loc>https://counsel.day/correspondence</loc>
+    <lastmod>2026-05-20T00:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/deciding-about-the-relationship</loc>
+    <lastmod>2026-08-15T19:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/deciding-alone</loc>
+    <lastmod>2026-08-15T19:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/deciding-to-change-career</loc>
+    <lastmod>2026-08-15T19:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/deciding-to-have-a-child</loc>
+    <lastmod>2026-08-15T19:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/deciding-where-to-live</loc>
+    <lastmod>2026-08-15T19:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/editorial-standards</loc>
+    <lastmod>2026-05-15T19:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/engineering/</loc>
+    <lastmod>2026-08-13T19:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/engineering/the-data-architecture</loc>
+    <lastmod>2026-05-15T19:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/engineering/the-math-behind-the-verdict</loc>
+    <lastmod>2026-08-13T19:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/engineering/the-privacy-mechanism</loc>
+    <lastmod>2026-05-15T19:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/family</loc>
+    <lastmod>2026-08-15T19:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/faq</loc>
+    <lastmod>2026-08-15T19:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/guides/</loc>
+    <lastmod>2026-08-15T19:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/guides/how-to-make-a-big-decision-together</loc>
+    <lastmod>2026-08-15T19:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/help</loc>
+    <lastmod>2026-08-13T19:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/how-it-works</loc>
+    <lastmod>2026-08-15T19:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/practitioners</loc>
+    <lastmod>2026-08-13T12:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/press</loc>
+    <lastmod>2026-05-15T19:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/pricing</loc>
+    <lastmod>2026-08-15T19:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/privacy</loc>
+    <lastmod>2026-08-13T19:00:00+12:00</lastmod>
   </url>
   <url>
     <loc>https://counsel.day/refunds</loc>
-    <lastmod>2026-08-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://counsel.day/refunds"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://counsel.day/refunds"/>
+    <lastmod>2026-05-14T19:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/security</loc>
+    <lastmod>2026-05-15T19:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/status</loc>
+    <lastmod>2026-05-15T19:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/sub-processors</loc>
+    <lastmod>2026-08-13T19:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/terms</loc>
+    <lastmod>2026-08-13T19:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/use-cases</loc>
+    <lastmod>2026-08-15T19:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/verdict</loc>
+    <lastmod>2026-08-15T19:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/vote</loc>
+    <lastmod>2026-08-15T19:00:00+12:00</lastmod>
+  </url>
+  <url>
+    <loc>https://counsel.day/why-time</loc>
+    <lastmod>2026-08-15T19:00:00+12:00</lastmod>
   </url>
 
 </urlset>

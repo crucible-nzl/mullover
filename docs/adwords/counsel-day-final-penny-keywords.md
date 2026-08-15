@@ -182,3 +182,104 @@ Stripe success return with the session id as transaction_id; James links
 GA4 to Google Ads and imports `purchase` (primary, paid campaigns) and
 `complete_signup` (primary for Solo campaigns). Until both are live,
 nothing here is measurable · do not start spend before it.
+
+---
+
+## CAC ≤ ⅓ · the bar, the levers, and the 51-keyword priority list
+(added 2026-08-16, from the analysis James approved in session)
+
+### The bar we're clearing
+
+CAC ≤ ⅓ of net revenue means, at 2c NZD clicks:
+
+| Tier | Net revenue (NZD) | Required click→paid |
+|---|---|---|
+| Family $19.99 USD | ~$31 | **~0.24%** |
+| Couple $9.99 USD | ~$15.60 | **~0.38%** |
+| Solo $4.99 USD | ~$7.40 | **~0.81%** |
+
+The single biggest lever is structural: a dollar aimed at a Couple/Family
+keyword faces a bar 2-3x lower than the same dollar on a Solo keyword. The
+tiers below are built around that.
+
+### Seven levers that improve the odds
+
+1. **Sell the duration in the ad · the hidden mechanic.** The free tier is
+   7 days only. Anyone whose question needs a 30-90 day arc pays even on
+   their FIRST decision. "Thirty sealed evenings" in the copy is not just
+   positioning · it routes clickers to the paid tier before they arrive.
+   For slow-burn keywords, the duration is the paywall.
+2. **Weight Couple and Family groups** in budget and bids · same product,
+   one-third the required conversion rate.
+3. **Price in the ad's second line** ("$9.99 USD · one decision · no
+   subscription"). At penny bids you pay for wasted clicks, not wasted
+   impressions · price-qualified clicks convert multiples better. Tension
+   to manage: low CTR hurts Quality Score and serving at 2c, so the
+   HEADLINE mirrors the query exactly, the price sits in the description.
+4. **Message-match the landing page · and build the missing one.** The
+   biggest Tier-A cluster (move-in-together, ~11 keywords) currently lands
+   on a page voiced for married-couple/separation. A dedicated
+   /deciding-to-move-in-together page in the existing template is an
+   afternoon of work and probably the single largest CVR lift available.
+5. **Prefill the question.** Compose already supports ?question= (the
+   templates/welcome mechanic). Landing CTAs can carry the ad group's exact
+   question straight into compose · two funnel steps removed at zero cost.
+6. **Restrict the paid-CAC promise to NZ + AU.** At US/UK CPCs (20c+) the
+   Couple bar becomes ~4% CVR · fantasy. Other geos run on the signup KPI
+   and must not pollute the CAC readout.
+7. **Evening ad scheduling.** These decisions are ruminated at night and
+   the product is an evening ritual · daypart toward 7pm-midnight local.
+
+Headroom note: the ⅓ ratio is measured against FIRST-sale revenue. Every
+repeat decision (Brevo lifecycle emails now exist to drive them) loosens
+the real bar further.
+
+### Tier A · bank on it (Couple/Family-native or wallet-open with a deadline · bar 0.24-0.4%)
+
+- should we move in together · should i move in with my girlfriend · are we
+  ready to live together · how soon is too soon to live together · his
+  place or mine · moving in together after long distance · moving in
+  together before engagement · moving in together too soon · trial living
+  together · pros and cons of moving in together · pros and cons of living
+  together · should we live together before getting married
+- should we renovate or move · should we build a house or buy · should we
+  downsize our house · should we move when we retire · should we move
+  closer to family
+- should we elope or have a wedding
+- family member wants to move in · multigenerational living pros and cons ·
+  relocating with teenagers (Family tier · the lowest bar on the account)
+- starting a business with your spouse
+- company wants me to relocate · commute or relocate (solo pricing but
+  deadline + employer context = pays this month)
+
+### Tier B · likely with the right copy (Solo · duration-hungry or high-stakes-private, so the 30-90 day arc pushes past the free tier)
+
+- should i propose · engaged but having doubts · cold feet before
+  engagement · not sure about getting married · do we need to get married
+- unhappy marriage stay or go · how to know if you should stay together ·
+  how to decide whether to continue a relationship · how to make the
+  decision to leave · rough patch or the end · sunk cost relationship ·
+  staying in a marriage for financial reasons · should i stay in a long
+  distance relationship · should i give my relationship another chance
+- should i move overseas · should i move back to my home country · coming
+  home after living abroad · splitting time between two countries
+- ambivalent about motherhood (90-day arc · pure paid-duration territory)
+- leaving law career change · leaving nursing career change · leaving
+  teaching career change (high income, high privacy premium)
+- am i ready to start a business · should i quit my job to start a
+  business · too old to start a business
+- app that helps you decide · decision helper app
+
+### Not on the CAC promise (signup KPI only, or not at all)
+
+All of Group 2 (fairness/venting · "my husband makes all the decisions"
+reads, doesn't buy) · "signs your marriage is worth saving" and the
+give-him/her-another-chance phrasings (listicle/venting intent) · the pure
+career-misery tier ("unhappy in my career", "how long should you stay in a
+job you hate") · sabbatical/year-off (no urgency to pay this month) · and
+everything outside NZ/AU, regardless of keyword.
+
+**Total: 51 keywords carry the CAC case · 25 on the lower Couple/Family
+bar, 26 on the duration mechanic.** Open builds that serve this list:
+/deciding-to-move-in-together (Tier A's missing page) and ad-group CTAs
+with ?question= prefill.

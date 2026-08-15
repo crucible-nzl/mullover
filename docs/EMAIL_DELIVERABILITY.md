@@ -36,12 +36,28 @@ Notes:
 
 DKIM keys are account-specific · copy them, do not guess.
 
-**Brevo** · Brevo Dashboard > Senders, Domains & Dedicated IPs > Domains >
-`counsel.day` > Authenticate. Brevo gives you:
-- a domain-verification TXT (`brevo-code:...`)
-- two DKIM CNAMEs: `brevo1._domainkey.counsel.day` and
-  `brevo2._domainkey.counsel.day` (each points to a `...brevosend.com` host)
-Add all three exactly as shown, then click "Verify" in Brevo.
+**Brevo** · profile/company menu (top right) > "Senders, domains & dedicated
+IPs" (wording shifts between UI versions; it also lives under Settings) >
+**Domains** tab > `counsel.day` > **Authenticate**.
+
+Brevo's wizard displays account-specific records, and WHICH records varies by
+account · the wizard on screen is the truth; add every row it lists, exactly
+as shown. The two known variants:
+- **CNAME variant**: `brevo1._domainkey` and `brevo2._domainkey`, each
+  pointing at a `...dkim.brevo.com` host, plus a `brevo-code:...` TXT at the
+  domain root for ownership.
+- **TXT variant**: a single `mail._domainkey` TXT whose value starts
+  `k=rsa;p=...`, plus the `brevo-code:...` TXT.
+
+Two cautions:
+- If the wizard also offers a **DMARC** row, SKIP it · counsel.day already has
+  a `_dmarc` record, and a domain must only ever have one. Adding Brevo's
+  would make DMARC invalid at every inbox.
+- If Cloudflare refuses a CNAME with a "record already exists" conflict at
+  that name, delete the stale record at the same name first (a known
+  Brevo-on-Cloudflare snag).
+
+Then click "Authenticate"/"Verify" in the wizard.
 
 **Zoho** · Zoho Mail Admin > Domains > `counsel.day` > Email Configuration >
 DKIM. Zoho gives a selector (commonly `zmail` or `zoho`) and a public key:

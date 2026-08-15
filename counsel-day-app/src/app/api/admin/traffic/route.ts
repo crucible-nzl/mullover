@@ -22,7 +22,9 @@
  */
 
 import { NextResponse } from 'next/server';
+import { and, gte, ne, sql } from 'drizzle-orm';
 import { requireAdmin } from '@/lib/admin-auth';
+import { db, schema } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -107,13 +109,100 @@ async function fetchGA4(): Promise<{
   }
 }
 
+/**
+ * First-party traffic, straight from page_hits (migration 0039).
+ *
+ * This is the number to trust. GA4 only ever sees visitors who accepted the
+ * cookie banner AND are not running an ad blocker, which on this audience is a
+ * small minority: the first Facebook post produced 48 short-link clicks and 9
+ * GA4 users. page_hits is same-origin and identifier-free, so it counts
+ * everyone. Bots are recorded but reported separately rather than silently
+ * inflating the totals.
+ */
+async function fetchFirstParty(days: number) {
+  const since = new Date(Date.now() - days * 86400_000);
+
+  const [daily, topPages, referrers, countries] = await Promise.all([
+    db
+      .select({
+        day: sql<string>`to_char(date_trunc('day', ${schema.pageHits.createdAt}), 'YYYY-MM-DD')`,
+        views: sql<number>`count(*)::int`,
+        visitors: sql<number>`count(distinct ${schema.pageHits.visitorHash})::int`,
+      })
+      .from(schema.pageHits)
+      .where(and(gte(schema.pageHits.createdAt, since), ne(schema.pageHits.device, 'bot')))
+      .groupBy(sql`1`)
+      .orderBy(sql`1 desc`),
+    db
+      .select({
+        path: schema.pageHits.path,
+        views: sql<number>`count(*)::int`,
+        visitors: sql<number>`count(distinct ${schema.pageHits.visitorHash})::int`,
+      })
+      .from(schema.pageHits)
+      .where(and(gte(schema.pageHits.createdAt, since), ne(schema.pageHits.device, 'bot')))
+      .groupBy(schema.pageHits.path)
+      .orderBy(sql`2 desc`)
+      .limit(25),
+    db
+      .select({
+        host: schema.pageHits.referrerHost,
+        views: sql<number>`count(*)::int`,
+      })
+      .from(schema.pageHits)
+      .where(and(gte(schema.pageHits.createdAt, since), ne(schema.pageHits.device, 'bot')))
+      .groupBy(schema.pageHits.referrerHost)
+      .orderBy(sql`2 desc`)
+      .limit(15),
+    db
+      .select({
+        country: schema.pageHits.country,
+        views: sql<number>`count(*)::int`,
+      })
+      .from(schema.pageHits)
+      .where(and(gte(schema.pageHits.createdAt, since), ne(schema.pageHits.device, 'bot')))
+      .groupBy(schema.pageHits.country)
+      .orderBy(sql`2 desc`)
+      .limit(15),
+  ]);
+
+  const [totals] = await db
+    .select({
+      views: sql<number>`count(*) filter (where ${schema.pageHits.device} <> 'bot')::int`,
+      visitors: sql<number>`count(distinct ${schema.pageHits.visitorHash}) filter (where ${schema.pageHits.device} <> 'bot')::int`,
+      bot_views: sql<number>`count(*) filter (where ${schema.pageHits.device} = 'bot')::int`,
+    })
+    .from(schema.pageHits)
+    .where(gte(schema.pageHits.createdAt, since));
+
+  return {
+    window_days: days,
+    totals: totals ?? { views: 0, visitors: 0, bot_views: 0 },
+    daily,
+    top_pages: topPages,
+    referrers,
+    countries,
+    note: 'Cookieless first-party counts. Visitors are per-day uniques; the digest rotates daily, so the same person on two days counts twice. Bots excluded from every figure except bot_views.',
+  };
+}
+
 export async function GET(req: Request) {
   const gate = await requireAdmin(req);
   if (gate instanceof NextResponse) return gate;
 
-  const data = await fetchGA4();
+  const url = new URL(req.url);
+  const days = Math.min(Math.max(Number(url.searchParams.get('days') ?? 30) || 30, 1), 365);
+
+  const [ga4, firstParty] = await Promise.all([
+    fetchGA4(),
+    fetchFirstParty(days).catch((err) => {
+      console.warn('[admin/traffic] first-party query failed:', err);
+      return null;
+    }),
+  ]);
+
   return NextResponse.json(
-    { ok: true, generated_at: new Date().toISOString(), ga4: data },
+    { ok: true, generated_at: new Date().toISOString(), first_party: firstParty, ga4 },
     { headers: { 'cache-control': 'private, no-store' } }
   );
 }

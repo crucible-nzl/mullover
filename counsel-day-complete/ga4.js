@@ -467,7 +467,52 @@
     watchEngagement();
   }
 
+  /* ----------------------------------------------------------------
+     FIRST-PARTY PAGEVIEW BEACON
+
+     GA4 cannot see most of our traffic, and that is by design rather
+     than a fault: Consent Mode defaults analytics_storage to denied,
+     so anyone who does not accept the banner produces only cookieless
+     pings that GA4 will not count as a user, and ad blockers strip
+     googletagmanager.com before the tag loads at all. The first
+     Facebook post produced 48 short-link clicks and 9 GA4 users.
+
+     This beacon is the first-party counterpart. It is same-origin, so
+     ad blockers leave it alone, and it sends NO identifier: just the
+     path and the referrer. The server keeps only the referrer host, a
+     coarse device class, the country Cloudflare already knows, and a
+     one-way daily-rotating digest for counting uniques.
+
+     It runs regardless of the consent decision, because it stores
+     nothing that identifies anyone. It deliberately does NOT respect
+     the analytics toggle for that reason; if that ever changes, so
+     must privacy.html.
+     ---------------------------------------------------------------- */
+  function sendHit() {
+    try {
+      var body = JSON.stringify({
+        path: location.pathname,
+        ref: document.referrer || undefined,
+      });
+      // sendBeacon survives the page being closed mid-request, which a
+      // plain fetch does not · that matters most for bounces, which are
+      // exactly the visits we are currently failing to count.
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon('/api/hit', new Blob([body], { type: 'application/json' }));
+      } else {
+        fetch('/api/hit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: body,
+          keepalive: true,
+          credentials: 'omit',
+        }).catch(function () { /* measurement must never surface an error */ });
+      }
+    } catch (e) { /* swallow · never break a page for analytics */ }
+  }
+
   resolveConsent();
+  sendHit();
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', start);

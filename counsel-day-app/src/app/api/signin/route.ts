@@ -33,7 +33,18 @@ const BASE = process.env.APP_BASE_URL ?? 'https://counsel.day';
 
 const signinSchema = z.object({
   email: z.string().trim().toLowerCase().email().max(200),
-  password: z.string().min(1).max(1024).optional(),
+  // The HTML form ALWAYS submits its password input, even untouched, so an
+  // empty string means "no password given · magic-link path", never a
+  // validation failure. Before this preprocess, the submitted `password=""`
+  // was present-but-empty: .optional() did not apply and .min(1) rejected it,
+  // so EVERY passwordless form sign-in 422'd with the misleading "valid email"
+  // message. (signup's validators handle the same trap for its empty fields;
+  // signin missed it. Latent until PR #17 removed the dev bypass, then caught
+  // by the 2026-08-16 pre-launch signup test.)
+  password: z.preprocess(
+    (v) => (typeof v === 'string' && v.trim() === '' ? undefined : v),
+    z.string().min(1).max(1024).optional()
+  ),
 });
 
 export async function POST(req: Request) {

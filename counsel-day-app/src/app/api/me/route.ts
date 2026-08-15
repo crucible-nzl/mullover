@@ -17,6 +17,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { db, schema } from '@/lib/db';
 import { readSession, readSessionCookie, buildClearedSessionCookie } from '@/lib/sessions';
+import { upsertBrevoContact } from '@/lib/brevo-contacts';
 import { eq, sql } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
@@ -163,6 +164,25 @@ export async function PATCH(req: Request) {
   }
 
   await db.update(schema.users).set(patch).where(eq(schema.users.id, session.userId));
+
+  // Keep the Brevo contact in step when name or consent changed · the sync
+  // exists as of 2026-08-16 (see lib/brevo-contacts.ts); without this, a
+  // consent withdrawal here would leave Brevo holding a stale 'true'.
+  // Fire-and-forget: a Brevo outage must never fail a profile save.
+  if (update.first_name !== undefined || update.marketing_consent !== undefined) {
+    void (async () => {
+      const rows = await db
+        .select({
+          email: schema.users.email,
+          firstName: schema.users.firstName,
+          marketingConsent: schema.users.marketingConsent,
+        })
+        .from(schema.users)
+        .where(eq(schema.users.id, session.userId))
+        .limit(1);
+      if (rows[0]) await upsertBrevoContact(rows[0]);
+    })().catch(() => {});
+  }
 
   return NextResponse.json(
     { ok: true, message: 'Profile updated.' },

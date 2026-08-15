@@ -17,6 +17,7 @@
 import { NextResponse } from 'next/server';
 import { db, schema } from '@/lib/db';
 import { createSession, ctxFromHeaders, buildSessionCookie } from '@/lib/sessions';
+import { upsertBrevoContact } from '@/lib/brevo-contacts';
 import { eq, and, isNull } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
@@ -66,7 +67,12 @@ export async function GET(req: Request) {
   // returning users go straight to /account. The check has to happen
   // BEFORE the set below or the value is always non-null.
   const userRows = await db
-    .select({ verifiedAt: schema.users.emailVerifiedAt })
+    .select({
+      verifiedAt: schema.users.emailVerifiedAt,
+      email: schema.users.email,
+      firstName: schema.users.firstName,
+      marketingConsent: schema.users.marketingConsent,
+    })
     .from(schema.users)
     .where(eq(schema.users.id, userId))
     .limit(1);
@@ -77,6 +83,20 @@ export async function GET(req: Request) {
     .update(schema.users)
     .set({ emailVerifiedAt: new Date(), updatedAt: new Date() })
     .where(eq(schema.users.id, userId));
+
+  // Sync the Brevo CONTACT · transactional sends never create contacts, so
+  // without this no signup ever appeared in Brevo (found 2026-08-16: six
+  // users in Postgres, one hand-made contact in Brevo). On EVERY verify,
+  // not just the first: the upsert is idempotent and keeps name/consent
+  // fresh for returning magic-link sign-ins. Fire-and-forget · a Brevo
+  // outage must never block a verification.
+  if (userRows[0]) {
+    void upsertBrevoContact({
+      email: userRows[0].email,
+      firstName: userRows[0].firstName,
+      marketingConsent: userRows[0].marketingConsent,
+    }).catch(() => {});
+  }
 
   // Create session + cookie
   const ctx = ctxFromHeaders(req.headers);

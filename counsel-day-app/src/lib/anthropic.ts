@@ -113,3 +113,32 @@ After the prose verdict and the closing conversation prompt, output a fenced JSO
 \`\`\`
 
 Rules for the JSON block: every "name" / "word" / "quote" must be verbatim from the partners' notes; "attributed_to" arrays use the partner first names exactly as supplied. The block is the LAST thing in your output. Nothing follows it.`;
+
+/**
+ * Split the verdict model's output into prose vs the fenced JSON appendix
+ * that VERDICT_SYSTEM_PROMPT asks for ("The block is the LAST thing in your
+ * output"). Returns the prose with the block removed, plus the parsed object
+ * (null if absent or malformed · the prose still ships and structured panels
+ * degrade gracefully).
+ *
+ * Lives here, next to the prompt that creates the format, because EVERY
+ * consumer of the raw output must apply it: the production cron does, and the
+ * admin testing area originally did not · which showed operators a raw JSON
+ * block after the synthesis and would have made prompt-tuning judgements
+ * against text no customer ever sees.
+ */
+export function splitVerdictOutput(raw: string): {
+  prose: string;
+  structured: { themes?: unknown[]; asymmetries?: unknown[]; key_quotes?: unknown[] } | null;
+} {
+  const match = raw.match(/```(?:json)?\s*\n([\s\S]*?)\n```\s*$/);
+  if (!match) return { prose: raw.trim(), structured: null };
+  const prose = raw.slice(0, match.index).trim();
+  try {
+    const parsed = JSON.parse(match[1]);
+    if (parsed && typeof parsed === 'object') return { prose, structured: parsed };
+  } catch {
+    // malformed JSON · keep prose, drop the block silently
+  }
+  return { prose, structured: null };
+}

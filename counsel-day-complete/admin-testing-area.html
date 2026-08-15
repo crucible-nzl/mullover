@@ -156,6 +156,7 @@
     <div id="cd-result-verdict-wrap" style="display: none;">
       <h3 style="margin: 22px 0 8px; font-family: var(--font-ui); font-size: 14px; font-weight: 600; color: var(--ink);">AI verdict synthesis</h3>
       <div class="ta-synth" id="cd-result-synth"></div>
+      <div id="cd-result-structured" style="margin-top: 14px; padding: 14px 16px; background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; font-size: 13px; line-height: 1.55; display: none;"></div>
       <details class="ta-collapsible">
         <summary>System prompt sent</summary>
         <div class="ta-prompts" id="cd-result-system"></div>
@@ -181,6 +182,46 @@
 
   function $(id) { return document.getElementById(id); }
   function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]; }); }
+
+  /* The verdict prompt asks the model for a fenced JSON appendix (themes /
+     asymmetries / key_quotes) after the prose; the server splits it off the
+     same way production does and hands it to us separately. Render it as a
+     small panel · and when it is empty, say WHY, because an all-votes-no-notes
+     fixture legitimately produces empty arrays and that surprised the first
+     operator to see it. Model output is untrusted · everything is escaped. */
+  function renderStructured(st) {
+    var box = $('cd-result-structured');
+    if (!box) return;
+    box.style.display = 'block';
+    var themes = (st && st.themes) || [];
+    var asym = (st && st.asymmetries) || [];
+    var quotes = (st && st.key_quotes) || [];
+    if (!st) {
+      box.innerHTML = '<strong>Structured appendix:</strong> not returned (or malformed) · the prose above is unaffected; production would fall back to Python-derived themes.';
+      return;
+    }
+    if (themes.length + asym.length + quotes.length === 0) {
+      box.innerHTML = '<strong>Structured appendix:</strong> empty · expected for this fixture. Themes, asymmetries and key quotes are built from the participants’ <em>notes</em>, and this run had none. Add notes to some votes to exercise them.';
+      return;
+    }
+    var h = '<strong>Structured appendix</strong> (rendered separately in the customer report):';
+    if (themes.length) {
+      h += '<div style="margin-top:8px;"><em>Themes:</em> ' + themes.map(function (t) {
+        return escapeHtml((t && t.name) || '?') + (t && t.mentions ? ' (' + escapeHtml(t.mentions) + ')' : '');
+      }).join(' · ') + '</div>';
+    }
+    if (asym.length) {
+      h += '<div style="margin-top:6px;"><em>Asymmetries:</em> ' + asym.map(function (a) {
+        return escapeHtml((a && a.description) || (a && a.type) || '?');
+      }).join(' · ') + '</div>';
+    }
+    if (quotes.length) {
+      h += '<div style="margin-top:6px;"><em>Key quotes:</em> ' + quotes.map(function (q) {
+        return escapeHtml((q && q.partner) || '?') + ': “' + escapeHtml((q && q.quote) || '') + '”';
+      }).join(' · ') + '</div>';
+    }
+    box.innerHTML = h;
+  }
   function showErr(m) { var el = $('adm-error'); el.style.display = 'block'; el.textContent = m; }
 
   var DIRECTIONS = [
@@ -829,6 +870,7 @@
     if (d.verdict) {
       $('cd-result-verdict-wrap').style.display = 'block';
       $('cd-result-synth').textContent = d.verdict.synthesis_text || '(no text returned)';
+      renderStructured(d.verdict.structured);
       $('cd-result-system').textContent = d.verdict.prompt_used || '';
       $('cd-result-user').textContent = d.verdict.user_prompt || '';
     } else {

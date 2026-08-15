@@ -52,7 +52,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { db, schema } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin-auth';
-import { getAnthropic, VERDICT_MODEL, VERDICT_SYSTEM_PROMPT } from '@/lib/anthropic';
+import { getAnthropic, VERDICT_MODEL, VERDICT_SYSTEM_PROMPT, splitVerdictOutput } from '@/lib/anthropic';
 import { callAnthropic } from '@/lib/anthropic-call';
 import { resolvePrompt } from '@/lib/prompts';
 
@@ -252,10 +252,15 @@ export async function POST(req: Request) {
       }
     );
     const msg = call.message;
-    const synthesis = msg.content
+    const rawSynthesis = msg.content
       .filter((b) => b.type === 'text')
       .map((b) => (b as { text: string }).text)
       .join('\n');
+    // Same split as the production cron: the prompt asks for a fenced JSON
+    // appendix after the prose. Operators must tune against the prose a
+    // customer actually sees, with the structured data shown separately ·
+    // not against raw output with a JSON block hanging off the end.
+    const { prose: synthesis, structured } = splitVerdictOutput(rawSynthesis);
     const costCents = call.costCents;
 
     // Persist the run so:
@@ -294,6 +299,7 @@ export async function POST(req: Request) {
         summary,
         verdict: {
           synthesis_text: synthesis,
+          structured,
           prompt_used: verdictSystemPrompt,
           user_prompt: userPrompt,
           tokens_input: call.tokensInput,

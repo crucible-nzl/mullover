@@ -16,7 +16,7 @@ import { db, schema } from '../lib/db';
 import { sql, and, eq, lt, isNull, isNotNull, inArray } from 'drizzle-orm';
 import { sendTransactional } from '../lib/email';
 import { sendPushToUser } from '../lib/push';
-import { getAnthropic, VERDICT_MODEL, VERDICT_SYSTEM_PROMPT } from '../lib/anthropic';
+import { getAnthropic, VERDICT_MODEL, VERDICT_SYSTEM_PROMPT, splitVerdictOutput } from '../lib/anthropic';
 import { callAnthropic } from '../lib/anthropic-call';
 import { resolvePrompt } from '../lib/prompts';
 import { runSecurityAudit, type AuditSnapshot } from '../lib/security-audit';
@@ -91,29 +91,9 @@ async function eveningPrompt() {
   console.log(`[cron · evening-prompt] sent ${sent} emails, ${pushed} push notifications`);
 }
 
-/**
- * Split the Anthropic verdict output into prose vs the fenced JSON
- * appendix introduced in prompt v5. Returns the prose with the JSON
- * block removed, plus the parsed object (or null if absent/malformed).
- * Falls back gracefully · if the model omits the block, the prose
- * still ships and the structured panels degrade to spaCy-derived
- * themes from the Python analysis layer.
- */
-function splitVerdictOutput(raw: string): {
-  prose: string;
-  structured: { themes?: unknown[]; asymmetries?: unknown[]; key_quotes?: unknown[] } | null;
-} {
-  const match = raw.match(/```(?:json)?\s*\n([\s\S]*?)\n```\s*$/);
-  if (!match) return { prose: raw.trim(), structured: null };
-  const prose = raw.slice(0, match.index).trim();
-  try {
-    const parsed = JSON.parse(match[1]);
-    if (parsed && typeof parsed === 'object') return { prose, structured: parsed };
-  } catch {
-    // malformed JSON · keep prose, drop the block silently
-  }
-  return { prose, structured: null };
-}
+// splitVerdictOutput moved to @/lib/anthropic (next to the prompt that
+// defines the format) so the admin testing area applies the identical split
+// instead of showing operators the raw fenced-JSON appendix.
 
 /**
  * Invoke counsel-day-app/python/analyse_verdict.py with the decision +

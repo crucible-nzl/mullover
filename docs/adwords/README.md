@@ -32,6 +32,19 @@ and what must be true before the first dollar is spent.
    default once accounts are linked) to separate. Keep UTMs off organic
    surfaces; ads may use them freely.
 
+## Owned media · the calculate.co.nz placement plan
+
+The highest-leverage channel isn't paid search at all: it's house placements
+on James's own calculator network, where the personas already stand mid-
+decision. The full placement plan (gold/silver page lists, module copy,
+allocation rules, exclusions) lives in `calculate-handoff-plan.md` · written
+to be sent to the Claude Code session in the calculate.co.nz project. The 19
+banner creatives are in `banners/` (self-contained HTML, UTMs embedded,
+preview.html to eyeball them). Rules that must survive any edit: unfilled
+inventory first, never displace premium finance demand, module over banner,
+and the ethical exclusions (separation/divorce pages, emergency calculators)
+hold even where the numbers would work.
+
 ## Campaign skeleton
 
 | Campaign | What | Notes |

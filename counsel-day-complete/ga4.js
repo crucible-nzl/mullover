@@ -182,15 +182,94 @@
     show:   function () { showBanner(); }
   };
 
+  /* Non-blocking notice for visitors whose jurisdiction does not require
+     opt-in. They are still told what is collected and given a one-click way
+     out · notice is required in NZ and AU even where consent is not. This is
+     informational, so it must never look like a choice that has to be made
+     before reading the page. */
+  function showAnalyticsNotice() {
+    if (document.getElementById(BANNER_ID)) return;
+    var b = document.createElement('div');
+    b.id = BANNER_ID;
+    b.className = 'cd-consent-banner';
+    b.setAttribute('role', 'status');
+    b.innerHTML =
+      '<div class="cd-consent-inner">' +
+        '<div class="cd-consent-copy">' +
+          '<div class="cd-consent-title">Analytics</div>' +
+          '<p class="cd-consent-body">We count page views to see which pages help people decide. No advertising cookies, ever. You can switch analytics off on <a href="/cookies">the cookies page</a>.</p>' +
+        '</div>' +
+        '<div class="cd-consent-actions">' +
+          '<button type="button" class="cd-consent-btn cd-consent-decline" data-cd-consent="deny">Turn off</button>' +
+          '<button type="button" class="cd-consent-btn cd-consent-accept" data-cd-consent="accept">Got it</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(b);
+    requestAnimationFrame(function () { b.classList.add('cd-consent-banner-visible'); });
+    b.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-cd-consent]');
+      if (!btn) return;
+      saveAndApply(btn.getAttribute('data-cd-consent') === 'accept' ? 'granted' : 'denied', 'geo-notice');
+    });
+  }
+
+  function whenBodyReady(fn) {
+    if (document.body) fn();
+    else document.addEventListener('DOMContentLoaded', fn);
+  }
+
+  /* Decide which consent regime applies, then act.
+   *
+   * Cookie consent is an EU/EEA/UK/CH requirement. Applying it worldwide meant
+   * analytics defaulted to OFF for an audience that is mostly in New Zealand,
+   * where notice (not opt-in) is the standard. Cloudflare counted 70 real
+   * visitors on 15 Aug 2026; GA4 counted 9.
+   *
+   * The <head> already set every signal to 'denied' before gtag loaded, with
+   * wait_for_update: 500. So the safe state is in force from the first
+   * millisecond, and we have a 500ms window to upgrade it before the first
+   * ping is sent. /api/geo is same-origin and returns a two-field JSON body,
+   * so it normally answers well inside that window.
+   *
+   * FAILS CLOSED. Timeout, network error, malformed body or unknown country
+   * all fall through to the banner and the denied default. GPC and Do-Not-Track
+   * are honoured first and everywhere, before any of this runs. */
   function resolveConsent() {
     var stored = readConsent();
-    if (stored) {
-      applyConsent(stored);
-    } else if (hasGpcOrDnt()) {
-      saveAndApply('denied', 'gpc-dnt-default');
-    } else {
-      if (document.body) showBanner();
-      else document.addEventListener('DOMContentLoaded', showBanner);
+    if (stored) { applyConsent(stored); return; }
+
+    if (hasGpcOrDnt()) { saveAndApply('denied', 'gpc-dnt-default'); return; }
+
+    var settled = false;
+    function fallBackToBanner() {
+      if (settled) return;
+      settled = true;
+      whenBodyReady(showBanner);
+    }
+
+    // Hard ceiling below the 500ms consent-mode window: if geo has not
+    // answered by then, behave exactly as before this change.
+    var timer = setTimeout(fallBackToBanner, 400);
+
+    try {
+      fetch('/api/geo', { credentials: 'omit', cache: 'no-store' })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+          if (settled) return;
+          clearTimeout(timer);
+          settled = true;
+          if (data && data.consent_required === false) {
+            // Notice-based jurisdiction: analytics on, told plainly, one click off.
+            saveAndApply('granted', 'geo-default-row');
+            whenBodyReady(showAnalyticsNotice);
+          } else {
+            whenBodyReady(showBanner);
+          }
+        })
+        .catch(function () { clearTimeout(timer); fallBackToBanner(); });
+    } catch (e) {
+      clearTimeout(timer);
+      fallBackToBanner();
     }
   }
 
@@ -467,7 +546,52 @@
     watchEngagement();
   }
 
+  /* ----------------------------------------------------------------
+     FIRST-PARTY PAGEVIEW BEACON
+
+     GA4 cannot see most of our traffic, and that is by design rather
+     than a fault: Consent Mode defaults analytics_storage to denied,
+     so anyone who does not accept the banner produces only cookieless
+     pings that GA4 will not count as a user, and ad blockers strip
+     googletagmanager.com before the tag loads at all. The first
+     Facebook post produced 48 short-link clicks and 9 GA4 users.
+
+     This beacon is the first-party counterpart. It is same-origin, so
+     ad blockers leave it alone, and it sends NO identifier: just the
+     path and the referrer. The server keeps only the referrer host, a
+     coarse device class, the country Cloudflare already knows, and a
+     one-way daily-rotating digest for counting uniques.
+
+     It runs regardless of the consent decision, because it stores
+     nothing that identifies anyone. It deliberately does NOT respect
+     the analytics toggle for that reason; if that ever changes, so
+     must privacy.html.
+     ---------------------------------------------------------------- */
+  function sendHit() {
+    try {
+      var body = JSON.stringify({
+        path: location.pathname,
+        ref: document.referrer || undefined,
+      });
+      // sendBeacon survives the page being closed mid-request, which a
+      // plain fetch does not · that matters most for bounces, which are
+      // exactly the visits we are currently failing to count.
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon('/api/hit', new Blob([body], { type: 'application/json' }));
+      } else {
+        fetch('/api/hit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: body,
+          keepalive: true,
+          credentials: 'omit',
+        }).catch(function () { /* measurement must never surface an error */ });
+      }
+    } catch (e) { /* swallow · never break a page for analytics */ }
+  }
+
   resolveConsent();
+  sendHit();
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', start);

@@ -674,3 +674,23 @@ export const feedback = pgTable('feedback', {
   page: text('page'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
+
+// ---------------------------------------------------------------------------
+// PAGE HITS · first-party, cookieless traffic counter (migration 0039)
+// GA4 undercounts by design here: Consent Mode defaults to denied, so anyone
+// who does not accept the banner is invisible, and ad blockers remove more
+// before the tag loads. This is the same-origin, identifier-free alternative.
+// Deliberately NOT stored: cookies, raw IP, full user-agent, and user_id ·
+// this must never become a per-person activity log. visitor_hash is a
+// non-reversible digest that includes the UTC date, so it supports "uniques
+// today" while making cross-day correlation impossible. See the migration.
+// ---------------------------------------------------------------------------
+export const pageHits = pgTable('page_hits', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  path: text('path').notNull(),
+  referrerHost: text('referrer_host'),
+  country: text('country'),
+  device: text('device'),
+  visitorHash: text('visitor_hash').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});

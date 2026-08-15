@@ -7,6 +7,28 @@ counsel.day {
     root * /var/www/counsel.day
     encode gzip zstd
 
+    # Access log · the origin's own record of what was requested.
+    #
+    # Until now nothing here logged requests at all, so when the first
+    # Facebook post sent 48 clicks and GA4 reported 9 users there was no
+    # server-side record to check either number against. Client-side
+    # analytics cannot answer that question: it is blocked by ad blockers
+    # and gated behind the consent banner. This log is neither.
+    #
+    # Cloudflare sits in front, so remote_ip is Cloudflare's edge unless
+    # trusted_proxies is configured; use the Cf-Connecting-Ip header for
+    # the real client. Rotation is handled by Caddy (roll_size / roll_keep),
+    # not logrotate, so nothing external needs configuring.
+    log {
+        output file /var/log/caddy/counsel-day-access.log {
+            roll_size 50MiB
+            roll_keep 7
+            roll_keep_for 720h
+        }
+        format json
+        level INFO
+    }
+
     # Block internal-only paths at the edge. Defence-in-depth: even if a
     # build script accidentally puts these files back on disk, the edge
     # will 404 them. Update this list when adding new internal pages.

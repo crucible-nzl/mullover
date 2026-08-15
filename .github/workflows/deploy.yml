@@ -251,7 +251,7 @@ jobs:
           # --delete-excluded), so /var/www/counsel.day/scripts and /ops are
           # left alone if they exist.
           rsync -az --delete \
-            --exclude='scripts' --exclude='ops' \
+            --exclude='scripts' --exclude='ops' --exclude='partials' \
             -e "ssh -i ~/.ssh/id_ed25519" \
             --rsync-path='sudo rsync' \
             counsel-day-complete/ "$SSH_USER@$SSH_HOST:/var/www/counsel.day/"

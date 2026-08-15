@@ -13,7 +13,7 @@ counsel.day {
     # Both URL forms are listed deliberately: the .html -> extensionless 301
     # below would otherwise turn /homepage.html into /homepage, which would
     # miss a .html-only blocklist and serve the file.
-    @blocked path /scripts /scripts/* /og-image-generator /og-image-generator.html /homepage /homepage.html /components /components.html /business-case.pdf /business-case-expanded.pdf
+    @blocked path /scripts /scripts/* /partials /partials/* /og-image-generator /og-image-generator.html /homepage /homepage.html /components /components.html /business-case.pdf /business-case-expanded.pdf
     respond @blocked 404
 
     # Admin panel · session-based auth via Next.js. Every request to

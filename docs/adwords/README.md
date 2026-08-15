@@ -6,11 +6,19 @@ and what must be true before the first dollar is spent.
 
 ## Before spending anything · prerequisites
 
-1. **Conversion tracking** · none exists yet. GA4 is live (G-SX20BZZP59) but
-   is not linked to Google Ads, and no Ads conversion tag is installed.
-   Minimum bar: link GA4 ↔ Google Ads, import `complete_signup` and
-   `compose_filed` as conversions, set `compose_filed` primary. Without
-   this, every campaign is spend with no steering.
+1. **Conversion tracking** · code half DONE, dashboard half TODO.
+   The GA4 `purchase` event ships as of PR #43 (fires on the Stripe success
+   return, transaction_id = session id, double-fire guarded · funnel event
+   6c). **Remaining · blocked on James creating the Google Ads account**
+   (not signed up as of 2026-08-16):
+   - [ ] Sign up for Google Ads
+   - [ ] GA4 Admin → Product links → Google Ads → link the account
+   - [ ] Ads → Tools → Conversions → Import from GA4: `purchase`
+         (Primary, 30-day click window) + `complete_signup` (Primary on
+         the Solo-KPI campaigns)
+   - [ ] One real test checkout · confirm `purchase` lands in GA4 Realtime
+   Until all four boxes tick, no campaign spends a cent · it would be
+   spend with no steering.
 2. **Consent Mode v2** · already implemented sitewide (denied-by-default in
    the EU/UK, notice elsewhere) · this is the thing Google requires for EEA
    ads measurement, and we have it. No work needed; noted so nobody

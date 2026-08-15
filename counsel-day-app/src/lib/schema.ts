@@ -685,6 +685,19 @@ export const feedback = pgTable('feedback', {
 // non-reversible digest that includes the UTC date, so it supports "uniques
 // today" while making cross-day correlation impossible. See the migration.
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// APP SETTINGS · operator-controlled key/value config (migration 0040).
+// First key: 'verdict_ai_model'. Values are validated on write (admin API)
+// and on read (lib/verdict-model), so a stale or hand-edited row can never
+// reach an Anthropic call · the resolver falls back to the env default.
+// ---------------------------------------------------------------------------
+export const appSettings = pgTable('app_settings', {
+  key: text('key').primaryKey(),
+  value: text('value').notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedBy: uuid('updated_by'),
+});
+
 export const pageHits = pgTable('page_hits', {
   id: uuid('id').primaryKey().defaultRandom(),
   path: text('path').notNull(),

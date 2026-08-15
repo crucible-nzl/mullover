@@ -35,13 +35,16 @@ import { recaptchaConfigured, recaptchaSiteKey, verifyRecaptchaToken } from '@/l
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-// Chatbot uses the cheapest Sonnet-class model the operator has wired
-// up. Override via env if we ever flip to Haiku for cost (chatbot
-// answers are short, Haiku 4.5 would be ~5x cheaper). Default falls
-// back to the same VERDICT_AI_MODEL so a single env var controls both.
-const CHATBOT_MODEL = process.env.CHATBOT_AI_MODEL
-  || process.env.VERDICT_AI_MODEL
-  || 'claude-sonnet-4-6';
+// Chatbot model precedence: CHATBOT_AI_MODEL env (a deliberate split, e.g.
+// Haiku for cost · chatbot answers are short) → otherwise it follows the
+// verdict model, which since migration 0040 is admin-settable from
+// /admin-prompt-editor. Resolved per request so an admin change applies
+// without a restart, same as the verdict paths.
+import { resolveVerdictModel } from '@/lib/verdict-model';
+async function chatbotModel(): Promise<string> {
+  if (process.env.CHATBOT_AI_MODEL) return process.env.CHATBOT_AI_MODEL;
+  return resolveVerdictModel();
+}
 
 const CHATBOT_SYSTEM_PROMPT = `You are the Counsel.day helper bot. You answer FACTUAL questions about the product only. You do not give advice about decisions, relationships, mental health, or life choices · those belong inside the product itself (one sealed vote per evening, for a duration the user chose).
 
@@ -183,7 +186,7 @@ export async function POST(req: Request) {
     const call = await callAnthropic(
       { source: 'chatbot' },
       {
-        model: CHATBOT_MODEL,
+        model: await chatbotModel(),
         // Short answers; cap aggressively so a single bad turn can't
         // generate an unbounded essay.
         max_tokens: 600,

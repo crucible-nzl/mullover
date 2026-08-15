@@ -33,6 +33,12 @@ const PRICES: Record<string, AnthropicPriceRow> = {
   'claude-haiku-4-5-20251001': { inputCentsPerM: 100, outputCentsPerM: 500 },
 };
 
+/** The models the operator may select · exactly the ones we can price.
+ *  The admin verdict-model API validates against this on write, and the
+ *  resolver validates again on read. Adding a model here (with its price
+ *  row above) is the single step that makes it selectable. */
+export const KNOWN_MODELS = Object.keys(PRICES);
+
 /**
  * Cost in cents for an Anthropic call, rounded UP so we never under-
  * report. Falls back to Opus pricing when the model is unknown · safe

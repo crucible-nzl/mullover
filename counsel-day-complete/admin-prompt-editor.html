@@ -78,6 +78,20 @@
   <p class="lede">Edit the verdict synthesis prompt or the chatbot system prompt without a code deploy. Every Save creates a new version and activates it; previously-active versions are kept for rollback. Changes take effect within 5 minutes of save (or instantly after the next process restart).</p>
   <div id="adm-error" class="status-banner is-error" style="display:none;"></div>
 
+  <!-- Verdict AI model · admin-settable since migration 0040. Reads/writes
+       /api/admin/verdict-model; the app resolves the model per verdict run,
+       so Apply takes effect on the next generation with no restart. -->
+  <section id="pm-card" style="margin: 0 0 20px; padding: 16px 18px; background: #fff; border: 1px solid #d0d7de; border-radius: 6px;">
+    <h3 style="margin: 0 0 4px;">Verdict AI model</h3>
+    <p style="margin: 0 0 10px; font-size: 12.5px; color: #57606a;">Which Claude model writes the verdict synthesis. Applies from the <strong>next verdict run</strong> · production cron, the testing area, and the helper chatbot (unless a separate chatbot model is set by env). No restart needed. Selectable models are exactly the ones with a pricing row, so cost reporting stays accurate.</p>
+    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+      <select id="pm-select" style="padding: 7px 10px; border: 1px solid #d0d7de; border-radius: 6px; font-size: 13px; min-width: 320px;"></select>
+      <button type="button" class="btn-save" id="pm-apply">Apply</button>
+      <span id="pm-status" style="font-size: 12.5px; color: #57606a;">Loading current model&hellip;</span>
+    </div>
+    <div id="pm-meta" style="margin-top: 8px; font-size: 12px; color: #57606a;"></div>
+  </section>
+
   <div class="pe-tabs" role="tablist">
     <button type="button" class="active" data-kind="verdict_synthesis">Verdict synthesis</button>
     <button type="button" data-kind="chatbot_system">Chatbot system</button>
@@ -247,6 +261,55 @@
   });
 
   load();
+
+  /* ---- Verdict AI model card ---- */
+  var pmSelect = document.getElementById('pm-select');
+  var pmStatus = document.getElementById('pm-status');
+  var pmMeta = document.getElementById('pm-meta');
+  var SOURCE_LABEL = {
+    admin: 'set here, in the admin portal',
+    env: 'from VERDICT_AI_MODEL on the server (no admin override saved yet)',
+    'default': 'in-code default (no admin override, no env var)'
+  };
+  function pmRender(d) {
+    pmSelect.innerHTML = '';
+    (d.allowed || []).forEach(function (m) {
+      var o = document.createElement('option');
+      o.value = m.id;
+      o.textContent = m.id + ' · ' + m.price_label;
+      if (m.id === d.model) o.selected = true;
+      pmSelect.appendChild(o);
+    });
+    pmStatus.textContent = 'Active: ' + d.model;
+    pmMeta.textContent = 'Source: ' + (SOURCE_LABEL[d.source] || d.source) + '. Changes are audit-logged.';
+  }
+  function pmLoad() {
+    fetch('/api/admin/verdict-model', { credentials: 'include' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d && d.ok) pmRender(d);
+        else pmStatus.textContent = (d && d.message) || 'Failed to load model setting.';
+      })
+      .catch(function () { pmStatus.textContent = 'Failed to load model setting.'; });
+  }
+  document.getElementById('pm-apply').addEventListener('click', function () {
+    var chosen = pmSelect.value;
+    if (!chosen) return;
+    pmStatus.textContent = 'Applying…';
+    fetch('/api/admin/verdict-model', {
+      method: 'PUT',
+      credentials: 'include',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ model: chosen })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d && d.ok) { pmRender(d); pmStatus.textContent = d.message || ('Active: ' + d.model); }
+        else pmStatus.textContent = (d && d.message) || 'Failed to apply.';
+      })
+      .catch(function () { pmStatus.textContent = 'Network error · not applied.'; });
+  });
+  pmLoad();
 })();
 </script>
 <script src="/admin-shell.js" defer></script>

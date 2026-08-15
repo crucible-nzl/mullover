@@ -52,7 +52,8 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { db, schema } from '@/lib/db';
 import { requireAdmin } from '@/lib/admin-auth';
-import { getAnthropic, VERDICT_MODEL, VERDICT_SYSTEM_PROMPT, splitVerdictOutput } from '@/lib/anthropic';
+import { getAnthropic, VERDICT_SYSTEM_PROMPT, splitVerdictOutput } from '@/lib/anthropic';
+import { resolveVerdictModel } from '@/lib/verdict-model';
 import { callAnthropic } from '@/lib/anthropic-call';
 import { resolvePrompt } from '@/lib/prompts';
 
@@ -240,10 +241,13 @@ export async function POST(req: Request) {
     // stays null on this row. source='testing_area' is enough for the
     // admin ledger to scope it.
     const verdictSystemPrompt = await resolvePrompt('verdict_synthesis', VERDICT_SYSTEM_PROMPT);
+    // Same resolution order as the production cron: admin setting → env →
+    // default. The testing area must exercise the model a customer would get.
+    const verdictModel = await resolveVerdictModel();
     const call = await callAnthropic(
       { source: 'testing_area' },
       {
-        model: VERDICT_MODEL,
+        model: verdictModel,
         max_tokens: 2000,
         system: [
           { type: 'text', text: verdictSystemPrompt, cache_control: { type: 'ephemeral' } },
@@ -278,7 +282,7 @@ export async function POST(req: Request) {
         durationDays: body.duration_days,
         tier: body.tier,
         participantsJson: body.participants as unknown,
-        aiModel: VERDICT_MODEL,
+        aiModel: verdictModel,
         synthesisText: synthesis,
         promptUsed: verdictSystemPrompt,
         tokensInput: call.tokensInput,
@@ -305,7 +309,7 @@ export async function POST(req: Request) {
           tokens_input: call.tokensInput,
           tokens_output: call.tokensOutput,
           cost_cents: costCents,
-          model: VERDICT_MODEL,
+          model: verdictModel,
         },
       },
       { headers: { 'cache-control': 'private, no-store' } }

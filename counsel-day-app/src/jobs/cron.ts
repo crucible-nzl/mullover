@@ -16,7 +16,8 @@ import { db, schema } from '../lib/db';
 import { sql, and, eq, lt, isNull, isNotNull, inArray } from 'drizzle-orm';
 import { sendTransactional } from '../lib/email';
 import { sendPushToUser } from '../lib/push';
-import { getAnthropic, VERDICT_MODEL, VERDICT_SYSTEM_PROMPT, splitVerdictOutput } from '../lib/anthropic';
+import { getAnthropic, VERDICT_SYSTEM_PROMPT, splitVerdictOutput } from '../lib/anthropic';
+import { resolveVerdictModel } from '../lib/verdict-model';
 import { callAnthropic } from '../lib/anthropic-call';
 import { resolvePrompt } from '../lib/prompts';
 import { runSecurityAudit, type AuditSnapshot } from '../lib/security-audit';
@@ -213,10 +214,13 @@ async function verdictGenerate() {
       // operator has saved an override via /admin-prompt-editor, else
       // falls back to the in-code constant. 5-min cache via lib/prompts.
       const verdictSystemPrompt = await resolvePrompt('verdict_synthesis', VERDICT_SYSTEM_PROMPT);
+      // Admin-portal setting first, env var second, in-code default last ·
+      // resolved per generation so an admin change needs no restart.
+      const verdictModel = await resolveVerdictModel();
       const call = await callAnthropic(
         { source: 'verdict_cron', decisionId: d.id },
         {
-          model: VERDICT_MODEL,
+          model: verdictModel,
           max_tokens: 2000,
           system: [
             { type: 'text', text: verdictSystemPrompt, cache_control: { type: 'ephemeral' } },
@@ -255,7 +259,7 @@ async function verdictGenerate() {
 
       await db.insert(schema.verdicts).values({
         decisionId: d.id,
-        aiModel: VERDICT_MODEL,
+        aiModel: verdictModel,
         synthesisText: synthesis,
         themes: (structured?.themes ?? null) as unknown,
         promptUsed: verdictSystemPrompt,

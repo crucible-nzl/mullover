@@ -122,3 +122,29 @@ no analytics work for this.
 Questions or anything ambiguous in your codebase's ad stack: flag it back to
 James rather than improvising · especially anything that would put a
 Counsel.day placement on an excluded page.
+
+## Native slots · the 1110x280 desktop and 366x92 mobile PNGs
+
+Two rendered images in `banners/` match calculate.co.nz's native slot sizes
+exactly (real Counsel.day brand fonts baked into the pixels):
+
+- `counselday-calculate-desktop-1110x280.png` (97 KB)
+- `counselday-calculate-mobile-366x92.png` (14 KB)
+
+Serve them with the site's existing partner-banner pattern, wrapped in the
+click-through anchor (the PNG itself carries no link):
+
+```html
+<a href="https://counsel.day/?utm_source=calculate_co_nz&utm_medium=house_banner&utm_campaign=sitewide_hero&utm_content=1110x280" rel="noopener">
+  <img src="/images/counselday-calculate-desktop-1110x280.png" alt="Counsel.day · the numbers say you can. Should you? Sealed daily votes, one verdict · first Solo decision free" width="1110" height="280" decoding="async" loading="lazy" style="display:block;margin:0 auto;max-width:100%;height:auto;">
+</a>
+```
+
+Mobile: same pattern, `utm_content=366x92`, width/height 366x92.
+
+Placement: these are the generic sitewide creatives · use them for the
+unfilled-inventory layer and any gold page until a category banner exists in
+the right size. Keep the alt text as supplied (it is the accessible version
+of the pitch). The generator lives in `banners/src/gen_native_banners.py`
+if a size or copy variant is ever needed · regenerate rather than editing
+pixels.

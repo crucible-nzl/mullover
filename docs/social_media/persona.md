@@ -94,9 +94,21 @@ mate at a barbecue, rewrite it or cut it.
   decision free. Never a bare number.
 - **Competitors** are named fairly or not at all. Never seed fake comparisons;
   never review a competitor while hiding the relationship.
-- **The founder story is told true**: fiancée (not wife), one son, the school
-  decision, the paper version came first. It is public on the site; posts must
-  match it exactly, because readers will check.
+- **The founder story is told true, and SOURCED**: fiancée (not wife), one
+  son, the school decision (city for schooling vs stay in the village),
+  circled for "the better part of a year", the sealed month ran 15 Apr to 15
+  May 2026, decided the following weekend "in a conversation that lasted less
+  than two hours", the first version was "one sentence each evening, sealed
+  from each other, a single readable document on day thirty" (NOT
+  "notebooks"). Every one of those phrases is on /about/james-graham or
+  /verdict. Rule: no founder-story or technical claim goes into a post unless
+  it can be pointed at on the site. Do not infer timelines ("two years ago"
+  was invented once and caught), do not import details from retired pages
+  (the "garden" axis was the old specimen; the live verdict's notes are about
+  the school's curriculum and what the move meant for the son), and do not
+  state hosting/stack details the linked pages don't state (Postgres
+  row-level security is published; "Germany" and "Node" are not on the pages
+  a reader lands on).
 - **AI assistance**: if asked whether AI helped write something, the answer is
   yes, per the site's own editorial-standards page. Own it in one sentence,
   move on.
